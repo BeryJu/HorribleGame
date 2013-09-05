@@ -1,0 +1,15 @@
+{
+	"name": "HG",
+	"author": "BeryJu jenslanghammer@gmail.com",
+	"description": "A Horrible Game",
+	"devDependencies": {
+		"grunt": "~0.4.1",
+		"grunt-contrib-jshint": "~0.6.3",
+		"grunt-contrib-concat": "~0.2.0"
+	},
+	"repository": {
+		"type" : "git",
+		"url" : "Repo"
+	},
+	"engine": "node >= 0.10.x"
+}
