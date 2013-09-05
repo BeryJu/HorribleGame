@@ -1,0 +1,1440 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"En",
+				"Entities"
+			],
+			[
+				"_",
+				"_Object"
+			],
+			[
+				"CreateE",
+				"CreateEntity  (function)"
+			],
+			[
+				"Sett",
+				"Settings"
+			],
+			[
+				"Leve",
+				"LevelURL"
+			],
+			[
+				"Create",
+				"CreateEntity"
+			],
+			[
+				"Level",
+				"LevelLoader"
+			],
+			[
+				"level",
+				"levelData"
+			],
+			[
+				"levl",
+				"levelData"
+			],
+			[
+				"color",
+				"colorKey"
+			],
+			[
+				"Ent",
+				"Entities"
+			],
+			[
+				"Th",
+				"THREE"
+			],
+			[
+				"Lev",
+				"LevelLoader"
+			],
+			[
+				"pos",
+				"position"
+			],
+			[
+				"games",
+				"gamesCount"
+			],
+			[
+				"gam",
+				"gamesCount"
+			],
+			[
+				"desc",
+				"description"
+			],
+			[
+				"Mod",
+				"Modules"
+			],
+			[
+				"readdir",
+				"fs.readdirSync(path);"
+			],
+			[
+				"right",
+				"rightWrapper"
+			],
+			[
+				"left",
+				"leftWrapper"
+			],
+			[
+				"aut",
+				"auto_complete	setting"
+			],
+			[
+				"jque",
+				"jquery"
+			],
+			[
+				"for",
+				"for	for (…) {…}"
+			],
+			[
+				"arch",
+				"archiveFile"
+			],
+			[
+				"In",
+				"InputManager"
+			],
+			[
+				"Render",
+				"RenderLoop"
+			],
+			[
+				"Font",
+				"FontFamily"
+			],
+			[
+				"Control",
+				"ControlManager"
+			],
+			[
+				"Inter",
+				"Interfaces"
+			],
+			[
+				"Fon",
+				"FontFamily"
+			],
+			[
+				"IC",
+				"IControlCallback"
+			],
+			[
+				"Color",
+				"ColorSchemes"
+			],
+			[
+				"Da",
+				"DataProvider"
+			],
+			[
+				"Core",
+				"CoreItem"
+			],
+			[
+				"Sub",
+				"SubliminalText"
+			],
+			[
+				"FIle",
+				"FileSubmenu"
+			],
+			[
+				"Menu",
+				"MenuItem"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"Men",
+				"MenuArray"
+			],
+			[
+				"DOM",
+				"DOMParser"
+			],
+			[
+				"acc",
+				"accuracy"
+			],
+			[
+				"per",
+				"perYear"
+			],
+			[
+				"since",
+				"sinceStamp"
+			],
+			[
+				"exp",
+				"explode"
+			],
+			[
+				"BASE",
+				"BASE_ID_URL"
+			],
+			[
+				"g_",
+				"g_BasePath"
+			],
+			[
+				"p_",
+				"p_WindowTitle"
+			],
+			[
+				"Tas",
+				"TaskCollection"
+			],
+			[
+				"de",
+				"devDependencies"
+			],
+			[
+				"getMil",
+				"getMilliseconds  (function)"
+			],
+			[
+				"Work",
+				"WorkerPool"
+			],
+			[
+				"Wor",
+				"WorkerPool"
+			],
+			[
+				"pro",
+				"process"
+			],
+			[
+				"Thread",
+				"ThreadPool"
+			],
+			[
+				"json_",
+				"json_encode"
+			],
+			[
+				"padd",
+				"padding-bottom"
+			],
+			[
+				"readd",
+				"fs.readdirSync(path);"
+			],
+			[
+				"get",
+				"getUserID"
+			],
+			[
+				"Ste",
+				"SteamPath"
+			],
+			[
+				"exists",
+				"path.existsSync(path);"
+			],
+			[
+				"Child",
+				"Children>  (element)"
+			],
+			[
+				"unlink",
+				"fs.unlinkSync(path);"
+			],
+			[
+				"getM",
+				"getMonth  (function)"
+			],
+			[
+				"back",
+				"background"
+			],
+			[
+				"text-",
+				"text-indent"
+			],
+			[
+				"text",
+				"text-indent"
+			],
+			[
+				"lin",
+				"line-height"
+			],
+			[
+				"list",
+				"list-n	list-style-type: none;"
+			],
+			[
+				"gr",
+				"groupID"
+			],
+			[
+				"group",
+				"groupID"
+			],
+			[
+				"tar",
+				"targetID"
+			],
+			[
+				"Sear",
+				"SearchProvider"
+			],
+			[
+				"resp",
+				"response2"
+			],
+			[
+				"re",
+				"fs.FileReadStream(path, options);"
+			],
+			[
+				"Port",
+				"PortMonitor"
+			],
+			[
+				"gro",
+				"groupID"
+			],
+			[
+				"app",
+				"appKey"
+			],
+			[
+				"getMi",
+				"getMinutes  (function)"
+			],
+			[
+				"notif",
+				"notification"
+			],
+			[
+				"last",
+				"lastState"
+			],
+			[
+				"gete",
+				"getElementById  (function)"
+			],
+			[
+				"most",
+				"mostUsedUser"
+			],
+			[
+				"mos",
+				"mostUsedUser"
+			],
+			[
+				"at",
+				"attempts"
+			],
+			[
+				"mo",
+				"mostUsedUser"
+			],
+			[
+				"Creden",
+				"CredentialStorage  (variable)"
+			],
+			[
+				"Bas",
+				"BaseURL"
+			],
+			[
+				"nof",
+				"notifier"
+			],
+			[
+				"Base",
+				"BaseAPI"
+			],
+			[
+				"api",
+				"apiPath"
+			],
+			[
+				"no",
+				"notification"
+			],
+			[
+				"On",
+				"OnRender"
+			],
+			[
+				"E",
+				"Entitiy"
+			],
+			[
+				"getNic",
+				"getNickname  (function)"
+			],
+			[
+				"va",
+				"value"
+			],
+			[
+				"var",
+				"var_dump"
+			],
+			[
+				"fore",
+				"foreach	foreach …"
+			],
+			[
+				"show",
+				"show_full_path	setting"
+			],
+			[
+				"mar",
+				"margin-bottom"
+			],
+			[
+				"DR",
+				"DropboxClient"
+			],
+			[
+				"readFile",
+				"fs.readFileSync(path, encoding);"
+			],
+			[
+				"user",
+				"userInfo"
+			],
+			[
+				"Drp",
+				"DropboxData"
+			],
+			[
+				"string",
+				"stringify"
+			],
+			[
+				"writeFile",
+				"fs.writeFileSync(path, data, encoding);"
+			],
+			[
+				"Dro",
+				"DropboxData"
+			],
+			[
+				"Aut",
+				"AuthDriver"
+			],
+			[
+				"Te",
+				"TestSuperClass"
+			],
+			[
+				"super",
+				"superClass"
+			],
+			[
+				"Super",
+				"SuperClass"
+			],
+			[
+				"Not",
+				"NotOverride"
+			],
+			[
+				"imp",
+				"implKey"
+			],
+			[
+				"bor",
+				"border"
+			],
+			[
+				"position",
+				"position:   (property)"
+			],
+			[
+				"bord",
+				"border-left"
+			],
+			[
+				"border",
+				"border-top"
+			],
+			[
+				"stat",
+				"statusLabel"
+			],
+			[
+				"marg",
+				"margin-left"
+			],
+			[
+				"wid",
+				"width"
+			],
+			[
+				"res",
+				"resolution"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "Packages/sublime-grunt-build/grunt.sublime-build",
+	"command_palette":
+	{
+		"height": 375.0,
+		"selected_items":
+		[
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"indn",
+				"Indentation: Convert to Tabs"
+			],
+			[
+				"json",
+				"Set Syntax: JSON"
+			],
+			[
+				"ssjs",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"reind",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"ssc#",
+				"Set Syntax: C#"
+			],
+			[
+				"reindn",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"perl",
+				"Set Syntax: Perl"
+			],
+			[
+				"qml",
+				"Set Syntax: QML"
+			],
+			[
+				"css",
+				"Sort via CSScomb"
+			],
+			[
+				"sshtm",
+				"Set Syntax: HTML"
+			],
+			[
+				"unins",
+				"Nodejs::NPM::Uninstall"
+			],
+			[
+				"inar",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"tasks",
+				"Tasks: New document"
+			],
+			[
+				"ini",
+				"Set Syntax: INI"
+			],
+			[
+				"live",
+				"LiveStyle: Apply Patch"
+			],
+			[
+				"sscss",
+				"Set Syntax: CSS"
+			],
+			[
+				"ind",
+				"Indentation: Convert to Tabs"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"inndn",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"innd",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"sort",
+				"Sort Tabs: Menu"
+			],
+			[
+				"sort tab",
+				"Sort Tabs: Menu"
+			],
+			[
+				"js",
+				"JSHint: Set Keyboard Shortcuts"
+			],
+			[
+				"jsh",
+				"JSHint"
+			],
+			[
+				"jso",
+				"Set Syntax: JSON"
+			],
+			[
+				"cssc",
+				"Sort via CSScomb"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"browser",
+				"File: Open In Browser - Testing Server"
+			],
+			[
+				"pyth",
+				"Set Syntax: Python"
+			],
+			[
+				"instak",
+				"Package Control: Install Package"
+			],
+			[
+				"rein",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"google",
+				"SmartGoogle: Search from input"
+			],
+			[
+				"",
+				"File: Close All"
+			]
+		],
+		"width": 562.0
+	},
+	"console":
+	{
+		"height": 734.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/L/dev/projects/HorribleGame/index.html",
+		"/L/dev/projects/HorribleGame/master",
+		"/L/dev/projects/HorribleGame/game/package.json",
+		"/L/dev/projects/HorribleGame/package.json",
+		"/L/dev/projects/HorribleGame/game/lib/Entity.js",
+		"/L/dev/projects/HorribleGame/game/build/Game.js",
+		"/L/dev/projects/HorribleGame/game/lib/Level.js",
+		"/L/dev/projects/HorribleGame/game/lib/Settings.js",
+		"/L/dev/projects/HorribleGame/assets/levels/level.json",
+		"/D/Programs/Node Webkit/debug.log",
+		"/L/dev/projects/HorribleGame/game/build/app.js",
+		"/L/dev/projects/HorribleGame/test.js",
+		"/L/dev/projects/HorribleGame/game/lib/Utils.js",
+		"/L/dev/projects/HorribleGame/three.js",
+		"/C/Users/jensl_000/AppData/Roaming/Sublime Text 2/Packages/sublime-grunt-build/grunt.sublime-build",
+		"/L/dev/projects/HorribleGame/game/lib/EntityManager.js",
+		"/L/dev/projects/HorribleGame/game/gruntfile.js",
+		"/L/dev/projects/HorribleGame/camera.js",
+		"/L/dev/projects/HorribleGame/libs/game/lib/Utils.js",
+		"/L/dev/projects/HorribleGame/assets/levels/helper.js",
+		"/L/dev/projects/HorribleGame/libs/game/lib/Entity.js",
+		"/L/dev/projects/HorribleGame/libs/game/lib/Level.js",
+		"/L/dev/projects/HorribleGame/libs/game/bin/Game.js",
+		"/L/dev/projects/HorribleGame/libs/game/lib/EntityManager.js",
+		"/L/dev/projects/HorribleGame/libs/game/bin/lib.js",
+		"/L/dev/projects/HorribleGame/libs/game/gruntfile.js",
+		"/L/dev/projects/HorribleGame/hg.html",
+		"/L/dev/projects/HorribleGame/libs/game/lib/LevelLoader.js",
+		"/L/dev/projects/HorribleGame/libs/game/bin/hg.js",
+		"/L/dev/projects/HorribleGame/libs/game/lib/Game.js",
+		"/L/dev/projects/HorribleGame/libs/game/lib/hg.js",
+		"/L/dev/projects/HorribleGame/libs/hg/hg.js",
+		"/L/dev/projects/HorribleGame/libs/game/package.json",
+		"/L/dev/projects/HorribleGame/libs/hg/Utils.js",
+		"/L/dev/projects/HorribleGame/libs/hg/Entity.js",
+		"/L/dev/projects/HorribleGame/libs/hg/LevelLoader.js",
+		"/L/dev/projects/HorribleGame/libs/hg/EntityManager.js",
+		"/C/Users/jensl_000/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/C/Users/jensl_000/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences (Windows).sublime-settings",
+		"/C/Users/jensl_000/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/L/dev/projects/HorribleGame/libs/three.js",
+		"/C/Users/JENSL_~1/AppData/Local/Temp/Rar$DRa0.864/mrdoob-three.js-8673cc8/build/three.js",
+		"/L/dev/projects/HorribleGame/assets/levels/helper2.js",
+		"/L/dev/projects/HorribleGame/assets/levels/levelBack.json",
+		"/L/dev/projects/HorribleGame/libs/camera.js",
+		"/D/Downloads/LightTableWin/LightTable/package.json",
+		"/L/stuff/HorribleGame/libs/hg/hg.js",
+		"/L/dev/projects/HorribleGame/libs/dat.gui.js",
+		"/D/Games/Steam/SteamApps/common/dota 2 beta/dota/cfg/autoexec.cfg",
+		"/L/stuff/HorribleGame/hg.html",
+		"/L/dev/projects/HorribleGame/libs/hg.js",
+		"/L/dev/projects/HorribleGame/libs/stats.js",
+		"/L/dev/projects/HorribleGame/assets/levels/level.csv",
+		"/L/dev/projects/HorribleGame/plugins/twitter.enchant.js",
+		"/L/dev/projects/node-create/modules/Gruntfile.js",
+		"/L/playTime/index.php",
+		"/L/playTime/Bootstrap/css/readable.css",
+		"/D/dev/Blog.js/blog.js",
+		"/L/dev/projects/node-create/BaseModule.js",
+		"/L/dev/projects/node-create/modules/BaseModule.js",
+		"/L/dev/projects/node-create/ModuleLoader.js",
+		"/L/dev/projects/node-create/package.json",
+		"/C/Users/jensl_000/Documents/EA Games/Mirror's Edge/TdGame/Config/TdEngine.ini",
+		"/C/Users/jensl_000/Documents/EA Games/Mirror's Edge/TdGame/Config/TdInput.ini",
+		"/C/Users/jensl_000/Desktop/Dota 2 Keymap.js",
+		"/L/dev/test.html.nd",
+		"/D/Downloads/Cronax.vcf",
+		"/L/dev/test.nd",
+		"/L/dev/projects/node-create/modules/NPMPackage.js",
+		"/L/dev/projects/node-create/node-create.js",
+		"/L/.htaccess",
+		"/L/cgi-bin/.htaccess",
+		"/L/dev/.htaccess",
+		"/L/dev/test.node",
+		"/L/dev/projects/eray/server/eray.js",
+		"/L/dev/projects/eray/js/eray.js",
+		"/L/dev/projects/Six.js/Gruntfile.js",
+		"/L/dev/projects/Six.js/package.json",
+		"/L/stuff/kill webkit.html",
+		"/C/Users/jensl_000/Desktop/dota 2 sports",
+		"/L/assets/css/style.css",
+		"/L/index.html",
+		"/L/assets/css/style-desktop.css",
+		"/L/er/index.html",
+		"/D/Programs/sessions/beryju@lina",
+		"/D/dev/SteamWebAPI.cs",
+		"/C/Program Files/WindowsApps/DJiT.edjing-DJmixerconsolestudio-PlayMixRecordShar_1.0.0.8_x64__3nf5xjt6s13jt/MainPage.xaml",
+		"/L/dashboard/index.html",
+		"/C/Program Files/WindowsApps/DJiT.edjing-DJmixerconsolestudio-PlayMixRecordShar_1.0.0.8_x64__3nf5xjt6s13jt/resources.pri",
+		"/C/Program Files/WindowsApps/DJiT.edjing-DJmixerconsolestudio-PlayMixRecordShar_1.0.0.8_x64__3nf5xjt6s13jt/Data/in-app-purchase.xml",
+		"/L/dev/alsi.perl.pl",
+		"/D/Downloads/items 05.11.2012.txt",
+		"/D/Games/Steam/SteamApps/common/dota 2 beta/dota/cfg/config.cfg",
+		"/C/Users/jensl_000/AppData/Roaming/Sublime Text 2/Packages/User/Default (Windows).sublime-keymap",
+		"/D/Games/Steam/SteamApps/common/dota 2 beta/dota/steam.inf",
+		"/D/Games/Steam/SteamApps/common/dota 2 beta/dota/cfg/video.txt",
+		"/D/dev/Qt/herpderp/qml/herpderp/main.qml",
+		"/D/dev/Qt/herpderp/herpderp.qml",
+		"/D/dev/Qt/herpdepr/qml/herpdepr/main.qml",
+		"/L/LICENSE",
+		"/L/dicentra/css/style-desktop.css",
+		"/L/dicentra/css/style.css",
+		"/L/dicentra/index.html",
+		"/L/dicentra/php/submit.php",
+		"/L/dev/derp",
+		"/L/dev/projects/Steam Chat/index.html",
+		"/D/Downloads/imgurbash.sh",
+		"/L/dev/projects/Steam Chat/index.htm",
+		"/L/dev/projects/Steam Chat/css/globalv2.css",
+		"/L/dev/projects/Steam Chat/css/vgui_scrollbars.css",
+		"/L/dev/projects/Steam Chat/js/chat.js",
+		"/L/dev/projects/Steam Chat/css/chat.css",
+		"/L/dev/projects/Steam Chat/tooltip.js",
+		"/L/dev/projects/Steam Chat/chat.js",
+		"/L/dev/projects/Steam Chat/global.js",
+		"/L/dev/projects/Steam Chat/shared_global.js",
+		"/L/dev/projects/Steam Chat/test1.js",
+		"/L/dev/projects/Steam Chat/test.html",
+		"/L/dev/projects/Steam Chat/dump/index.htm",
+		"/D/Downloads/openid",
+		"/L/dev/projects/Steam Chat/jquery.js",
+		"/L/dev/projects/Steam Chat/dump/js/ga.js",
+		"/L/dev/projects/Steam Chat/dump/saved_resource",
+		"/L/dev/projects/Gene/gene.html",
+		"/L/dev/projects/Gene/libs/stats.js",
+		"/L/dev/projects/Gene/libs/camera.js",
+		"/L/dev/projects/Gene/libs/dat.gui.js",
+		"/L/dev/projects/Gene/libs/geme.js"
+	],
+	"find":
+	{
+		"height": 51.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"_Object",
+			" =",
+			"object3d",
+			"// ",
+			"Entities",
+			"Position",
+			"TrackballControls",
+			"scene",
+			"camera",
+			"renderer",
+			"Scene",
+			": ",
+			",",
+			": ",
+			"Position",
+			"self._Object",
+			"Obj",
+			"cube",
+			"camera",
+			": ",
+			"Settings.ShadowMapSize",
+			"_Object",
+			"callback",
+			"e",
+			"_Object",
+			"EManager",
+			"_Object",
+			"req",
+			"Req",
+			"req",
+			"add",
+			"each",
+			"Entities",
+			"Entitites",
+			"Global",
+			"Scene",
+			"hg",
+			"Global.",
+			"// ",
+			"Level.Step",
+			"bin",
+			"libs/",
+			"// ",
+			" ",
+			"l",
+			"LevelLoader",
+			"0",
+			"Level",
+			"Global.Light.",
+			" =",
+			"Global.Camera",
+			"Entitiy",
+			"DefaultEnetitiyParams",
+			"params.",
+			"obj",
+			"self.Entity",
+			"self",
+			"Mesh",
+			"Entity",
+			"LevelLoader",
+			"Entity",
+			"IEntity",
+			"self",
+			";",
+			"function(",
+			"Resize",
+			"bar",
+			"}",
+			"params",
+			"Entity",
+			"params",
+			"levelData",
+			"i",
+			"x",
+			"i",
+			"Entities.Light",
+			"Model",
+			"LevelEntites",
+			"Step",
+			"z",
+			"32",
+			"xPos",
+			"levelData",
+			"domElement",
+			"2",
+			"dev",
+			"lina",
+			"1024",
+			"Entity",
+			"self",
+			"spotLight",
+			"position",
+			" = new THREE.Vector3",
+			"Light",
+			"Entities.",
+			"Entity",
+			"spotLight",
+			"}\n",
+			"Entities",
+			"Global.Entities",
+			"Entites",
+			"req",
+			"Entities",
+			"\"",
+			"step",
+			"levelData",
+			"block",
+			"step",
+			"50",
+			"i",
+			"50",
+			"1",
+			"color",
+			"]].",
+			"levelData",
+			"blue",
+			"(block * 64)+128",
+			"b",
+			"64",
+			"min",
+			"max",
+			"x",
+			"i",
+			"readable",
+			"derpstrap",
+			"Key",
+			" =",
+			"this."
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		},
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 44.0
+	},
+	"input":
+	{
+		"height": 44.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.731823599523,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": false,
+	"output.exec":
+	{
+		"height": 396.0
+	},
+	"output.git":
+	{
+		"height": 162.0
+	},
+	"replace":
+	{
+		"height": 80.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"app",
+				"game/build/app.js"
+			],
+			[
+				"level",
+				"assets/levels/level.json"
+			],
+			[
+				"ut",
+				"game/lib/Utils.js"
+			],
+			[
+				"three",
+				"three.js"
+			],
+			[
+				"test",
+				"test.js"
+			],
+			[
+				"inde",
+				"index.html"
+			],
+			[
+				"en",
+				"game/lib/Entity.js"
+			],
+			[
+				"leve",
+				"game/lib/Level.js"
+			],
+			[
+				"lib",
+				"libs/game/bin/lib.js"
+			],
+			[
+				"gru",
+				"libs/game/gruntfile.js"
+			],
+			[
+				"hel",
+				"assets/levels/helper.js"
+			],
+			[
+				"game",
+				"libs/game/bin/Game.js"
+			],
+			[
+				"he",
+				"assets/levels/helper.js"
+			],
+			[
+				"hg.ht",
+				"hg.html"
+			],
+			[
+				"hg",
+				"libs/hg/hg.js"
+			],
+			[
+				"lelve",
+				"assets/levels/level.json"
+			],
+			[
+				"l",
+				"libs/hg/LevelLoader.js"
+			],
+			[
+				"camera",
+				"libs/camera.js"
+			],
+			[
+				"",
+				"assets/levels/level.json"
+			],
+			[
+				"lev",
+				"assets/levels/level.csv"
+			],
+			[
+				"hep",
+				"assets/levels/helper.js"
+			],
+			[
+				"bas",
+				"BaseModule.js"
+			],
+			[
+				"mod",
+				"ModuleLoader.js"
+			],
+			[
+				"pac",
+				"package.json"
+			],
+			[
+				".js",
+				"js/chat.js"
+			],
+			[
+				"ch",
+				"css/chat.css"
+			],
+			[
+				"index",
+				"index.htm"
+			],
+			[
+				"jq",
+				"jquery.js"
+			],
+			[
+				"ga",
+				"dump/js/ga.js"
+			],
+			[
+				"a",
+				"archive.js"
+			],
+			[
+				"sy",
+				"style.css"
+			],
+			[
+				"pack",
+				"package.json"
+			],
+			[
+				"ica",
+				"Interfaces/IControlCallback.js"
+			],
+			[
+				"app.",
+				"app.html"
+			],
+			[
+				"pa",
+				"package.json"
+			],
+			[
+				"tu",
+				"Utils/Utils.js"
+			],
+			[
+				"co",
+				"UI/ControlManager.js"
+			],
+			[
+				"boot",
+				"Bootstrapper.js"
+			],
+			[
+				"contr",
+				"UI/ControlManager.js"
+			],
+			[
+				"but",
+				"UI/Controls/Button.js"
+			],
+			[
+				"inter",
+				"UI/InputManager.js"
+			],
+			[
+				"cont",
+				"UI/ControlManager.js"
+			],
+			[
+				"pref",
+				"Core/Preferences.js"
+			],
+			[
+				"appe",
+				"UI/AppMenu.js"
+			],
+			[
+				"ap.ht",
+				"app.html"
+			],
+			[
+				"iu",
+				"Interfaces/IUI.js"
+			],
+			[
+				"sub",
+				"SubliminalText.js"
+			],
+			[
+				"ic",
+				"Interfaces/IControl.js"
+			],
+			[
+				"can",
+				"UI/Canvas.js"
+			],
+			[
+				"tab",
+				"UI/TabContainer.js"
+			],
+			[
+				"win",
+				"UI/Window.js"
+			],
+			[
+				"canva",
+				"UI/Canvas.js"
+			],
+			[
+				"wind",
+				"Events/WindowHandler.js"
+			],
+			[
+				"pre",
+				"Core/Preferences.js"
+			],
+			[
+				"boo",
+				"Bootstrapper.js"
+			],
+			[
+				"appm",
+				"UI/AppMenu.js"
+			],
+			[
+				"file",
+				"Core/File.js"
+			],
+			[
+				"html",
+				"test/app.html"
+			],
+			[
+				"thread",
+				"lib/Manager/ThreadManager.js"
+			],
+			[
+				"thre",
+				"bin/thread.js"
+			],
+			[
+				"th",
+				"test/Threading.js"
+			],
+			[
+				"def",
+				"js/default.js"
+			],
+			[
+				"era",
+				"js/eray.js"
+			],
+			[
+				"de",
+				"default.html"
+			],
+			[
+				"steamid",
+				"lib/steam/community/SteamId.php"
+			],
+			[
+				"steamid/",
+				"lib/steam/community/defense_grid/DefenseGridStats.php"
+			],
+			[
+				"was",
+				"wasted.js"
+			],
+			[
+				"port",
+				"Port Monitor Chrome/PortMonitor.js"
+			],
+			[
+				"thr",
+				"test/Threading.js"
+			],
+			[
+				"man",
+				"lib/Manager/ThreadManager.js"
+			],
+			[
+				"base",
+				"lib/BaseTask.js"
+			],
+			[
+				"wunder",
+				"wunderlist.js"
+			],
+			[
+				"var",
+				"variables.less"
+			],
+			[
+				"in",
+				"index.html"
+			],
+			[
+				"ex",
+				"Extension.js"
+			],
+			[
+				"ma",
+				"manifest.json"
+			],
+			[
+				"nm",
+				"Port Monitor Chrome/manifest.json"
+			],
+			[
+				"pop",
+				"Port Monitor Chrome/popup/popup.js"
+			],
+			[
+				"opo",
+				"Port Monitor Chrome/popup/popup.js"
+			],
+			[
+				"page",
+				"Port Monitor Chrome/popup/page.js"
+			],
+			[
+				"op",
+				"Port Monitor Chrome/port.js"
+			],
+			[
+				"main",
+				"Port Monitor Chrome/main.js"
+			],
+			[
+				"por",
+				"Port Monitor Chrome/port.js"
+			],
+			[
+				"read",
+				"readme.md"
+			],
+			[
+				"u",
+				"Port Monitor Chrome/popup/index.html"
+			],
+			[
+				"api",
+				"apis/Twitch.js"
+			],
+			[
+				"geme.j",
+				"libs/geme.js"
+			],
+			[
+				"geme",
+				"geme.html"
+			],
+			[
+				"acti",
+				"server/actions/AuthenticationAction.js"
+			],
+			[
+				"ge",
+				"geme.html"
+			],
+			[
+				"stat",
+				"libs/stats.js"
+			],
+			[
+				".css",
+				"eray/css/layout.css"
+			],
+			[
+				"er",
+				"eray/js/eray.js"
+			],
+			[
+				"back",
+				"backup/backup.sh"
+			],
+			[
+				"aut",
+				"eray/server/actions/AuthenticationAction.js"
+			],
+			[
+				"sc",
+				"backup/schedule.js"
+			],
+			[
+				"bac",
+				"backup/backup.sh"
+			],
+			[
+				"sett",
+				"SublimeSync/settings.json"
+			],
+			[
+				"user",
+				"SublimeSync/userdata.json"
+			],
+			[
+				"dropb",
+				"/C/Users/BeryJu/Desktop/SublimeSync/node_modules/dropbox/lib/dropbox.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 242.0,
+	"status_bar_visible": true
+}
