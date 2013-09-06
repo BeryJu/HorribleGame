@@ -113,21 +113,24 @@ var Level = {
 		var width = 96;
 		var height = 8;
 		var levelData = [];
-		Level.PatternReplace(Pattern[1].pattern, 0).each(function(c) {
+		Level.PatternReplace(Pattern[5].pattern, 0).each(function(c) {
 			levelData.push(c);
 		});
-		for (var x = 4; x <= width; x += 4) {
-			var rnd = Math.floor(Math.random() * Pattern.length);
+		for (var x = 4; x <= width - 4; x += 4) {
+			var rnd = Math.floor(Math.random() * (Pattern.length - 2));
 			var nextPat = Pattern[rnd].pattern;
 			var finPat = Level.PatternReplace(nextPat, x);
 			finPat.each(function(col) {
 				levelData.push(col);
 			});
 		}
+		Level.PatternReplace(Pattern[4].pattern, x).each(function(c) {
+			levelData.push(c);
+		});
 		return {
-			Level: levelData,
-			Start: [96, 4],
-			Light: [96, 4]
+			Level: levelData.reverse(),
+			Start: [97, 2],
+			Light: [97, 2]
 		};
 	},
 	PatternReplace: function(pat, x) {
@@ -187,6 +190,22 @@ var Level = {
 				[1, 1, 1, 0, 0, 0, 1, 1],
 				[1, 1, 1, 0, 0, 0, 1, 1],
 				[1, 1, 1, 1, 0, 0, 0, 1]
+			]
+		},
+		{
+			pattern: [
+				[1, 1, 0, 0, 0, 0, 1, 1],
+				[1, 1, 0, 0, 0, 0, 1, 1],
+				[1, 1, 1, 1, 1, 1, 1, 1],
+				[1, 1, 1, 1, 1, 1, 1, 1]
+			]
+		},
+		{
+			pattern: [
+				[1, 1, 1, 1, 1, 1, 1, 1],
+				[1, 1, 1, 1, 1, 1, 1, 1],
+				[1, 1, 0, 0, 0, 0, 1, 1],
+				[1, 1, 0, 0, 0, 0, 1, 1]
 			]
 		}
 	],
@@ -292,15 +311,34 @@ var m = new THREE.MeshBasicMaterial({
 });
 var player = Entity.CreateEntity({
 	Position: res.Start,
-	_Object: [new THREE.Mesh(g, m), new THREE.PointLight(0xFFFFFF, 3, 500)]
+	_Object: [new THREE.Mesh(g, m), new THREE.PointLight(0x00ff00, 1, 500)]
 });
 player._Object.each(function(o) {
 	Scene.add(o);
 });
 Camera.position.x = res.Start.x;
-
-
+var color = [15, 30, 60];
+var index = 0;
 var render = function() {
+	if (color[index] < 255) {
+		color[index] += 1;
+	} else if (color[index] >= 255 || color[0] >= 255) {
+		if (index < color.length) {
+			index++;
+		}
+	}
+
+	var c = new THREE.Color();
+	c.r = color[0] / 255;
+	c.g = color[1] / 255;
+	c.b = color[2] / 255;
+	player._Object.each(function(o) {
+		if (o.material) {
+			o.material.color = c;
+		} else {
+			o.color = c;
+		}
+	});
 	requestAnimationFrame(render);
 	Renderer.render(Scene, Camera);
 };
@@ -308,14 +346,24 @@ var render = function() {
 window.onkeypress = function(a) {
 	if (a.keyCode === Settings.Keys.A) {
 		player._Object.each(function(o) {
-			o.position.x -= 7.5;
+			o.position.x -= 5;
 		});
-		Camera.position.x -= 15;
+		Camera.position.x -= 10;
 	} else if (a.keyCode === Settings.Keys.D) {
 		player._Object.each(function(o) {
-			o.position.x += 7.5;
+			o.position.x += 5;
 		});
-		Camera.position.x += 15;
+		Camera.position.x += 10;
+	} else if (a.keyCode === Settings.Keys.W) {
+		player._Object.each(function(o) {
+			o.position.y += 5;
+		});
+		Camera.position.y += 10;
+	} else if (a.keyCode === Settings.Keys.S) {
+		player._Object.each(function(o) {
+			o.position.y -= 5;
+		});
+		Camera.position.y -= 10;
 	}
 };
 
