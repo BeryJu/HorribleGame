@@ -319,7 +319,8 @@ player._Object.each(function(o) {
 Camera.position.x = res.Start.x;
 var color = [15, 30, 60];
 var index = 0;
-var render = function() {
+
+var colorize = function() {
 	if (color[index] < 255) {
 		color[index] += 1;
 	} else if (color[index] >= 255 || color[0] >= 255) {
@@ -327,7 +328,6 @@ var render = function() {
 			index++;
 		}
 	}
-
 	var c = new THREE.Color();
 	c.r = color[0] / 255;
 	c.g = color[1] / 255;
@@ -339,6 +339,38 @@ var render = function() {
 			o.color = c;
 		}
 	});
+}
+var maxY = 100;
+
+//jumpstate:
+//0: idle
+//1: jumping (upwards)
+//2: jumping (falling)
+//3: reset
+
+var render = function() {
+	colorize();
+	if (player.jumpState >= 1) {
+		if (player.jumpState === 3) {
+			player.oldY = player._Object[0].position.y;
+			player.jumpState = 0;
+		}
+		if (player._Object[0].position.y < (maxY + player.oldY)
+				&& player.jumpState === 1) {
+			player._Object[0].position.y += 1;
+		}
+		if (player._Object[0].position.y === (maxY + player.oldY)
+				&& player.jumpState >= 1) {
+			player.jumpState = 2;
+		}
+		if (player._Object[0].position.y <= player.oldY
+				&& player.jumpState >= 2) {
+			player._Object[0].position.y = player.oldY;
+			player.jumpState = 3;
+		} else if (player.jumpState >= 2) {
+			player._Object[0].position.y -= 1;
+		}
+	}
 	requestAnimationFrame(render);
 	Renderer.render(Scene, Camera);
 };
@@ -364,6 +396,9 @@ window.onkeypress = function(a) {
 			o.position.y -= 5;
 		});
 		Camera.position.y -= 10;
+	} else if (a.keyCode === Settings.Keys.Space) {
+		player.oldY = player._Object[0].position.y;
+		player.jumpState = 1;
 	}
 };
 
