@@ -8,7 +8,7 @@ document.body.appendChild(Renderer.domElement);
 var Camera = new THREE.PerspectiveCamera(Settings.FOV,
 	window.innerWidth / window.innerHeight, 0.1, Settings.ViewDistance);
 Camera.position = new THREE.Vector3(0, 0, -20);
-Camera.rotation = new THREE.Vector3(263.5, 263.5, 0);
+// Camera.rotation = new THREE.Vector3(263.5, 263.5, 0);
 
 
 var Light = new THREE.PointLight(0xFFFFFF, 1, 100);
@@ -20,24 +20,23 @@ Light.shadowMapHeight = Settings.ShadowMapSize;
 
 var scene = new THREE.Scene();
 
-Level.LoadAsync(Settings.LevelURL, function(res) {
-	res.Entities.each(function(e) {
-		e._Object.each(function(o) {
-			scene.add(o);
-		});
+var res = Level.Load(Level.Create(Level.LevelPattern));
+res.Entities.each(function(e) {
+	e._Object.each(function(o) {
+		scene.add(o);
 	});
-	var g = new THREE.CubeGeometry(50, 50, 50);
-	var m = new THREE.MeshBasicMaterial({color: 0x00ff00});
-	var cube = Entity.CreateEntity({
-		Position: res.Start,
-		_Object: [new THREE.Mesh(g, m)],
-		Extra: {
-			castShadow: true,
-			receiveShadow: false
-		}
-	});
-	scene.add(cube._Object[0]);
 });
+var g = new THREE.CubeGeometry(50, 50, 50);
+var m = new THREE.MeshBasicMaterial({color: 0x00ff00});
+var cube = Entity.CreateEntity({
+	Position: res.Start,
+	_Object: [new THREE.Mesh(g, m)],
+	Extra: {
+		castShadow: true,
+		receiveShadow: false
+	}
+});
+scene.add(cube._Object[0]);
 
 
 

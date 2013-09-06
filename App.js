@@ -83,7 +83,9 @@ var Level = {
 			col.each(function(e) {
 				if (e !== 0) {
 					var g = new THREE.CubeGeometry(Level.Step, Level.Step, Level.Step);
-					var m = new THREE.MeshBasicMaterial({color: 0x232323});
+					var m = new THREE.MeshBasicMaterial({
+						color: parseInt(Utils.RGBToHex(e.Color), 16)
+					});
 					Entities.push(Entity.CreateEntity({
 						Position: new THREE.Vector3(e.Position[0], e.Position[1], 0),
 						_Object: [new THREE.Mesh(g, m)],
@@ -102,32 +104,84 @@ var Level = {
 			Entities: Entities
 		};
 	},
-	Create: function() {
+	Create: function(Pattern) {
 		var width = 96;
 		var height = 8;
 		var levelData = [];
-		for (var y = 0; y < width; y++) {
-			var col = [];
-			for (var x = 0; x < height; x++) {
-				var type = Math.floor(Math.random() * 2);
+		for (var x = 0; x <= width; x += 4) {
+			var rnd = Math.floor(Math.random() * Pattern.length);
+			var nextPat = Pattern[rnd].pattern;
+			var finPat = Level.PatternReplace(nextPat, x);
+			console.log(x);
+			finPat.each(function(col) {
+				levelData.push(col);
+			});
+		}
+		return {
+			Level: levelData,
+			Start: [0, 2]
+		};
+	},
+	PatternReplace: function(pat, x) {
+		var fin = [];
+		x = Math.abs(x);
+		var y = 0;
+		pat.each(function(col) {
+			var finCol = [];
+			y = 0;
+			col.each(function(b) {
 				var block;
-				if (type === 0) {
+				if (b !== 0) {
 					block = {
-						Position:[y * Level.Step,x * Level.Step],
-						Color: [0,255,0]
+						Position:[x * Level.Step,y * Level.Step],
+						Color: [3, 255, 3]
 					};
 				} else {
 					block = 0;
 				}
-				col.push(block);
-			}
-			levelData.push(col);
-		}
-		return {
-			Level: levelData,
-			Start: [height - 1, width - 1]
-		};
+				finCol.push(block);
+				y++;
+			});
+			fin.push(finCol);
+			x++;
+		});
+		console.log(x);
+		return fin;
 	},
+	LevelPattern: [
+		{
+			pattern: [
+				[1, 1, 0, 0, 0, 0, 1, 1],
+				[0, 0, 0, 0, 0, 0, 1, 1],
+				[0, 0, 0, 0, 0, 0, 1, 1],
+				[1, 1, 0, 0, 0, 0, 1, 1]
+			]
+		},
+		{
+			pattern: [
+				[1, 1, 0, 0, 0, 0, 1, 1],
+				[1, 1, 0, 0, 0, 0, 1, 1],
+				[1, 1, 1, 0, 0, 0, 1, 1],
+				[1, 1, 1, 1, 0, 0, 0, 1]
+			]
+		},
+		{
+			pattern: [
+				[1, 1, 1, 1, 0, 0, 0, 1],
+				[1, 1, 1, 0, 0, 0, 1, 1],
+				[1, 1, 0, 0, 0, 0, 1, 1],
+				[1, 1, 0, 0, 0, 0, 1, 1]
+			]
+		},
+		{
+			pattern: [
+				[1, 1, 1, 1, 0, 0, 0, 1],
+				[1, 1, 1, 0, 0, 0, 1, 1],
+				[1, 1, 1, 0, 0, 0, 1, 1],
+				[1, 1, 1, 1, 0, 0, 0, 1]
+			]
+		}
+	],
 	LoadAsync: function(url, res) {
 		var Request = new XMLHttpRequest();
 		Request.onreadystatechange = function(Request) {
@@ -194,7 +248,7 @@ document.body.appendChild(Renderer.domElement);
 var Camera = new THREE.PerspectiveCamera(Settings.FOV,
 	window.innerWidth / window.innerHeight, 0.1, Settings.ViewDistance);
 Camera.position = new THREE.Vector3(0, 0, -20);
-Camera.rotation = new THREE.Vector3(263.5, 263.5, 0);
+// Camera.rotation = new THREE.Vector3(263.5, 263.5, 0);
 
 
 var Light = new THREE.PointLight(0xFFFFFF, 1, 100);
@@ -206,24 +260,23 @@ Light.shadowMapHeight = Settings.ShadowMapSize;
 
 var scene = new THREE.Scene();
 
-Level.LoadAsync(Settings.LevelURL, function(res) {
-	res.Entities.each(function(e) {
-		e._Object.each(function(o) {
-			scene.add(o);
-		});
+var res = Level.Load(Level.Create(Level.LevelPattern));
+res.Entities.each(function(e) {
+	e._Object.each(function(o) {
+		scene.add(o);
 	});
-	var g = new THREE.CubeGeometry(50, 50, 50);
-	var m = new THREE.MeshBasicMaterial({color: 0x00ff00});
-	var cube = Entity.CreateEntity({
-		Position: res.Start,
-		_Object: [new THREE.Mesh(g, m)],
-		Extra: {
-			castShadow: true,
-			receiveShadow: false
-		}
-	});
-	scene.add(cube._Object[0]);
 });
+var g = new THREE.CubeGeometry(50, 50, 50);
+var m = new THREE.MeshBasicMaterial({color: 0x00ff00});
+var cube = Entity.CreateEntity({
+	Position: res.Start,
+	_Object: [new THREE.Mesh(g, m)],
+	Extra: {
+		castShadow: true,
+		receiveShadow: false
+	}
+});
+scene.add(cube._Object[0]);
 
 
 

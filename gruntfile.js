@@ -19,7 +19,7 @@ module.exports = function(grunt) {
 			},
 			game: {
 				src: ['build/lib.js', 'build/Game.js'],
-				dest: 'build/app.js',
+				dest: 'App.js',
 			}
 		}
 	});
