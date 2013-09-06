@@ -83,16 +83,19 @@ var Level = {
 			col.each(function(e) {
 				if (e !== 0) {
 					var g = new THREE.CubeGeometry(Level.Step, Level.Step, Level.Step);
-					var m = new THREE.MeshBasicMaterial({
-						color: parseInt(Utils.RGBToHex(e.Color), 16)
+					// var m = new THREE.MeshBasicMaterial({
+					// 	color: parseInt(Utils.RGBToHex(e.Color), 16)
+					// });
+					var m = new THREE.MeshPhongMaterial({
+						ambient: 0x555555,
+						color: 0x555555,
+						specular: 0xffffff,
+						shininess: 50,
+						shading: THREE.SmoothShading
 					});
 					Entities.push(Entity.CreateEntity({
 						Position: new THREE.Vector3(e.Position[0], e.Position[1], 0),
-						_Object: [new THREE.Mesh(g, m)],
-						Extra: {
-							castShadow: true,
-							receiveShadow: false
-						}
+						_Object: [new THREE.Mesh(g, m)]
 					}));
 				}
 			});
@@ -101,6 +104,8 @@ var Level = {
 			RawData: raw,
 			Start: new THREE.Vector3(raw.Start[0] * Level.Step,
 				raw.Start[1] * Level.Step, 0),
+			Light: new THREE.Vector3(raw.Light[0] * Level.Step,
+				raw.Light[1] * Level.Step, 0),
 			Entities: Entities
 		};
 	},
@@ -108,18 +113,21 @@ var Level = {
 		var width = 96;
 		var height = 8;
 		var levelData = [];
-		for (var x = 0; x <= width; x += 4) {
+		Level.PatternReplace(Pattern[1].pattern, 0).each(function(c) {
+			levelData.push(c);
+		});
+		for (var x = 4; x <= width; x += 4) {
 			var rnd = Math.floor(Math.random() * Pattern.length);
 			var nextPat = Pattern[rnd].pattern;
 			var finPat = Level.PatternReplace(nextPat, x);
-			console.log(x);
 			finPat.each(function(col) {
 				levelData.push(col);
 			});
 		}
 		return {
 			Level: levelData,
-			Start: [0, 2]
+			Start: [96, 4],
+			Light: [96, 4]
 		};
 	},
 	PatternReplace: function(pat, x) {
@@ -134,7 +142,8 @@ var Level = {
 				if (b !== 0) {
 					block = {
 						Position:[x * Level.Step,y * Level.Step],
-						Color: [3, 255, 3]
+						// Color: [y * 31]
+						Color: [0, 0, 255]
 					};
 				} else {
 					block = 0;
@@ -145,7 +154,6 @@ var Level = {
 			fin.push(finCol);
 			x++;
 		});
-		console.log(x);
 		return fin;
 	},
 	LevelPattern: [
@@ -238,78 +246,78 @@ var Utils = {
 		return Hex;
 	}
 };
+var Scene = new THREE.Scene();
 var Renderer = new THREE.WebGLRenderer({antialias: Settings.Antialiasing});
-Renderer.shadowMapEnabled = true;
-Renderer.shadowMapSoft = true;
 Renderer.setSize(window.innerWidth, window.innerHeight);
 Renderer.setClearColor(0x000000, 1);
 document.body.appendChild(Renderer.domElement);
 
 var Camera = new THREE.PerspectiveCamera(Settings.FOV,
 	window.innerWidth / window.innerHeight, 0.1, Settings.ViewDistance);
-Camera.position = new THREE.Vector3(0, 0, -20);
-// Camera.rotation = new THREE.Vector3(263.5, 263.5, 0);
+Camera.position = new THREE.Vector3(0, 200, 180);
+Camera.rotation.x = 50;
+Camera.rotation.y = 50;
 
 
-var Light = new THREE.PointLight(0xFFFFFF, 1, 100);
-Light.position = new THREE.Vector3(0, 0, 0);
-Light.castShadow = true;
-Light.shadowDarkness = 0.5;
-Light.shadowMapWidth = Settings.ShadowMapSize;
-Light.shadowMapHeight = Settings.ShadowMapSize;
+// var controls = new THREE.TrackballControls(Camera);
+// controls.rotateSpeed = 1.0;
+// controls.zoomSpeed = 1.2;
+// controls.panSpeed = 0.8;
+// controls.noZoom = false;
+// controls.noPan = false;
+// controls.staticMoving = true;
+// controls.dynamicDampingFactor = 0.3;
+// controls.keys = [ 65, 83, 68 ];
+// controls.addEventListener( 'change', render );
+// function animate() {
+// 	requestAnimationFrame(animate);
+// 	controls.update();
+// }
+// function render() {
+// 	Renderer.render(Scene, Camera);
+// }
+// animate();
 
-var scene = new THREE.Scene();
 
 var res = Level.Load(Level.Create(Level.LevelPattern));
 res.Entities.each(function(e) {
 	e._Object.each(function(o) {
-		scene.add(o);
+		Scene.add(o);
 	});
 });
 var g = new THREE.CubeGeometry(50, 50, 50);
-var m = new THREE.MeshBasicMaterial({color: 0x00ff00});
-var cube = Entity.CreateEntity({
-	Position: res.Start,
-	_Object: [new THREE.Mesh(g, m)],
-	Extra: {
-		castShadow: true,
-		receiveShadow: false
-	}
+var m = new THREE.MeshBasicMaterial({
+	color: 0x00ff00,
+	shading: THREE.SmoothShading
 });
-scene.add(cube._Object[0]);
+var player = Entity.CreateEntity({
+	Position: res.Start,
+	_Object: [new THREE.Mesh(g, m), new THREE.PointLight(0xFFFFFF, 3, 500)]
+});
+player._Object.each(function(o) {
+	Scene.add(o);
+});
+Camera.position.x = res.Start.x;
 
 
+var render = function() {
+	requestAnimationFrame(render);
+	Renderer.render(Scene, Camera);
+};
 
-var controls = new THREE.TrackballControls( Camera );
-
-controls.rotateSpeed = 2;
-controls.zoomSpeed = 1.2;
-controls.panSpeed = 0.8;
-
-controls.noZoom = false;
-controls.noPan = false;
-
-controls.staticMoving = true;
-controls.dynamicDampingFactor = 0.3;
-
-controls.keys = [ 65, 83, 68 ];
-
-controls.addEventListener( 'change', render );
-
-function animate() {
-	requestAnimationFrame(animate);
-	controls.update();
-}
-
-function render() {
-	Renderer.render(scene, Camera);
-}
-
-//window.onkeypress = function(a) {
-//	Entities.each(function(e) {
-//		e.OnKeyDown(a, e);
-//	});
-//};
+window.onkeypress = function(a) {
+	if (a.keyCode === Settings.Keys.A) {
+		player._Object.each(function(o) {
+			o.position.x -= 7.5;
+		});
+		Camera.position.x -= 15;
+	} else if (a.keyCode === Settings.Keys.D) {
+		player._Object.each(function(o) {
+			o.position.x += 7.5;
+		});
+		Camera.position.x += 15;
+	}
+};
 
 window.onresize = function () {
 	//Entities.each(function(e) {
@@ -319,4 +327,5 @@ window.onresize = function () {
 	Camera.updateProjectionMatrix();
 	Renderer.setSize(window.innerWidth, window.innerHeight);
 };
-animate();
+
+render();

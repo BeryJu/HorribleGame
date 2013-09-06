@@ -15,6 +15,10 @@
 	"user-agent": "Node-Webkit %nwver OS %osinfo",
 	"window": {
 		"toolbar": false,
-		"position": "center"
+		"position": "center",
+		"width": 1280,
+		"height": 720,
+		"min_width": 1280,
+		"min_height": 720
 	}
 }

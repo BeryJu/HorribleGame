@@ -83,16 +83,19 @@ var Level = {
 			col.each(function(e) {
 				if (e !== 0) {
 					var g = new THREE.CubeGeometry(Level.Step, Level.Step, Level.Step);
-					var m = new THREE.MeshBasicMaterial({
-						color: parseInt(Utils.RGBToHex(e.Color), 16)
+					// var m = new THREE.MeshBasicMaterial({
+					// 	color: parseInt(Utils.RGBToHex(e.Color), 16)
+					// });
+					var m = new THREE.MeshPhongMaterial({
+						ambient: 0x555555,
+						color: 0x555555,
+						specular: 0xffffff,
+						shininess: 50,
+						shading: THREE.SmoothShading
 					});
 					Entities.push(Entity.CreateEntity({
 						Position: new THREE.Vector3(e.Position[0], e.Position[1], 0),
-						_Object: [new THREE.Mesh(g, m)],
-						Extra: {
-							castShadow: true,
-							receiveShadow: false
-						}
+						_Object: [new THREE.Mesh(g, m)]
 					}));
 				}
 			});
@@ -101,6 +104,8 @@ var Level = {
 			RawData: raw,
 			Start: new THREE.Vector3(raw.Start[0] * Level.Step,
 				raw.Start[1] * Level.Step, 0),
+			Light: new THREE.Vector3(raw.Light[0] * Level.Step,
+				raw.Light[1] * Level.Step, 0),
 			Entities: Entities
 		};
 	},
@@ -108,18 +113,21 @@ var Level = {
 		var width = 96;
 		var height = 8;
 		var levelData = [];
-		for (var x = 0; x <= width; x += 4) {
+		Level.PatternReplace(Pattern[1].pattern, 0).each(function(c) {
+			levelData.push(c);
+		});
+		for (var x = 4; x <= width; x += 4) {
 			var rnd = Math.floor(Math.random() * Pattern.length);
 			var nextPat = Pattern[rnd].pattern;
 			var finPat = Level.PatternReplace(nextPat, x);
-			console.log(x);
 			finPat.each(function(col) {
 				levelData.push(col);
 			});
 		}
 		return {
 			Level: levelData,
-			Start: [0, 2]
+			Start: [96, 4],
+			Light: [96, 4]
 		};
 	},
 	PatternReplace: function(pat, x) {
@@ -134,7 +142,8 @@ var Level = {
 				if (b !== 0) {
 					block = {
 						Position:[x * Level.Step,y * Level.Step],
-						Color: [3, 255, 3]
+						// Color: [y * 31]
+						Color: [0, 0, 255]
 					};
 				} else {
 					block = 0;
@@ -145,7 +154,6 @@ var Level = {
 			fin.push(finCol);
 			x++;
 		});
-		console.log(x);
 		return fin;
 	},
 	LevelPattern: [
