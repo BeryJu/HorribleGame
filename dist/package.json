@@ -1,0 +1,13 @@
+{
+	"name": "HorribleGame",
+	"main": "index.html",
+	"user-agent": "Node-Webkit %nwver OS %osinfo",
+	"window": {
+		"toolbar": true,
+		"position": "center",
+		"width": 1280,
+		"height": 720,
+		"min_width": 1280,
+		"min_height": 720
+	}
+}

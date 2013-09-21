@@ -1,0 +1,38 @@
+<!Doctype HTML>
+<html>
+	<head>
+		<title>Horrible Game</title>
+		<link rel="stylesheet" type="text/css" href="menu.css">
+		<script src="lib.js"></script>
+	</head>
+	<body>
+		<div id="menuWrapper">
+			<header class="header">
+				<h1>Horrible Game</h1>
+				<h4 class="tagline" id="tagline"></h4>
+			</header>
+			<div id="menu">
+				<button id="play">Play</button>
+				<button id="options">Options</button>
+				<button id="exit">Exit</button>
+			</div>
+			<div id="optionsC">
+				<button class="passive"><span>FOV: </span><input type="number" id="fov" min="60" max="180" value="110"></button>
+				<button id="back">Back</button>
+			</div>
+		</div>
+		<div class="game">
+			<div id="info">
+				<p id="three">
+					Three.js Revision <script>document.write(THREE.REVISION);</script>
+				</p>
+				<p id="fps"></p>
+				<p id="frametime"></p>
+				<p id="resolution"></p>
+			</div>
+			<div id="gameWrapper"></div>
+		</div>
+		<script src="menu.js"></script>
+		<script src="game.js"></script>
+	</body>
+</html>

@@ -1,0 +1,76 @@
+* {
+	margin: 0px;
+	font-family: sans-serif;
+}
+
+body {
+	overflow: hidden;
+}
+
+header.header h1 {
+	background-color: rgba(0, 0, 0, 0);
+	text-align: center;
+	margin-top: 50px;
+	font-size: 3em;
+}
+
+header.header h4.tagline {
+	text-align: center;
+	margin-left: 16em;
+	margin-bottom: 35px;
+	font-size: 1.3em;
+	-webkit-transform: rotate(350deg);
+	-moz-transform: rotate(350deg);
+	-o-transform: rotate(350deg);
+	-ms-transform: rotate(350deg);
+	transform: rotate(350deg);
+}
+
+button {
+	width: 40%;
+	height: 65px;
+	margin-top: 35px;
+	margin-left: 30%;
+	margin-right: 30%;
+	background-color: #333;
+	border: 0px;
+	color: #fff;
+	font-size: 2em;
+}
+
+button:hover {
+	background-color: #444;
+}
+
+button.passive input {
+	width: 60%;
+	margin-top: -20px;
+	height: 2em;
+}
+
+button.passive span {
+	margin-top: 20px;
+	margin-left: 0%;
+	margin-right: 0%;
+	text-align: left;
+}
+
+button.passive:hover{
+	background-color: #333;
+}
+
+div#optionsC {
+	display: none;
+}
+
+div#info {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 1111;
+	color: white;
+}
+.menu {
+	font-family: sans-serif;
+	font-size: 22px;
+}

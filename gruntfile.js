@@ -1,29 +1,28 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		jshint: {
-			lib: {
-				options: {
-					'-W103': true
-				},
-				src: ['lib/*.js']
-			},
+		ts: {
 			game: {
-				src: ['build/Game.js']
+				src: ['src/framework/lib/*.d.ts', 'src/framework/*.ts', 'src/framework/**/*.hg.ts', 'src/Game.ts'],
+				out: 'dist/game.js',
+				options: {
+					target: 'es5',
+					comments: true,
+					sourcemap: false
+				}
 			}
 		},
-		concat: {
-			lib: {
-				src: ['lib/*.js'],
-				dest: 'build/lib.js',
-			},
-			game: {
-				src: ['build/lib.js', 'build/Game.js'],
-				dest: 'App.js',
+		uglify: {
+			app: {
+				files: {
+					'dist/lib.js': ['src/framework/lib/*.js']
+				}
 			}
 		}
 	});
-	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.registerTask('default', ['jshint', 'concat']);
+	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks("grunt-ts");
+	grunt.registerTask('default', ['ts', 'uglify']);
 };

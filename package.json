@@ -1,24 +1,16 @@
 {
 	"name": "HorribleGame",
-	"main": "index.html",
 	"author": "BeryJu jenslanghammer@gmail.com",
 	"description": "A Horrible Game",
 	"devDependencies": {
-		"grunt": "~0.4.1",
-		"grunt-contrib-jshint": "~0.6.3",
-		"grunt-contrib-concat": "~0.2.0"
+		"grunt": "latest",
+		"grunt-contrib-concat": "latest",
+		"grunt-contrib-clean": "~0.5.0",
+		"grunt-contrib-uglify": "~0.2.4",
+		"grunt-ts": "latest"
 	},
 	"repository": {
-		"type" : "git",
-		"url" : "Repo"
-	},
-	"user-agent": "Node-Webkit %nwver OS %osinfo",
-	"window": {
-		"toolbar": false,
-		"position": "center",
-		"width": 1280,
-		"height": 720,
-		"min_width": 1280,
-		"min_height": 720
+		"type": "git",
+		"url": "Repo"
 	}
 }
