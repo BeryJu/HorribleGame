@@ -2,39 +2,43 @@ module HG {
 
 	export class EventDispatcher {
 
-		private events: {} = {};
+		private Events: {} = {};
 
-		On(name: any, callback: (...args) => any): void {
-			if (Array.isArray(name) === true) {
-				for (var i = 0; i < name.length; ++i) {
-					this.On(name[i], callback);
+		On(Name: any, callback: (...args) => any): void {
+			if (Array.isArray(Name) === true) {
+				for (var i = 0; i < Name.length; ++i) {
+					this.On(Name[i], callback);
 				}
 			} else {
-				name = name.toLowerCase();
-				console.log('Added EventHandler for \''+name+'\'');
-				if (!this.events[name]) this.events[name] = [];
-				this.events[name].push(callback);
+				if (typeof Name !== "number") {
+					Name = Name.toString().toLowerCase();
+				}
+				console.log('Added EventHandler for \''+Name+'\'');
+				if (!this.Events[Name]) this.Events[Name] = [];
+				this.Events[Name].push(callback);
 			}
 		}
 
-		Clear(name: string): void {
-			name = name.toLowerCase();
-			if (!this.events[name]) return;
-			if (this.events[name].length === 0) return;
-			this.events[name] = [];
+		Clear(Name: string): void {
+			Name = Name.toLowerCase();
+			if (!this.Events[Name]) return;
+			if (this.Events[Name].length === 0) return;
+			this.Events[Name] = [];
 		}
 
-		Dispatch(name: any, ...args): void {
-			if (Array.isArray(name) === true) {
-				for (var i = 0; i < name.length; ++i) {
-					this.Dispatch(name[i], args);
+		Dispatch(Name: any, ...args): void {
+			if (Array.isArray(Name) === true) {
+				for (var i = 0; i < Name.length; ++i) {
+					this.Dispatch(Name[i], args);
 				}
 			} else {
-				name = name.toLowerCase();
-				if (!this.events[name]) return;
-				if (this.events[name].length === 0) return;
-				args.push(name);
-				this.events[name].forEach(function(event) {
+				if (typeof Name !== "number") {
+					Name = Name.toString().toLowerCase();
+				}
+				if (!this.Events[Name]) return;
+				if (this.Events[Name].length === 0) return;
+				args.push(Name);
+				this.Events[Name].forEach(function(event) {
 					event(args);
 				});
 			}

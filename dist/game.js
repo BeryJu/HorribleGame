@@ -2,48 +2,52 @@ var HG;
 (function (HG) {
     var EventDispatcher = (function () {
         function EventDispatcher() {
-            this.events = {};
+            this.Events = {};
         }
-        EventDispatcher.prototype.On = function (name, callback) {
-            if (Array.isArray(name) === true) {
-                for (var i = 0; i < name.length; ++i) {
-                    this.On(name[i], callback);
+        EventDispatcher.prototype.On = function (Name, callback) {
+            if (Array.isArray(Name) === true) {
+                for (var i = 0; i < Name.length; ++i) {
+                    this.On(Name[i], callback);
                 }
             } else {
-                name = name.toLowerCase();
-                console.log('Added EventHandler for \'' + name + '\'');
-                if (!this.events[name])
-                    this.events[name] = [];
-                this.events[name].push(callback);
+                if (typeof Name !== "number") {
+                    Name = Name.toString().toLowerCase();
+                }
+                console.log('Added EventHandler for \'' + Name + '\'');
+                if (!this.Events[Name])
+                    this.Events[Name] = [];
+                this.Events[Name].push(callback);
             }
         };
 
-        EventDispatcher.prototype.Clear = function (name) {
-            name = name.toLowerCase();
-            if (!this.events[name])
+        EventDispatcher.prototype.Clear = function (Name) {
+            Name = Name.toLowerCase();
+            if (!this.Events[Name])
                 return;
-            if (this.events[name].length === 0)
+            if (this.Events[Name].length === 0)
                 return;
-            this.events[name] = [];
+            this.Events[Name] = [];
         };
 
-        EventDispatcher.prototype.Dispatch = function (name) {
+        EventDispatcher.prototype.Dispatch = function (Name) {
             var args = [];
             for (var _i = 0; _i < (arguments.length - 1); _i++) {
                 args[_i] = arguments[_i + 1];
             }
-            if (Array.isArray(name) === true) {
-                for (var i = 0; i < name.length; ++i) {
-                    this.Dispatch(name[i], args);
+            if (Array.isArray(Name) === true) {
+                for (var i = 0; i < Name.length; ++i) {
+                    this.Dispatch(Name[i], args);
                 }
             } else {
-                name = name.toLowerCase();
-                if (!this.events[name])
+                if (typeof Name !== "number") {
+                    Name = Name.toString().toLowerCase();
+                }
+                if (!this.Events[Name])
                     return;
-                if (this.events[name].length === 0)
+                if (this.Events[Name].length === 0)
                     return;
-                args.push(name);
-                this.events[name].forEach(function (event) {
+                args.push(Name);
+                this.Events[Name].forEach(function (event) {
                     event(args);
                 });
             }
@@ -63,26 +67,28 @@ var HG;
 (function (HG) {
     var BaseGame = (function (_super) {
         __extends(BaseGame, _super);
-        function BaseGame(container, clearColor) {
-            if (typeof container === "undefined") { container = document.body; }
+        function BaseGame(Container, clearColor) {
+            if (typeof Container === "undefined") { Container = document.body; }
             if (typeof clearColor === "undefined") { clearColor = new THREE.Color(0x000000); }
             _super.call(this);
+            this._ = {};
             this.IsRunning = false;
+            this.Scene = new HG.Scene();
+            this.Controls = new HG.InputHandler();
+            this.FPSCounter = new HG.FPSCounter();
             if (HG.Utils.hasGL() === false) {
                 var up = new Error("Your Browser doesn't support WebGL");
                 throw up;
             }
-            this.Scene = new HG.Scene();
-            this.FPSCounter = new HG.FPSCounter();
             this.Renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.Antialiasing });
             this.Camera = new THREE.PerspectiveCamera(HG.Settings.FOV, window.innerWidth / window.innerHeight, 0.1, HG.Settings.ViewDistance);
             this.Renderer.setSize(window.innerWidth, window.innerHeight);
             this.Renderer.setClearColor(clearColor, 1);
             try  {
-                container.appendChild(this.Renderer.domElement);
+                Container.appendChild(this.Renderer.domElement);
             } catch (e) {
                 throw new Error("Container is not a valid HTMLElement");
-                console.log(container);
+                console.log(Container);
             }
         }
         BaseGame.prototype.PreLoad = function () {
@@ -96,15 +102,13 @@ var HG;
             this.IsRunning = true;
         };
 
-        BaseGame.prototype.OnKeyPress = function (a) {
-            this.Dispatch('KeyPress', a);
-        };
-
         BaseGame.prototype.OnKeyUp = function (a) {
+            this.Controls.OnKeyUp(a);
             this.Dispatch('KeyUp', a);
         };
 
         BaseGame.prototype.OnKeyDown = function (a) {
+            this.Controls.OnKeyDown(a);
             this.Dispatch('KeyDown', a);
         };
 
@@ -117,6 +121,7 @@ var HG;
 
         BaseGame.prototype.Render = function () {
             this.Dispatch('Render');
+            this.Controls.Frame(this.FPSCounter.getFrameTime());
             this.FPSCounter.Frame();
             this.Renderer.render(this.Scene.Scene, this.Camera);
         };
@@ -202,12 +207,12 @@ var HG;
 
         Entity.prototype.CollectChildren = function () {
             var result = [];
+            result.push(this);
             if (this.Children.length > 0) {
                 this.Children.forEach(function (c) {
                     result.push(c);
                 });
             }
-            result.push(this);
             return result;
         };
 
@@ -225,7 +230,6 @@ var HG;
         function FPSCounter() {
             this.LastFrameTime = 0;
             this.LastSecond = 0;
-            this.CurrentFrameTime = 0;
             this.CurrentFrames = 0;
             this.FrameTime = 0;
             this.FPS = 0;
@@ -244,14 +248,13 @@ var HG;
             var Diff = new Date(Now.getTime() - this.LastFrameTime);
 
             //FrameTime
-            this.CurrentFrameTime = Diff.getTime();
+            this.FrameTime = Diff.getTime();
             this.LastFrameTime = Now.getTime();
 
             //FPS
             var FPSDiff = new Date(Now.getTime() - this.LastSecond);
             if (FPSDiff.getSeconds() > 0) {
                 this.FPS = this.CurrentFrames;
-                this.FrameTime = this.CurrentFrameTime;
                 this.CurrentFrames = 0;
                 this.LastSecond = Now.getTime();
             }
@@ -260,6 +263,44 @@ var HG;
         return FPSCounter;
     })();
     HG.FPSCounter = FPSCounter;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    var GameComponent = (function () {
+        function GameComponent() {
+        }
+        return GameComponent;
+    })();
+    HG.GameComponent = GameComponent;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    var InputHandler = (function (_super) {
+        __extends(InputHandler, _super);
+        function InputHandler() {
+            _super.call(this);
+            this.KeyState = [];
+            this.Bind = this.On;
+        }
+        InputHandler.prototype.OnKeyDown = function (e) {
+            this.KeyState[e.keyCode] = 1;
+        };
+
+        InputHandler.prototype.OnKeyUp = function (e) {
+            this.KeyState[e.keyCode] = 0;
+        };
+
+        InputHandler.prototype.Frame = function (delta) {
+            for (var i = 0; i < this.KeyState.length; i++) {
+                if (this.KeyState[i] === 1) {
+                    this.Dispatch(i, delta);
+                }
+            }
+            ;
+        };
+        return InputHandler;
+    })(HG.EventDispatcher);
+    HG.InputHandler = InputHandler;
 })(HG || (HG = {}));
 /// <reference path="lib/three.d.ts"/>
 var HG;
@@ -296,11 +337,15 @@ var HG;
             this.Scene = null;
             this.Scene = new THREE.Scene();
         }
-        Scene.prototype.add = function (Entity) {
+        Scene.prototype.Add = function (Entity) {
             var c = Entity.CollectChildren();
             for (var i = 0; i < c.length; ++i) {
                 this.Scene.add(c[i].Object);
             }
+        };
+
+        Scene.prototype.Get = function (index) {
+            return this.Scene.children[index];
         };
         return Scene;
     })();
@@ -321,11 +366,12 @@ var HG;
         Antialiasing: true,
         LevelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
         Keys: {
-            D: 100,
-            A: 97,
+            D: 68,
+            A: 65,
             S: 115,
             W: 119,
-            Space: 32
+            Space: 32,
+            Esc: 27
         },
         Pattern: [
             [
@@ -423,32 +469,24 @@ var HG;
 var Game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
 
 Game.On('PreLoad', function () {
-    var geometry = new THREE.CubeGeometry(50, 50, 50);
-    var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    var cube = new THREE.Mesh(geometry, material);
+    var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
     var Player = new HG.Entity({
         Position: new THREE.Vector3(0, 0, 0),
         Object: cube
     });
     var PlayerLight = new HG.Entity({
         Position: new THREE.Vector3(0, 0, 0),
-        Object: new THREE.PointLight(0xffffff, 1, 100)
+        Object: new THREE.PointLight(0x00ff00, 3, 250)
     });
     Player.Connect(PlayerLight);
-    Game.Scene.add(Player);
+    Game.Scene.Add(Player);
 
-    var g = new THREE.CubeGeometry(50, 50, 50);
-    var m = new THREE.MeshPhongMaterial({ color: 0xababab });
-    var cube = new THREE.Mesh(g, m);
+    var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshPhongMaterial({ color: 0xababab }));
     var d = new HG.Entity({
-        Position: new THREE.Vector3(50, -50, 0),
+        Position: new THREE.Vector3(0, -50, 0),
         Object: cube
     });
-    Game.Scene.add(d);
-    Game.Scene.add(new HG.Entity({
-        Position: new THREE.Vector3(50, 50, 0),
-        Object: cube
-    }));
+    Game.Scene.Add(d);
     Game.Camera.position.z = 250;
     Game.Camera.rotation.x = 75;
     Game.Camera.rotation.y = 75;
@@ -464,9 +502,6 @@ Game.On('start', function () {
     window.onkeyup = function (a) {
         Game.OnKeyUp(a);
     };
-    window.onkeypress = function (a) {
-        Game.OnKeyPress(a);
-    };
     var r = function () {
         Game.Render();
         requestAnimationFrame(r);
@@ -474,18 +509,21 @@ Game.On('start', function () {
     r();
 });
 
-Game.On('keydown', function (e) {
-    if (e[0].keyCode === 27) {
-        //esc key
-        document.getElementById("menuWrapper").style.display = 'block';
-        document.getElementById("gameWrapper").style.display = 'none';
-    } else if (e[0].keyCode === 83) {
-        Game.Camera.position.z -= 5;
-    } else if (e[0].keyCode === 87) {
-        Game.Camera.position.z += 5;
-    } else {
-        console.log(e[0].keyCode);
-    }
+Game.Controls.Bind(HG.Settings.Keys.Esc, function (delta) {
+    document.getElementById("menuWrapper").style.display = 'block';
+    document.getElementById("gameWrapper").style.display = 'none';
+});
+
+Game.Controls.Bind(HG.Settings.Keys.A, function (delta) {
+    Game.Scene.Get(0).position.x -= 0.3125 * delta[0];
+    Game.Scene.Get(1).position.x -= 0.3125 * delta[0];
+    Game.Camera.position.x -= 0.3125 * delta[0];
+});
+
+Game.Controls.Bind(HG.Settings.Keys.D, function (delta) {
+    Game.Scene.Get(0).position.x += 0.3125 * delta[0];
+    Game.Scene.Get(1).position.x += 0.3125 * delta[0];
+    Game.Camera.position.x += 0.3125 * delta[0];
 });
 
 Game.On(['start', 'resize'], function () {
@@ -496,6 +534,7 @@ Game.On("render", function () {
     document.getElementById("fps").innerText = "FPS: " + Game.FPSCounter.getFPS();
     document.getElementById("frametime").innerText = "Frametime: " + Game.FPSCounter.getFrameTime() + "ms";
 });
+
 document.onreadystatechange = function () {
     if (document.readyState === "complete") {
         Game.PreLoad();

@@ -64,12 +64,12 @@ module HG {
 
 		CollectChildren() {
 			var result = [];
+			result.push(this);
 			if (this.Children.length > 0) {
 				this.Children.forEach(function(c) {
 					result.push(c)
 				});
 			}
-			result.push(this);
 			return result;
 		}
 

@@ -1,32 +1,26 @@
 var Game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
 
 Game.On('PreLoad', function() {
-	var geometry = new THREE.CubeGeometry(50, 50, 50);
-	var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-	var cube = new THREE.Mesh(geometry, material);
+	var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
+			new THREE.MeshBasicMaterial({color: 0x00ff00}));
 	var Player = new HG.Entity({
 		Position: new THREE.Vector3(0, 0, 0),
 		Object: cube
 	});
 	var PlayerLight = new HG.Entity({
 		Position: new THREE.Vector3(0, 0, 0),
-		Object: new THREE.PointLight(0xffffff, 1, 100)
+		Object: new THREE.PointLight(0x00ff00, 3, 250)
 	});
 	Player.Connect(PlayerLight);
-	Game.Scene.add(Player);
+	Game.Scene.Add(Player);
 
-	var g = new THREE.CubeGeometry(50, 50, 50);
-	var m = new THREE.MeshPhongMaterial({color: 0xababab});
-	var cube = new THREE.Mesh(g, m);
+	var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
+			new THREE.MeshPhongMaterial({color: 0xababab}));
 	var d = new HG.Entity({
-		Position: new THREE.Vector3(50, -50, 0),
+		Position: new THREE.Vector3(0, -50, 0),
 		Object: cube
 	});
-	Game.Scene.add(d);
-	Game.Scene.add(new HG.Entity({
-		Position: new THREE.Vector3(50, 50, 0),
-		Object: cube
-	}));
+	Game.Scene.Add(d);
 	Game.Camera.position.z = 250;
 	Game.Camera.rotation.x = 75;
 	Game.Camera.rotation.y = 75;
@@ -36,7 +30,6 @@ Game.On('start', function() {
 	window.onresize = function() {Game.OnResize()};
 	window.onkeydown = function(a: any) {Game.OnKeyDown(a)};
 	window.onkeyup = function(a: any) {Game.OnKeyUp(a)};
-	window.onkeypress = function(a: any) {Game.OnKeyPress(a)};
 	var r = function() {
 		Game.Render();
 		requestAnimationFrame(r);
@@ -44,19 +37,21 @@ Game.On('start', function() {
 	r();
 });
 
+Game.Controls.Bind(HG.Settings.Keys.Esc, function(delta: number) {
+	document.getElementById("menuWrapper").style.display = 'block';
+	document.getElementById("gameWrapper").style.display = 'none';
+});
 
-Game.On('keydown', function(e) {
-	if (e[0].keyCode === 27) {
-		//esc key
-		document.getElementById("menuWrapper").style.display = 'block';
-		document.getElementById("gameWrapper").style.display = 'none';
-	} else if (e[0].keyCode === 83) {
-		Game.Camera.position.z -= 5;
-	} else if (e[0].keyCode === 87) {
-		Game.Camera.position.z += 5;
-	} else {
-		console.log(e[0].keyCode);
-	}
+Game.Controls.Bind(HG.Settings.Keys.A, function(delta: number) {
+	Game.Scene.Get(0).position.x -= 0.3125 * delta[0];
+	Game.Scene.Get(1).position.x -= 0.3125 * delta[0];
+	Game.Camera.position.x -= 0.3125 * delta[0];
+});
+
+Game.Controls.Bind(HG.Settings.Keys.D, function(delta: number) {
+	Game.Scene.Get(0).position.x += 0.3125 * delta[0];
+	Game.Scene.Get(1).position.x += 0.3125 * delta[0];
+	Game.Camera.position.x += 0.3125 * delta[0];
 });
 
 Game.On(['start', 'resize'], function() {
@@ -67,6 +62,9 @@ Game.On("render", function() {
 	document.getElementById("fps").innerText = "FPS: "+Game.FPSCounter.getFPS();
 	document.getElementById("frametime").innerText = "Frametime: "+Game.FPSCounter.getFrameTime()+"ms";
 });
+
+
+
 document.onreadystatechange = function() {
 	if (document.readyState === "complete") {
 		Game.PreLoad()

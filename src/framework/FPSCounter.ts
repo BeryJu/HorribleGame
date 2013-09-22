@@ -2,7 +2,6 @@ module HG {
 	export class FPSCounter {
 		private LastFrameTime: number = 0;
 		private LastSecond: number = 0;
-		private CurrentFrameTime: number = 0;
 		private CurrentFrames: number = 0;
 
 		private FrameTime: number = 0;
@@ -24,13 +23,12 @@ module HG {
 			var Now = new Date();
 			var Diff = new Date(Now.getTime() - this.LastFrameTime);
 			//FrameTime
-			this.CurrentFrameTime = Diff.getTime();
+			this.FrameTime = Diff.getTime();
 			this.LastFrameTime = Now.getTime();
 			//FPS
 			var FPSDiff = new Date(Now.getTime() - this.LastSecond);
 			if (FPSDiff.getSeconds() > 0) {
 				this.FPS = this.CurrentFrames;
-				this.FrameTime = this.CurrentFrameTime;
 				this.CurrentFrames = 0;
 				this.LastSecond = Now.getTime();
 			}

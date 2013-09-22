@@ -12,11 +12,12 @@ module HG {
 		Antialiasing: true,
 		LevelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
 		Keys: {
-			D: 100,
-			A: 97,
+			D: 68,
+			A: 65,
 			S: 115,
 			W: 119,
-			Space: 32
+			Space: 32,
+			Esc: 27
 		},
 		Pattern: [
 			[

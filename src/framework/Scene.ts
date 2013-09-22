@@ -7,11 +7,15 @@ module HG {
 			this.Scene = new THREE.Scene();
 		}
 
-		add(Entity: HG.Entity):void {
+		Add(Entity: HG.Entity): void {
 			var c = Entity.CollectChildren();
 			for (var i = 0; i < c.length; ++i) {
 				this.Scene.add(c[i].Object);
 			}
+		}
+
+		Get(index: number): THREE.Object3D {
+			return this.Scene.children[index];
 		}
 
 	}
