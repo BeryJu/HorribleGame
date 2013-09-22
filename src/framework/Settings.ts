@@ -1,17 +1,17 @@
 module HG {
 	export var Settings = {
-		FOV: 110,
-		TileSize: 50,
-		ViewDistance: 4800,
-		Debug: {
+		fov: 110,
+		tileSize: 50,
+		viewDistance: 4800,
+		debug: {
 			Enabled: true,
 			PositionX: 2000
 		},
-		ShadowMapSize: 2048,
-		ColorKey: "3c",
-		Antialiasing: true,
-		LevelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
-		Keys: {
+		shadowMapSize: 2048,
+		colorKey: "3c",
+		antialiasing: true,
+		levelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
+		keys: {
 			D: 68,
 			A: 65,
 			S: 115,
@@ -19,7 +19,7 @@ module HG {
 			Space: 32,
 			Esc: 27
 		},
-		Pattern: [
+		pattern: [
 			[
 				[1, 1, 0, 0, 0, 0, 1, 1],
 				[0, 0, 0, 0, 0, 0, 1, 1],

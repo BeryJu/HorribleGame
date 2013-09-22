@@ -2,43 +2,43 @@ module HG {
 
 	export class EventDispatcher {
 
-		private Events: {} = {};
+		private events: {} = {};
 
-		On(Name: any, callback: (...args) => any): void {
-			if (Array.isArray(Name) === true) {
-				for (var i = 0; i < Name.length; ++i) {
-					this.On(Name[i], callback);
+		on(name: any, callback: (...args) => any): void {
+			if (Array.isArray(name) === true) {
+				for (var i = 0; i < name.length; ++i) {
+					this.on(name[i], callback);
 				}
 			} else {
-				if (typeof Name !== "number") {
-					Name = Name.toString().toLowerCase();
+				if (typeof name !== "number") {
+					name = name.toString().toLowerCase();
 				}
-				console.log('Added EventHandler for \''+Name+'\'');
-				if (!this.Events[Name]) this.Events[Name] = [];
-				this.Events[Name].push(callback);
+				console.log('Added EventHandler for \''+name+'\'');
+				if (!this.events[name]) this.events[name] = [];
+				this.events[name].push(callback);
 			}
 		}
 
-		Clear(Name: string): void {
-			Name = Name.toLowerCase();
-			if (!this.Events[Name]) return;
-			if (this.Events[Name].length === 0) return;
-			this.Events[Name] = [];
+		clear(name: string): void {
+			name = name.toLowerCase();
+			if (!this.events[name]) return;
+			if (this.events[name].length === 0) return;
+			this.events[name] = [];
 		}
 
-		Dispatch(Name: any, ...args): void {
-			if (Array.isArray(Name) === true) {
-				for (var i = 0; i < Name.length; ++i) {
-					this.Dispatch(Name[i], args);
+		dispatch(name: any, ...args): void {
+			if (Array.isArray(name) === true) {
+				for (var i = 0; i < name.length; ++i) {
+					this.dispatch(name[i], args);
 				}
 			} else {
-				if (typeof Name !== "number") {
-					Name = Name.toString().toLowerCase();
+				if (typeof name !== "number") {
+					name = name.toString().toLowerCase();
 				}
-				if (!this.Events[Name]) return;
-				if (this.Events[Name].length === 0) return;
-				args.push(Name);
-				this.Events[Name].forEach(function(event) {
+				if (!this.events[name]) return;
+				if (this.events[name].length === 0) return;
+				args.push(name);
+				this.events[name].forEach(function(event) {
 					event(args);
 				});
 			}

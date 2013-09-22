@@ -2,26 +2,26 @@ module HG {
 
 	export class InputHandler extends EventDispatcher {
 
-		private KeyState: number[] = [];
+		private keyState: number[] = [];
 
 		constructor() {
 			super();
 		}
 
-		Bind: (code: number, ...args) => void = this.On;
+		bind: (code: number, ...args) => void = this.on;
 
-		OnKeyDown(e: KeyboardEvent): void {
-			this.KeyState[e.keyCode] = 1;
+		onKeyDown(e: KeyboardEvent): void {
+			this.keyState[e.keyCode] = 1;
 		}
 
-		OnKeyUp(e: KeyboardEvent): void {
-			this.KeyState[e.keyCode] = 0;
+		onKeyUp(e: KeyboardEvent): void {
+			this.keyState[e.keyCode] = 0;
 		}
 
-		Frame(delta: number): void {
-			for (var i = 0; i < this.KeyState.length; i++) {
-				if (this.KeyState[i] === 1) {
-					this.Dispatch(i, delta);
+		frame(delta: number): void {
+			for (var i = 0; i < this.keyState.length; i++) {
+				if (this.keyState[i] === 1) {
+					this.dispatch(i, delta);
 				}
 			};
 		}

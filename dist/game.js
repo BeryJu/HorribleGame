@@ -2,52 +2,52 @@ var HG;
 (function (HG) {
     var EventDispatcher = (function () {
         function EventDispatcher() {
-            this.Events = {};
+            this.events = {};
         }
-        EventDispatcher.prototype.On = function (Name, callback) {
-            if (Array.isArray(Name) === true) {
-                for (var i = 0; i < Name.length; ++i) {
-                    this.On(Name[i], callback);
+        EventDispatcher.prototype.on = function (name, callback) {
+            if (Array.isArray(name) === true) {
+                for (var i = 0; i < name.length; ++i) {
+                    this.on(name[i], callback);
                 }
             } else {
-                if (typeof Name !== "number") {
-                    Name = Name.toString().toLowerCase();
+                if (typeof name !== "number") {
+                    name = name.toString().toLowerCase();
                 }
-                console.log('Added EventHandler for \'' + Name + '\'');
-                if (!this.Events[Name])
-                    this.Events[Name] = [];
-                this.Events[Name].push(callback);
+                console.log('Added EventHandler for \'' + name + '\'');
+                if (!this.events[name])
+                    this.events[name] = [];
+                this.events[name].push(callback);
             }
         };
 
-        EventDispatcher.prototype.Clear = function (Name) {
-            Name = Name.toLowerCase();
-            if (!this.Events[Name])
+        EventDispatcher.prototype.clear = function (name) {
+            name = name.toLowerCase();
+            if (!this.events[name])
                 return;
-            if (this.Events[Name].length === 0)
+            if (this.events[name].length === 0)
                 return;
-            this.Events[Name] = [];
+            this.events[name] = [];
         };
 
-        EventDispatcher.prototype.Dispatch = function (Name) {
+        EventDispatcher.prototype.dispatch = function (name) {
             var args = [];
             for (var _i = 0; _i < (arguments.length - 1); _i++) {
                 args[_i] = arguments[_i + 1];
             }
-            if (Array.isArray(Name) === true) {
-                for (var i = 0; i < Name.length; ++i) {
-                    this.Dispatch(Name[i], args);
+            if (Array.isArray(name) === true) {
+                for (var i = 0; i < name.length; ++i) {
+                    this.dispatch(name[i], args);
                 }
             } else {
-                if (typeof Name !== "number") {
-                    Name = Name.toString().toLowerCase();
+                if (typeof name !== "number") {
+                    name = name.toString().toLowerCase();
                 }
-                if (!this.Events[Name])
+                if (!this.events[name])
                     return;
-                if (this.Events[Name].length === 0)
+                if (this.events[name].length === 0)
                     return;
-                args.push(Name);
-                this.Events[Name].forEach(function (event) {
+                args.push(name);
+                this.events[name].forEach(function (event) {
                     event(args);
                 });
             }
@@ -67,63 +67,58 @@ var HG;
 (function (HG) {
     var BaseGame = (function (_super) {
         __extends(BaseGame, _super);
-        function BaseGame(Container, clearColor) {
-            if (typeof Container === "undefined") { Container = document.body; }
+        function BaseGame(container, clearColor) {
+            if (typeof container === "undefined") { container = document.body; }
             if (typeof clearColor === "undefined") { clearColor = new THREE.Color(0x000000); }
             _super.call(this);
             this._ = {};
-            this.IsRunning = false;
-            this.Scene = new HG.Scene();
-            this.Controls = new HG.InputHandler();
-            this.FPSCounter = new HG.FPSCounter();
+            this.isRunning = false;
+            this.scene = new HG.Scene();
+            this.controls = new HG.InputHandler();
+            this.fpsCounter = new HG.FPSCounter();
             if (HG.Utils.hasGL() === false) {
                 var up = new Error("Your Browser doesn't support WebGL");
                 throw up;
             }
-            this.Renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.Antialiasing });
-            this.Camera = new THREE.PerspectiveCamera(HG.Settings.FOV, window.innerWidth / window.innerHeight, 0.1, HG.Settings.ViewDistance);
-            this.Renderer.setSize(window.innerWidth, window.innerHeight);
-            this.Renderer.setClearColor(clearColor, 1);
-            try  {
-                Container.appendChild(this.Renderer.domElement);
-            } catch (e) {
-                throw new Error("Container is not a valid HTMLElement");
-                console.log(Container);
-            }
+            this.camera = new THREE.PerspectiveCamera(HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
+            this.renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.antialiasing });
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setClearColor(clearColor, 1);
+            container.appendChild(this.renderer.domElement);
         }
-        BaseGame.prototype.PreLoad = function () {
+        BaseGame.prototype.preLoad = function () {
             console.log('loading assets');
-            this.Dispatch('PreLoad');
+            this.dispatch('PreLoad');
             console.log('loaded assets');
         };
 
-        BaseGame.prototype.Start = function () {
-            this.Dispatch('Start');
-            this.IsRunning = true;
+        BaseGame.prototype.start = function () {
+            this.dispatch('Start');
+            this.isRunning = true;
         };
 
-        BaseGame.prototype.OnKeyUp = function (a) {
-            this.Controls.OnKeyUp(a);
-            this.Dispatch('KeyUp', a);
+        BaseGame.prototype.onKeyUp = function (a) {
+            this.controls.onKeyUp(a);
+            this.dispatch('KeyUp', a);
         };
 
-        BaseGame.prototype.OnKeyDown = function (a) {
-            this.Controls.OnKeyDown(a);
-            this.Dispatch('KeyDown', a);
+        BaseGame.prototype.onKeyDown = function (a) {
+            this.controls.onKeyDown(a);
+            this.dispatch('KeyDown', a);
         };
 
-        BaseGame.prototype.OnResize = function () {
-            this.Dispatch('Resize');
-            this.Camera.aspect = window.innerWidth / window.innerHeight;
-            this.Camera.updateProjectionMatrix();
-            this.Renderer.setSize(window.innerWidth, window.innerHeight);
+        BaseGame.prototype.onResize = function () {
+            this.dispatch('Resize');
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
         };
 
-        BaseGame.prototype.Render = function () {
-            this.Dispatch('Render');
-            this.Controls.Frame(this.FPSCounter.getFrameTime());
-            this.FPSCounter.Frame();
-            this.Renderer.render(this.Scene.Scene, this.Camera);
+        BaseGame.prototype.render = function () {
+            this.dispatch('Render');
+            this.controls.frame(this.fpsCounter.getFrameTime());
+            this.fpsCounter.frame();
+            this.renderer.render(this.scene.scene, this.camera);
         };
         return BaseGame;
     })(HG.EventDispatcher);
@@ -144,46 +139,38 @@ var HG;
 var HG;
 (function (HG) {
     HG.DefaultEntityParams = {
-        Extra: {},
-        Position: new THREE.Vector3(),
-        Rotation: new THREE.Vector3(),
-        TargetPosition: new THREE.Vector3(),
-        Object: new THREE.Object3D(),
-        OnLoad: function (self) {
-        },
-        OnKeyDown: function (e, self) {
-        },
-        OnResize: function (self) {
-        },
-        OnRender: function (self) {
-        }
+        extra: {},
+        position: new THREE.Vector3(),
+        rotation: new THREE.Vector3(),
+        targetPosition: new THREE.Vector3(),
+        object: new THREE.Object3D()
     };
 
     var Entity = (function (_super) {
         __extends(Entity, _super);
         function Entity(params) {
             _super.call(this);
-            this.Children = [];
-            if (params.Extra !== {}) {
-                for (var key in params.Extra) {
-                    this.Object[key] = params.Extra[key];
+            this.children = [];
+            if (params.extra !== {}) {
+                for (var key in params.extra) {
+                    this.object[key] = params.extra[key];
                 }
             }
-            this.Object = params.Object;
-            this.Object.position = params.Position;
-            this.Object.rotation = params.Rotation;
+            this.object = params.object;
+            this.object.position = params.position;
+            this.object.rotation = params.rotation;
         }
-        Entity.prototype.Set = function (key, value) {
-            if (this.Children.length > 0) {
-                this.Children.forEach(function (c) {
-                    c.Set(key, value);
+        Entity.prototype.set = function (key, value) {
+            if (this.children.length > 0) {
+                this.children.forEach(function (c) {
+                    c.set(key, value);
                 });
             }
             if (key.indexOf(".") === -1) {
-                this.Object[key] = value;
+                this.object[key] = value;
             } else {
                 var parts = key.split(".");
-                var obj = this.Object;
+                var obj = this.object;
                 for (var i = 0; i < parts.length - 1; i++) {
                     obj = obj[parts[i]];
                 }
@@ -192,12 +179,12 @@ var HG;
             return this;
         };
 
-        Entity.prototype.Get = function (key) {
+        Entity.prototype.get = function (key) {
             if (key.indexOf(".") === -1) {
-                return this.Object[key];
+                return this.object[key];
             } else {
                 var parts = key.split(".");
-                var obj = this.Object;
+                var obj = this.object;
                 for (var i = 0; i < parts.length - 1; i++) {
                     obj = obj[parts[i]];
                 }
@@ -205,19 +192,19 @@ var HG;
             }
         };
 
-        Entity.prototype.CollectChildren = function () {
+        Entity.prototype.collectChildren = function () {
             var result = [];
             result.push(this);
-            if (this.Children.length > 0) {
-                this.Children.forEach(function (c) {
+            if (this.children.length > 0) {
+                this.children.forEach(function (c) {
                     result.push(c);
                 });
             }
             return result;
         };
 
-        Entity.prototype.Connect = function (e) {
-            this.Children.push(e);
+        Entity.prototype.connect = function (e) {
+            this.children.push(e);
             return this;
         };
         return Entity;
@@ -228,37 +215,37 @@ var HG;
 (function (HG) {
     var FPSCounter = (function () {
         function FPSCounter() {
-            this.LastFrameTime = 0;
-            this.LastSecond = 0;
-            this.CurrentFrames = 0;
-            this.FrameTime = 0;
-            this.FPS = 0;
-            this.LastFrameTime = new Date().getTime();
+            this.lastFrameTime = 0;
+            this.lastSecond = 0;
+            this.currentFrames = 0;
+            this.frameTime = 0;
+            this.fps = 0;
+            this.lastFrameTime = new Date().getTime();
         }
         FPSCounter.prototype.getFPS = function () {
-            return this.FPS;
+            return this.fps;
         };
 
         FPSCounter.prototype.getFrameTime = function () {
-            return this.FrameTime;
+            return this.frameTime;
         };
 
-        FPSCounter.prototype.Frame = function () {
+        FPSCounter.prototype.frame = function () {
             var Now = new Date();
-            var Diff = new Date(Now.getTime() - this.LastFrameTime);
+            var Diff = new Date(Now.getTime() - this.lastFrameTime);
 
             //FrameTime
-            this.FrameTime = Diff.getTime();
-            this.LastFrameTime = Now.getTime();
+            this.frameTime = Diff.getTime();
+            this.lastFrameTime = Now.getTime();
 
             //FPS
-            var FPSDiff = new Date(Now.getTime() - this.LastSecond);
+            var FPSDiff = new Date(Now.getTime() - this.lastSecond);
             if (FPSDiff.getSeconds() > 0) {
-                this.FPS = this.CurrentFrames;
-                this.CurrentFrames = 0;
-                this.LastSecond = Now.getTime();
+                this.fps = this.currentFrames;
+                this.currentFrames = 0;
+                this.lastSecond = Now.getTime();
             }
-            this.CurrentFrames++;
+            this.currentFrames++;
         };
         return FPSCounter;
     })();
@@ -279,21 +266,21 @@ var HG;
         __extends(InputHandler, _super);
         function InputHandler() {
             _super.call(this);
-            this.KeyState = [];
-            this.Bind = this.On;
+            this.keyState = [];
+            this.bind = this.on;
         }
-        InputHandler.prototype.OnKeyDown = function (e) {
-            this.KeyState[e.keyCode] = 1;
+        InputHandler.prototype.onKeyDown = function (e) {
+            this.keyState[e.keyCode] = 1;
         };
 
-        InputHandler.prototype.OnKeyUp = function (e) {
-            this.KeyState[e.keyCode] = 0;
+        InputHandler.prototype.onKeyUp = function (e) {
+            this.keyState[e.keyCode] = 0;
         };
 
-        InputHandler.prototype.Frame = function (delta) {
-            for (var i = 0; i < this.KeyState.length; i++) {
-                if (this.KeyState[i] === 1) {
-                    this.Dispatch(i, delta);
+        InputHandler.prototype.frame = function (delta) {
+            for (var i = 0; i < this.keyState.length; i++) {
+                if (this.keyState[i] === 1) {
+                    this.dispatch(i, delta);
                 }
             }
             ;
@@ -308,11 +295,11 @@ var HG;
     var Level = (function () {
         function Level() {
         }
-        Level.prototype.Load = function (Raw) {
+        Level.prototype.load = function (Raw) {
             return this;
         };
 
-        Level.prototype.LoadAsync = function (Url) {
+        Level.prototype.loadAsync = function (Url) {
             var req = new XMLHttpRequest();
             req.onreadystatechange = function (req) {
                 if (this.readyState === 4) {
@@ -323,7 +310,7 @@ var HG;
             req.send();
         };
 
-        Level.prototype.Create = function (Seed) {
+        Level.prototype.create = function (Seed) {
             return this;
         };
         return Level;
@@ -334,18 +321,18 @@ var HG;
 (function (HG) {
     var Scene = (function () {
         function Scene() {
-            this.Scene = null;
-            this.Scene = new THREE.Scene();
+            this.scene = null;
+            this.scene = new THREE.Scene();
         }
-        Scene.prototype.Add = function (Entity) {
-            var c = Entity.CollectChildren();
+        Scene.prototype.add = function (Entity) {
+            var c = Entity.collectChildren();
             for (var i = 0; i < c.length; ++i) {
-                this.Scene.add(c[i].Object);
+                this.scene.add(c[i].object);
             }
         };
 
-        Scene.prototype.Get = function (index) {
-            return this.Scene.children[index];
+        Scene.prototype.get = function (index) {
+            return this.scene.children[index];
         };
         return Scene;
     })();
@@ -354,18 +341,18 @@ var HG;
 var HG;
 (function (HG) {
     HG.Settings = {
-        FOV: 110,
-        TileSize: 50,
-        ViewDistance: 4800,
-        Debug: {
+        fov: 110,
+        tileSize: 50,
+        viewDistance: 4800,
+        debug: {
             Enabled: true,
             PositionX: 2000
         },
-        ShadowMapSize: 2048,
-        ColorKey: "3c",
-        Antialiasing: true,
-        LevelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
-        Keys: {
+        shadowMapSize: 2048,
+        colorKey: "3c",
+        antialiasing: true,
+        levelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
+        keys: {
             D: 68,
             A: 65,
             S: 115,
@@ -373,7 +360,7 @@ var HG;
             Space: 32,
             Esc: 27
         },
-        Pattern: [
+        pattern: [
             [
                 [1, 1, 0, 0, 0, 0, 1, 1],
                 [0, 0, 0, 0, 0, 0, 1, 1],
@@ -418,7 +405,7 @@ var HG;
     var Utils = (function () {
         function Utils() {
         }
-        Utils.RGBToHex = function (input, prefix) {
+        Utils.rgbToHex = function (input, prefix) {
             if (!(input instanceof Array))
                 input = [input];
             if (input.length < 3) {
@@ -468,77 +455,75 @@ var HG;
 })(HG || (HG = {}));
 var Game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
 
-Game.On('PreLoad', function () {
+Game.on('PreLoad', function () {
     var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
     var Player = new HG.Entity({
-        Position: new THREE.Vector3(0, 0, 0),
-        Object: cube
+        position: new THREE.Vector3(0, 0, 0),
+        object: cube
     });
     var PlayerLight = new HG.Entity({
-        Position: new THREE.Vector3(0, 0, 0),
-        Object: new THREE.PointLight(0x00ff00, 3, 250)
+        position: new THREE.Vector3(0, 0, 0),
+        object: new THREE.PointLight(0x00ff00, 3, 250)
     });
-    Player.Connect(PlayerLight);
-    Game.Scene.Add(Player);
+    Player.connect(PlayerLight);
+    Game.scene.add(Player);
 
     var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshPhongMaterial({ color: 0xababab }));
     var d = new HG.Entity({
-        Position: new THREE.Vector3(0, -50, 0),
-        Object: cube
+        position: new THREE.Vector3(0, -50, 0),
+        object: cube
     });
-    Game.Scene.Add(d);
-    Game.Camera.position.z = 250;
-    Game.Camera.rotation.x = 75;
-    Game.Camera.rotation.y = 75;
+    Game.scene.add(d);
+    Game.camera.position.z = 250;
+    Game.camera.rotation.x = 75;
+    Game.camera.rotation.y = 75;
 });
 
-Game.On('start', function () {
+Game.on('start', function () {
     window.onresize = function () {
-        Game.OnResize();
+        Game.onResize();
     };
     window.onkeydown = function (a) {
-        Game.OnKeyDown(a);
+        Game.onKeyDown(a);
     };
     window.onkeyup = function (a) {
-        Game.OnKeyUp(a);
+        Game.onKeyUp(a);
     };
     var r = function () {
-        Game.Render();
+        Game.render();
         requestAnimationFrame(r);
     };
     r();
 });
 
-Game.Controls.Bind(HG.Settings.Keys.Esc, function (delta) {
+Game.controls.bind(HG.Settings.keys.Esc, function (delta) {
     document.getElementById("menuWrapper").style.display = 'block';
     document.getElementById("gameWrapper").style.display = 'none';
 });
 
-Game.Controls.Bind(HG.Settings.Keys.A, function (delta) {
-    Game.Scene.Get(0).position.x -= 0.3125 * delta[0];
-    Game.Scene.Get(1).position.x -= 0.3125 * delta[0];
-    Game.Camera.position.x -= 0.3125 * delta[0];
+Game.controls.bind(HG.Settings.keys.A, function (delta) {
+    Game.scene.get(0).position.x -= 0.3125 * delta[0];
+    Game.scene.get(1).position.x -= 0.3125 * delta[0];
+    Game.camera.position.x -= 0.3125 * delta[0];
 });
 
-Game.Controls.Bind(HG.Settings.Keys.D, function (delta) {
-    Game.Scene.Get(0).position.x += 0.3125 * delta[0];
-    Game.Scene.Get(1).position.x += 0.3125 * delta[0];
-    Game.Camera.position.x += 0.3125 * delta[0];
+Game.controls.bind(HG.Settings.keys.D, function (delta) {
+    Game.scene.get(0).position.x += 0.3125 * delta[0];
+    Game.scene.get(1).position.x += 0.3125 * delta[0];
+    Game.camera.position.x += 0.3125 * delta[0];
 });
 
-Game.On(['start', 'resize'], function () {
+Game.on(['start', 'resize'], function () {
     document.getElementById("resolution").innerText = "Rendering on: " + window.innerWidth + "x" + window.innerHeight;
 });
 
-Game.On("render", function () {
-    document.getElementById("fps").innerText = "FPS: " + Game.FPSCounter.getFPS();
-    document.getElementById("frametime").innerText = "Frametime: " + Game.FPSCounter.getFrameTime() + "ms";
+Game.on("render", function () {
+    document.getElementById("fps").innerText = "FPS: " + Game.fpsCounter.getFPS();
+    document.getElementById("frametime").innerText = "Frametime: " + Game.fpsCounter.getFrameTime() + "ms";
 });
 
-document.onreadystatechange = function () {
-    if (document.readyState === "complete") {
-        Game.PreLoad();
-    }
+window.onload = function () {
+    Game.preLoad();
 };
 document.getElementById("exit").onclick = function () {
     window.close();
@@ -546,7 +531,7 @@ document.getElementById("exit").onclick = function () {
 document.getElementById("play").onclick = function () {
     document.getElementById("gameWrapper").style.display = 'block';
     document.getElementById("menuWrapper").style.display = 'none';
-    if (Game.IsRunning === false) {
-        Game.Start();
+    if (Game.isRunning === false) {
+        Game.start();
     }
 };

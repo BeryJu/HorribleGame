@@ -2,45 +2,41 @@
 
 module HG {
 	export var DefaultEntityParams = {
-		Extra: {},
-		Position: new THREE.Vector3(),
-		Rotation: new THREE.Vector3(),
-		TargetPosition: new THREE.Vector3(),
-		Object: new THREE.Object3D(),
-		OnLoad(self):void {},
-		OnKeyDown(e, self):void {},
-		OnResize(self):void {},
-		OnRender(self):void {}
+		extra: {},
+		position: new THREE.Vector3(),
+		rotation: new THREE.Vector3(),
+		targetPosition: new THREE.Vector3(),
+		object: new THREE.Object3D(),
 	}
 
 	export class Entity extends EventDispatcher{
 		_: {};
-		Children: Entity[] = [];
-		Object: THREE.Object3D;
+		children: Entity[] = [];
+		object: THREE.Object3D;
 
 		constructor(params: any) {
 			super();
-			if (params.Extra !== {}) {
-				for (var key in params.Extra) {
-					this.Object[key] = params.Extra[key];
+			if (params.extra !== {}) {
+				for (var key in params.extra) {
+					this.object[key] = params.extra[key];
 				}
 			}
-			this.Object = params.Object;
-			this.Object.position = params.Position;
-			this.Object.rotation = params.Rotation;
+			this.object = params.object;
+			this.object.position = params.position;
+			this.object.rotation = params.rotation;
 		}
 
-		Set(key: string, value: any):HG.Entity {
-			if (this.Children.length > 0) {
-				this.Children.forEach(function(c) {
-					c.Set(key, value);
+		set(key: string, value: any):HG.Entity {
+			if (this.children.length > 0) {
+				this.children.forEach(function(c) {
+					c.set(key, value);
 				});
 			}
 			if (key.indexOf(".") === -1) {
-				this.Object[key] = value;
+				this.object[key] = value;
 			} else {
 				var parts = key.split(".");
-				var obj = this.Object;
+				var obj = this.object;
 				for (var i = 0; i < parts.length - 1; i++) {
 					obj = obj[parts[i]];
 				}
@@ -49,12 +45,12 @@ module HG {
 			return this;
 		}
 
-		Get(key: string) {
+		get(key: string) {
 			if (key.indexOf(".") === -1) {
-				return this.Object[key];
+				return this.object[key];
 			} else {
 				var parts = key.split(".");
-				var obj = this.Object;
+				var obj = this.object;
 				for (var i = 0; i < parts.length - 1; i++) {
 					obj = obj[parts[i]];
 				}
@@ -62,19 +58,19 @@ module HG {
 			}
 		}
 
-		CollectChildren() {
+		collectChildren() {
 			var result = [];
 			result.push(this);
-			if (this.Children.length > 0) {
-				this.Children.forEach(function(c) {
+			if (this.children.length > 0) {
+				this.children.forEach(function(c) {
 					result.push(c)
 				});
 			}
 			return result;
 		}
 
-		Connect(e: Entity) {
-			this.Children.push(e);
+		connect(e: Entity) {
+			this.children.push(e);
 			return this;
 		}
 	}

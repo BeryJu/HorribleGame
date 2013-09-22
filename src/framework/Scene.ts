@@ -1,21 +1,21 @@
 module HG {
 	export class Scene {
 
-		Scene: THREE.Scene = null;
+		scene: THREE.Scene = null;
 
 		constructor() {
-			this.Scene = new THREE.Scene();
+			this.scene = new THREE.Scene();
 		}
 
-		Add(Entity: HG.Entity): void {
-			var c = Entity.CollectChildren();
+		add(Entity: HG.Entity): void {
+			var c = Entity.collectChildren();
 			for (var i = 0; i < c.length; ++i) {
-				this.Scene.add(c[i].Object);
+				this.scene.add(c[i].object);
 			}
 		}
 
-		Get(index: number): THREE.Object3D {
-			return this.Scene.children[index];
+		get(index: number): THREE.Object3D {
+			return this.scene.children[index];
 		}
 
 	}

@@ -2,18 +2,18 @@
 
 module HG {
 	export interface IRawLevel {
-		Entities: Array[];
-		PlayerPosition: number[];
+		entities: Array[];
+		playerPosition: number[];
 	}
 
 	export class Level {
-		Entities: HG.Entity[];
+		entities: HG.Entity[];
 
-		Load(Raw: HG.IRawLevel):HG.Level {
+		load(Raw: HG.IRawLevel): HG.Level {
 			return this;
 		}
 
-		LoadAsync(Url: string):void {
+		loadAsync(Url: string): void {
 			var req = new XMLHttpRequest();
 			req.onreadystatechange = function(req) {
 				if (this.readyState === 4) {
@@ -24,7 +24,7 @@ module HG {
 			req.send();
 		}
 
-		Create(Seed?: number):HG.Level {
+		create(Seed?: number): HG.Level {
 			return this;
 		}
 	}

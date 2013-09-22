@@ -1,6 +1,6 @@
 module HG {
 	export class Utils {
-		static RGBToHex(input: any, prefix?: string): string {
+		static rgbToHex(input: any, prefix?: string): string {
 			if (!(input instanceof Array)) input = [input];
 			if (input.length < 3) {
 				for (var i = 0; i < 2; i++) {
