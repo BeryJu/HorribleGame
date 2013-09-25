@@ -1,6 +1,6 @@
 module HG {
 
-	export class InputHandler extends EventDispatcher {
+	export class InputHandler extends GameComponent {
 
 		private keyState: number[] = [];
 

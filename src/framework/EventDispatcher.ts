@@ -6,7 +6,7 @@ module HG {
 
 		on(name: any, callback: (...args) => any): void {
 			if (Array.isArray(name) === true) {
-				for (var i = 0; i < name.length; ++i) {
+				for (var i = 0; i < name.length; i++) {
 					this.on(name[i], callback);
 				}
 			} else {
@@ -19,6 +19,23 @@ module HG {
 			}
 		}
 
+		get(name: any): {} {
+			if (Array.isArray(name) === true) {
+				var events = {};
+				for (var i = 0; i < name.length; i++) {
+					events[name[i]] = this.get(name[i]);
+				}
+				return events;
+			} else {
+				if (typeof name !== "number") {
+					name = name.toString().toLowerCase();
+				}
+				var events = {};
+				events[name] = this.events[name];
+				return events;
+			}
+		}
+
 		clear(name: string): void {
 			name = name.toLowerCase();
 			if (!this.events[name]) return;
@@ -28,7 +45,7 @@ module HG {
 
 		dispatch(name: any, ...args): void {
 			if (Array.isArray(name) === true) {
-				for (var i = 0; i < name.length; ++i) {
+				for (var i = 0; i < name.length; i++) {
 					this.dispatch(name[i], args);
 				}
 			} else {

@@ -18,11 +18,19 @@ module.exports = function(grunt) {
 					'dist/lib.js': ['src/framework/lib/*.js']
 				}
 			}
+		},
+		shell: {
+			app: {
+				options: {
+					stdout: true
+				},
+				command: "cd /var/www/stuff/HorribleGame && rm -r * && cd /var/www/dev/projects/HorribleGame/dist/ && cp -R * /var/www/stuff/HorribleGame && cd /var/www/stuff/HorribleGame && echo \"K. Done.\""
+			}
 		}
 	});
-	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
-	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks("grunt-ts");
-	grunt.registerTask('default', ['ts', 'uglify']);
+	grunt.loadNpmTasks('grunt-shell');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.registerTask('default', ['ts']);
+	grunt.registerTask('publish', ['ts', 'uglify', 'shell']);
 };

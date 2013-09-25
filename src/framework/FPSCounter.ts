@@ -1,5 +1,7 @@
+///<reference path="GameComponent" />
+
 module HG {
-	export class FPSCounter {
+	export class FPSCounter extends GameComponent{
 		private lastFrameTime: number = 0;
 		private lastSecond: number = 0;
 		private currentFrames: number = 0;
@@ -8,6 +10,7 @@ module HG {
 		private fps: number = 0;
 
 		constructor() {
+			super();
 			this.lastFrameTime = new Date().getTime();
 		}
 
@@ -19,7 +22,7 @@ module HG {
 			return this.frameTime;
 		}
 
-		frame(): void {
+		frame(delta: number): void {
 			var Now = new Date();
 			var Diff = new Date(Now.getTime() - this.lastFrameTime);
 			//FrameTime

@@ -6,7 +6,7 @@ var HG;
         }
         EventDispatcher.prototype.on = function (name, callback) {
             if (Array.isArray(name) === true) {
-                for (var i = 0; i < name.length; ++i) {
+                for (var i = 0; i < name.length; i++) {
                     this.on(name[i], callback);
                 }
             } else {
@@ -17,6 +17,23 @@ var HG;
                 if (!this.events[name])
                     this.events[name] = [];
                 this.events[name].push(callback);
+            }
+        };
+
+        EventDispatcher.prototype.get = function (name) {
+            if (Array.isArray(name) === true) {
+                var events = {};
+                for (var i = 0; i < name.length; i++) {
+                    events[name[i]] = this.get(name[i]);
+                }
+                return events;
+            } else {
+                if (typeof name !== "number") {
+                    name = name.toString().toLowerCase();
+                }
+                var events = {};
+                events[name] = this.events[name];
+                return events;
             }
         };
 
@@ -35,7 +52,7 @@ var HG;
                 args[_i] = arguments[_i + 1];
             }
             if (Array.isArray(name) === true) {
-                for (var i = 0; i < name.length; ++i) {
+                for (var i = 0; i < name.length; i++) {
                     this.dispatch(name[i], args);
                 }
             } else {
@@ -115,9 +132,10 @@ var HG;
         };
 
         BaseGame.prototype.render = function () {
-            this.dispatch('Render');
-            this.controls.frame(this.fpsCounter.getFrameTime());
-            this.fpsCounter.frame();
+            var delta = this.fpsCounter.getFrameTime() / 10;
+            this.dispatch('Render', delta);
+            this.controls.frame(delta);
+            this.fpsCounter.frame(delta);
             this.renderer.render(this.scene.scene, this.camera);
         };
         return BaseGame;
@@ -126,14 +144,120 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    var Debugger = (function () {
-        function Debugger(directory) {
-            // var path = require("path");
-            // path.resolve(__dirname, Args._[0])
+    var rgb = (function () {
+        function rgb(r, g, b) {
+            if (typeof r === "undefined") { r = 0; }
+            if (typeof g === "undefined") { g = 0; }
+            if (typeof b === "undefined") { b = 0; }
+            this.r = r;
+            this.g = g;
+            this.b = b;
         }
-        return Debugger;
+        return rgb;
     })();
-    HG.Debugger = Debugger;
+    HG.rgb = rgb;
+
+    var rgba = (function (_super) {
+        __extends(rgba, _super);
+        function rgba(r, g, b, a) {
+            if (typeof r === "undefined") { r = 0; }
+            if (typeof g === "undefined") { g = 0; }
+            if (typeof b === "undefined") { b = 0; }
+            if (typeof a === "undefined") { a = 0; }
+            _super.call(this, r, g, b);
+            this.a = a;
+        }
+        return rgba;
+    })(rgb);
+    HG.rgba = rgba;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    var GameComponent = (function (_super) {
+        __extends(GameComponent, _super);
+        function GameComponent() {
+            _super.call(this);
+        }
+        GameComponent.prototype.frame = function (delta) {
+        };
+        return GameComponent;
+    })(HG.EventDispatcher);
+    HG.GameComponent = GameComponent;
+})(HG || (HG = {}));
+///<reference path="GameComponent" />
+var HG;
+(function (HG) {
+    var ColorTransition = (function (_super) {
+        __extends(ColorTransition, _super);
+        function ColorTransition() {
+            _super.call(this);
+            this.isDone = false;
+            this.baseColor = new HG.rgb();
+            this.currentColor = new HG.rgb();
+            this.currentFrame = 0;
+            this.frameSpan = 0;
+            this.currentTarget = 0;
+            this.targets = [];
+        }
+        ColorTransition.prototype.getColor = function () {
+            var c = new THREE.Color();
+            c.r = this.currentColor.r;
+            c.g = this.currentColor.g;
+            c.b = this.currentColor.b;
+            return c;
+        };
+
+        ColorTransition.prototype.target = function (color) {
+            this.targets.push(color);
+            this.dispatch('targetAdded', color);
+            return this;
+        };
+
+        ColorTransition.prototype.over = function (frames) {
+            this.frameSpan = frames;
+            return this;
+        };
+
+        ColorTransition.prototype.from = function (color) {
+            this.baseColor = color;
+            return this;
+        };
+
+        ColorTransition.prototype.frame = function (delta) {
+            if (this.currentFrame >= this.frameSpan) {
+                this.isDone = true;
+                this.dispatch('done', this);
+            } else {
+                if (this.currentColor === this.targets[this.currentTarget]) {
+                    this.currentTarget++;
+                    this.currentFrame = 0;
+                    if (this.currentTarget > this.targets.length) {
+                        this.isDone = true;
+                        this.dispatch('done', this);
+                    }
+                } else {
+                    var target = this.targets[this.currentTarget];
+                    var r = this.increment(this.currentColor.r, target.r, delta, this.frameSpan - this.currentTarget);
+                    var g = this.increment(this.currentColor.g, target.g, delta, this.frameSpan - this.currentTarget);
+                    var b = this.increment(this.currentColor.b, target.b, delta, this.frameSpan - this.currentTarget);
+
+                    console.log(r);
+                    console.log(g);
+                    console.log(b);
+                    this.currentColor.r += r;
+                    this.currentColor.g += g;
+                    this.currentColor.b += b;
+                }
+                this.currentFrame++;
+            }
+        };
+
+        ColorTransition.prototype.increment = function (from, to, delta, framesLeft) {
+            return ((to - from) / framesLeft);
+        };
+        return ColorTransition;
+    })(HG.GameComponent);
+    HG.ColorTransition = ColorTransition;
 })(HG || (HG = {}));
 ///<reference path="EventDispatcher" />
 var HG;
@@ -211,10 +335,13 @@ var HG;
     })(HG.EventDispatcher);
     HG.Entity = Entity;
 })(HG || (HG = {}));
+///<reference path="GameComponent" />
 var HG;
 (function (HG) {
-    var FPSCounter = (function () {
+    var FPSCounter = (function (_super) {
+        __extends(FPSCounter, _super);
         function FPSCounter() {
+            _super.call(this);
             this.lastFrameTime = 0;
             this.lastSecond = 0;
             this.currentFrames = 0;
@@ -230,7 +357,7 @@ var HG;
             return this.frameTime;
         };
 
-        FPSCounter.prototype.frame = function () {
+        FPSCounter.prototype.frame = function (delta) {
             var Now = new Date();
             var Diff = new Date(Now.getTime() - this.lastFrameTime);
 
@@ -248,17 +375,8 @@ var HG;
             this.currentFrames++;
         };
         return FPSCounter;
-    })();
+    })(HG.GameComponent);
     HG.FPSCounter = FPSCounter;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    var GameComponent = (function () {
-        function GameComponent() {
-        }
-        return GameComponent;
-    })();
-    HG.GameComponent = GameComponent;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -286,7 +404,7 @@ var HG;
             ;
         };
         return InputHandler;
-    })(HG.EventDispatcher);
+    })(HG.GameComponent);
     HG.InputHandler = InputHandler;
 })(HG || (HG = {}));
 /// <reference path="lib/three.d.ts"/>
@@ -355,8 +473,8 @@ var HG;
         keys: {
             D: 68,
             A: 65,
-            S: 115,
-            W: 119,
+            S: 83,
+            W: 87,
             Space: 32,
             Esc: 27
         },
@@ -456,22 +574,21 @@ var HG;
 var Game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
 
 Game.on('PreLoad', function () {
-    var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
     var Player = new HG.Entity({
         position: new THREE.Vector3(0, 0, 0),
-        object: cube
-    });
-    var PlayerLight = new HG.Entity({
+        object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: 0x00ff00 }))
+    }).connect(new HG.Entity({
         position: new THREE.Vector3(0, 0, 0),
         object: new THREE.PointLight(0x00ff00, 3, 250)
-    });
-    Player.connect(PlayerLight);
+    }));
+
+    // var PlayerLight = ;
+    // Player.connect(PlayerLight);
     Game.scene.add(Player);
 
-    var cube = new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshPhongMaterial({ color: 0xababab }));
     var d = new HG.Entity({
         position: new THREE.Vector3(0, -50, 0),
-        object: cube
+        object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshPhongMaterial({ color: 0xababab }))
     });
     Game.scene.add(d);
     Game.camera.position.z = 250;
@@ -496,28 +613,51 @@ Game.on('start', function () {
     r();
 });
 
+// var transition = new HG.ColorTransition()
+// 				.from(new HG.rgb(0, 0, 0))
+// 				.target(new HG.rgb(0, 255, 0))
+// 				.target(new HG.rgb(255, 0, 0))
+// 				.target(new HG.rgb(255, 255, 255))
+// 				.over(1800);
 Game.controls.bind(HG.Settings.keys.Esc, function (delta) {
     document.getElementById("menuWrapper").style.display = 'block';
     document.getElementById("gameWrapper").style.display = 'none';
 });
 
 Game.controls.bind(HG.Settings.keys.A, function (delta) {
-    Game.scene.get(0).position.x -= 0.3125 * delta[0];
-    Game.scene.get(1).position.x -= 0.3125 * delta[0];
-    Game.camera.position.x -= 0.3125 * delta[0];
+    Game.scene.get(0).position.x -= 3.125 * delta[0];
+    Game.scene.get(1).position.x -= 3.125 * delta[0];
+    Game.camera.position.x -= 3.125 * delta[0];
 });
 
 Game.controls.bind(HG.Settings.keys.D, function (delta) {
-    Game.scene.get(0).position.x += 0.3125 * delta[0];
-    Game.scene.get(1).position.x += 0.3125 * delta[0];
-    Game.camera.position.x += 0.3125 * delta[0];
+    Game.scene.get(0).position.x += 3.125 * delta[0];
+    Game.scene.get(1).position.x += 3.125 * delta[0];
+    Game.camera.position.x += 3.125 * delta[0];
+});
+
+Game.controls.bind(HG.Settings.keys.S, function (delta) {
+    Game.scene.get(0).position.z += 3.125 * delta[0];
+    Game.scene.get(1).position.z += 3.125 * delta[0];
+    Game.camera.position.z += 3.125 * delta[0];
+});
+
+Game.controls.bind(HG.Settings.keys.W, function (delta) {
+    Game.scene.get(0).position.z -= 3.125 * delta[0];
+    Game.scene.get(1).position.z -= 3.125 * delta[0];
+    Game.camera.position.z -= 3.125 * delta[0];
 });
 
 Game.on(['start', 'resize'], function () {
     document.getElementById("resolution").innerText = "Rendering on: " + window.innerWidth + "x" + window.innerHeight;
 });
 
-Game.on("render", function () {
+Game.on("render", function (delta) {
+    // transition.frame(delta[0]);
+    // var color = transition.getColor();
+    // console.log(color);
+    // Game.scene.get(0).material.color = color;
+    // Game.scene.get(1).color = color;
     document.getElementById("fps").innerText = "FPS: " + Game.fpsCounter.getFPS();
     document.getElementById("frametime").innerText = "Frametime: " + Game.fpsCounter.getFrameTime() + "ms";
 });

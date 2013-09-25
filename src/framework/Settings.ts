@@ -14,8 +14,8 @@ module HG {
 		keys: {
 			D: 68,
 			A: 65,
-			S: 115,
-			W: 119,
+			S: 83,
+			W: 87,
 			Space: 32,
 			Esc: 27
 		},

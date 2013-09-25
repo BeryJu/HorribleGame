@@ -55,9 +55,10 @@ module HG {
 		}
 
 		render(): void {
-			this.dispatch('Render');
-			this.controls.frame(this.fpsCounter.getFrameTime());
-			this.fpsCounter.frame();
+			var delta = this.fpsCounter.getFrameTime() / 10;
+			this.dispatch('Render', delta);
+			this.controls.frame(delta);
+			this.fpsCounter.frame(delta);
 			this.renderer.render(this.scene.scene, this.camera);
 		}
 
