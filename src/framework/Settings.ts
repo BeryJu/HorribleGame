@@ -12,12 +12,9 @@ module HG {
 		antialiasing: true,
 		levelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
 		keys: {
-			D: 68,
-			A: 65,
-			S: 83,
-			W: 87,
-			Space: 32,
-			Esc: 27
+			Left: HG.KeyMap.A,
+			Right: HG.KeyMap.D,
+			Pause: HG.KeyMap.Esc
 		},
 		pattern: [
 			[

@@ -407,6 +407,19 @@ var HG;
     })(HG.GameComponent);
     HG.InputHandler = InputHandler;
 })(HG || (HG = {}));
+var HG;
+(function (HG) {
+    HG.KeyMap = {
+        D: 68,
+        A: 65,
+        S: 83,
+        W: 87,
+        Q: 81,
+        E: 69,
+        Space: 32,
+        Esc: 27
+    };
+})(HG || (HG = {}));
 /// <reference path="lib/three.d.ts"/>
 var HG;
 (function (HG) {
@@ -441,16 +454,37 @@ var HG;
         function Scene() {
             this.scene = null;
             this.scene = new THREE.Scene();
+            this.entities = {
+                named: {},
+                unnamed: []
+            };
         }
-        Scene.prototype.add = function (Entity) {
+        Scene.prototype.add = function (Entity, nameTag) {
             var c = Entity.collectChildren();
             for (var i = 0; i < c.length; ++i) {
                 this.scene.add(c[i].object);
             }
+            if (nameTag) {
+                this.entities.named[nameTag] = Entity;
+            } else {
+                this.entities.unnamed.push(Entity);
+            }
         };
 
-        Scene.prototype.get = function (index) {
+        Scene.prototype.getIndex = function (index) {
             return this.scene.children[index];
+        };
+
+        Scene.prototype.get = function (nameTag) {
+            if (Array.isArray(nameTag) === true) {
+                var e = [];
+                for (var i = 0; i < nameTag.length; i++) {
+                    e.push(this.get(nameTag[i]));
+                }
+                return e;
+            } else {
+                return this.entities.named[nameTag];
+            }
         };
         return Scene;
     })();
@@ -471,12 +505,9 @@ var HG;
         antialiasing: true,
         levelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
         keys: {
-            D: 68,
-            A: 65,
-            S: 83,
-            W: 87,
-            Space: 32,
-            Esc: 27
+            Left: HG.KeyMap.A,
+            Right: HG.KeyMap.D,
+            Pause: HG.KeyMap.Esc
         },
         pattern: [
             [
@@ -551,14 +582,26 @@ else
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    var MovingEntity = (function (_super) {
-        __extends(MovingEntity, _super);
-        function MovingEntity() {
-            _super.apply(this, arguments);
-        }
-        return MovingEntity;
-    })(HG.Entity);
-    HG.MovingEntity = MovingEntity;
+    (function (Entities) {
+        var MovingEntity = (function (_super) {
+            __extends(MovingEntity, _super);
+            function MovingEntity() {
+                _super.apply(this, arguments);
+            }
+            MovingEntity.prototype.MoveLeft = function (step) {
+                if (typeof step === "undefined") { step = 3.125; }
+                this.object.position.x -= step;
+            };
+
+            MovingEntity.prototype.MoveRight = function (step) {
+                if (typeof step === "undefined") { step = 3.125; }
+                this.object.position.x += step;
+            };
+            return MovingEntity;
+        })(HG.Entity);
+        Entities.MovingEntity = MovingEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -573,19 +616,17 @@ var HG;
 })(HG || (HG = {}));
 var Game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
 
-Game.on('PreLoad', function () {
-    var Player = new HG.Entity({
+Game.on('preload', function () {
+    var Player = new HG.Entities.MovingEntity({
         position: new THREE.Vector3(0, 0, 0),
         object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: 0x00ff00 }))
-    }).connect(new HG.Entity({
+    });
+    var PlayerLight = new HG.Entities.MovingEntity({
         position: new THREE.Vector3(0, 0, 0),
         object: new THREE.PointLight(0x00ff00, 3, 250)
-    }));
-
-    // var PlayerLight = ;
-    // Player.connect(PlayerLight);
-    Game.scene.add(Player);
-
+    });
+    Game.scene.add(Player, "Player");
+    Game.scene.add(PlayerLight, "PlayerLight");
     var d = new HG.Entity({
         position: new THREE.Vector3(0, -50, 0),
         object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshPhongMaterial({ color: 0xababab }))
@@ -597,6 +638,7 @@ Game.on('PreLoad', function () {
 });
 
 Game.on('start', function () {
+    document.getElementById('three').innerText = "Three.js Revision " + THREE.REVISION;
     window.onresize = function () {
         Game.onResize();
     };
@@ -619,33 +661,27 @@ Game.on('start', function () {
 // 				.target(new HG.rgb(255, 0, 0))
 // 				.target(new HG.rgb(255, 255, 255))
 // 				.over(1800);
-Game.controls.bind(HG.Settings.keys.Esc, function (delta) {
+Game.controls.bind(HG.Settings.keys.Pause, function (delta) {
     document.getElementById("menuWrapper").style.display = 'block';
     document.getElementById("gameWrapper").style.display = 'none';
 });
 
-Game.controls.bind(HG.Settings.keys.A, function (delta) {
-    Game.scene.get(0).position.x -= 3.125 * delta[0];
-    Game.scene.get(1).position.x -= 3.125 * delta[0];
+Game.controls.bind(HG.Settings.keys.Left, function (delta) {
+    Game.scene.get(["Player", "PlayerLight"]).forEach(function (e) {
+        if (e instanceof HG.Entities.MovingEntity) {
+            e.MoveLeft(3.125 * delta[0]);
+        }
+    });
     Game.camera.position.x -= 3.125 * delta[0];
 });
 
-Game.controls.bind(HG.Settings.keys.D, function (delta) {
-    Game.scene.get(0).position.x += 3.125 * delta[0];
-    Game.scene.get(1).position.x += 3.125 * delta[0];
+Game.controls.bind(HG.Settings.keys.Right, function (delta) {
+    Game.scene.get(["Player", "PlayerLight"]).forEach(function (e) {
+        if (e instanceof HG.Entities.MovingEntity) {
+            e.MoveRight(3.125 * delta[0]);
+        }
+    });
     Game.camera.position.x += 3.125 * delta[0];
-});
-
-Game.controls.bind(HG.Settings.keys.S, function (delta) {
-    Game.scene.get(0).position.z += 3.125 * delta[0];
-    Game.scene.get(1).position.z += 3.125 * delta[0];
-    Game.camera.position.z += 3.125 * delta[0];
-});
-
-Game.controls.bind(HG.Settings.keys.W, function (delta) {
-    Game.scene.get(0).position.z -= 3.125 * delta[0];
-    Game.scene.get(1).position.z -= 3.125 * delta[0];
-    Game.camera.position.z -= 3.125 * delta[0];
 });
 
 Game.on(['start', 'resize'], function () {

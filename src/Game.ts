@@ -1,18 +1,18 @@
+
 var Game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
 
-Game.on('PreLoad', function() {
-	var Player = new HG.Entity({
+Game.on('preload', function() {
+	var Player = new HG.Entities.MovingEntity({
 		position: new THREE.Vector3(0, 0, 0),
 		object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
 			new THREE.MeshBasicMaterial({color: 0x00ff00}))
-	}).connect(new HG.Entity({
+	});
+	var PlayerLight = new HG.Entities.MovingEntity({
 		position: new THREE.Vector3(0, 0, 0),
 		object: new THREE.PointLight(0x00ff00, 3, 250)
-	}));
-	// var PlayerLight = ;
-	// Player.connect(PlayerLight);
-	Game.scene.add(Player);
-
+	});
+	Game.scene.add(Player, "Player");
+	Game.scene.add(PlayerLight, "PlayerLight");
 	var d = new HG.Entity({
 		position: new THREE.Vector3(0, -50, 0),
 		object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
@@ -25,6 +25,7 @@ Game.on('PreLoad', function() {
 });
 
 Game.on('start', function() {
+	document.getElementById('three').innerText = "Three.js Revision "+ THREE.REVISION; 
 	window.onresize = function() {Game.onResize()};
 	window.onkeydown = function(a: any) {Game.onKeyDown(a)};
 	window.onkeyup = function(a: any) {Game.onKeyUp(a)};
@@ -42,33 +43,27 @@ Game.on('start', function() {
 // 				.target(new HG.rgb(255, 255, 255))
 // 				.over(1800);
 
-Game.controls.bind(HG.Settings.keys.Esc, function(delta: number) {
+Game.controls.bind(HG.Settings.keys.Pause, function(delta: number) {
 	document.getElementById("menuWrapper").style.display = 'block';
 	document.getElementById("gameWrapper").style.display = 'none';
 });
 
-Game.controls.bind(HG.Settings.keys.A, function(delta: number) {
-	Game.scene.get(0).position.x -= 3.125 * delta[0];
-	Game.scene.get(1).position.x -= 3.125 * delta[0];
+Game.controls.bind(HG.Settings.keys.Left, function(delta: number) {
+	Game.scene.get(["Player", "PlayerLight"]).forEach(function(e) {
+		if (e instanceof HG.Entities.MovingEntity) {
+			e.MoveLeft(3.125 * delta[0]);
+		}
+	});
 	Game.camera.position.x -= 3.125 * delta[0];
 });
 
-Game.controls.bind(HG.Settings.keys.D, function(delta: number) {
-	Game.scene.get(0).position.x += 3.125 * delta[0];
-	Game.scene.get(1).position.x += 3.125 * delta[0];
+Game.controls.bind(HG.Settings.keys.Right, function(delta: number) {
+	Game.scene.get(["Player", "PlayerLight"]).forEach(function(e) {
+		if (e instanceof HG.Entities.MovingEntity) {
+			e.MoveRight(3.125 * delta[0]);
+		}
+	});
 	Game.camera.position.x += 3.125 * delta[0];
-});
-
-Game.controls.bind(HG.Settings.keys.S, function(delta: number) {
-	Game.scene.get(0).position.z += 3.125 * delta[0];
-	Game.scene.get(1).position.z += 3.125 * delta[0];
-	Game.camera.position.z += 3.125 * delta[0];
-});
-
-Game.controls.bind(HG.Settings.keys.W, function(delta: number) {
-	Game.scene.get(0).position.z -= 3.125 * delta[0];
-	Game.scene.get(1).position.z -= 3.125 * delta[0];
-	Game.camera.position.z -= 3.125 * delta[0];
 });
 
 Game.on(['start', 'resize'], function() {
