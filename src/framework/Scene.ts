@@ -12,7 +12,7 @@ module HG {
 			this.entities = {
 				named: {},
 				unnamed: []
-			}
+			};
 		}
 
 		add(Entity: HG.Entity, nameTag?: string): void {
@@ -21,7 +21,7 @@ module HG {
 				this.scene.add(c[i].object);
 			}
 			if (nameTag) {
-				this.entities.named[nameTag] = Entity;
+				this.entities.named[nameTag.toLowerCase()] = Entity;
 			} else {
 				this.entities.unnamed.push(Entity);
 			}
@@ -31,16 +31,15 @@ module HG {
 			return this.scene.children[index];
 		}
 
-		get(nameTag: any): any {
-			if (Array.isArray(nameTag) === true) {
-				var e = [];
-				for (var i = 0; i < nameTag.length; i++) {
-					e.push(this.get(nameTag[i]));
+		get(nameTag: string[], type: any = HG.Entity): any[] {
+			var e = [];
+			for (var i = 0; i < nameTag.length; i++) {
+				var ee = this.entities.named[nameTag[i].toLowerCase()];
+				if (ee instanceof type) {
+					e.push(ee);
 				}
-				return e;
-			} else {
-				return this.entities.named[nameTag];
 			}
+			return e;
 		}
 
 	}

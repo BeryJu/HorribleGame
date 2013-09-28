@@ -1,9 +1,8 @@
+var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
 
-var Game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
-
-Game.on('preload', function() {
+game.on('preload', function() {
 	var Player = new HG.Entities.MovingEntity({
-		position: new THREE.Vector3(0, 0, 0),
+		position: new THREE.Vector3(-75, 0, 0),
 		object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
 			new THREE.MeshBasicMaterial({color: 0x00ff00}))
 	});
@@ -11,26 +10,27 @@ Game.on('preload', function() {
 		position: new THREE.Vector3(0, 0, 0),
 		object: new THREE.PointLight(0x00ff00, 3, 250)
 	});
-	Game.scene.add(Player, "Player");
-	Game.scene.add(PlayerLight, "PlayerLight");
+	game.scene.add(Player, "Player");
+	game.scene.add(PlayerLight, "PlayerLight");
 	var d = new HG.Entity({
 		position: new THREE.Vector3(0, -50, 0),
 		object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
 			new THREE.MeshPhongMaterial({color: 0xababab}))
 	});
-	Game.scene.add(d);
-	Game.camera.position.z = 250;
-	Game.camera.rotation.x = 75;
-	Game.camera.rotation.y = 75;
+	game.scene.add(d);
+	game.camera.position.z = 250;
+	game.camera.position.x = -75;
+	game.camera.rotation.x = 75;
+	game.camera.rotation.y = 75;
 });
 
-Game.on('start', function() {
+game.on('start', function() {
 	document.getElementById('three').innerText = "Three.js Revision "+ THREE.REVISION; 
-	window.onresize = function() {Game.onResize()};
-	window.onkeydown = function(a: any) {Game.onKeyDown(a)};
-	window.onkeyup = function(a: any) {Game.onKeyUp(a)};
+	window.onresize = function() {game.onResize()};
+	window.onkeydown = function(a: any) {game.onKeyDown(a)};
+	window.onkeyup = function(a: any) {game.onKeyUp(a)};
 	var r = function() {
-		Game.render();
+		game.render();
 		requestAnimationFrame(r);
 	};
 	r();
@@ -43,47 +43,44 @@ Game.on('start', function() {
 // 				.target(new HG.rgb(255, 255, 255))
 // 				.over(1800);
 
-Game.controls.bind(HG.Settings.keys.Pause, function(delta: number) {
+game.controls.bind(HG.Settings.keys.pause, function(delta: number) {
 	document.getElementById("menuWrapper").style.display = 'block';
 	document.getElementById("gameWrapper").style.display = 'none';
 });
 
-Game.controls.bind(HG.Settings.keys.Left, function(delta: number) {
-	Game.scene.get(["Player", "PlayerLight"]).forEach(function(e) {
-		if (e instanceof HG.Entities.MovingEntity) {
-			e.MoveLeft(3.125 * delta[0]);
-		}
+game.controls.bind(HG.Settings.keys.left, function(delta: number) {
+	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
+		e.MoveLeft(3.125 * delta[0]);
 	});
-	Game.camera.position.x -= 3.125 * delta[0];
+	game.camera.position.x -= 3.125 * delta[0];
 });
 
-Game.controls.bind(HG.Settings.keys.Right, function(delta: number) {
-	Game.scene.get(["Player", "PlayerLight"]).forEach(function(e) {
-		if (e instanceof HG.Entities.MovingEntity) {
-			e.MoveRight(3.125 * delta[0]);
-		}
+game.controls.bind(HG.Settings.keys.jump, function(delta: number) {
+	game.scene.get(["Player", "PlayerLight"],HG.Entities.MovingEntity).forEach(function(e) {
+		e.Jump(3.125 * delta[0]);
 	});
-	Game.camera.position.x += 3.125 * delta[0];
 });
 
-Game.on(['start', 'resize'], function() {
+game.controls.bind(HG.Settings.keys.right, function(delta: number) {
+	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
+		e.MoveRight(3.125 * delta[0]);
+	});
+	game.camera.position.x += 3.125 * delta[0];
+});
+
+game.on(['start', 'resize'], function() {
 	document.getElementById("resolution").innerText = 
 		"Rendering on: "+window.innerWidth+"x"+window.innerHeight;
 });
 
-Game.on("render", function(delta: any[]) {
-	// transition.frame(delta[0]);
-	// var color = transition.getColor();
-	// console.log(color);
-	// Game.scene.get(0).material.color = color;
-	// Game.scene.get(1).color = color;
-	document.getElementById("fps").innerText = "FPS: "+Game.fpsCounter.getFPS();
+game.on("render", function(delta: any[]) {
+	document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.getFPS();
 	document.getElementById("frametime").innerText =
-		"Frametime: "+Game.fpsCounter.getFrameTime()+"ms";
+		"Frametime: "+game.fpsCounter.getFrameTime()+"ms";
 });
 
 window.onload = function() {
-	Game.preLoad();
+	game.preLoad();
 };
 document.getElementById("exit").onclick = function() {
 	window.close();
@@ -91,7 +88,7 @@ document.getElementById("exit").onclick = function() {
 document.getElementById("play").onclick = function() {
 	document.getElementById("gameWrapper").style.display = 'block';
 	document.getElementById("menuWrapper").style.display = 'none';
-	if (Game.isRunning === false) {
-		Game.start();
+	if (game.isRunning === false) {
+		game.start();
 	}
 };
