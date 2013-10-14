@@ -2,7 +2,7 @@ module HG {
 	export var Settings = {
 		fov: 110,
 		tileSize: 50,
-		viewDistance: 4800,
+		viewDistance: 500,
 		debug: {
 			Enabled: true,
 			PositionX: 2000
@@ -15,7 +15,9 @@ module HG {
 			left: HG.KeyMap.A,
 			right: HG.KeyMap.D,
 			pause: HG.KeyMap.Esc,
-			jump: HG.KeyMap.Space
+			jump: HG.KeyMap.Space,
+			devConsole: HG.KeyMap.F12,
+			fullscreen: HG.KeyMap.F11
 		},
 		pattern: [
 			[

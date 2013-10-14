@@ -1,15 +1,16 @@
 {
-  "name": "HorribleGame",
-  "author": "BeryJu jenslanghammer@gmail.com",
-  "description": "A Horrible Game",
-  "devDependencies": {
-    "grunt": "latest",
-    "grunt-contrib-uglify": "~0.2.4",
-    "grunt-ts": "latest",
-    "grunt-shell": "~0.4.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "Repo"
-  }
+	"name": "HorribleGame",
+	"author": "BeryJu jenslanghammer@gmail.com",
+	"description": "A Horrible Game",
+	"build": 2,
+	"devDependencies": {
+		"grunt": "latest",
+		"grunt-contrib-uglify": "~0.2.4",
+		"grunt-ts": "latest",
+		"grunt-shell": "~0.4.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "Repo"
+	}
 }

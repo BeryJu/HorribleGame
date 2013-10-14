@@ -38,7 +38,9 @@ var HG;
         };
 
         EventDispatcher.prototype.clear = function (name) {
-            name = name.toLowerCase();
+            if (typeof name !== "number") {
+                name = name.toString().toLowerCase();
+            }
             if (!this.events[name])
                 return;
             if (this.events[name].length === 0)
@@ -46,11 +48,8 @@ var HG;
             this.events[name] = [];
         };
 
-        EventDispatcher.prototype.dispatch = function (name) {
-            var args = [];
-            for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                args[_i] = arguments[_i + 1];
-            }
+        EventDispatcher.prototype.dispatch = function (name, args) {
+            if (typeof args === "undefined") { args = {}; }
             if (Array.isArray(name) === true) {
                 for (var i = 0; i < name.length; i++) {
                     this.dispatch(name[i], args);
@@ -63,7 +62,8 @@ var HG;
                     return;
                 if (this.events[name].length === 0)
                     return;
-                args.push(name);
+                if (!args['callee'])
+                    args['callee'] = name;
                 this.events[name].forEach(function (event) {
                     event(args);
                 });
@@ -94,8 +94,7 @@ var HG;
             this.controls = new HG.InputHandler();
             this.fpsCounter = new HG.FPSCounter();
             if (HG.Utils.hasGL() === false) {
-                var up = new Error("Your Browser doesn't support WebGL");
-                throw up;
+                throw new Error("Your Browser doesn't support WebGL");
             }
             this.camera = new THREE.PerspectiveCamera(HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
             this.renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.antialiasing });
@@ -105,27 +104,40 @@ var HG;
         }
         BaseGame.prototype.preLoad = function () {
             console.log('loading assets');
-            this.dispatch('PreLoad');
+            this.dispatch('preload');
             console.log('loaded assets');
         };
 
-        BaseGame.prototype.start = function () {
-            this.dispatch('Start');
+        BaseGame.prototype.connect = function (serverHost) {
+            var io = require('socket.io-client');
+            if (this.socketClient !== undefined) {
+                // this.socketClient.disconnect();
+            }
+            this.socketClient = io.connect(serverHost);
+            this.socketClient.on('news', function (data) {
+                console.log(data);
+            });
+            this.dispatch("connected", { host: serverHost });
+        };
+
+        BaseGame.prototype.start = function (serverHost) {
+            this.connect(serverHost);
+            this.dispatch('start');
             this.isRunning = true;
         };
 
         BaseGame.prototype.onKeyUp = function (a) {
             this.controls.onKeyUp(a);
-            this.dispatch('KeyUp', a);
+            this.dispatch('keyUp', { event: a });
         };
 
         BaseGame.prototype.onKeyDown = function (a) {
             this.controls.onKeyDown(a);
-            this.dispatch('KeyDown', a);
+            this.dispatch('keyDown', { event: a });
         };
 
         BaseGame.prototype.onResize = function () {
-            this.dispatch('Resize');
+            this.dispatch('resize');
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -133,7 +145,7 @@ var HG;
 
         BaseGame.prototype.render = function () {
             var delta = this.fpsCounter.getFrameTime() / 10;
-            this.dispatch('Render', delta);
+            this.dispatch('render', { delta: delta });
             this.controls.frame(delta);
             this.fpsCounter.frame(delta);
             this.renderer.render(this.scene.scene, this.camera);
@@ -142,34 +154,120 @@ var HG;
     })(HG.EventDispatcher);
     HG.BaseGame = BaseGame;
 })(HG || (HG = {}));
+///<reference path="EventDispatcher" />
 var HG;
 (function (HG) {
-    var rgb = (function () {
-        function rgb(r, g, b) {
-            if (typeof r === "undefined") { r = 0; }
-            if (typeof g === "undefined") { g = 0; }
-            if (typeof b === "undefined") { b = 0; }
-            this.r = r;
-            this.g = g;
-            this.b = b;
+    var BaseServer = (function (_super) {
+        __extends(BaseServer, _super);
+        function BaseServer(port) {
+            _super.call(this);
+            var io = require('socket.io');
+            try  {
+                this.socketServer = io.listen(port);
+            } catch (e) {
+                console.error(e);
+            }
+            for (var k in this) {
+                console.log(k);
+            }
+            this.socketServer.sockets.on('connection', function (socket) {
+                socket.on('my other event', function (data) {
+                    console.log(data);
+                });
+            });
         }
-        return rgb;
-    })();
-    HG.rgb = rgb;
+        return BaseServer;
+    })(HG.EventDispatcher);
+    HG.BaseServer = BaseServer;
+})(HG || (HG = {}));
+///<reference path="EventDispatcher" />
+var HG;
+(function (HG) {
+    HG.DefaultEntityParams = {
+        extra: {},
+        position: new THREE.Vector3(),
+        rotation: new THREE.Vector3(),
+        targetPosition: new THREE.Vector3(),
+        object: new THREE.Object3D()
+    };
 
-    var rgba = (function (_super) {
-        __extends(rgba, _super);
-        function rgba(r, g, b, a) {
-            if (typeof r === "undefined") { r = 0; }
-            if (typeof g === "undefined") { g = 0; }
-            if (typeof b === "undefined") { b = 0; }
-            if (typeof a === "undefined") { a = 0; }
-            _super.call(this, r, g, b);
-            this.a = a;
+    var Entity = (function (_super) {
+        __extends(Entity, _super);
+        function Entity(params) {
+            _super.call(this);
+            this.children = [];
+            if (!params)
+                return;
+            if (params.extra !== {}) {
+                for (var key in params.extra) {
+                    this.object[key] = params.extra[key];
+                }
+            }
+            this.object = params.object;
+            this.object.position = params.position;
+            this.object.rotation = params.rotation;
         }
-        return rgba;
-    })(rgb);
-    HG.rgba = rgba;
+        // toJSON(): {} {
+        // }
+        Entity.prototype.set = function (key, value) {
+            if (this.children.length > 0) {
+                this.children.forEach(function (c) {
+                    c.set(key, value);
+                });
+            }
+            if (key.indexOf(".") === -1) {
+                this.object[key] = value;
+            } else {
+                var parts = key.split(".");
+                var obj = this.object;
+                for (var i = 0; i < parts.length - 1; i++) {
+                    obj = obj[parts[i]];
+                }
+                obj[parts[length]] = value;
+            }
+            return this;
+        };
+
+        Entity.prototype.hasChildren = function () {
+            return (this.children.length > 0);
+        };
+
+        Entity.prototype.get = function (key) {
+            if (key.indexOf(".") === -1) {
+                return this.object[key];
+            } else {
+                var parts = key.split(".");
+                var obj = this.object;
+                for (var i = 0; i < parts.length - 1; i++) {
+                    obj = obj[parts[i]];
+                }
+                return obj[parts[length]];
+            }
+        };
+
+        Entity.prototype.collectChildren = function () {
+            var result = [];
+            result.push(this);
+            if (this.children.length > 0) {
+                this.children.forEach(function (c) {
+                    result.push(c);
+                });
+            }
+            return result;
+        };
+
+        Entity.prototype.connect = function (e) {
+            this.children.push(e);
+            return this;
+        };
+
+        Entity.prototype.fromObject3D = function (o) {
+            this.object = o;
+            return this;
+        };
+        return Entity;
+    })(HG.EventDispatcher);
+    HG.Entity = Entity;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -184,7 +282,1018 @@ var HG;
     })(HG.EventDispatcher);
     HG.GameComponent = GameComponent;
 })(HG || (HG = {}));
-///<reference path="GameComponent" />
+var HG;
+(function (HG) {
+    var InputHandler = (function (_super) {
+        __extends(InputHandler, _super);
+        function InputHandler() {
+            _super.call(this);
+            this.keyState = [];
+            this.bind = this.on;
+        }
+        InputHandler.prototype.onKeyDown = function (e) {
+            this.keyState[e.keyCode] = 1;
+        };
+
+        InputHandler.prototype.onKeyUp = function (e) {
+            this.keyState[e.keyCode] = 0;
+        };
+
+        InputHandler.prototype.frame = function (delta) {
+            for (var i = 0; i < this.keyState.length; i++) {
+                if (this.keyState[i] === 1) {
+                    this.dispatch(i, { delta: delta });
+                }
+            }
+        };
+        return InputHandler;
+    })(HG.GameComponent);
+    HG.InputHandler = InputHandler;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    HG.KeyMap = {
+        D: 68,
+        A: 65,
+        S: 83,
+        W: 87,
+        Q: 81,
+        E: 69,
+        Space: 32,
+        Esc: 27,
+        F11: 122,
+        F12: 123
+    };
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    var Noise = (function () {
+        function Noise() {
+        }
+        Noise.Generate2 = function (x, y) {
+            var F2 = 0.366025403;
+            var G2 = 0.211324865;
+
+            var n0, n1, n2;
+
+            // Skew the input space to determine which simplex cell we're in
+            var s = (x + y) * F2;
+            var xs = x + s;
+            var ys = y + s;
+            var i = Math.floor(xs);
+            var j = Math.floor(ys);
+
+            var t = (i + j) * G2;
+            var X0 = i - t;
+            var Y0 = j - t;
+            var x0 = x - X0;
+            var y0 = y - Y0;
+
+            // For the 2D case, the simplex shape is an equilateral triangle.
+            // Determine which simplex we are in.
+            var i1, j1;
+            if (x0 > y0) {
+                i1 = 1;
+                j1 = 0;
+            } else {
+                i1 = 0;
+                j1 = 1;
+            }
+
+            // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
+            // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
+            // c = (3-sqrt(3))/6
+            var x1 = x0 - i1 + G2;
+            var y1 = y0 - j1 + G2;
+            var x2 = x0 - 1.0 + 2.0 * G2;
+            var y2 = y0 - 1.0 + 2.0 * G2;
+
+            // Wrap the integer indices at 256, to avoid indexing Noise.perm[] out of bounds
+            var ii = i % 256;
+            var jj = j % 256;
+
+            // Calculate the contribution from the three corners
+            var t0 = 0.5 - x0 * x0 - y0 * y0;
+            if (t0 < 0.0)
+                n0 = 0.0;
+else {
+                t0 *= t0;
+                n0 = t0 * t0 * Noise.grad2(Noise.perm[ii + Noise.perm[jj]], x0, y0);
+            }
+
+            var t1 = 0.5 - x1 * x1 - y1 * y1;
+            if (t1 < 0.0)
+                n1 = 0.0;
+else {
+                t1 *= t1;
+                n1 = t1 * t1 * Noise.grad2(Noise.perm[ii + i1 + Noise.perm[jj + j1]], x1, y1);
+            }
+
+            var t2 = 0.5 - x2 * x2 - y2 * y2;
+            if (t2 < 0.0)
+                n2 = 0.0;
+else {
+                t2 *= t2;
+                n2 = t2 * t2 * Noise.grad2(Noise.perm[ii + 1 + Noise.perm[jj + 1]], x2, y2);
+            }
+
+            // Add contributions from each corner to get the final noise value.
+            // The result is scaled to return values in the interval [-1,1].
+            return 40.0 * (n0 + n1 + n2);
+        };
+
+        Noise.Generate3 = function (x, y, z) {
+            // Simple skewing factors for the 3D case
+            var F3 = 0.333333333;
+            var G3 = 0.166666667;
+
+            var n0, n1, n2, n3;
+
+            // Skew the input space to determine which simplex cell we're in
+            var s = (x + y + z) * F3;
+            var xs = x + s;
+            var ys = y + s;
+            var zs = z + s;
+            var i = Math.floor(xs);
+            var j = Math.floor(ys);
+            var k = Math.floor(zs);
+
+            var t = (i + j + k) * G3;
+            var X0 = i - t;
+            var Y0 = j - t;
+            var Z0 = k - t;
+            var x0 = x - X0;
+            var y0 = y - Y0;
+            var z0 = z - Z0;
+
+            // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
+            // Determine which simplex we are in.
+            var i1, j1, k1;
+            var i2, j2, k2;
+
+            if (x0 >= y0) {
+                if (y0 >= z0) {
+                    i1 = 1;
+                    j1 = 0;
+                    k1 = 0;
+                    i2 = 1;
+                    j2 = 1;
+                    k2 = 0;
+                } else if (x0 >= z0) {
+                    i1 = 1;
+                    j1 = 0;
+                    k1 = 0;
+                    i2 = 1;
+                    j2 = 0;
+                    k2 = 1;
+                } else {
+                    i1 = 0;
+                    j1 = 0;
+                    k1 = 1;
+                    i2 = 1;
+                    j2 = 0;
+                    k2 = 1;
+                }
+            } else {
+                if (y0 < z0) {
+                    i1 = 0;
+                    j1 = 0;
+                    k1 = 1;
+                    i2 = 0;
+                    j2 = 1;
+                    k2 = 1;
+                } else if (x0 < z0) {
+                    i1 = 0;
+                    j1 = 1;
+                    k1 = 0;
+                    i2 = 0;
+                    j2 = 1;
+                    k2 = 1;
+                } else {
+                    i1 = 0;
+                    j1 = 1;
+                    k1 = 0;
+                    i2 = 1;
+                    j2 = 1;
+                    k2 = 0;
+                }
+            }
+
+            // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in (x,y,z),
+            // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and
+            // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where
+            // c = 1/6.
+            var x1 = x0 - i1 + G3;
+            var y1 = y0 - j1 + G3;
+            var z1 = z0 - k1 + G3;
+            var x2 = x0 - i2 + 2.0 * G3;
+            var y2 = y0 - j2 + 2.0 * G3;
+            var z2 = z0 - k2 + 2.0 * G3;
+            var x3 = x0 - 1.0 + 3.0 * G3;
+            var y3 = y0 - 1.0 + 3.0 * G3;
+            var z3 = z0 - 1.0 + 3.0 * G3;
+
+            // Wrap the integer indices at 256, to avoid indexing Noise.perm[] out of bounds
+            var ii = Noise.Mod(i, 256);
+            var jj = Noise.Mod(j, 256);
+            var kk = Noise.Mod(k, 256);
+
+            // Calculate the contribution from the four corners
+            var t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+            if (t0 < 0.0)
+                n0 = 0.0;
+else {
+                t0 *= t0;
+                n0 = t0 * t0 * Noise.grad3(Noise.perm[ii + Noise.perm[jj + Noise.perm[kk]]], x0, y0, z0);
+            }
+
+            var t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+            if (t1 < 0.0)
+                n1 = 0.0;
+else {
+                t1 *= t1;
+                n1 = t1 * t1 * Noise.grad3(Noise.perm[ii + i1 + Noise.perm[jj + j1 + Noise.perm[kk + k1]]], x1, y1, z1);
+            }
+
+            var t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+            if (t2 < 0.0)
+                n2 = 0.0;
+else {
+                t2 *= t2;
+                n2 = t2 * t2 * Noise.grad3(Noise.perm[ii + i2 + Noise.perm[jj + j2 + Noise.perm[kk + k2]]], x2, y2, z2);
+            }
+
+            var t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+            if (t3 < 0.0)
+                n3 = 0.0;
+else {
+                t3 *= t3;
+                n3 = t3 * t3 * Noise.grad3(Noise.perm[ii + 1 + Noise.perm[jj + 1 + Noise.perm[kk + 1]]], x3, y3, z3);
+            }
+
+            // Add contributions from each corner to get the final noise value.
+            // The result is scaled to stay just inside [-1,1]
+            return 32.0 * (n0 + n1 + n2 + n3);
+        };
+
+        Noise.Mod = function (x, m) {
+            var a = x % m;
+            return a < 0 ? a + m : a;
+        };
+
+        Noise.grad1 = function (hash, x) {
+            var h = hash & 15;
+            var grad = 1.0 + (h & 7);
+            if ((h & 8) != 0)
+                grad = -grad;
+            return (grad * x);
+        };
+
+        Noise.grad2 = function (hash, x, y) {
+            var h = hash & 7;
+            var u = h < 4 ? x : y;
+            var v = h < 4 ? y : x;
+            return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -2.0 * v : 2.0 * v);
+        };
+
+        Noise.grad3 = function (hash, x, y, z) {
+            var h = hash & 15;
+            var u = h < 8 ? x : y;
+            var v = h < 4 ? y : h == 12 || h == 14 ? x : z;
+            return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -v : v);
+        };
+
+        Noise.grad4 = function (hash, x, y, z, t) {
+            var h = hash & 31;
+            var u = h < 24 ? x : y;
+            var v = h < 16 ? y : z;
+            var w = h < 8 ? z : t;
+            return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -v : v) + ((h & 4) != 0 ? -w : w);
+        };
+        Noise.perm = [
+            151,
+            160,
+            137,
+            91,
+            90,
+            15,
+            131,
+            13,
+            201,
+            95,
+            96,
+            53,
+            194,
+            233,
+            7,
+            225,
+            140,
+            36,
+            103,
+            30,
+            69,
+            142,
+            8,
+            99,
+            37,
+            240,
+            21,
+            10,
+            23,
+            190,
+            6,
+            148,
+            247,
+            120,
+            234,
+            75,
+            0,
+            26,
+            197,
+            62,
+            94,
+            252,
+            219,
+            203,
+            117,
+            35,
+            11,
+            32,
+            57,
+            177,
+            33,
+            88,
+            237,
+            149,
+            56,
+            87,
+            174,
+            20,
+            125,
+            136,
+            171,
+            168,
+            68,
+            175,
+            74,
+            165,
+            71,
+            134,
+            139,
+            48,
+            27,
+            166,
+            77,
+            146,
+            158,
+            22931,
+            83,
+            111,
+            229,
+            122,
+            60,
+            211,
+            133,
+            230,
+            220,
+            105,
+            92,
+            41,
+            55,
+            46,
+            245,
+            40,
+            244,
+            102,
+            143,
+            54,
+            65,
+            25,
+            63,
+            161,
+            1,
+            216,
+            80,
+            73,
+            209,
+            76,
+            132,
+            187,
+            208,
+            89,
+            18,
+            169,
+            200,
+            196,
+            135,
+            130,
+            116,
+            188,
+            159,
+            86,
+            164,
+            100,
+            109,
+            198,
+            173,
+            186,
+            3,
+            64,
+            52,
+            217,
+            226,
+            250,
+            124,
+            123,
+            5,
+            202,
+            38,
+            147,
+            118,
+            126,
+            255,
+            82,
+            85,
+            212,
+            207,
+            206,
+            59,
+            227,
+            47,
+            16,
+            58,
+            17,
+            182,
+            189,
+            28,
+            42,
+            223,
+            183,
+            170,
+            213,
+            119,
+            248,
+            152,
+            2,
+            44,
+            154,
+            163,
+            70,
+            221,
+            153,
+            101,
+            155,
+            167,
+            43,
+            172,
+            9,
+            129,
+            22,
+            39,
+            253,
+            19,
+            98,
+            108,
+            110,
+            79,
+            113,
+            224,
+            232,
+            178,
+            185,
+            112,
+            104,
+            218,
+            246,
+            97,
+            228,
+            251,
+            34,
+            242,
+            193,
+            238,
+            210,
+            144,
+            12,
+            191,
+            179,
+            162,
+            241,
+            81,
+            51,
+            145,
+            235,
+            249,
+            14,
+            239,
+            107,
+            49,
+            192,
+            214,
+            31,
+            181,
+            199,
+            106,
+            157,
+            184,
+            84,
+            204,
+            176,
+            115,
+            121,
+            50,
+            45,
+            127,
+            4,
+            150,
+            254,
+            138,
+            236,
+            205,
+            93,
+            222,
+            114,
+            67,
+            29,
+            24,
+            72,
+            243,
+            141,
+            128,
+            195,
+            78,
+            66,
+            215,
+            61,
+            156,
+            180,
+            151,
+            160,
+            137,
+            91,
+            90,
+            15,
+            131,
+            13,
+            201,
+            95,
+            96,
+            53,
+            194,
+            233,
+            7,
+            225,
+            140,
+            36,
+            103,
+            30,
+            69,
+            142,
+            8,
+            99,
+            37,
+            240,
+            21,
+            10,
+            23,
+            190,
+            6,
+            148,
+            247,
+            120,
+            234,
+            75,
+            0,
+            26,
+            197,
+            62,
+            94,
+            252,
+            219,
+            203,
+            117,
+            35,
+            11,
+            32,
+            57,
+            177,
+            33,
+            88,
+            237,
+            149,
+            56,
+            87,
+            174,
+            20,
+            125,
+            136,
+            171,
+            168,
+            68,
+            175,
+            74,
+            165,
+            71,
+            134,
+            139,
+            48,
+            27,
+            166,
+            77,
+            146,
+            158,
+            231,
+            83,
+            111,
+            229,
+            122,
+            60,
+            211,
+            133,
+            230,
+            220,
+            105,
+            92,
+            41,
+            55,
+            46,
+            245,
+            40,
+            244,
+            102,
+            143,
+            54,
+            65,
+            25,
+            63,
+            161,
+            1,
+            216,
+            80,
+            73,
+            209,
+            76,
+            132,
+            187,
+            208,
+            89,
+            18,
+            169,
+            200,
+            196,
+            135,
+            130,
+            116,
+            188,
+            159,
+            86,
+            164,
+            100,
+            109,
+            198,
+            173,
+            186,
+            3,
+            64,
+            52,
+            217,
+            226,
+            250,
+            124,
+            123,
+            5,
+            202,
+            38,
+            147,
+            118,
+            126,
+            255,
+            82,
+            85,
+            212,
+            207,
+            206,
+            59,
+            227,
+            47,
+            16,
+            58,
+            17,
+            182,
+            189,
+            28,
+            42,
+            223,
+            183,
+            170,
+            213,
+            119,
+            248,
+            152,
+            2,
+            44,
+            154,
+            163,
+            70,
+            221,
+            153,
+            101,
+            155,
+            167,
+            43,
+            172,
+            9,
+            129,
+            22,
+            39,
+            253,
+            19,
+            98,
+            108,
+            110,
+            79,
+            113,
+            224,
+            232,
+            178,
+            185,
+            112,
+            104,
+            218,
+            246,
+            97,
+            228,
+            251,
+            34,
+            242,
+            193,
+            238,
+            210,
+            144,
+            12,
+            191,
+            179,
+            162,
+            241,
+            81,
+            51,
+            145,
+            235,
+            249,
+            14,
+            239,
+            107,
+            49,
+            192,
+            214,
+            31,
+            181,
+            199,
+            106,
+            157,
+            184,
+            84,
+            204,
+            176,
+            115,
+            121,
+            50,
+            45,
+            127,
+            4,
+            150,
+            254,
+            138,
+            236,
+            205,
+            93,
+            222,
+            114,
+            67,
+            29,
+            24,
+            72,
+            243,
+            141,
+            128,
+            195,
+            78,
+            66,
+            215,
+            61,
+            156,
+            180
+        ];
+        return Noise;
+    })();
+    HG.Noise = Noise;
+})(HG || (HG = {}));
+/// <reference path="utils/Noise.hg.ts" />
+var HG;
+(function (HG) {
+    HG.SIZE_X = 64;
+    HG.SIZE_Y = HG.SIZE_X / 4;
+    HG.BLOCK_SIZE = 50;
+
+    var LevelStructure = (function (_super) {
+        __extends(LevelStructure, _super);
+        function LevelStructure() {
+            _super.call(this);
+            this.entities = new HG.Map();
+            this.camera = {
+                position: { x: 0, y: 0, z: 0 },
+                rotation: { x: 0, y: 0, z: 0 }
+            };
+        }
+        LevelStructure.prototype.load = function (JSONString) {
+            var r = JSON.parse(JSONString);
+            this.entities = new HG.Map();
+            for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
+                for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
+                    var e = r.entities['data'][i][j][0];
+                    this.entities.set(e, i, j);
+                }
+            }
+            this.camera = r.camera;
+            this.dispatch('loaded', { level: this });
+        };
+
+        LevelStructure.prototype.onReadyStateChange = function (req) {
+            if (req.readyState === 4) {
+                this.load(req.responseText);
+            }
+        };
+
+        LevelStructure.prototype.loadAsync = function (url) {
+            var req = new XMLHttpRequest();
+            var t = this;
+            req.onreadystatechange = function (req) {
+                t.onReadyStateChange(this);
+            };
+            req.open("GET", url, true);
+            req.send();
+        };
+
+        LevelStructure.prototype.create = function (Seed) {
+            this.entities = new HG.Map();
+            for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
+                for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
+                    var noise = HG.Noise.Generate2(i, j);
+                    var l = Math.floor((noise * 50) - 50);
+                    var color = HG.Utils.rgbToHex(i / 10 + 50, j / 10 + 50, ((i + j) / 2) / 10 + 50);
+                    var e = {
+                        type: "solid",
+                        indentation: l,
+                        color: color
+                    };
+                    this.entities.set(e, i, j);
+                }
+            }
+            this.camera.position = { x: -127, y: 290, z: 250 };
+            this.camera.rotation = { x: 75, y: 75, z: 0 };
+            this.dispatch('created', { level: this });
+        };
+        return LevelStructure;
+    })(HG.EventDispatcher);
+    HG.LevelStructure = LevelStructure;
+})(HG || (HG = {}));
+/// <reference path="LevelStructure.ts" />
+var HG;
+(function (HG) {
+    var Level = (function (_super) {
+        __extends(Level, _super);
+        function Level(lvl) {
+            _super.call(this);
+            this.entities = [];
+            this.camera = {
+                position: new THREE.Vector3(),
+                rotation: new THREE.Vector3()
+            };
+            for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
+                for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
+                    var be = lvl.entities.get(i, j);
+                    var re = new HG.Entities.MovingEntity({
+                        position: new THREE.Vector3(i, j, be.indentation),
+                        object: new THREE.Mesh(new THREE.CubeGeometry(HG.BLOCK_SIZE, HG.BLOCK_SIZE, HG.BLOCK_SIZE), new THREE.MeshPhongMaterial({ color: be.color }))
+                    });
+                    this.entities.push(re);
+                }
+            }
+            this.camera.position = new THREE.Vector3(lvl.camera.position.x, lvl.camera.position.y, lvl.camera.position.z);
+            this.camera.rotation = new THREE.Vector3(lvl.camera.rotation.x, lvl.camera.rotation.y, lvl.camera.rotation.z);
+        }
+        Level.prototype.applyCamera = function (camera) {
+            console.log(this.camera);
+            camera.position = this.camera.position;
+            camera.rotation.x = this.camera.rotation.x;
+            camera.rotation.y = this.camera.rotation.y;
+            camera.rotation.z = this.camera.rotation.z;
+        };
+        return Level;
+    })(HG.EventDispatcher);
+    HG.Level = Level;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    var Scene = (function () {
+        function Scene() {
+            this.scene = null;
+            this.scene = new THREE.Scene();
+            this.entities = {
+                named: {},
+                unnamed: []
+            };
+        }
+        Scene.prototype.add = function (Entity, nameTag) {
+            var c = Entity.collectChildren();
+            for (var i = 0; i < c.length; ++i) {
+                this.scene.add(c[i].object);
+            }
+            if (nameTag) {
+                this.entities.named[nameTag.toLowerCase()] = Entity;
+            } else {
+                this.entities.unnamed.push(Entity);
+            }
+        };
+
+        Scene.prototype.getIndex = function (index) {
+            return this.scene.children[index];
+        };
+
+        Scene.prototype.get = function (nameTag, type) {
+            if (typeof type === "undefined") { type = HG.Entity; }
+            var e = [];
+            for (var i = 0; i < nameTag.length; i++) {
+                var ee = this.entities.named[nameTag[i].toLowerCase()];
+                if (ee instanceof type) {
+                    e.push(ee);
+                }
+            }
+            return e;
+        };
+        return Scene;
+    })();
+    HG.Scene = Scene;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    var ServerConnection = (function (_super) {
+        __extends(ServerConnection, _super);
+        function ServerConnection(host) {
+            _super.call(this);
+            var io = require('socket.io-client');
+            this.socket = io.connect(host);
+            this.socket.emit("join", {});
+        }
+        return ServerConnection;
+    })(HG.EventDispatcher);
+    HG.ServerConnection = ServerConnection;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var MovingEntity = (function (_super) {
+            __extends(MovingEntity, _super);
+            function MovingEntity() {
+                _super.apply(this, arguments);
+                this.jumpState = 0;
+            }
+            MovingEntity.prototype.moveLeft = function (step) {
+                if (typeof step === "undefined") { step = 3.125; }
+                this.object.position.x -= step;
+            };
+
+            MovingEntity.prototype.moveRight = function (step) {
+                if (typeof step === "undefined") { step = 3.125; }
+                this.object.position.x += step;
+            };
+
+            //0: normal
+            //1: rising
+            //2: max
+            //3: falling
+            MovingEntity.prototype.jump = function (maxY) {
+                if (typeof maxY === "undefined") { maxY = 100; }
+                this.object.position.y += maxY;
+            };
+            return MovingEntity;
+        })(HG.Entity);
+        Entities.MovingEntity = MovingEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    var Player = (function (_super) {
+        __extends(Player, _super);
+        function Player() {
+            _super.apply(this, arguments);
+        }
+        return Player;
+    })(HG.Entity);
+    HG.Player = Player;
+})(HG || (HG = {}));
+///<reference path="../GameComponent" />
 var HG;
 (function (HG) {
     var ColorTransition = (function (_super) {
@@ -192,19 +1301,15 @@ var HG;
         function ColorTransition() {
             _super.call(this);
             this.isDone = false;
-            this.baseColor = new HG.rgb();
-            this.currentColor = new HG.rgb();
+            this.baseColor = new THREE.Color();
+            this.currentColor = new THREE.Color();
             this.currentFrame = 0;
             this.frameSpan = 0;
             this.currentTarget = 0;
             this.targets = [];
         }
         ColorTransition.prototype.getColor = function () {
-            var c = new THREE.Color();
-            c.r = this.currentColor.r;
-            c.g = this.currentColor.g;
-            c.b = this.currentColor.b;
-            return c;
+            return this.currentColor;
         };
 
         ColorTransition.prototype.target = function (color) {
@@ -259,83 +1364,7 @@ var HG;
     })(HG.GameComponent);
     HG.ColorTransition = ColorTransition;
 })(HG || (HG = {}));
-///<reference path="EventDispatcher" />
-var HG;
-(function (HG) {
-    HG.DefaultEntityParams = {
-        extra: {},
-        position: new THREE.Vector3(),
-        rotation: new THREE.Vector3(),
-        targetPosition: new THREE.Vector3(),
-        object: new THREE.Object3D()
-    };
-
-    var Entity = (function (_super) {
-        __extends(Entity, _super);
-        function Entity(params) {
-            _super.call(this);
-            this.children = [];
-            if (params.extra !== {}) {
-                for (var key in params.extra) {
-                    this.object[key] = params.extra[key];
-                }
-            }
-            this.object = params.object;
-            this.object.position = params.position;
-            this.object.rotation = params.rotation;
-        }
-        Entity.prototype.set = function (key, value) {
-            if (this.children.length > 0) {
-                this.children.forEach(function (c) {
-                    c.set(key, value);
-                });
-            }
-            if (key.indexOf(".") === -1) {
-                this.object[key] = value;
-            } else {
-                var parts = key.split(".");
-                var obj = this.object;
-                for (var i = 0; i < parts.length - 1; i++) {
-                    obj = obj[parts[i]];
-                }
-                obj[parts[length]] = value;
-            }
-            return this;
-        };
-
-        Entity.prototype.get = function (key) {
-            if (key.indexOf(".") === -1) {
-                return this.object[key];
-            } else {
-                var parts = key.split(".");
-                var obj = this.object;
-                for (var i = 0; i < parts.length - 1; i++) {
-                    obj = obj[parts[i]];
-                }
-                return obj[parts[length]];
-            }
-        };
-
-        Entity.prototype.collectChildren = function () {
-            var result = [];
-            result.push(this);
-            if (this.children.length > 0) {
-                this.children.forEach(function (c) {
-                    result.push(c);
-                });
-            }
-            return result;
-        };
-
-        Entity.prototype.connect = function (e) {
-            this.children.push(e);
-            return this;
-        };
-        return Entity;
-    })(HG.EventDispatcher);
-    HG.Entity = Entity;
-})(HG || (HG = {}));
-///<reference path="GameComponent" />
+/// <reference path="../GameComponent" />
 var HG;
 (function (HG) {
     var FPSCounter = (function (_super) {
@@ -345,12 +1374,17 @@ var HG;
             this.lastFrameTime = 0;
             this.lastSecond = 0;
             this.currentFrames = 0;
+            this.highestFPS = 0;
             this.frameTime = 0;
             this.fps = 0;
             this.lastFrameTime = new Date().getTime();
         }
         FPSCounter.prototype.getFPS = function () {
             return this.fps;
+        };
+
+        FPSCounter.prototype.getMaxFPS = function () {
+            return this.highestFPS;
         };
 
         FPSCounter.prototype.getFrameTime = function () {
@@ -369,6 +1403,8 @@ var HG;
             var FPSDiff = new Date(Now.getTime() - this.lastSecond);
             if (FPSDiff.getSeconds() > 0) {
                 this.fps = this.currentFrames;
+                if (this.fps > this.highestFPS)
+                    this.highestFPS = this.fps;
                 this.currentFrames = 0;
                 this.lastSecond = Now.getTime();
             }
@@ -380,121 +1416,70 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    var InputHandler = (function (_super) {
-        __extends(InputHandler, _super);
-        function InputHandler() {
-            _super.call(this);
-            this.keyState = [];
-            this.bind = this.on;
+    var Map = (function () {
+        function Map() {
+            this.data = {};
         }
-        InputHandler.prototype.onKeyDown = function (e) {
-            this.keyState[e.keyCode] = 1;
+        Map.prototype.set = function (data, x, y, z) {
+            if (typeof x === "undefined") { x = 0; }
+            if (typeof y === "undefined") { y = 0; }
+            if (typeof z === "undefined") { z = 0; }
+            if (!this.data[x])
+                this.data[x] = {};
+            if (!this.data[x][y])
+                this.data[x][y] = {};
+            if (!this.data[x][y][z])
+                this.data[x][y][z] = {};
+            var overwritten = false;
+            if (this.data[x][y][z])
+                overwritten = true;
+            this.data[x][y][z] = data;
+            return overwritten;
         };
 
-        InputHandler.prototype.onKeyUp = function (e) {
-            this.keyState[e.keyCode] = 0;
+        Map.prototype.get = function (x, y, z, fallback) {
+            if (typeof x === "undefined") { x = 0; }
+            if (typeof y === "undefined") { y = 0; }
+            if (typeof z === "undefined") { z = 0; }
+            if (typeof fallback === "undefined") { fallback = undefined; }
+            if (!this.data[x])
+                return fallback;
+            if (!this.data[x][y])
+                return fallback;
+            if (!this.data[x][y][z])
+                return fallback;
+            return this.data[x][y][z];
         };
 
-        InputHandler.prototype.frame = function (delta) {
-            for (var i = 0; i < this.keyState.length; i++) {
-                if (this.keyState[i] === 1) {
-                    this.dispatch(i, delta);
-                }
-            }
-            ;
+        Map.prototype.clearX = function (x) {
+            if (this.data[x])
+                this.data[x] = {};
+            return true;
         };
-        return InputHandler;
-    })(HG.GameComponent);
-    HG.InputHandler = InputHandler;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    HG.KeyMap = {
-        D: 68,
-        A: 65,
-        S: 83,
-        W: 87,
-        Q: 81,
-        E: 69,
-        Space: 32,
-        Esc: 27
-    };
-})(HG || (HG = {}));
-/// <reference path="lib/three.d.ts"/>
-var HG;
-(function (HG) {
-    var Level = (function () {
-        function Level() {
-        }
-        Level.prototype.load = function (Raw) {
-            return this;
+        Map.prototype.clearY = function (x, y) {
+            if (!this.data[x])
+                return false;
+            if (this.data[x][y])
+                this.data[x][y] = {};
         };
-
-        Level.prototype.loadAsync = function (Url) {
-            var req = new XMLHttpRequest();
-            req.onreadystatechange = function (req) {
-                if (this.readyState === 4) {
-                    console.log(this.responseText);
-                }
-            };
-            req.open("GET", Url, true);
-            req.send();
+        Map.prototype.clearZ = function (x, y, z) {
+            if (!this.data[x])
+                return false;
+            if (!this.data[x][y])
+                return false;
+            if (this.data[x][y][z])
+                this.data[x][y][z] = {};
         };
-
-        Level.prototype.create = function (Seed) {
-            return this;
-        };
-        return Level;
+        return Map;
     })();
-    HG.Level = Level;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    var Scene = (function () {
-        function Scene() {
-            this.scene = null;
-            this.scene = new THREE.Scene();
-            this.entities = {
-                named: {},
-                unnamed: []
-            };
-        }
-        Scene.prototype.add = function (Entity, nameTag) {
-            var c = Entity.collectChildren();
-            for (var i = 0; i < c.length; ++i) {
-                this.scene.add(c[i].object);
-            }
-            if (nameTag) {
-                this.entities.named[nameTag.toLowerCase()] = Entity;
-            } else {
-                this.entities.unnamed.push(Entity);
-            }
-        };
-
-        Scene.prototype.getIndex = function (index) {
-            return this.scene.children[index];
-        };
-
-        Scene.prototype.get = function (nameTag, type) {
-            var e = [];
-            for (var i = 0; i < nameTag.length; i++) {
-                var ee = this.entities.named[nameTag[i].toLowerCase()];
-                if (ee instanceof type) {
-                    e.push(ee);
-                }
-            }
-            return e;
-        };
-        return Scene;
-    })();
-    HG.Scene = Scene;
+    HG.Map = Map;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
     HG.Settings = {
         fov: 110,
         tileSize: 50,
-        viewDistance: 4800,
+        viewDistance: 500,
         debug: {
             Enabled: true,
             PositionX: 2000
@@ -507,7 +1492,9 @@ var HG;
             left: HG.KeyMap.A,
             right: HG.KeyMap.D,
             pause: HG.KeyMap.Esc,
-            jump: HG.KeyMap.Space
+            jump: HG.KeyMap.Space,
+            devConsole: HG.KeyMap.F12,
+            fullscreen: HG.KeyMap.F11
         },
         pattern: [
             [
@@ -554,102 +1541,90 @@ var HG;
     var Utils = (function () {
         function Utils() {
         }
-        Utils.rgbToHex = function (input, prefix) {
-            if (!(input instanceof Array))
-                input = [input];
-            if (input.length < 3) {
-                for (var i = 0; i < 2; i++) {
-                    input.push(input[0]);
-                }
-            }
-            var Hex = prefix || "0x";
-            input.each(function (c) {
-                var h = parseInt(c, 0).toString(16);
-                if (h.length < 2)
-                    Hex += "0" + h;
-else
-                    Hex += h;
-            });
-            return Hex;
+        Utils.rgbToHex = function (r, g, b) {
+            var componentToHex = function (c) {
+                c = Math.abs(Math.floor(c));
+                if (c > 255)
+                    c = 255;
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            };
+            return parseInt(componentToHex(r) + componentToHex(g) + componentToHex(b), 16);
         };
 
         Utils.hasGL = function () {
             return (window.WebGLRenderingContext) ? true : false;
         };
+
+        Utils.setFullScreenMode = function (state) {
+            var whwnd = require('nw.gui').Window.get();
+            if (state === true) {
+                whwnd.enterFullscreen();
+            } else {
+                whwnd.leaveFullscreen();
+            }
+        };
+
+        Utils.reload = function () {
+            var whwnd = require('nw.gui').Window.get();
+            whwnd.reloadIgnoringCache();
+        };
+
+        Utils.toggleFullScreenMode = function () {
+            var whwnd = require('nw.gui').Window.get();
+            whwnd.toggleFullscreen();
+        };
+
+        Utils.openDevConsole = function () {
+            require('nw.gui').Window.get().showDevTools();
+        };
+
+        Utils.isNode = function () {
+            return (process) ? true : false;
+        };
         return Utils;
     })();
     HG.Utils = Utils;
 })(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var MovingEntity = (function (_super) {
-            __extends(MovingEntity, _super);
-            function MovingEntity() {
-                _super.apply(this, arguments);
-                this.JumpState = 0;
-            }
-            MovingEntity.prototype.MoveLeft = function (step) {
-                if (typeof step === "undefined") { step = 3.125; }
-                this.object.position.x -= step;
-            };
-
-            MovingEntity.prototype.MoveRight = function (step) {
-                if (typeof step === "undefined") { step = 3.125; }
-                this.object.position.x += step;
-            };
-
-            //0: normal
-            //1: rising
-            //2: max
-            //3: falling
-            MovingEntity.prototype.Jump = function (maxY) {
-                if (typeof maxY === "undefined") { maxY = 100; }
-                this.object.position.y += maxY;
-            };
-            return MovingEntity;
-        })(HG.Entity);
-        Entities.MovingEntity = MovingEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    var Player = (function (_super) {
-        __extends(Player, _super);
-        function Player() {
-            _super.apply(this, arguments);
-        }
-        return Player;
-    })(HG.Entity);
-    HG.Player = Player;
-})(HG || (HG = {}));
 var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
-
+var pkg = require("./package.json");
+console.log("HorribleGame build " + pkg.build);
 game.on('preload', function () {
+    var color = 0x312443;
     var Player = new HG.Entities.MovingEntity({
-        position: new THREE.Vector3(-75, 0, 0),
-        object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: 0x00ff00 }))
+        position: new THREE.Vector3(-37.5, 250, 0),
+        object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: color }))
     });
     var PlayerLight = new HG.Entities.MovingEntity({
-        position: new THREE.Vector3(0, 0, 0),
-        object: new THREE.PointLight(0x00ff00, 3, 250)
+        position: new THREE.Vector3(-37.5, 250, 0),
+        object: new THREE.PointLight(color, 5, HG.Settings.viewDistance / 2)
     });
     game.scene.add(Player, "Player");
     game.scene.add(PlayerLight, "PlayerLight");
-    var d = new HG.Entity({
-        position: new THREE.Vector3(0, -50, 0),
-        object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshPhongMaterial({ color: 0xababab }))
+
+    // var levelStruct = new HG.LevelStructure();
+    // levelStruct.on('created', function(args: {}) {
+    // 	console.log(JSON.stringify(args['level']));
+    // 	var level = new HG.Level(args['level']);
+    // 	level.entities.forEach(function(e) {
+    // 		game.scene.add(e);
+    // 	});
+    // 	level.applyCamera(game.camera);
+    // });
+    // levelStruct.create();
+    var levelStruct = new HG.LevelStructure();
+    levelStruct.on('loaded', function (args) {
+        var level = new HG.Level(args['level']);
+        level.entities.forEach(function (e) {
+            game.scene.add(e);
+        });
+        level.applyCamera(game.camera);
     });
-    game.scene.add(d);
-    game.camera.position.z = 250;
-    game.camera.position.x = -75;
-    game.camera.rotation.x = 75;
-    game.camera.rotation.y = 75;
+    levelStruct.loadAsync("app://hg/assets/level1.json");
 });
 
 game.on('start', function () {
-    document.getElementById('three').innerText = "Three.js Revision " + THREE.REVISION;
+    document.getElementById('build').innerText = "HorribleGame build " + pkg.build;
     window.onresize = function () {
         game.onResize();
     };
@@ -666,56 +1641,58 @@ game.on('start', function () {
     r();
 });
 
-// var transition = new HG.ColorTransition()
-// 				.from(new HG.rgb(0, 0, 0))
-// 				.target(new HG.rgb(0, 255, 0))
-// 				.target(new HG.rgb(255, 0, 0))
-// 				.target(new HG.rgb(255, 255, 255))
-// 				.over(1800);
-game.controls.bind(HG.Settings.keys.pause, function (delta) {
-    document.getElementById("menuWrapper").style.display = 'block';
-    document.getElementById("gameWrapper").style.display = 'none';
+game.on('keydown', function (a) {
+    if (a['event']['keyCode'] === HG.Settings.keys.devConsole) {
+        HG.Utils.openDevConsole();
+    }
 });
 
-game.controls.bind(HG.Settings.keys.left, function (delta) {
-    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
-        e.MoveLeft(3.125 * delta[0]);
-    });
-    game.camera.position.x -= 3.125 * delta[0];
+game.controls.bind(HG.Settings.keys.fullscreen, function (args) {
+    HG.Utils.toggleFullScreenMode();
 });
 
-game.controls.bind(HG.Settings.keys.jump, function (delta) {
+game.controls.bind(HG.Settings.keys.left, function (args) {
     game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
-        e.Jump(3.125 * delta[0]);
+        e.moveLeft(3.125 * args['delta']);
     });
+    game.camera.position.x -= 3.125 * args['delta'];
 });
 
-game.controls.bind(HG.Settings.keys.right, function (delta) {
+game.controls.bind(HG.Settings.keys.jump, function (args) {
     game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
-        e.MoveRight(3.125 * delta[0]);
+        e.jump(3.125 * args['delta']);
     });
-    game.camera.position.x += 3.125 * delta[0];
+    game.camera.position.y += 3.125 * args['delta'];
+});
+
+game.controls.bind(HG.Settings.keys.right, function (args) {
+    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
+        e.moveRight(3.125 * args['delta']);
+    });
+    game.camera.position.x += 3.125 * args['delta'];
 });
 
 game.on(['start', 'resize'], function () {
     document.getElementById("resolution").innerText = "Rendering on: " + window.innerWidth + "x" + window.innerHeight;
 });
 
-game.on("render", function (delta) {
+game.on("connected", function (args) {
+    document.getElementById("server").innerText = "Connected to " + args['host'];
+});
+
+game.on("render", function (args) {
     document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.getFPS();
+    document.getElementById("hfps").innerText = "Highest FPS: " + game.fpsCounter.getMaxFPS();
     document.getElementById("frametime").innerText = "Frametime: " + game.fpsCounter.getFrameTime() + "ms";
 });
 
 window.onload = function () {
     game.preLoad();
 };
-document.getElementById("exit").onclick = function () {
-    window.close();
-};
-document.getElementById("play").onclick = function () {
-    document.getElementById("gameWrapper").style.display = 'block';
-    document.getElementById("menuWrapper").style.display = 'none';
-    if (game.isRunning === false) {
-        game.start();
-    }
-};
+
+if (!(HG.Utils.hasGL() && HG.Utils.isNode())) {
+    console.error("lolnope.");
+}
+if (game.isRunning === false) {
+    game.start("derp");
+}

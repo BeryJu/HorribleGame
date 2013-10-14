@@ -1,31 +1,42 @@
-/// <reference path="lib/three.d.ts"/>
+/// <reference path="LevelStructure.ts" />
 
 module HG {
-	export interface IRawLevel {
-		entities: Array[];
-		playerPosition: number[];
-	}
+	
+	export class Level extends EventDispatcher {
 
-	export class Level {
-		entities: HG.Entity[];
+		entities: HG.Entity[] = [];
+		camera = {position: new THREE.Vector3(),
+			rotation: new THREE.Vector3()};
 
-		load(Raw: HG.IRawLevel): HG.Level {
-			return this;
-		}
-
-		loadAsync(Url: string): void {
-			var req = new XMLHttpRequest();
-			req.onreadystatechange = function(req) {
-				if (this.readyState === 4) {
-					console.log(this.responseText);
+		constructor(lvl: HG.LevelStructure) {
+			super();
+			for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
+				for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
+					var be = lvl.entities.get(i, j);
+					var re = new HG.Entities.MovingEntity({
+						position: new THREE.Vector3(i, j, be.indentation),
+						object: new THREE.Mesh(new THREE.CubeGeometry(HG.BLOCK_SIZE, 
+							HG.BLOCK_SIZE, HG.BLOCK_SIZE),
+							new THREE.MeshPhongMaterial({color: be.color}))
+					});
+					this.entities.push(re);
 				}
 			}
-			req.open("GET", Url, true);
-			req.send();
+			this.camera.position = new THREE.Vector3(lvl.camera.position.x,
+													lvl.camera.position.y,
+													lvl.camera.position.z);
+			this.camera.rotation = new THREE.Vector3(lvl.camera.rotation.x,
+													lvl.camera.rotation.y,
+													lvl.camera.rotation.z);
 		}
 
-		create(Seed?: number): HG.Level {
-			return this;
+		applyCamera(camera: THREE.Camera): void {
+			camera.position = this.camera.position;
+			camera.rotation.x = this.camera.rotation.x;
+			camera.rotation.y = this.camera.rotation.y;
+			camera.rotation.z = this.camera.rotation.z;
 		}
+
 	}
+
 }

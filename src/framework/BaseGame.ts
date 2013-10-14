@@ -4,6 +4,7 @@ module HG {
 
 	export class BaseGame extends EventDispatcher{ 
 		_: {} = {};
+		socketClient: SocketManager;
 		renderer: THREE.WebGLRenderer;
 		camera: THREE.PerspectiveCamera;
 		isRunning: boolean = false;
@@ -14,9 +15,8 @@ module HG {
 		constructor(container: HTMLElement = document.body,
 				clearColor: THREE.Color = new THREE.Color(0x000000)) {
 			super();
-			if (Utils.hasGL() === false) {
-				var up = new Error("Your Browser doesn't support WebGL");
-				throw up; //haha
+			if (HG.Utils.hasGL() === false) {
+				throw new Error("Your Browser doesn't support WebGL");
 			}
 			this.camera = new THREE.PerspectiveCamera(HG.Settings.fov,
 				window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
@@ -28,27 +28,40 @@ module HG {
 
 		preLoad(): void {
 			console.log('loading assets');
-			this.dispatch('PreLoad');
+			this.dispatch('preload');
 			console.log('loaded assets');
 		}
 
-		start(): void {
-			this.dispatch('Start');
+		connect(serverHost: string): void {
+			var io = require('socket.io-client');
+			if (this.socketClient !== undefined) {
+				// this.socketClient.disconnect();
+			}
+			this.socketClient = io.connect(serverHost);
+			this.socketClient.on('news', function (data) {
+				console.log(data);
+			});
+			this.dispatch("connected", {host: serverHost});
+		}
+
+		start(serverHost: string): void {
+			this.connect(serverHost);
+			this.dispatch('start');
 			this.isRunning = true;
 		}
 
 		onKeyUp(a: KeyboardEvent): void {
 			this.controls.onKeyUp(a);
-			this.dispatch('KeyUp', a);
+			this.dispatch('keyUp', {event: a});
 		}
 
 		onKeyDown(a: KeyboardEvent): void {
 			this.controls.onKeyDown(a);
-			this.dispatch('KeyDown', a);
+			this.dispatch('keyDown', {event: a});
 		}
 
 		onResize(): void {
-			this.dispatch('Resize');
+			this.dispatch('resize');
 			this.camera.aspect = window.innerWidth / window.innerHeight;
 			this.camera.updateProjectionMatrix();
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -56,7 +69,7 @@ module HG {
 
 		render(): void {
 			var delta = this.fpsCounter.getFrameTime() / 10;
-			this.dispatch('Render', delta);
+			this.dispatch('render', {delta: delta});
 			this.controls.frame(delta);
 			this.fpsCounter.frame(delta);
 			this.renderer.render(this.scene.scene, this.camera);

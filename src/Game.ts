@@ -1,31 +1,42 @@
 var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
-
+var pkg = require("./package.json");
+console.log("HorribleGame build "+pkg.build);
 game.on('preload', function() {
+	var color = 0x312443;
 	var Player = new HG.Entities.MovingEntity({
-		position: new THREE.Vector3(-75, 0, 0),
+		position: new THREE.Vector3(-37.5, 250, 0),
 		object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
-			new THREE.MeshBasicMaterial({color: 0x00ff00}))
+			new THREE.MeshBasicMaterial({color: color}))
 	});
 	var PlayerLight = new HG.Entities.MovingEntity({
-		position: new THREE.Vector3(0, 0, 0),
-		object: new THREE.PointLight(0x00ff00, 3, 250)
+		position: new THREE.Vector3(-37.5, 250, 0),
+		object: new THREE.PointLight(color, 5, HG.Settings.viewDistance / 2)
 	});
 	game.scene.add(Player, "Player");
 	game.scene.add(PlayerLight, "PlayerLight");
-	var d = new HG.Entity({
-		position: new THREE.Vector3(0, -50, 0),
-		object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
-			new THREE.MeshPhongMaterial({color: 0xababab}))
+	// var levelStruct = new HG.LevelStructure();
+	// levelStruct.on('created', function(args: {}) {
+	// 	console.log(JSON.stringify(args['level']));
+	// 	var level = new HG.Level(args['level']);
+	// 	level.entities.forEach(function(e) {
+	// 		game.scene.add(e);
+	// 	});
+	// 	level.applyCamera(game.camera);
+	// });
+	// levelStruct.create();
+	var levelStruct = new HG.LevelStructure();
+	levelStruct.on('loaded', function(args: {}) {
+		var level = new HG.Level(args['level']);
+		level.entities.forEach(function(e) {
+			game.scene.add(e);
+		});
+		level.applyCamera(game.camera);
 	});
-	game.scene.add(d);
-	game.camera.position.z = 250;
-	game.camera.position.x = -75;
-	game.camera.rotation.x = 75;
-	game.camera.rotation.y = 75;
+	levelStruct.loadAsync("app://hg/assets/level1.json");
 });
 
 game.on('start', function() {
-	document.getElementById('three').innerText = "Three.js Revision "+ THREE.REVISION; 
+	document.getElementById('build').innerText = "HorribleGame build "+pkg.build; 
 	window.onresize = function() {game.onResize()};
 	window.onkeydown = function(a: any) {game.onKeyDown(a)};
 	window.onkeyup = function(a: any) {game.onKeyUp(a)};
@@ -36,36 +47,35 @@ game.on('start', function() {
 	r();
 });
 
-// var transition = new HG.ColorTransition()
-// 				.from(new HG.rgb(0, 0, 0))
-// 				.target(new HG.rgb(0, 255, 0))
-// 				.target(new HG.rgb(255, 0, 0))
-// 				.target(new HG.rgb(255, 255, 255))
-// 				.over(1800);
-
-game.controls.bind(HG.Settings.keys.pause, function(delta: number) {
-	document.getElementById("menuWrapper").style.display = 'block';
-	document.getElementById("gameWrapper").style.display = 'none';
+game.on('keydown', function(a: {}) {
+	if (a['event']['keyCode'] === HG.Settings.keys.devConsole) {
+		HG.Utils.openDevConsole();
+	}
 });
 
-game.controls.bind(HG.Settings.keys.left, function(delta: number) {
+game.controls.bind(HG.Settings.keys.fullscreen, function(args: {}) {
+	HG.Utils.toggleFullScreenMode();
+});
+
+game.controls.bind(HG.Settings.keys.left, function(args: {}) {
 	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
-		e.MoveLeft(3.125 * delta[0]);
+		e.moveLeft(3.125 * args['delta']);
 	});
-	game.camera.position.x -= 3.125 * delta[0];
+	game.camera.position.x -= 3.125 * args['delta'];
 });
 
-game.controls.bind(HG.Settings.keys.jump, function(delta: number) {
-	game.scene.get(["Player", "PlayerLight"],HG.Entities.MovingEntity).forEach(function(e) {
-		e.Jump(3.125 * delta[0]);
-	});
-});
-
-game.controls.bind(HG.Settings.keys.right, function(delta: number) {
+game.controls.bind(HG.Settings.keys.jump, function(args: {}) {
 	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
-		e.MoveRight(3.125 * delta[0]);
+		e.jump(3.125 * args['delta']);
 	});
-	game.camera.position.x += 3.125 * delta[0];
+	game.camera.position.y += 3.125 * args['delta'];
+});
+
+game.controls.bind(HG.Settings.keys.right, function(args: {}) {
+	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
+		e.moveRight(3.125 * args['delta']);
+	});
+	game.camera.position.x += 3.125 * args['delta'];
 });
 
 game.on(['start', 'resize'], function() {
@@ -73,8 +83,13 @@ game.on(['start', 'resize'], function() {
 		"Rendering on: "+window.innerWidth+"x"+window.innerHeight;
 });
 
-game.on("render", function(delta: any[]) {
+game.on("connected", function(args: {}) {
+	document.getElementById("server").innerText = "Connected to "+args['host'];
+});
+
+game.on("render", function(args: {}) {
 	document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.getFPS();
+	document.getElementById("hfps").innerText = "Highest FPS: "+game.fpsCounter.getMaxFPS();
 	document.getElementById("frametime").innerText =
 		"Frametime: "+game.fpsCounter.getFrameTime()+"ms";
 });
@@ -82,13 +97,10 @@ game.on("render", function(delta: any[]) {
 window.onload = function() {
 	game.preLoad();
 };
-document.getElementById("exit").onclick = function() {
-	window.close();
-};
-document.getElementById("play").onclick = function() {
-	document.getElementById("gameWrapper").style.display = 'block';
-	document.getElementById("menuWrapper").style.display = 'none';
-	if (game.isRunning === false) {
-		game.start();
-	}
-};
+
+if (!(HG.Utils.hasGL() && HG.Utils.isNode())) {
+	console.error("lolnope.");
+}
+if (game.isRunning === false) {
+	game.start("derp");
+}

@@ -1,10 +1,19 @@
+var mainFile = "src/Game.ts";
+var outFile = "dist/game.js";
+var outLibFile = "dist/lib.js";
+var libDefinitionDir = "src/lib/*.d.ts";
+var libSourceDir = "src/lib/*.js";
+var mainDir = "src/framework/*.ts";
+var extensionsDir = "src/framework/**/*.hg.ts";
+var pkgFile = "dist/package.json";
+
+var fs = require('fs');
 module.exports = function(grunt) {
 	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
 		ts: {
 			game: {
-				src: ['src/framework/lib/*.d.ts', 'src/framework/*.ts', 'src/framework/**/*.hg.ts', 'src/Game.ts'],
-				out: 'dist/game.js',
+				src: [libDefinitionDir, mainDir, extensionsDir, mainFile],
+				out: outFile,
 				options: {
 					target: 'es5',
 					comments: true,
@@ -15,7 +24,7 @@ module.exports = function(grunt) {
 		uglify: {
 			app: {
 				files: {
-					'dist/lib.js': ['src/framework/lib/*.js']
+					outLibFile: [libSourceDir]
 				}
 			}
 		},
@@ -24,7 +33,7 @@ module.exports = function(grunt) {
 				options: {
 					stdout: true
 				},
-				command: "cd /var/www/stuff/HorribleGame && rm -r * && cd /var/www/dev/projects/HorribleGame/dist/ && cp -R * /var/www/stuff/HorribleGame && cd /var/www/stuff/HorribleGame && echo \"K. Done.\""
+				command: "cd /var/www/stuff/HorribleGame && rm -r * && cd /var/www/dev/projects/HorribleGame/dist/ && cp -R * /var/www/stuff/HorribleGame && cd /var/www/stuff/HorribleGame && echo \"Published to /var/www/stuff/HorribleGame/\""
 			}
 		}
 	});
@@ -33,4 +42,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.registerTask('default', ['ts']);
 	grunt.registerTask('publish', ['ts', 'uglify', 'shell']);
+	if (!fs) fs = require('fs');
+	var pkg = require("./"+pkgFile);
+	if (!pkg.build) pkg.build = 0;
+	pkg.build ++;
+	fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, "\t"));
+	console.log("HorribleGame build"+pkg.build);
 };

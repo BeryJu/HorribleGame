@@ -1,13 +1,15 @@
 {
 	"name": "HorribleGame",
-	"main": "index.html",
+	"main": "app://hg/index.html",
 	"user-agent": "Node-Webkit %nwver OS %osinfo",
+	"chromium-args": "--enable-webgl --ignore-gpu-blacklist",
 	"window": {
-		"toolbar": true,
+		"toolbar": false,
 		"position": "center",
 		"width": 1280,
 		"height": 720,
 		"min_width": 1280,
 		"min_height": 720
-	}
+	},
+	"build": 116
 }

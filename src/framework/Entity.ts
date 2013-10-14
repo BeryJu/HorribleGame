@@ -16,6 +16,7 @@ module HG {
 
 		constructor(params: any) {
 			super();
+			if (!params) return;
 			if (params.extra !== {}) {
 				for (var key in params.extra) {
 					this.object[key] = params.extra[key];
@@ -25,6 +26,10 @@ module HG {
 			this.object.position = params.position;
 			this.object.rotation = params.rotation;
 		}
+
+		// toJSON(): {} {
+			
+		// }
 
 		set(key: string, value: any):HG.Entity {
 			if (this.children.length > 0) {
@@ -43,6 +48,10 @@ module HG {
 				obj[parts[length]] = value;
 			}
 			return this;
+		}
+
+		hasChildren(): boolean {
+			return (this.children.length > 0);
 		}
 
 		get(key: string) {
@@ -71,6 +80,11 @@ module HG {
 
 		connect(e: Entity) {
 			this.children.push(e);
+			return this;
+		}
+
+		fromObject3D(o: THREE.Object3D): HG.Entity {
+			this.object = o;
 			return this;
 		}
 	}

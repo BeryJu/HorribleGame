@@ -7,6 +7,8 @@ module HG {
 		Q: 81,
 		E: 69,
 		Space: 32,
-		Esc: 27
+		Esc: 27,
+		F11: 122,
+		F12: 123
 	}
 }

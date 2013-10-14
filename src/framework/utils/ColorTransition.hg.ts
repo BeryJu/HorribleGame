@@ -1,12 +1,12 @@
-///<reference path="GameComponent" />
+///<reference path="../GameComponent" />
 
 module HG {
 
 	export class ColorTransition extends GameComponent {
 
-		private baseColor: HG.rgb;
-		private currentColor: HG.rgb;
-		private targets: HG.rgb[];
+		private baseColor: THREE.Color;
+		private currentColor: THREE.Color;
+		private targets: THREE.Color[];
 		private currentTarget: number;
 		private isDone: boolean = false;
 		private currentFrame: number;
@@ -14,8 +14,8 @@ module HG {
 
 		constructor() {
 			super();
-			this.baseColor = new HG.rgb();
-			this.currentColor = new HG.rgb();
+			this.baseColor = new THREE.Color();
+			this.currentColor = new THREE.Color();
 			this.currentFrame = 0;
 			this.frameSpan = 0;
 			this.currentTarget = 0;
@@ -23,14 +23,10 @@ module HG {
 		}
 
 		getColor(): THREE.Color {
-			var c = new THREE.Color();
-			c.r = this.currentColor.r;
-			c.g = this.currentColor.g;
-			c.b = this.currentColor.b;
-			return c;
+			return this.currentColor;
 		}
 
-		target(color: HG.rgb): ColorTransition {
+		target(color: THREE.Color): ColorTransition {
 			this.targets.push(color);
 			this.dispatch('targetAdded', color);
 			return this;
@@ -41,7 +37,7 @@ module HG {
 			return this;
 		}
 
-		from(color: HG.rgb): ColorTransition {
+		from(color: THREE.Color): ColorTransition {
 			this.baseColor = color;
 			return this;
 		}

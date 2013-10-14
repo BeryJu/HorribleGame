@@ -4,7 +4,7 @@ module HG {
 
 		private events: {} = {};
 
-		on(name: any, callback: (...args) => any): void {
+		on(name: any, callback: (args: {}) => any): void {
 			if (Array.isArray(name) === true) {
 				for (var i = 0; i < name.length; i++) {
 					this.on(name[i], callback);
@@ -37,13 +37,15 @@ module HG {
 		}
 
 		clear(name: string): void {
-			name = name.toLowerCase();
+			if (typeof name !== "number") {
+				name = name.toString().toLowerCase();
+			}
 			if (!this.events[name]) return;
 			if (this.events[name].length === 0) return;
 			this.events[name] = [];
 		}
 
-		dispatch(name: any, ...args): void {
+		dispatch(name: any, args: {} = {}): void {
 			if (Array.isArray(name) === true) {
 				for (var i = 0; i < name.length; i++) {
 					this.dispatch(name[i], args);
@@ -54,7 +56,7 @@ module HG {
 				}
 				if (!this.events[name]) return;
 				if (this.events[name].length === 0) return;
-				args.push(name);
+				if (!args['callee']) args['callee'] = name;
 				this.events[name].forEach(function(event) {
 					event(args);
 				});
