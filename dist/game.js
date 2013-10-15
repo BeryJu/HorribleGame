@@ -1183,7 +1183,6 @@ var HG;
             this.camera.rotation = new THREE.Vector3(lvl.camera.rotation.x, lvl.camera.rotation.y, lvl.camera.rotation.z);
         }
         Level.prototype.applyCamera = function (camera) {
-            console.log(this.camera);
             camera.position = this.camera.position;
             camera.rotation.x = this.camera.rotation.x;
             camera.rotation.y = this.camera.rotation.y;
@@ -1252,11 +1251,61 @@ var HG;
 var HG;
 (function (HG) {
     (function (Entities) {
+        var AnimatedEntity = (function (_super) {
+            __extends(AnimatedEntity, _super);
+            function AnimatedEntity() {
+                _super.apply(this, arguments);
+                this.animOffset = 0;
+                this.walking = false;
+                this.duration = 1000;
+                this.keyframes = 20;
+                this.interpolation = this.duration / this.keyframes;
+                this.lastKeyframe = 0;
+                this.currentKeyframe = 0;
+            }
+            AnimatedEntity.prototype.load = function (geometry, materials) {
+                for (var i = 0; i < materials.length; i++) {
+                    materials[i]['morphTargets'] = true;
+                }
+                var material = new THREE.MeshFaceMaterial(materials);
+                this.object = new THREE.Mesh(geometry, material);
+            };
+
+            AnimatedEntity.prototype.frame = function (delta) {
+                if (this.walking === true) {
+                    var time = new Date().getTime() % this.duration;
+                    var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
+                    if (keyframe != this.currentKeyframe) {
+                        this.object.morphTargetInfluences[this.lastKeyframe] = 0;
+                        this.object.morphTargetInfluences[this.currentKeyframe] = 1;
+                        this.object.morphTargetInfluences[keyframe] = 0;
+                        this.lastKeyframe = this.currentKeyframe;
+                        this.currentKeyframe = keyframe;
+                    }
+                    this.object.morphTargetInfluences[keyframe] = (time % this.interpolation) / this.interpolation;
+                    this.object.morphTargetInfluences[this.lastKeyframe] = 1 - this.object.morphTargetInfluences[keyframe];
+                }
+            };
+            return AnimatedEntity;
+        })(HG.Entity);
+        Entities.AnimatedEntity = AnimatedEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Entities) {
         var MovingEntity = (function (_super) {
             __extends(MovingEntity, _super);
             function MovingEntity() {
                 _super.apply(this, arguments);
                 this.jumpState = 0;
+                //0: normal
+                //1: rising
+                //2: max
+                //3: falling
+                this.oldY = 0;
+                this.maxY = 200;
             }
             MovingEntity.prototype.moveLeft = function (step) {
                 if (typeof step === "undefined") { step = 3.125; }
@@ -1268,13 +1317,30 @@ var HG;
                 this.object.position.x += step;
             };
 
-            //0: normal
-            //1: rising
-            //2: max
-            //3: falling
-            MovingEntity.prototype.jump = function (maxY) {
-                if (typeof maxY === "undefined") { maxY = 100; }
-                this.object.position.y += maxY;
+            MovingEntity.prototype.jump = function () {
+                this.oldY = this.object.position.y;
+                this.jumpState = 1;
+            };
+
+            MovingEntity.prototype.frame = function (delta) {
+                if (this.jumpState >= 1) {
+                    if (this.jumpState === 3) {
+                        this.oldY = this.object.position.y;
+                        this.jumpState = 0;
+                    }
+                    if (this.object.position.y < (this.maxY + this.oldY) && this.jumpState === 1) {
+                        this.object.position.y += 3 * delta;
+                    }
+                    if (this.object.position.y >= (this.maxY + this.oldY) && this.jumpState >= 1) {
+                        this.jumpState = 2;
+                    }
+                    if (this.object.position.y <= this.oldY && this.jumpState >= 2) {
+                        this.object.position.y = this.oldY;
+                        this.jumpState = 3;
+                    } else if (this.jumpState >= 2) {
+                        this.object.position.y -= 3 * delta;
+                    }
+                }
             };
             return MovingEntity;
         })(HG.Entity);
@@ -1604,7 +1670,6 @@ game.on('preload', function () {
 
     // var levelStruct = new HG.LevelStructure();
     // levelStruct.on('created', function(args: {}) {
-    // 	console.log(JSON.stringify(args['level']));
     // 	var level = new HG.Level(args['level']);
     // 	level.entities.forEach(function(e) {
     // 		game.scene.add(e);
@@ -1658,18 +1723,17 @@ game.controls.bind(HG.Settings.keys.left, function (args) {
     game.camera.position.x -= 3.125 * args['delta'];
 });
 
-game.controls.bind(HG.Settings.keys.jump, function (args) {
-    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
-        e.jump(3.125 * args['delta']);
-    });
-    game.camera.position.y += 3.125 * args['delta'];
-});
-
 game.controls.bind(HG.Settings.keys.right, function (args) {
     game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
         e.moveRight(3.125 * args['delta']);
     });
     game.camera.position.x += 3.125 * args['delta'];
+});
+
+game.controls.bind(HG.Settings.keys.jump, function (args) {
+    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
+        e.jump();
+    });
 });
 
 game.on(['start', 'resize'], function () {
@@ -1681,6 +1745,9 @@ game.on("connected", function (args) {
 });
 
 game.on("render", function (args) {
+    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
+        e.frame(args['delta']);
+    });
     document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.getFPS();
     document.getElementById("hfps").innerText = "Highest FPS: " + game.fpsCounter.getMaxFPS();
     document.getElementById("frametime").innerText = "Frametime: " + game.fpsCounter.getFrameTime() + "ms";
@@ -1690,9 +1757,8 @@ window.onload = function () {
     game.preLoad();
 };
 
-if (!(HG.Utils.hasGL() && HG.Utils.isNode())) {
-    console.error("lolnope.");
-}
+var srv = new HG.BaseServer(9898);
+
 if (game.isRunning === false) {
-    game.start("derp");
+    game.start("http://localhost:9898");
 }

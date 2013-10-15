@@ -16,7 +16,6 @@ game.on('preload', function() {
 	game.scene.add(PlayerLight, "PlayerLight");
 	// var levelStruct = new HG.LevelStructure();
 	// levelStruct.on('created', function(args: {}) {
-	// 	console.log(JSON.stringify(args['level']));
 	// 	var level = new HG.Level(args['level']);
 	// 	level.entities.forEach(function(e) {
 	// 		game.scene.add(e);
@@ -64,18 +63,17 @@ game.controls.bind(HG.Settings.keys.left, function(args: {}) {
 	game.camera.position.x -= 3.125 * args['delta'];
 });
 
-game.controls.bind(HG.Settings.keys.jump, function(args: {}) {
-	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
-		e.jump(3.125 * args['delta']);
-	});
-	game.camera.position.y += 3.125 * args['delta'];
-});
-
 game.controls.bind(HG.Settings.keys.right, function(args: {}) {
 	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
 		e.moveRight(3.125 * args['delta']);
 	});
 	game.camera.position.x += 3.125 * args['delta'];
+});
+
+game.controls.bind(HG.Settings.keys.jump, function(args: {}) {
+	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
+		e.jump();
+	});
 });
 
 game.on(['start', 'resize'], function() {
@@ -88,6 +86,9 @@ game.on("connected", function(args: {}) {
 });
 
 game.on("render", function(args: {}) {
+	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
+		e.frame(args['delta']);
+	});
 	document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.getFPS();
 	document.getElementById("hfps").innerText = "Highest FPS: "+game.fpsCounter.getMaxFPS();
 	document.getElementById("frametime").innerText =
@@ -98,9 +99,8 @@ window.onload = function() {
 	game.preLoad();
 };
 
-if (!(HG.Utils.hasGL() && HG.Utils.isNode())) {
-	console.error("lolnope.");
-}
+var srv = new HG.BaseServer(9898);
+
 if (game.isRunning === false) {
-	game.start("derp");
+	game.start("http://localhost:9898");
 }

@@ -3500,7 +3500,6 @@ declare module THREE {
          * Unique number of this material instance.
          */
         id: number;
-
         /**
          * Material name. Default is an empty string.
          */
