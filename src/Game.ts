@@ -2,15 +2,20 @@ var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Col
 var pkg = require("./package.json");
 console.log("HorribleGame build "+pkg.build);
 game.on('preload', function() {
-	var color = 0x312443;
-	var Player = new HG.Entities.MovingEntity({
-		position: new THREE.Vector3(-37.5, 250, 0),
-		object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
-			new THREE.MeshBasicMaterial({color: color}))
-	});
-	var PlayerLight = new HG.Entities.MovingEntity({
-		position: new THREE.Vector3(-37.5, 250, 0),
-		object: new THREE.PointLight(color, 5, HG.Settings.viewDistance / 2)
+	var color = 0xffffff;
+	var Player = new HG.Entities.MovingEntity(
+		new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
+		new THREE.MeshBasicMaterial({color: color})));
+	var PlayerLight = new HG.Entities.MovingEntity(
+		new THREE.PointLight(color, 5, HG.Settings.viewDistance));
+	var Android = new HG.Entities.AnimatedEntity("app://hg/assets/models/android.js");
+	Android.on('loaded',function() {
+		Android.object.scale.set(10,10,10);
+		Android.running = true;
+		game.scene.add(Android, "Android");
+		game.scene.getAllNamed().forEach(function(e) {
+			e.position(-37.5, 250, 0);
+		});
 	});
 	game.scene.add(Player, "Player");
 	game.scene.add(PlayerLight, "PlayerLight");
@@ -31,7 +36,7 @@ game.on('preload', function() {
 		});
 		level.applyCamera(game.camera);
 	});
-	levelStruct.loadAsync("app://hg/assets/level1.json");
+	levelStruct.loadAsync("app://hg/assets/levels/level1.json");
 });
 
 game.on('start', function() {
@@ -86,7 +91,7 @@ game.on("connected", function(args: {}) {
 });
 
 game.on("render", function(args: {}) {
-	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
+	game.scene.getAll().forEach(function(e) {
 		e.frame(args['delta']);
 	});
 	document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.getFPS();

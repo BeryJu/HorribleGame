@@ -167,9 +167,6 @@ var HG;
             } catch (e) {
                 console.error(e);
             }
-            for (var k in this) {
-                console.log(k);
-            }
             this.socketServer.sockets.on('connection', function (socket) {
                 socket.on('my other event', function (data) {
                     console.log(data);
@@ -180,35 +177,42 @@ var HG;
     })(HG.EventDispatcher);
     HG.BaseServer = BaseServer;
 })(HG || (HG = {}));
-///<reference path="EventDispatcher" />
 var HG;
 (function (HG) {
-    HG.DefaultEntityParams = {
-        extra: {},
-        position: new THREE.Vector3(),
-        rotation: new THREE.Vector3(),
-        targetPosition: new THREE.Vector3(),
-        object: new THREE.Object3D()
-    };
-
+    var GameComponent = (function (_super) {
+        __extends(GameComponent, _super);
+        function GameComponent() {
+            _super.call(this);
+        }
+        GameComponent.prototype.frame = function (delta) {
+        };
+        return GameComponent;
+    })(HG.EventDispatcher);
+    HG.GameComponent = GameComponent;
+})(HG || (HG = {}));
+///<reference path="GameComponent" />
+var HG;
+(function (HG) {
     var Entity = (function (_super) {
         __extends(Entity, _super);
-        function Entity(params) {
+        function Entity(object) {
             _super.call(this);
             this.children = [];
-            if (!params)
-                return;
-            if (params.extra !== {}) {
-                for (var key in params.extra) {
-                    this.object[key] = params.extra[key];
-                }
-            }
-            this.object = params.object;
-            this.object.position = params.position;
-            this.object.rotation = params.rotation;
+            if (object)
+                this.object = object;
         }
-        // toJSON(): {} {
-        // }
+        Entity.prototype.position = function (x, y, z) {
+            if (this.object !== undefined) {
+                this.object.position.set(x, y, z);
+            }
+        };
+
+        Entity.prototype.rotation = function (x, y, z) {
+            if (this.object !== undefined) {
+                this.object.rotation.set(x, y, z);
+            }
+        };
+
         Entity.prototype.set = function (key, value) {
             if (this.children.length > 0) {
                 this.children.forEach(function (c) {
@@ -266,21 +270,8 @@ var HG;
             return this;
         };
         return Entity;
-    })(HG.EventDispatcher);
+    })(HG.GameComponent);
     HG.Entity = Entity;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    var GameComponent = (function (_super) {
-        __extends(GameComponent, _super);
-        function GameComponent() {
-            _super.call(this);
-        }
-        GameComponent.prototype.frame = function (delta) {
-        };
-        return GameComponent;
-    })(HG.EventDispatcher);
-    HG.GameComponent = GameComponent;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -1172,10 +1163,8 @@ var HG;
             for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
                 for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
                     var be = lvl.entities.get(i, j);
-                    var re = new HG.Entities.MovingEntity({
-                        position: new THREE.Vector3(i, j, be.indentation),
-                        object: new THREE.Mesh(new THREE.CubeGeometry(HG.BLOCK_SIZE, HG.BLOCK_SIZE, HG.BLOCK_SIZE), new THREE.MeshPhongMaterial({ color: be.color }))
-                    });
+                    var re = new HG.Entities.MovingEntity(new THREE.Mesh(new THREE.CubeGeometry(HG.BLOCK_SIZE, HG.BLOCK_SIZE, HG.BLOCK_SIZE), new THREE.MeshPhongMaterial({ color: be.color })));
+                    re.position(i, j, be.indentation);
                     this.entities.push(re);
                 }
             }
@@ -1219,6 +1208,44 @@ var HG;
             return this.scene.children[index];
         };
 
+        Scene.prototype.getAllNamed = function (type) {
+            if (typeof type === "undefined") { type = HG.Entity; }
+            var es = [];
+            for (var k in this.entities.named) {
+                var ne = this.entities.named[k];
+                if (ne instanceof type)
+                    es.push(ne);
+            }
+            return es;
+        };
+
+        Scene.prototype.getAllUnnamed = function (type) {
+            if (typeof type === "undefined") { type = HG.Entity; }
+            var es = [];
+            for (var i = 0; i < this.entities.unnamed.length; i++) {
+                var ue = this.entities.unnamed[i];
+                if (ue instanceof type)
+                    es.push(ue);
+            }
+            return es;
+        };
+
+        Scene.prototype.getAll = function (type) {
+            if (typeof type === "undefined") { type = HG.Entity; }
+            var es = [];
+            for (var k in this.entities.named) {
+                var ne = this.entities.named[k];
+                if (ne instanceof type)
+                    es.push(ne);
+            }
+            for (var i = 0; i < this.entities.unnamed.length; i++) {
+                var ue = this.entities.unnamed[i];
+                if (ue instanceof type)
+                    es.push(ue);
+            }
+            return es;
+        };
+
         Scene.prototype.get = function (nameTag, type) {
             if (typeof type === "undefined") { type = HG.Entity; }
             var e = [];
@@ -1253,26 +1280,47 @@ var HG;
     (function (Entities) {
         var AnimatedEntity = (function (_super) {
             __extends(AnimatedEntity, _super);
-            function AnimatedEntity() {
-                _super.apply(this, arguments);
+            function AnimatedEntity(url) {
+                _super.call(this);
                 this.animOffset = 0;
-                this.walking = false;
+                this.running = false;
                 this.duration = 1000;
                 this.keyframes = 20;
                 this.interpolation = this.duration / this.keyframes;
                 this.lastKeyframe = 0;
                 this.currentKeyframe = 0;
+                if (url)
+                    this.loadAsync(url);
             }
+            AnimatedEntity.prototype.onReadyStateChange = function (req) {
+                if (req.readyState === 4) {
+                    var loader = new THREE.JSONLoader();
+                    var result = loader.parse(JSON.parse(req.responseText));
+                    this.load(result.geometry, result.materials);
+                }
+            };
+
+            AnimatedEntity.prototype.loadAsync = function (url) {
+                var req = new XMLHttpRequest();
+                var t = this;
+                req.onreadystatechange = function (req) {
+                    t.onReadyStateChange(this);
+                };
+                req.open("GET", url, true);
+                req.send();
+            };
+
             AnimatedEntity.prototype.load = function (geometry, materials) {
                 for (var i = 0; i < materials.length; i++) {
                     materials[i]['morphTargets'] = true;
                 }
                 var material = new THREE.MeshFaceMaterial(materials);
                 this.object = new THREE.Mesh(geometry, material);
+                this.dispatch('loaded');
             };
 
             AnimatedEntity.prototype.frame = function (delta) {
-                if (this.walking === true) {
+                if (this.running === true) {
                     var time = new Date().getTime() % this.duration;
                     var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
                     if (keyframe != this.currentKeyframe) {
@@ -1656,14 +1704,17 @@ var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Col
 var pkg = require("./package.json");
 console.log("HorribleGame build " + pkg.build);
 game.on('preload', function () {
-    var color = 0x312443;
-    var Player = new HG.Entities.MovingEntity({
-        position: new THREE.Vector3(-37.5, 250, 0),
-        object: new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: color }))
-    });
-    var PlayerLight = new HG.Entities.MovingEntity({
-        position: new THREE.Vector3(-37.5, 250, 0),
-        object: new THREE.PointLight(color, 5, HG.Settings.viewDistance / 2)
+    var color = 0xffffff;
+    var Player = new HG.Entities.MovingEntity(new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: color })));
+    var PlayerLight = new HG.Entities.MovingEntity(new THREE.PointLight(color, 5, HG.Settings.viewDistance));
+    var Android = new HG.Entities.AnimatedEntity("app://hg/assets/models/android.js");
+    Android.on('loaded', function () {
+        Android.object.scale.set(10, 10, 10);
+        Android.running = true;
+        game.scene.add(Android, "Android");
+        game.scene.getAllNamed().forEach(function (e) {
+            e.position(-37.5, 250, 0);
+        });
     });
     game.scene.add(Player, "Player");
     game.scene.add(PlayerLight, "PlayerLight");
@@ -1685,7 +1736,7 @@ game.on('preload', function () {
         });
         level.applyCamera(game.camera);
     });
-    levelStruct.loadAsync("app://hg/assets/level1.json");
+    levelStruct.loadAsync("app://hg/assets/levels/level1.json");
 });
 
 game.on('start', function () {
@@ -1745,7 +1796,7 @@ game.on("connected", function (args) {
 });
 
 game.on("render", function (args) {
-    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
+    game.scene.getAll().forEach(function (e) {
         e.frame(args['delta']);
     });
     document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.getFPS();

@@ -14,9 +14,6 @@ module HG {
 			} catch (e) {
 				console.error(e);
 			}
-			for (var k in this) {
-				console.log(k);
-			}
 			this.socketServer.sockets.on('connection', function (socket) {
 				socket.on('my other event', function (data) {
 					console.log(data);

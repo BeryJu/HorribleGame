@@ -1,35 +1,28 @@
-///<reference path="EventDispatcher" />
+///<reference path="GameComponent" />
 
 module HG {
-	export var DefaultEntityParams = {
-		extra: {},
-		position: new THREE.Vector3(),
-		rotation: new THREE.Vector3(),
-		targetPosition: new THREE.Vector3(),
-		object: new THREE.Object3D(),
-	}
 
-	export class Entity extends EventDispatcher{
+	export class Entity extends GameComponent{
 		_: {};
 		children: Entity[] = [];
 		object: THREE.Object3D;
 
-		constructor(params: any) {
+		constructor(object?: THREE.Object3D) {
 			super();
-			if (!params) return;
-			if (params.extra !== {}) {
-				for (var key in params.extra) {
-					this.object[key] = params.extra[key];
-				}
-			}
-			this.object = params.object;
-			this.object.position = params.position;
-			this.object.rotation = params.rotation;
+			if (object) this.object = object;
 		}
 
-		// toJSON(): {} {
-			
-		// }
+		position(x: number, y: number, z: number): void {
+			if (this.object !== undefined) {
+				this.object.position.set(x, y, z);
+			}
+		}
+
+		rotation(x: number, y: number, z: number): void {
+			if (this.object !== undefined) {
+				this.object.rotation.set(x, y, z);
+			}
+		}
 
 		set(key: string, value: any):HG.Entity {
 			if (this.children.length > 0) {

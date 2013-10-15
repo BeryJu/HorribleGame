@@ -3389,7 +3389,7 @@ declare module THREE {
          * @param texturePath If not specified, textures will be assumed to be in the same folder as the Javascript model file.
          */
         load(url: string, callback: (geometry: Geometry, materials: Material[]) => void , texturePath?: string): void;
-
+        parse(json: string, texturePath?: any): any;
         loadAjaxJSON(context: JSONLoader, url: string, callback: (geometry: Geometry, materials: Material[]) => void , texturePath?: string, callbackProgress?: (progress: Progress) => void ): void;
         createModel(json: any, callback: (geometry: Geometry, materials: Material[]) => void , texturePath?: string): void;
     }

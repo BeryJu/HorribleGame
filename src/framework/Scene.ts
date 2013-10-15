@@ -31,6 +31,37 @@ module HG {
 			return this.scene.children[index];
 		}
 
+		getAllNamed(type: any = HG.Entity): any[] {
+			var es = [];
+			for (var k in this.entities.named) {
+				var ne = this.entities.named[k];
+				if (ne instanceof type) es.push(ne)
+			}
+			return es;
+		}
+
+		getAllUnnamed(type: any = HG.Entity): any[] {
+			var es = [];
+			for (var i = 0; i < this.entities.unnamed.length; i++) {
+				var ue = this.entities.unnamed[i];
+				if (ue instanceof type) es.push(ue);
+			}
+			return es;
+		}
+
+		getAll(type: any = HG.Entity): any[] {
+			var es = [];
+			for (var k in this.entities.named) {
+				var ne = this.entities.named[k];
+				if (ne instanceof type) es.push(ne)
+			}
+			for (var i = 0; i < this.entities.unnamed.length; i++) {
+				var ue = this.entities.unnamed[i];
+				if (ue instanceof type) es.push(ue);
+			}
+			return es;
+		}
+
 		get(nameTag: string[], type: any = HG.Entity): any[] {
 			var e = [];
 			for (var i = 0; i < nameTag.length; i++) {
