@@ -24,7 +24,7 @@ module HG {
 			}
 		}
 
-		forAllNamed(callback: (e: any) => any, type?: any): void {
+		forNamed(callback: (e: any) => any, type?: any): void {
 			if (!type) type = HG.BaseEntity;
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];

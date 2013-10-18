@@ -12,7 +12,7 @@ game.on('preload', function() {
 		playerModel.object.scale.set(10,10,10);
 		playerModel.object.rotation.y = HG.Utils.degToRad(90);
 		game.scene.add(playerModel, "playerModel");
-		game.scene.forAllNamed(function(e) {
+		game.scene.forNamed(function(e) {
 			e.position(-37.5, 270, 0);
 		});
 	});
@@ -61,7 +61,7 @@ game.controls.bind(HG.Settings.keys.fullscreen, function(args: {}) {
 });
 
 game.controls.bind(HG.Settings.keys.left, function(args: {}) {
-	game.scene.forAllNamed(function(e) {
+	game.scene.forNamed(function(e) {
 		if (e instanceof HG.Entities.MovingEntity) e.moveLeft(3.125 * args['delta']);
 		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
 	});
@@ -69,7 +69,7 @@ game.controls.bind(HG.Settings.keys.left, function(args: {}) {
 });
 
 game.controls.bind(HG.Settings.keys.right, function(args: {}) {
-	game.scene.forAllNamed(function(e) {
+	game.scene.forNamed(function(e) {
 		if (e instanceof HG.Entities.MovingEntity) e.moveRight(3.125 * args['delta']);
 		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
 	});
@@ -77,7 +77,7 @@ game.controls.bind(HG.Settings.keys.right, function(args: {}) {
 });
 
 game.controls.bind(HG.Settings.keys.jump, function(args: {}) {
-	game.scene.forAllNamed(function(e) {
+	game.scene.forNamed(function(e) {
 		if (e instanceof HG.Entities.MovingEntity) e.jump();
 		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
 	});
