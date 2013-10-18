@@ -2,7 +2,7 @@ module HG {
 
 	export module Entities {
 
-		export class MovingEntity extends Entity {
+		export class MovingEntity extends BaseEntity {
 
 			moveLeft(step: number = 3.125): void {
 				this.object.position.x -= step;
@@ -41,7 +41,7 @@ module HG {
 						this.object.position.y = this.oldY;
 						this.jumpState = 3;
 					} else if (this.jumpState >= 2) {
-						this.object.position.y -= 3 * delta;
+							this.object.position.y -= 3 * delta;
 					}
 				}
 			}

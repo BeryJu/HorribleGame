@@ -3,31 +3,20 @@ var pkg = require("./package.json");
 console.log("HorribleGame build "+pkg.build);
 game.on('preload', function() {
 	var color = 0xffffff;
-	var Player = new HG.Entities.MovingEntity(
-		new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50),
-		new THREE.MeshBasicMaterial({color: color})));
-	var PlayerLight = new HG.Entities.MovingEntity(
-		new THREE.PointLight(color, 5, HG.Settings.viewDistance));
-	var Android = new HG.Entities.AnimatedEntity("app://hg/assets/models/android.js");
-	Android.on('loaded',function() {
-		Android.object.scale.set(10,10,10);
-		Android.running = true;
-		game.scene.add(Android, "Android");
-		game.scene.getAllNamed().forEach(function(e) {
-			e.position(-37.5, 250, 0);
+	var playerLight = new HG.Entities.MovingEntity(
+		new THREE.PointLight(color, 3, HG.Settings.viewDistance));
+	playerLight.offset(0, 50, 0);
+	game.scene.add(playerLight, "playerLight");
+	var playerModel = new HG.Entities.AnimatedEntity();
+	playerModel.on('loaded',function() {
+		playerModel.object.scale.set(10,10,10);
+		playerModel.object.rotation.y = HG.Utils.degToRad(90);
+		game.scene.add(playerModel, "playerModel");
+		game.scene.forAllNamed(function(e) {
+			e.position(-37.5, 270, 0);
 		});
 	});
-	game.scene.add(Player, "Player");
-	game.scene.add(PlayerLight, "PlayerLight");
-	// var levelStruct = new HG.LevelStructure();
-	// levelStruct.on('created', function(args: {}) {
-	// 	var level = new HG.Level(args['level']);
-	// 	level.entities.forEach(function(e) {
-	// 		game.scene.add(e);
-	// 	});
-	// 	level.applyCamera(game.camera);
-	// });
-	// levelStruct.create();
+	playerModel.loadAsync("app://hg/assets/models/android.json");
 	var levelStruct = new HG.LevelStructure();
 	levelStruct.on('loaded', function(args: {}) {
 		var level = new HG.Level(args['level']);
@@ -38,6 +27,16 @@ game.on('preload', function() {
 	});
 	levelStruct.loadAsync("app://hg/assets/levels/level1.json");
 });
+
+// var levelStruct = new HG.LevelStructure();
+// levelStruct.on('created', function(args: {}) {
+// 	var level = new HG.Level(args['level']);
+// 	level.entities.forEach(function(e) {
+// 		game.scene.add(e);
+// 	});
+// 	level.applyCamera(game.camera);
+// });
+// levelStruct.create();
 
 game.on('start', function() {
 	document.getElementById('build').innerText = "HorribleGame build "+pkg.build; 
@@ -62,22 +61,25 @@ game.controls.bind(HG.Settings.keys.fullscreen, function(args: {}) {
 });
 
 game.controls.bind(HG.Settings.keys.left, function(args: {}) {
-	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
-		e.moveLeft(3.125 * args['delta']);
+	game.scene.forAllNamed(function(e) {
+		if (e instanceof HG.Entities.MovingEntity) e.moveLeft(3.125 * args['delta']);
+		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
 	});
 	game.camera.position.x -= 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.right, function(args: {}) {
-	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
-		e.moveRight(3.125 * args['delta']);
+	game.scene.forAllNamed(function(e) {
+		if (e instanceof HG.Entities.MovingEntity) e.moveRight(3.125 * args['delta']);
+		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
 	});
 	game.camera.position.x += 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.jump, function(args: {}) {
-	game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function(e) {
-		e.jump();
+	game.scene.forAllNamed(function(e) {
+		if (e instanceof HG.Entities.MovingEntity) e.jump();
+		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
 	});
 });
 

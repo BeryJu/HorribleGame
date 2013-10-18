@@ -1,10 +1,9 @@
-var mainFile = "src/Game.ts";
+var mainFile = "src/*.ts";
 var outFile = "dist/game.js";
-var outLibFile = "dist/lib.js";
 var libDefinitionDir = "src/lib/*.d.ts";
 var libSourceDir = "src/lib/*.js";
-var mainDir = "src/framework/*.ts";
-var extensionsDir = "src/framework/**/*.hg.ts";
+var mainDir = "src/engine/*.ts";
+var extensionsDir = "src/engine/**/*.hg.ts";
 var pkgFile = "dist/package.json";
 
 var fs = require('fs');
@@ -24,16 +23,13 @@ module.exports = function(grunt) {
 		uglify: {
 			app: {
 				files: {
-					outLibFile: [libSourceDir]
+					"dist/lib.js": [libSourceDir]
 				}
 			}
 		},
 		shell: {
 			app: {
-				options: {
-					stdout: true
-				},
-				command: "cd /var/www/stuff/HorribleGame && rm -r * && cd /var/www/dev/projects/HorribleGame/dist/ && cp -R * /var/www/stuff/HorribleGame && cd /var/www/stuff/HorribleGame && echo \"Published to /var/www/stuff/HorribleGame/\""
+				command: "cd dist/ ; zip -r dist.nw . ; mv dist.nw ../bin ; cp ../bin/dist.nw /var/www/stuff/HorribleGame/"
 			}
 		}
 	});

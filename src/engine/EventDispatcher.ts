@@ -3,6 +3,7 @@ module HG {
 	export class EventDispatcher {
 
 		private events: {} = {};
+		eventsAvailable: string[] = [];
 
 		on(name: any, callback: (args: {}) => any): void {
 			if (Array.isArray(name) === true) {
@@ -13,7 +14,11 @@ module HG {
 				if (typeof name !== "number") {
 					name = name.toString().toLowerCase();
 				}
-				console.log('Added EventHandler for \''+name+'\'');
+				if (this.eventsAvailable.indexOf(name) === -1) {
+					console.warn("Event '"+name+"' not available, still added though");
+				} else {
+					console.log('Added EventHandler for \''+name+'\'');
+				}
 				if (!this.events[name]) this.events[name] = [];
 				this.events[name].push(callback);
 			}
@@ -53,6 +58,9 @@ module HG {
 			} else {
 				if (typeof name !== "number") {
 					name = name.toString().toLowerCase();
+				}
+				if (!(name in this.eventsAvailable)) {
+					this.eventsAvailable.push(name);
 				}
 				if (!this.events[name]) return;
 				if (this.events[name].length === 0) return;

@@ -1,8 +1,12 @@
 ///<reference path="EventDispatcher" />
+/*
+* BaseGame.ts
+* Author: BeryJu
+*/
 
 module HG {
 
-	export class BaseGame extends EventDispatcher{ 
+	export class BaseGame extends EventDispatcher {
 		_: {} = {};
 		socketClient: SocketManager;
 		renderer: THREE.WebGLRenderer;
@@ -11,6 +15,8 @@ module HG {
 		scene: HG.Scene = new HG.Scene();
 		controls: HG.InputHandler = new HG.InputHandler();
 		fpsCounter: HG.FPSCounter = new HG.FPSCounter();
+		eventsAvailable: string[] = ["preload", "connected", 
+			"start", "keyup", "keydown", "resize", "render"];
 
 		constructor(container: HTMLElement = document.body,
 				clearColor: THREE.Color = new THREE.Color(0x000000)) {

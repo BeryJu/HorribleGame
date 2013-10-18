@@ -1,8 +1,10 @@
+/// <reference path="MovingEntity.hg.ts" />
+
 module HG {
 
 	export module Entities {
 
-		export class AnimatedEntity extends HG.Entity {
+		export class AnimatedEntity extends MovingEntity {
 
 			animOffset: number = 0;
 			running: boolean = false;
@@ -12,6 +14,7 @@ module HG {
 			lastKeyframe: number = 0;
 			currentKeyframe: number = 0;
 			object: THREE.Mesh;
+			eventsAvailable: string[] = ["loaded"];
 
 			constructor(url?: string) {
 				super();
@@ -22,15 +25,15 @@ module HG {
 				if (req.readyState === 4) {
 					var loader = new THREE.JSONLoader();
 					var result = loader.parse(JSON.parse(req.responseText));
-					this.load(result.geometry, result.materials );
+					this.load(result.geometry, result.materials);
 				}
 			}
 
 			loadAsync(url: string): void {
 				var req = new XMLHttpRequest();
-				var t = this;
+				var scope = this;
 				req.onreadystatechange = function(req) {
-					t.onReadyStateChange(this);
+					scope.onReadyStateChange(this);
 				};
 				req.open("GET", url, true);
 				req.send();
@@ -46,6 +49,7 @@ module HG {
 			}
 
 			frame(delta: number): void {
+				super.frame(delta);
 				if (this.running === true) {
 					var time = new Date().getTime() % this.duration;
 					var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
@@ -60,6 +64,7 @@ module HG {
 						(time % this.interpolation) / this.interpolation;
 					this.object.morphTargetInfluences[this.lastKeyframe] =
 						1 - this.object.morphTargetInfluences[keyframe];
+					this.running = false;
 				}
 			}
 

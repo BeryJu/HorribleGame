@@ -10,6 +10,10 @@ module HG {
 			return parseInt(componentToHex(r) + componentToHex(g) + componentToHex(b), 16);
 		}
 
+		static degToRad(deg: number): number {
+			return deg * Math.PI / 180;
+		}
+
 		static hasGL(): boolean {
 			return (window.WebGLRenderingContext) ? true : false;
 		}

@@ -3,6 +3,7 @@ var HG;
     var EventDispatcher = (function () {
         function EventDispatcher() {
             this.events = {};
+            this.eventsAvailable = [];
         }
         EventDispatcher.prototype.on = function (name, callback) {
             if (Array.isArray(name) === true) {
@@ -13,7 +14,11 @@ var HG;
                 if (typeof name !== "number") {
                     name = name.toString().toLowerCase();
                 }
-                console.log('Added EventHandler for \'' + name + '\'');
+                if (this.eventsAvailable.indexOf(name) === -1) {
+                    console.warn("Event '" + name + "' not available, still added though");
+                } else {
+                    console.log('Added EventHandler for \'' + name + '\'');
+                }
                 if (!this.events[name])
                     this.events[name] = [];
                 this.events[name].push(callback);
@@ -58,6 +63,9 @@ var HG;
                 if (typeof name !== "number") {
                     name = name.toString().toLowerCase();
                 }
+                if (!(name in this.eventsAvailable)) {
+                    this.eventsAvailable.push(name);
+                }
                 if (!this.events[name])
                     return;
                 if (this.events[name].length === 0)
@@ -74,6 +82,10 @@ var HG;
     HG.EventDispatcher = EventDispatcher;
 })(HG || (HG = {}));
 ///<reference path="EventDispatcher" />
+/*
+* BaseGame.ts
+* Author: BeryJu
+*/
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -93,6 +105,15 @@ var HG;
             this.scene = new HG.Scene();
             this.controls = new HG.InputHandler();
             this.fpsCounter = new HG.FPSCounter();
+            this.eventsAvailable = [
+                "preload",
+                "connected",
+                "start",
+                "keyup",
+                "keydown",
+                "resize",
+                "render"
+            ];
             if (HG.Utils.hasGL() === false) {
                 throw new Error("Your Browser doesn't support WebGL");
             }
@@ -162,11 +183,8 @@ var HG;
         function BaseServer(port) {
             _super.call(this);
             var io = require('socket.io');
-            try  {
-                this.socketServer = io.listen(port);
-            } catch (e) {
-                console.error(e);
-            }
+            this.socketServer = io.listen(port);
+            this.socketServer.set("log level", 1);
             this.socketServer.sockets.on('connection', function (socket) {
                 socket.on('my other event', function (data) {
                     console.log(data);
@@ -193,32 +211,36 @@ var HG;
 ///<reference path="GameComponent" />
 var HG;
 (function (HG) {
-    var Entity = (function (_super) {
-        __extends(Entity, _super);
-        function Entity(object) {
+    var BaseEntity = (function (_super) {
+        __extends(BaseEntity, _super);
+        function BaseEntity(object) {
             _super.call(this);
-            this.children = [];
-            if (object)
+            this.positionOffset = new THREE.Vector3();
+            if (object) {
                 this.object = object;
+            } else {
+                this.object = new THREE.Mesh();
+            }
         }
-        Entity.prototype.position = function (x, y, z) {
-            if (this.object !== undefined) {
-                this.object.position.set(x, y, z);
-            }
+        BaseEntity.prototype.offset = function (x, y, z) {
+            this.positionOffset.set(x, y, z);
+            return this;
         };
 
-        Entity.prototype.rotation = function (x, y, z) {
-            if (this.object !== undefined) {
-                this.object.rotation.set(x, y, z);
-            }
+        BaseEntity.prototype.position = function (x, y, z) {
+            x = x + this.positionOffset.x;
+            y = y + this.positionOffset.y;
+            z = z + this.positionOffset.z;
+            this.object.position.set(x, y, z);
+            return this;
         };
 
-        Entity.prototype.set = function (key, value) {
-            if (this.children.length > 0) {
-                this.children.forEach(function (c) {
-                    c.set(key, value);
-                });
-            }
+        BaseEntity.prototype.rotation = function (x, y, z) {
+            this.object.rotation.set(x, y, z);
+            return this;
+        };
+
+        BaseEntity.prototype.set = function (key, value) {
             if (key.indexOf(".") === -1) {
                 this.object[key] = value;
             } else {
@@ -232,11 +254,7 @@ var HG;
             return this;
         };
 
-        Entity.prototype.hasChildren = function () {
-            return (this.children.length > 0);
-        };
-
-        Entity.prototype.get = function (key) {
+        BaseEntity.prototype.get = function (key) {
             if (key.indexOf(".") === -1) {
                 return this.object[key];
             } else {
@@ -248,30 +266,9 @@ var HG;
                 return obj[parts[length]];
             }
         };
-
-        Entity.prototype.collectChildren = function () {
-            var result = [];
-            result.push(this);
-            if (this.children.length > 0) {
-                this.children.forEach(function (c) {
-                    result.push(c);
-                });
-            }
-            return result;
-        };
-
-        Entity.prototype.connect = function (e) {
-            this.children.push(e);
-            return this;
-        };
-
-        Entity.prototype.fromObject3D = function (o) {
-            this.object = o;
-            return this;
-        };
-        return Entity;
+        return BaseEntity;
     })(HG.GameComponent);
-    HG.Entity = Entity;
+    HG.BaseEntity = BaseEntity;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -281,6 +278,9 @@ var HG;
             _super.call(this);
             this.keyState = [];
             this.bind = this.on;
+            for (var k in HG.KeyMap) {
+                this.eventsAvailable.push(HG.KeyMap[k]);
+            }
         }
         InputHandler.prototype.onKeyDown = function (e) {
             this.keyState[e.keyCode] = 1;
@@ -310,6 +310,10 @@ var HG;
         W: 87,
         Q: 81,
         E: 69,
+        Left: 37,
+        Right: 39,
+        Top: 38,
+        Bottom: 40,
         Space: 32,
         Esc: 27,
         F11: 122,
@@ -1095,6 +1099,7 @@ var HG;
                 position: { x: 0, y: 0, z: 0 },
                 rotation: { x: 0, y: 0, z: 0 }
             };
+            this.eventsAvailable = ["loaded", "created"];
         }
         LevelStructure.prototype.load = function (JSONString) {
             var r = JSON.parse(JSONString);
@@ -1163,7 +1168,7 @@ var HG;
             for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
                 for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
                     var be = lvl.entities.get(i, j);
-                    var re = new HG.Entities.MovingEntity(new THREE.Mesh(new THREE.CubeGeometry(HG.BLOCK_SIZE, HG.BLOCK_SIZE, HG.BLOCK_SIZE), new THREE.MeshPhongMaterial({ color: be.color })));
+                    var re = new HG.BaseEntity(new THREE.Mesh(new THREE.CubeGeometry(HG.BLOCK_SIZE, HG.BLOCK_SIZE, HG.BLOCK_SIZE), new THREE.MeshPhongMaterial({ color: be.color })));
                     re.position(i, j, be.indentation);
                     this.entities.push(re);
                 }
@@ -1192,24 +1197,27 @@ var HG;
                 unnamed: []
             };
         }
-        Scene.prototype.add = function (Entity, nameTag) {
-            var c = Entity.collectChildren();
-            for (var i = 0; i < c.length; ++i) {
-                this.scene.add(c[i].object);
-            }
+        Scene.prototype.add = function (BaseEntity, nameTag) {
+            this.scene.add(BaseEntity.object);
             if (nameTag) {
-                this.entities.named[nameTag.toLowerCase()] = Entity;
+                this.entities.named[nameTag.toLowerCase()] = BaseEntity;
             } else {
-                this.entities.unnamed.push(Entity);
+                this.entities.unnamed.push(BaseEntity);
             }
         };
 
-        Scene.prototype.getIndex = function (index) {
-            return this.scene.children[index];
+        Scene.prototype.forAllNamed = function (callback, type) {
+            if (!type)
+                type = HG.BaseEntity;
+            for (var k in this.entities.named) {
+                var ne = this.entities.named[k];
+                if (ne instanceof type)
+                    callback(ne);
+            }
         };
 
         Scene.prototype.getAllNamed = function (type) {
-            if (typeof type === "undefined") { type = HG.Entity; }
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
             var es = [];
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
@@ -1220,7 +1228,7 @@ var HG;
         };
 
         Scene.prototype.getAllUnnamed = function (type) {
-            if (typeof type === "undefined") { type = HG.Entity; }
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
             var es = [];
             for (var i = 0; i < this.entities.unnamed.length; i++) {
                 var ue = this.entities.unnamed[i];
@@ -1231,7 +1239,7 @@ var HG;
         };
 
         Scene.prototype.getAll = function (type) {
-            if (typeof type === "undefined") { type = HG.Entity; }
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
             var es = [];
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
@@ -1247,7 +1255,7 @@ var HG;
         };
 
         Scene.prototype.get = function (nameTag, type) {
-            if (typeof type === "undefined") { type = HG.Entity; }
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
             var e = [];
             for (var i = 0; i < nameTag.length; i++) {
                 var ee = this.entities.named[nameTag[i].toLowerCase()];
@@ -1274,71 +1282,6 @@ var HG;
         return ServerConnection;
     })(HG.EventDispatcher);
     HG.ServerConnection = ServerConnection;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var AnimatedEntity = (function (_super) {
-            __extends(AnimatedEntity, _super);
-            function AnimatedEntity(url) {
-                _super.call(this);
-                this.animOffset = 0;
-                this.running = false;
-                this.duration = 1000;
-                this.keyframes = 20;
-                this.interpolation = this.duration / this.keyframes;
-                this.lastKeyframe = 0;
-                this.currentKeyframe = 0;
-                if (url)
-                    this.loadAsync(url);
-            }
-            AnimatedEntity.prototype.onReadyStateChange = function (req) {
-                if (req.readyState === 4) {
-                    var loader = new THREE.JSONLoader();
-                    var result = loader.parse(JSON.parse(req.responseText));
-                    this.load(result.geometry, result.materials);
-                }
-            };
-
-            AnimatedEntity.prototype.loadAsync = function (url) {
-                var req = new XMLHttpRequest();
-                var t = this;
-                req.onreadystatechange = function (req) {
-                    t.onReadyStateChange(this);
-                };
-                req.open("GET", url, true);
-                req.send();
-            };
-
-            AnimatedEntity.prototype.load = function (geometry, materials) {
-                for (var i = 0; i < materials.length; i++) {
-                    materials[i]['morphTargets'] = true;
-                }
-                var material = new THREE.MeshFaceMaterial(materials);
-                this.object = new THREE.Mesh(geometry, material);
-                this.dispatch('loaded');
-            };
-
-            AnimatedEntity.prototype.frame = function (delta) {
-                if (this.running === true) {
-                    var time = new Date().getTime() % this.duration;
-                    var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
-                    if (keyframe != this.currentKeyframe) {
-                        this.object.morphTargetInfluences[this.lastKeyframe] = 0;
-                        this.object.morphTargetInfluences[this.currentKeyframe] = 1;
-                        this.object.morphTargetInfluences[keyframe] = 0;
-                        this.lastKeyframe = this.currentKeyframe;
-                        this.currentKeyframe = keyframe;
-                    }
-                    this.object.morphTargetInfluences[keyframe] = (time % this.interpolation) / this.interpolation;
-                    this.object.morphTargetInfluences[this.lastKeyframe] = 1 - this.object.morphTargetInfluences[keyframe];
-                }
-            };
-            return AnimatedEntity;
-        })(HG.Entity);
-        Entities.AnimatedEntity = AnimatedEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -1391,21 +1334,194 @@ var HG;
                 }
             };
             return MovingEntity;
-        })(HG.Entity);
+        })(HG.BaseEntity);
         Entities.MovingEntity = MovingEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/// <reference path="MovingEntity.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var AnimatedEntity = (function (_super) {
+            __extends(AnimatedEntity, _super);
+            function AnimatedEntity(url) {
+                _super.call(this);
+                this.animOffset = 0;
+                this.running = false;
+                this.duration = 1000;
+                this.keyframes = 20;
+                this.interpolation = this.duration / this.keyframes;
+                this.lastKeyframe = 0;
+                this.currentKeyframe = 0;
+                this.eventsAvailable = ["loaded"];
+                if (url)
+                    this.loadAsync(url);
+            }
+            AnimatedEntity.prototype.onReadyStateChange = function (req) {
+                if (req.readyState === 4) {
+                    var loader = new THREE.JSONLoader();
+                    var result = loader.parse(JSON.parse(req.responseText));
+                    this.load(result.geometry, result.materials);
+                }
+            };
+
+            AnimatedEntity.prototype.loadAsync = function (url) {
+                var req = new XMLHttpRequest();
+                var scope = this;
+                req.onreadystatechange = function (req) {
+                    scope.onReadyStateChange(this);
+                };
+                req.open("GET", url, true);
+                req.send();
+            };
+
+            AnimatedEntity.prototype.load = function (geometry, materials) {
+                for (var i = 0; i < materials.length; i++) {
+                    materials[i]['morphTargets'] = true;
+                }
+                var material = new THREE.MeshFaceMaterial(materials);
+                this.object = new THREE.Mesh(geometry, material);
+                this.dispatch('loaded');
+            };
+
+            AnimatedEntity.prototype.frame = function (delta) {
+                _super.prototype.frame.call(this, delta);
+                if (this.running === true) {
+                    var time = new Date().getTime() % this.duration;
+                    var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
+                    if (keyframe != this.currentKeyframe) {
+                        this.object.morphTargetInfluences[this.lastKeyframe] = 0;
+                        this.object.morphTargetInfluences[this.currentKeyframe] = 1;
+                        this.object.morphTargetInfluences[keyframe] = 0;
+                        this.lastKeyframe = this.currentKeyframe;
+                        this.currentKeyframe = keyframe;
+                    }
+                    this.object.morphTargetInfluences[keyframe] = (time % this.interpolation) / this.interpolation;
+                    this.object.morphTargetInfluences[this.lastKeyframe] = 1 - this.object.morphTargetInfluences[keyframe];
+                    this.running = false;
+                }
+            };
+            return AnimatedEntity;
+        })(Entities.MovingEntity);
+        Entities.AnimatedEntity = AnimatedEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* AudioEntity.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var AudioEntity = (function (_super) {
+            __extends(AudioEntity, _super);
+            function AudioEntity(url) {
+                _super.call(this);
+                this.eventsAvailable = ["loaded"];
+                if (url)
+                    this.loadAsync(url);
+            }
+            AudioEntity.prototype.onReadyStateChange = function (req) {
+                if (req.readyState === 4) {
+                    var scope = this;
+                    // context.decodeAudioData(req.response, function(buffer) {
+                    // 	scope.load(buffer);
+                    // });
+                }
+            };
+
+            AudioEntity.prototype.loadAsync = function (url) {
+                var req = new XMLHttpRequest();
+                var scope = this;
+                req.responseType = 'arraybuffer';
+                req.onreadystatechange = function (req) {
+                    scope.onReadyStateChange(this);
+                };
+                req.open("GET", url, true);
+                req.send();
+            };
+
+            AudioEntity.prototype.load = function (buffer) {
+                this.buffer = buffer;
+                this.dispatch('loaded');
+            };
+
+            AudioEntity.prototype.frame = function (delta) {
+                _super.prototype.frame.call(this, delta);
+            };
+            return AudioEntity;
+        })(HG.BaseEntity);
+        Entities.AudioEntity = AudioEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/// <reference path="MovingEntity.hg.ts" />
+/*
+* ModelEntity.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var ModelEntity = (function (_super) {
+            __extends(ModelEntity, _super);
+            function ModelEntity(url) {
+                _super.call(this);
+                this.eventsAvailable = ["loaded"];
+                if (url)
+                    this.loadAsync(url);
+            }
+            ModelEntity.prototype.onReadyStateChange = function (req) {
+                if (req.readyState === 4) {
+                    var loader = new THREE.JSONLoader();
+                    var result = loader.parse(JSON.parse(req.responseText));
+                    this.load(result.geometry, result.materials);
+                }
+            };
+
+            ModelEntity.prototype.loadAsync = function (url) {
+                var req = new XMLHttpRequest();
+                var scope = this;
+                req.onreadystatechange = function (req) {
+                    scope.onReadyStateChange(this);
+                };
+                req.open("GET", url, true);
+                req.send();
+            };
+
+            ModelEntity.prototype.load = function (geometry, materials) {
+                var material = new THREE.MeshFaceMaterial(materials);
+                this.object = new THREE.Mesh(geometry, material);
+                this.dispatch('loaded');
+            };
+
+            ModelEntity.prototype.frame = function (delta) {
+                _super.prototype.frame.call(this, delta);
+            };
+            return ModelEntity;
+        })(Entities.MovingEntity);
+        Entities.ModelEntity = ModelEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    var Player = (function (_super) {
-        __extends(Player, _super);
-        function Player() {
-            _super.apply(this, arguments);
-        }
-        return Player;
-    })(HG.Entity);
-    HG.Player = Player;
+    (function (Entities) {
+        var TemplateEntity = (function (_super) {
+            __extends(TemplateEntity, _super);
+            function TemplateEntity() {
+                _super.call(this);
+            }
+            TemplateEntity.prototype.frame = function (delta) {
+                _super.prototype.frame.call(this, delta);
+            };
+            return TemplateEntity;
+        })(HG.BaseEntity);
+        Entities.TemplateEntity = TemplateEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
 })(HG || (HG = {}));
 ///<reference path="../GameComponent" />
 var HG;
@@ -1590,65 +1706,25 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    HG.Settings = {
-        fov: 110,
-        tileSize: 50,
-        viewDistance: 500,
-        debug: {
-            Enabled: true,
-            PositionX: 2000
-        },
-        shadowMapSize: 2048,
-        colorKey: "3c",
-        antialiasing: true,
-        levelURL: "http://lina/dev/projects/HorribleGame/assets/levels/level.json",
-        keys: {
-            left: HG.KeyMap.A,
-            right: HG.KeyMap.D,
+    var Settings = (function () {
+        function Settings() {
+        }
+        Settings.fov = 110;
+        Settings.viewDistance = 500;
+        Settings.shadowMapSize = 2048;
+        Settings.antialiasing = true;
+        Settings.keys = {
+            left: [HG.KeyMap.A, HG.KeyMap.Left],
+            right: [HG.KeyMap.D, HG.KeyMap.Right],
             pause: HG.KeyMap.Esc,
             jump: HG.KeyMap.Space,
             devConsole: HG.KeyMap.F12,
             fullscreen: HG.KeyMap.F11
-        },
-        pattern: [
-            [
-                [1, 1, 0, 0, 0, 0, 1, 1],
-                [0, 0, 0, 0, 0, 0, 1, 1],
-                [0, 0, 0, 0, 0, 0, 1, 1],
-                [1, 1, 0, 0, 0, 0, 1, 1]
-            ],
-            [
-                [1, 1, 0, 0, 0, 0, 1, 1],
-                [1, 1, 0, 0, 0, 0, 1, 1],
-                [1, 1, 1, 0, 0, 0, 1, 1],
-                [1, 1, 1, 1, 0, 0, 0, 1]
-            ],
-            [
-                [1, 1, 1, 1, 0, 0, 0, 1],
-                [1, 1, 1, 0, 0, 0, 1, 1],
-                [1, 1, 0, 0, 0, 0, 1, 1],
-                [1, 1, 0, 0, 0, 0, 1, 1]
-            ],
-            [
-                [1, 1, 1, 1, 0, 0, 0, 1],
-                [1, 1, 1, 0, 0, 0, 1, 1],
-                [1, 1, 1, 0, 0, 0, 1, 1],
-                [1, 1, 1, 1, 0, 0, 0, 1]
-            ],
-            [
-                [1, 1, 0, 0, 0, 0, 1, 1],
-                [1, 1, 0, 0, 0, 0, 1, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1]
-            ],
-            [
-                [1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 1, 0, 0, 0, 0, 1, 1],
-                [1, 1, 0, 0, 0, 0, 1, 1]
-            ]
-        ]
-    };
+        };
+        return Settings;
+    })();
+    HG.Settings = Settings;
+    ;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -1664,6 +1740,10 @@ var HG;
                 return hex.length == 1 ? "0" + hex : hex;
             };
             return parseInt(componentToHex(r) + componentToHex(g) + componentToHex(b), 16);
+        };
+
+        Utils.degToRad = function (deg) {
+            return deg * Math.PI / 180;
         };
 
         Utils.hasGL = function () {
@@ -1705,29 +1785,19 @@ var pkg = require("./package.json");
 console.log("HorribleGame build " + pkg.build);
 game.on('preload', function () {
     var color = 0xffffff;
-    var Player = new HG.Entities.MovingEntity(new THREE.Mesh(new THREE.CubeGeometry(50, 50, 50), new THREE.MeshBasicMaterial({ color: color })));
-    var PlayerLight = new HG.Entities.MovingEntity(new THREE.PointLight(color, 5, HG.Settings.viewDistance));
-    var Android = new HG.Entities.AnimatedEntity("app://hg/assets/models/android.js");
-    Android.on('loaded', function () {
-        Android.object.scale.set(10, 10, 10);
-        Android.running = true;
-        game.scene.add(Android, "Android");
-        game.scene.getAllNamed().forEach(function (e) {
-            e.position(-37.5, 250, 0);
+    var playerLight = new HG.Entities.MovingEntity(new THREE.PointLight(color, 3, HG.Settings.viewDistance));
+    playerLight.offset(0, 50, 0);
+    game.scene.add(playerLight, "playerLight");
+    var playerModel = new HG.Entities.AnimatedEntity();
+    playerModel.on('loaded', function () {
+        playerModel.object.scale.set(10, 10, 10);
+        playerModel.object.rotation.y = HG.Utils.degToRad(90);
+        game.scene.add(playerModel, "playerModel");
+        game.scene.forAllNamed(function (e) {
+            e.position(-37.5, 270, 0);
         });
     });
-    game.scene.add(Player, "Player");
-    game.scene.add(PlayerLight, "PlayerLight");
-
-    // var levelStruct = new HG.LevelStructure();
-    // levelStruct.on('created', function(args: {}) {
-    // 	var level = new HG.Level(args['level']);
-    // 	level.entities.forEach(function(e) {
-    // 		game.scene.add(e);
-    // 	});
-    // 	level.applyCamera(game.camera);
-    // });
-    // levelStruct.create();
+    playerModel.loadAsync("app://hg/assets/models/android.json");
     var levelStruct = new HG.LevelStructure();
     levelStruct.on('loaded', function (args) {
         var level = new HG.Level(args['level']);
@@ -1739,6 +1809,15 @@ game.on('preload', function () {
     levelStruct.loadAsync("app://hg/assets/levels/level1.json");
 });
 
+// var levelStruct = new HG.LevelStructure();
+// levelStruct.on('created', function(args: {}) {
+// 	var level = new HG.Level(args['level']);
+// 	level.entities.forEach(function(e) {
+// 		game.scene.add(e);
+// 	});
+// 	level.applyCamera(game.camera);
+// });
+// levelStruct.create();
 game.on('start', function () {
     document.getElementById('build').innerText = "HorribleGame build " + pkg.build;
     window.onresize = function () {
@@ -1768,22 +1847,31 @@ game.controls.bind(HG.Settings.keys.fullscreen, function (args) {
 });
 
 game.controls.bind(HG.Settings.keys.left, function (args) {
-    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
-        e.moveLeft(3.125 * args['delta']);
+    game.scene.forAllNamed(function (e) {
+        if (e instanceof HG.Entities.MovingEntity)
+            e.moveLeft(3.125 * args['delta']);
+        if (e instanceof HG.Entities.AnimatedEntity)
+            e.running = true;
     });
     game.camera.position.x -= 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.right, function (args) {
-    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
-        e.moveRight(3.125 * args['delta']);
+    game.scene.forAllNamed(function (e) {
+        if (e instanceof HG.Entities.MovingEntity)
+            e.moveRight(3.125 * args['delta']);
+        if (e instanceof HG.Entities.AnimatedEntity)
+            e.running = true;
     });
     game.camera.position.x += 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.jump, function (args) {
-    game.scene.get(["Player", "PlayerLight"], HG.Entities.MovingEntity).forEach(function (e) {
-        e.jump();
+    game.scene.forAllNamed(function (e) {
+        if (e instanceof HG.Entities.MovingEntity)
+            e.jump();
+        if (e instanceof HG.Entities.AnimatedEntity)
+            e.running = true;
     });
 });
 

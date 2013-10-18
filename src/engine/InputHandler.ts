@@ -4,7 +4,12 @@ module HG {
 
 		private keyState: number[] = [];
 
-		constructor() { super(); }
+		constructor() {
+			super();
+			for (var k in HG.KeyMap) {
+				this.eventsAvailable.push(HG.KeyMap[k]);
+			}
+		}
 
 		bind = this.on;
 

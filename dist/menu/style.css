@@ -1,0 +1,16 @@
+* {
+	margin: 0px;
+	font-family: sans-serif;
+}
+
+body {
+	overflow: hidden;
+}
+
+div#info {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 1111;
+	color: white;
+}

@@ -9,11 +9,8 @@ module HG {
 		constructor(port: number) {
 			super();
 			var io = require('socket.io');
-			try {
-				this.socketServer = io.listen(port);
-			} catch (e) {
-				console.error(e);
-			}
+			this.socketServer = io.listen(port);
+			this.socketServer.set("log level", 1);
 			this.socketServer.sockets.on('connection', function (socket) {
 				socket.on('my other event', function (data) {
 					console.log(data);
