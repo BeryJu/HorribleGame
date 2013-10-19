@@ -4,7 +4,7 @@ module HG {
 
 	export module Entities {
 
-		export class AnimatedEntity extends MovingEntity {
+		export class AnimatedEntity extends BaseEntity {
 
 			animOffset: number = 0;
 			running: boolean = false;

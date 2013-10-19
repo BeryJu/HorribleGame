@@ -14,10 +14,11 @@ var HG;
                 if (typeof name !== "number") {
                     name = name.toString().toLowerCase();
                 }
+                var type = this['constructor']['name'];
                 if (this.eventsAvailable.indexOf(name) === -1) {
-                    console.warn("Event '" + name + "' not available, still added though");
+                    console.warn("[" + type + "] Event '" + name + "' not available, still added though");
                 } else {
-                    console.log('Added EventHandler for \'' + name + '\'');
+                    console.log("[" + type + "] Added EventHandler for '" + name);
                 }
                 if (!this.events[name])
                     this.events[name] = [];
@@ -81,9 +82,9 @@ var HG;
     })();
     HG.EventDispatcher = EventDispatcher;
 })(HG || (HG = {}));
-///<reference path="EventDispatcher" />
+/// <reference path="EventDispatcher.ts" />
 /*
-* BaseGame.ts
+* GameComponent.ts
 * Author: BeryJu
 */
 var __extends = this.__extends || function (d, b) {
@@ -92,6 +93,79 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var HG;
+(function (HG) {
+    var GameComponent = (function (_super) {
+        __extends(GameComponent, _super);
+        function GameComponent() {
+            _super.apply(this, arguments);
+        }
+        GameComponent.prototype.frame = function (delta) {
+        };
+        return GameComponent;
+    })(HG.EventDispatcher);
+    HG.GameComponent = GameComponent;
+})(HG || (HG = {}));
+///<reference path="GameComponent" />
+var HG;
+(function (HG) {
+    var BaseEntity = (function (_super) {
+        __extends(BaseEntity, _super);
+        function BaseEntity(object) {
+            _super.call(this);
+            this.positionOffset = new THREE.Vector3();
+            if (object) {
+                this.object = object;
+            } else {
+                this.object = new THREE.Mesh();
+            }
+        }
+        BaseEntity.prototype.root = function (r) {
+            this.rootEntity = r;
+            return this;
+        };
+
+        BaseEntity.prototype.hasRoot = function () {
+            return (this.rootEntity) ? true : false;
+        };
+
+        BaseEntity.prototype.offset = function (x, y, z) {
+            if (this.rootEntity)
+                this.rootEntity.offset(x, y, z);
+            this.positionOffset.set(x, y, z);
+            return this;
+        };
+
+        BaseEntity.prototype.position = function (x, y, z) {
+            if (this.rootEntity)
+                this.rootEntity.position(x, y, z);
+            x = x + this.positionOffset.x;
+            y = y + this.positionOffset.y;
+            z = z + this.positionOffset.z;
+            this.object.position.set(x, y, z);
+            return this;
+        };
+
+        BaseEntity.prototype.rotation = function (x, y, z) {
+            if (this.rootEntity)
+                this.rootEntity.rotation(x, y, z);
+            this.object.rotation.set(x, y, z);
+            return this;
+        };
+
+        BaseEntity.prototype.frame = function (delta) {
+            if (this.rootEntity)
+                this.rootEntity.frame(delta);
+        };
+        return BaseEntity;
+    })(HG.GameComponent);
+    HG.BaseEntity = BaseEntity;
+})(HG || (HG = {}));
+///<reference path="EventDispatcher" />
+/*
+* BaseGame.ts
+* Author: BeryJu
+*/
 var HG;
 (function (HG) {
     var BaseGame = (function (_super) {
@@ -194,81 +268,6 @@ var HG;
         return BaseServer;
     })(HG.EventDispatcher);
     HG.BaseServer = BaseServer;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    var GameComponent = (function (_super) {
-        __extends(GameComponent, _super);
-        function GameComponent() {
-            _super.call(this);
-        }
-        GameComponent.prototype.frame = function (delta) {
-        };
-        return GameComponent;
-    })(HG.EventDispatcher);
-    HG.GameComponent = GameComponent;
-})(HG || (HG = {}));
-///<reference path="GameComponent" />
-var HG;
-(function (HG) {
-    var BaseEntity = (function (_super) {
-        __extends(BaseEntity, _super);
-        function BaseEntity(object) {
-            _super.call(this);
-            this.positionOffset = new THREE.Vector3();
-            if (object) {
-                this.object = object;
-            } else {
-                this.object = new THREE.Mesh();
-            }
-        }
-        BaseEntity.prototype.offset = function (x, y, z) {
-            this.positionOffset.set(x, y, z);
-            return this;
-        };
-
-        BaseEntity.prototype.position = function (x, y, z) {
-            x = x + this.positionOffset.x;
-            y = y + this.positionOffset.y;
-            z = z + this.positionOffset.z;
-            this.object.position.set(x, y, z);
-            return this;
-        };
-
-        BaseEntity.prototype.rotation = function (x, y, z) {
-            this.object.rotation.set(x, y, z);
-            return this;
-        };
-
-        BaseEntity.prototype.set = function (key, value) {
-            if (key.indexOf(".") === -1) {
-                this.object[key] = value;
-            } else {
-                var parts = key.split(".");
-                var obj = this.object;
-                for (var i = 0; i < parts.length - 1; i++) {
-                    obj = obj[parts[i]];
-                }
-                obj[parts[length]] = value;
-            }
-            return this;
-        };
-
-        BaseEntity.prototype.get = function (key) {
-            if (key.indexOf(".") === -1) {
-                return this.object[key];
-            } else {
-                var parts = key.split(".");
-                var obj = this.object;
-                for (var i = 0; i < parts.length - 1; i++) {
-                    obj = obj[parts[i]];
-                }
-                return obj[parts[length]];
-            }
-        };
-        return BaseEntity;
-    })(HG.GameComponent);
-    HG.BaseEntity = BaseEntity;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -1206,13 +1205,16 @@ var HG;
             }
         };
 
-        Scene.prototype.forAllNamed = function (callback, type) {
+        Scene.prototype.forNamed = function (callback, type) {
             if (!type)
                 type = HG.BaseEntity;
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
-                if (ne instanceof type)
+                if (ne instanceof type) {
                     callback(ne);
+                    if (ne.hasRoot() === true)
+                        callback(ne.rootEntity);
+                }
             }
         };
 
@@ -1221,8 +1223,12 @@ var HG;
             var es = [];
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
-                if (ne instanceof type)
+                if (ne instanceof type) {
                     es.push(ne);
+                    if (ne.hasRoot() === true)
+                        es.push(ne.rootEntity);
+                }
+                ;
             }
             return es;
         };
@@ -1232,8 +1238,11 @@ var HG;
             var es = [];
             for (var i = 0; i < this.entities.unnamed.length; i++) {
                 var ue = this.entities.unnamed[i];
-                if (ue instanceof type)
+                if (ue instanceof type) {
                     es.push(ue);
+                    if (ue.hasRoot() === true)
+                        es.push(ue.rootEntity);
+                }
             }
             return es;
         };
@@ -1243,13 +1252,19 @@ var HG;
             var es = [];
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
-                if (ne instanceof type)
+                if (ne instanceof type) {
                     es.push(ne);
+                    if (ne.hasRoot() === true)
+                        es.push(ne.rootEntity);
+                }
             }
             for (var i = 0; i < this.entities.unnamed.length; i++) {
                 var ue = this.entities.unnamed[i];
-                if (ue instanceof type)
+                if (ue instanceof type) {
                     es.push(ue);
+                    if (ue.hasRoot() === true)
+                        es.push(ue.rootEntity);
+                }
             }
             return es;
         };
@@ -1403,7 +1418,7 @@ var HG;
                 }
             };
             return AnimatedEntity;
-        })(Entities.MovingEntity);
+        })(HG.BaseEntity);
         Entities.AnimatedEntity = AnimatedEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
@@ -1430,6 +1445,25 @@ var HG;
                     // 	scope.load(buffer);
                     // });
                 }
+            };
+
+            AudioEntity.prototype.play = function () {
+            };
+
+            AudioEntity.prototype.pause = function () {
+            };
+
+            AudioEntity.prototype.stop = function () {
+            };
+
+            AudioEntity.prototype.setLoop = function () {
+            };
+
+            AudioEntity.prototype.getLength = function () {
+                return 0;
+            };
+
+            AudioEntity.prototype.setPosition = function () {
             };
 
             AudioEntity.prototype.loadAsync = function (url) {
@@ -1784,16 +1818,16 @@ var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Col
 var pkg = require("./package.json");
 console.log("HorribleGame build " + pkg.build);
 game.on('preload', function () {
-    var color = 0xffffff;
-    var playerLight = new HG.Entities.MovingEntity(new THREE.PointLight(color, 3, HG.Settings.viewDistance));
-    playerLight.offset(0, 50, 0);
+    var playerLight = new HG.Entities.MovingEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance));
+    playerLight.offset(0, 150, 0);
     game.scene.add(playerLight, "playerLight");
     var playerModel = new HG.Entities.AnimatedEntity();
+    playerModel.root(new HG.Entities.MovingEntity());
     playerModel.on('loaded', function () {
         playerModel.object.scale.set(10, 10, 10);
         playerModel.object.rotation.y = HG.Utils.degToRad(90);
         game.scene.add(playerModel, "playerModel");
-        game.scene.forAllNamed(function (e) {
+        game.scene.forNamed(function (e) {
             e.position(-37.5, 270, 0);
         });
     });
@@ -1846,8 +1880,11 @@ game.controls.bind(HG.Settings.keys.fullscreen, function (args) {
     HG.Utils.toggleFullScreenMode();
 });
 
+// game.controls.bind(.., function(args: {}) {
+// 	game.camera.
+// });
 game.controls.bind(HG.Settings.keys.left, function (args) {
-    game.scene.forAllNamed(function (e) {
+    game.scene.forNamed(function (e) {
         if (e instanceof HG.Entities.MovingEntity)
             e.moveLeft(3.125 * args['delta']);
         if (e instanceof HG.Entities.AnimatedEntity)
@@ -1857,7 +1894,7 @@ game.controls.bind(HG.Settings.keys.left, function (args) {
 });
 
 game.controls.bind(HG.Settings.keys.right, function (args) {
-    game.scene.forAllNamed(function (e) {
+    game.scene.forNamed(function (e) {
         if (e instanceof HG.Entities.MovingEntity)
             e.moveRight(3.125 * args['delta']);
         if (e instanceof HG.Entities.AnimatedEntity)
@@ -1867,7 +1904,7 @@ game.controls.bind(HG.Settings.keys.right, function (args) {
 });
 
 game.controls.bind(HG.Settings.keys.jump, function (args) {
-    game.scene.forAllNamed(function (e) {
+    game.scene.forNamed(function (e) {
         if (e instanceof HG.Entities.MovingEntity)
             e.jump();
         if (e instanceof HG.Entities.AnimatedEntity)

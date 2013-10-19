@@ -25,6 +25,30 @@ module HG {
 				}
 			}
 
+			play(): void {
+
+			}
+
+			pause(): void {
+
+			}
+
+			stop(): void {
+
+			}
+
+			setLoop(): void {
+
+			}
+
+			getLength(): number {
+				return 0;
+			}
+
+			setPosition(): void {
+
+			}
+
 			loadAsync(url: string): void {
 				var req = new XMLHttpRequest();
 				var scope = this;

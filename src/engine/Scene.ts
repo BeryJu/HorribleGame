@@ -28,7 +28,10 @@ module HG {
 			if (!type) type = HG.BaseEntity;
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
-				if (ne instanceof type) callback(ne);
+				if (ne instanceof type) {
+					callback(ne);
+					if (ne.hasRoot() === true) callback(ne.rootEntity);
+				}
 			}
 		}
 
@@ -36,7 +39,10 @@ module HG {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
-				if (ne instanceof type) es.push(ne);
+				if (ne instanceof type) {
+					es.push(ne);
+					if (ne.hasRoot() === true) es.push(ne.rootEntity);
+				};
 			}
 			return es;
 		}
@@ -45,7 +51,10 @@ module HG {
 			var es = [];
 			for (var i = 0; i < this.entities.unnamed.length; i++) {
 				var ue = this.entities.unnamed[i];
-				if (ue instanceof type) es.push(ue);
+				if (ue instanceof type) {
+					es.push(ue);
+					if (ue.hasRoot() === true) es.push(ue.rootEntity);
+				}
 			}
 			return es;
 		}
@@ -54,11 +63,36 @@ module HG {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
-				if (ne instanceof type) es.push(ne)
+				if (ne instanceof type) {
+					es.push(ne);
+					if (ne.hasRoot() === true) es.push(ne.rootEntity);
+				}
 			}
 			for (var i = 0; i < this.entities.unnamed.length; i++) {
 				var ue = this.entities.unnamed[i];
-				if (ue instanceof type) es.push(ue);
+				if (ue instanceof type) {
+					es.push(ue);
+					if (ue.hasRoot() === true) es.push(ue.rootEntity);
+				}
+			}
+			return es;
+		}
+
+		forAll(type: any = HG.BaseEntity): any[] {
+			var es = [];
+			for (var k in this.entities.named) {
+				var ne = this.entities.named[k];
+				if (ne instanceof type) {
+					callback(ne);
+					if (ne.hasRoot() === true) callback(ne.rootEntity);
+				}
+			}
+			for (var i = 0; i < this.entities.unnamed.length; i++) {
+				var ue = this.entities.unnamed[i];
+				if (ue instanceof type) {
+					callback(ue);
+					if (ue.hasRoot() === true) callback(ue.rootEntity);
+				}
 			}
 			return es;
 		}

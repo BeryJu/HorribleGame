@@ -14,10 +14,11 @@ module HG {
 				if (typeof name !== "number") {
 					name = name.toString().toLowerCase();
 				}
+				var type = this['constructor']['name'];
 				if (this.eventsAvailable.indexOf(name) === -1) {
-					console.warn("Event '"+name+"' not available, still added though");
+					console.warn("["+type+"] Event '"+name+"' not available, still added though");
 				} else {
-					console.log('Added EventHandler for \''+name+'\'');
+					console.log("["+type+"] Added EventHandler for '"+name);
 				}
 				if (!this.events[name]) this.events[name] = [];
 				this.events[name].push(callback);

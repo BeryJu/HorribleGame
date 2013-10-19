@@ -2,12 +2,12 @@ var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Col
 var pkg = require("./package.json");
 console.log("HorribleGame build "+pkg.build);
 game.on('preload', function() {
-	var color = 0xffffff;
 	var playerLight = new HG.Entities.MovingEntity(
-		new THREE.PointLight(color, 3, HG.Settings.viewDistance));
-	playerLight.offset(0, 50, 0);
+		new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance));
+	playerLight.offset(0, 150, 0);
 	game.scene.add(playerLight, "playerLight");
 	var playerModel = new HG.Entities.AnimatedEntity();
+	playerModel.root(new HG.Entities.MovingEntity());
 	playerModel.on('loaded',function() {
 		playerModel.object.scale.set(10,10,10);
 		playerModel.object.rotation.y = HG.Utils.degToRad(90);
@@ -60,6 +60,10 @@ game.controls.bind(HG.Settings.keys.fullscreen, function(args: {}) {
 	HG.Utils.toggleFullScreenMode();
 });
 
+// game.controls.bind(.., function(args: {}) {
+// 	game.camera.
+// });
+
 game.controls.bind(HG.Settings.keys.left, function(args: {}) {
 	game.scene.forNamed(function(e) {
 		if (e instanceof HG.Entities.MovingEntity) e.moveLeft(3.125 * args['delta']);
@@ -93,9 +97,7 @@ game.on("connected", function(args: {}) {
 });
 
 game.on("render", function(args: {}) {
-	game.scene.getAll().forEach(function(e) {
-		e.frame(args['delta']);
-	});
+	game.scene.forAll(function(e) { e.frame(args['delta']); });
 	document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.getFPS();
 	document.getElementById("hfps").innerText = "Highest FPS: "+game.fpsCounter.getMaxFPS();
 	document.getElementById("frametime").innerText =
