@@ -2,21 +2,25 @@ var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Col
 var pkg = require("./package.json");
 console.log("HorribleGame build "+pkg.build);
 game.on('preload', function() {
-	var playerLight = new HG.Entities.MovingEntity(
+	var playerLight = new HG.BaseEntity(
 		new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance));
+	playerLight.addAbility(new HG.Abilities.MovingAbility());
 	playerLight.offset(0, 150, 0);
 	game.scene.add(playerLight, "playerLight");
-	var playerModel = new HG.Entities.AnimatedEntity();
-	playerModel.root(new HG.Entities.MovingEntity());
-	playerModel.on('loaded',function() {
-		playerModel.object.scale.set(10,10,10);
-		playerModel.object.rotation.y = HG.Utils.degToRad(90);
-		game.scene.add(playerModel, "playerModel");
+	var player = new HG.BaseEntity();
+	player.addAbility(new HG.Abilities.MovingAbility());
+	var animationAbility = new HG.Abilities.AnimationAbility();
+	player.addAbility(animationAbility);
+	animationAbility.running = true;
+	animationAbility.on('loaded',function() {
+		player.scale(10, 10, 10);
+		player.rotate(0, HG.Utils.degToRad(90), 0);
+		game.scene.add(player, "player");
 		game.scene.forNamed(function(e) {
 			e.position(-37.5, 270, 0);
 		});
 	});
-	playerModel.loadAsync("app://hg/assets/models/android.json");
+	animationAbility.loadAsync("app://hg/assets/models/android.json");
 	var levelStruct = new HG.LevelStructure();
 	levelStruct.on('loaded', function(args: {}) {
 		var level = new HG.Level(args['level']);
@@ -66,24 +70,30 @@ game.controls.bind(HG.Settings.keys.fullscreen, function(args: {}) {
 
 game.controls.bind(HG.Settings.keys.left, function(args: {}) {
 	game.scene.forNamed(function(e) {
-		if (e instanceof HG.Entities.MovingEntity) e.moveLeft(3.125 * args['delta']);
-		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
+		e.forAbilities(function(a) {
+			if (a instanceof HG.Abilities.MovingAbility) a.moveLeft(3.125 * args['delta']);
+			if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
+		});
 	});
 	game.camera.position.x -= 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.right, function(args: {}) {
 	game.scene.forNamed(function(e) {
-		if (e instanceof HG.Entities.MovingEntity) e.moveRight(3.125 * args['delta']);
-		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
+		e.forAbilities(function(a) {
+			if (a instanceof HG.Abilities.MovingAbility) a.moveRight(3.125 * args['delta']);
+			if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
+		});
 	});
 	game.camera.position.x += 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.jump, function(args: {}) {
 	game.scene.forNamed(function(e) {
-		if (e instanceof HG.Entities.MovingEntity) e.jump();
-		if (e instanceof HG.Entities.AnimatedEntity) e.running = true;
+		e.forAbilities(function(a) {
+			if (a instanceof HG.Abilities.MovingAbility) a.jump();
+			if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
+		});
 	});
 });
 

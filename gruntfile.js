@@ -29,7 +29,7 @@ module.exports = function(grunt) {
 		},
 		shell: {
 			app: {
-				command: "cd dist/ ; zip -r dist.nw . ; mv dist.nw ../bin ; cp ../bin/dist.nw /var/www/stuff/HorribleGame/"
+				command: "rm tscommand.tmp.txt ; cd dist/ ; zip -r dist.nw . ; mv dist.nw ../bin ; cp ../bin/dist.nw /var/www/stuff/HorribleGame/"
 			}
 		}
 	});

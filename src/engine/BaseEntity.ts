@@ -1,12 +1,17 @@
-///<reference path="GameComponent" />
+/// <reference path="GameComponent" />
+/// <reference path="BaseAbility.ts" />
+/*
+* BaseEntity.ts
+* Author: BeryJu
+*/
 
 module HG {
 
 	export class BaseEntity extends GameComponent {
 		_: {};
+		abilities: HG.BaseAbility[] = [];
 		object: THREE.Object3D;
 		positionOffset: THREE.Vector3 = new THREE.Vector3;
-		rootEntity: HG.BaseEntity;
 
 		constructor(object?: THREE.Object3D) {
 			super();
@@ -17,23 +22,30 @@ module HG {
 			}
 		}
 
-		root(r: HG.BaseEntity): HG.BaseEntity {
-			this.rootEntity = r;
-			return this;
+		addAbility(a: HG.BaseAbility): boolean {
+			var compatible = a.checkCompatibility(this);
+			if (compatible === true) {
+				a.setHost(this);
+				this.abilities.push(a);
+			}
+			return compatible;
 		}
 
-		hasRoot(): boolean {
-			return (this.rootEntity) ? true : false;
+		forAbilities(callback: (a: HG.BaseAbility) => void): void {
+			this.abilities.forEach(callback);
 		}
 
 		offset(x: number, y: number, z: number): HG.BaseEntity {
-			if (this.rootEntity) this.rootEntity.offset(x, y, z);
 			this.positionOffset.set(x, y, z);
 			return this;
 		}
 
+		scale(x: number, y: number, z: number): HG.BaseEntity {
+			this.object.scale.set(x, y, z);
+			return this;
+		}
+
 		position(x: number, y: number, z: number): HG.BaseEntity {
-			if (this.rootEntity) this.rootEntity.position(x, y, z);
 			x = x + this.positionOffset.x;
 			y = y + this.positionOffset.y;
 			z = z + this.positionOffset.z;
@@ -41,14 +53,17 @@ module HG {
 			return this;
 		}
 
-		rotation(x: number, y: number, z: number): HG.BaseEntity {
-			if (this.rootEntity) this.rootEntity.rotation(x, y, z);
+		rotate(x: number, y: number, z: number): HG.BaseEntity {
 			this.object.rotation.set(x, y, z);
 			return this;
 		}
 
 		frame(delta: number): void {
-			if (this.rootEntity) this.rootEntity.frame(delta);
+			if (this.abilities.length > 0) {
+				for (var i = 0; i < this.abilities.length; i++) {
+					this.abilities[i].frame(delta);
+				}
+			}
 		}
 
 	}

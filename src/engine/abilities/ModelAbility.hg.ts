@@ -1,4 +1,4 @@
-/// <reference path="MovingEntity.hg.ts" />
+/// <reference path="../BaseAbility.ts" />
 /*
 * ModelEntity.hg.ts
 * Author: BeryJu
@@ -6,16 +6,19 @@
 
 module HG {
 
-	export module Entities {
+	export module Abilities {
 
-		export class ModelEntity extends MovingEntity {
+		export class ModelAbility extends BaseAbility {
 
-			object: THREE.Mesh;
 			eventsAvailable: string[] = ["loaded"];
 
 			constructor(url?: string) {
 				super();
 				if (url) this.loadAsync(url);
+			}
+
+			checkCompatibility(entity: BaseEntity): boolean {
+				return (entity.object instanceof THREE.Mesh);
 			}
 
 			onReadyStateChange(req): void {
@@ -38,12 +41,8 @@ module HG {
 
 			load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void {
 				var material = new THREE.MeshFaceMaterial(materials);
-				this.object = new THREE.Mesh(geometry, material);
+				this.hostEntity.object = new THREE.Mesh(geometry, material);
 				this.dispatch('loaded');
-			}
-
-			frame(delta: number): void {
-				super.frame(delta);
 			}
 
 		}

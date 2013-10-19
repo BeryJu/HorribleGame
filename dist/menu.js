@@ -8,7 +8,7 @@ var taglines = [
 ];
 var tagline = taglines[Math.floor(Math.random()*taglines.length)];
 // document.getElementById("tagline").innerText = tagline;
-document.title = tagline;
+console.log(tagline);
 
 // document.getElementById("options").onclick = function() {
 // 	document.getElementById("optionsC").style.display = 'block';

@@ -84,7 +84,7 @@ var HG;
 })(HG || (HG = {}));
 /// <reference path="EventDispatcher.ts" />
 /*
-* GameComponent.ts
+* BaseAbility.ts
 * Author: BeryJu
 */
 var __extends = this.__extends || function (d, b) {
@@ -93,6 +93,32 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var HG;
+(function (HG) {
+    var BaseAbility = (function (_super) {
+        __extends(BaseAbility, _super);
+        function BaseAbility() {
+            _super.apply(this, arguments);
+        }
+        BaseAbility.prototype.setHost = function (entity) {
+            this.hostEntity = entity;
+        };
+
+        BaseAbility.prototype.checkCompatibility = function (entity) {
+            return true;
+        };
+
+        BaseAbility.prototype.frame = function (delta) {
+        };
+        return BaseAbility;
+    })(HG.EventDispatcher);
+    HG.BaseAbility = BaseAbility;
+})(HG || (HG = {}));
+/// <reference path="EventDispatcher.ts" />
+/*
+* GameComponent.ts
+* Author: BeryJu
+*/
 var HG;
 (function (HG) {
     var GameComponent = (function (_super) {
@@ -106,13 +132,19 @@ var HG;
     })(HG.EventDispatcher);
     HG.GameComponent = GameComponent;
 })(HG || (HG = {}));
-///<reference path="GameComponent" />
+/// <reference path="GameComponent" />
+/// <reference path="BaseAbility.ts" />
+/*
+* BaseEntity.ts
+* Author: BeryJu
+*/
 var HG;
 (function (HG) {
     var BaseEntity = (function (_super) {
         __extends(BaseEntity, _super);
         function BaseEntity(object) {
             _super.call(this);
+            this.abilities = [];
             this.positionOffset = new THREE.Vector3();
             if (object) {
                 this.object = object;
@@ -120,25 +152,30 @@ var HG;
                 this.object = new THREE.Mesh();
             }
         }
-        BaseEntity.prototype.root = function (r) {
-            this.rootEntity = r;
-            return this;
+        BaseEntity.prototype.addAbility = function (a) {
+            var compatible = a.checkCompatibility(this);
+            if (compatible === true) {
+                a.setHost(this);
+                this.abilities.push(a);
+            }
+            return compatible;
         };
 
-        BaseEntity.prototype.hasRoot = function () {
-            return (this.rootEntity) ? true : false;
+        BaseEntity.prototype.forAbilities = function (callback) {
+            this.abilities.forEach(callback);
         };
 
         BaseEntity.prototype.offset = function (x, y, z) {
-            if (this.rootEntity)
-                this.rootEntity.offset(x, y, z);
             this.positionOffset.set(x, y, z);
             return this;
         };
 
+        BaseEntity.prototype.scale = function (x, y, z) {
+            this.object.scale.set(x, y, z);
+            return this;
+        };
+
         BaseEntity.prototype.position = function (x, y, z) {
-            if (this.rootEntity)
-                this.rootEntity.position(x, y, z);
             x = x + this.positionOffset.x;
             y = y + this.positionOffset.y;
             z = z + this.positionOffset.z;
@@ -146,16 +183,17 @@ var HG;
             return this;
         };
 
-        BaseEntity.prototype.rotation = function (x, y, z) {
-            if (this.rootEntity)
-                this.rootEntity.rotation(x, y, z);
+        BaseEntity.prototype.rotate = function (x, y, z) {
             this.object.rotation.set(x, y, z);
             return this;
         };
 
         BaseEntity.prototype.frame = function (delta) {
-            if (this.rootEntity)
-                this.rootEntity.frame(delta);
+            if (this.abilities.length > 0) {
+                for (var i = 0; i < this.abilities.length; i++) {
+                    this.abilities[i].frame(delta);
+                }
+            }
         };
         return BaseEntity;
     })(HG.GameComponent);
@@ -1210,11 +1248,8 @@ var HG;
                 type = HG.BaseEntity;
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
-                if (ne instanceof type) {
+                if (ne instanceof type)
                     callback(ne);
-                    if (ne.hasRoot() === true)
-                        callback(ne.rootEntity);
-                }
             }
         };
 
@@ -1223,11 +1258,8 @@ var HG;
             var es = [];
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
-                if (ne instanceof type) {
+                if (ne instanceof type)
                     es.push(ne);
-                    if (ne.hasRoot() === true)
-                        es.push(ne.rootEntity);
-                }
                 ;
             }
             return es;
@@ -1238,11 +1270,8 @@ var HG;
             var es = [];
             for (var i = 0; i < this.entities.unnamed.length; i++) {
                 var ue = this.entities.unnamed[i];
-                if (ue instanceof type) {
+                if (ue instanceof type)
                     es.push(ue);
-                    if (ue.hasRoot() === true)
-                        es.push(ue.rootEntity);
-                }
             }
             return es;
         };
@@ -1252,19 +1281,13 @@ var HG;
             var es = [];
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
-                if (ne instanceof type) {
+                if (ne instanceof type)
                     es.push(ne);
-                    if (ne.hasRoot() === true)
-                        es.push(ne.rootEntity);
-                }
             }
             for (var i = 0; i < this.entities.unnamed.length; i++) {
                 var ue = this.entities.unnamed[i];
-                if (ue instanceof type) {
+                if (ue instanceof type)
                     es.push(ue);
-                    if (ue.hasRoot() === true)
-                        es.push(ue.rootEntity);
-                }
             }
             return es;
         };
@@ -1274,19 +1297,13 @@ var HG;
             var es = [];
             for (var k in this.entities.named) {
                 var ne = this.entities.named[k];
-                if (ne instanceof type) {
+                if (ne instanceof type)
                     callback(ne);
-                    if (ne.hasRoot() === true)
-                        callback(ne.rootEntity);
-                }
             }
             for (var i = 0; i < this.entities.unnamed.length; i++) {
                 var ue = this.entities.unnamed[i];
-                if (ue instanceof type) {
+                if (ue instanceof type)
                     callback(ue);
-                    if (ue.hasRoot() === true)
-                        callback(ue.rootEntity);
-                }
             }
             return es;
         };
@@ -1320,69 +1337,17 @@ var HG;
     })(HG.EventDispatcher);
     HG.ServerConnection = ServerConnection;
 })(HG || (HG = {}));
+/// <reference path="../BaseAbility.ts" />
+/*
+* AnimationAbility.hg.ts
+* Author: BeryJu
+*/
 var HG;
 (function (HG) {
-    (function (Entities) {
-        var MovingEntity = (function (_super) {
-            __extends(MovingEntity, _super);
-            function MovingEntity() {
-                _super.apply(this, arguments);
-                this.jumpState = 0;
-                //0: normal
-                //1: rising
-                //2: max
-                //3: falling
-                this.oldY = 0;
-                this.maxY = 200;
-            }
-            MovingEntity.prototype.moveLeft = function (step) {
-                if (typeof step === "undefined") { step = 3.125; }
-                this.object.position.x -= step;
-            };
-
-            MovingEntity.prototype.moveRight = function (step) {
-                if (typeof step === "undefined") { step = 3.125; }
-                this.object.position.x += step;
-            };
-
-            MovingEntity.prototype.jump = function () {
-                this.oldY = this.object.position.y;
-                this.jumpState = 1;
-            };
-
-            MovingEntity.prototype.frame = function (delta) {
-                if (this.jumpState >= 1) {
-                    if (this.jumpState === 3) {
-                        this.oldY = this.object.position.y;
-                        this.jumpState = 0;
-                    }
-                    if (this.object.position.y < (this.maxY + this.oldY) && this.jumpState === 1) {
-                        this.object.position.y += 3 * delta;
-                    }
-                    if (this.object.position.y >= (this.maxY + this.oldY) && this.jumpState >= 1) {
-                        this.jumpState = 2;
-                    }
-                    if (this.object.position.y <= this.oldY && this.jumpState >= 2) {
-                        this.object.position.y = this.oldY;
-                        this.jumpState = 3;
-                    } else if (this.jumpState >= 2) {
-                        this.object.position.y -= 3 * delta;
-                    }
-                }
-            };
-            return MovingEntity;
-        })(HG.BaseEntity);
-        Entities.MovingEntity = MovingEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/// <reference path="MovingEntity.hg.ts" />
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var AnimatedEntity = (function (_super) {
-            __extends(AnimatedEntity, _super);
-            function AnimatedEntity(url) {
+    (function (Abilities) {
+        var AnimationAbility = (function (_super) {
+            __extends(AnimationAbility, _super);
+            function AnimationAbility(url) {
                 _super.call(this);
                 this.animOffset = 0;
                 this.running = false;
@@ -1395,7 +1360,11 @@ var HG;
                 if (url)
                     this.loadAsync(url);
             }
-            AnimatedEntity.prototype.onReadyStateChange = function (req) {
+            AnimationAbility.prototype.checkCompatibility = function (entity) {
+                return (entity.object instanceof THREE.Mesh);
+            };
+
+            AnimationAbility.prototype.onReadyStateChange = function (req) {
                 if (req.readyState === 4) {
                     var loader = new THREE.JSONLoader();
                     var result = loader.parse(JSON.parse(req.responseText));
@@ -1403,7 +1372,7 @@ var HG;
                 }
             };
 
-            AnimatedEntity.prototype.loadAsync = function (url) {
+            AnimationAbility.prototype.loadAsync = function (url) {
                 var req = new XMLHttpRequest();
                 var scope = this;
                 req.onreadystatechange = function (req) {
@@ -1413,123 +1382,59 @@ var HG;
                 req.send();
             };
 
-            AnimatedEntity.prototype.load = function (geometry, materials) {
+            AnimationAbility.prototype.load = function (geometry, materials) {
                 for (var i = 0; i < materials.length; i++) {
                     materials[i]['morphTargets'] = true;
                 }
                 var material = new THREE.MeshFaceMaterial(materials);
-                this.object = new THREE.Mesh(geometry, material);
+                this.hostEntity.object = new THREE.Mesh(geometry, material);
                 this.dispatch('loaded');
             };
 
-            AnimatedEntity.prototype.frame = function (delta) {
+            AnimationAbility.prototype.frame = function (delta) {
                 _super.prototype.frame.call(this, delta);
                 if (this.running === true) {
                     var time = new Date().getTime() % this.duration;
                     var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
                     if (keyframe != this.currentKeyframe) {
-                        this.object.morphTargetInfluences[this.lastKeyframe] = 0;
-                        this.object.morphTargetInfluences[this.currentKeyframe] = 1;
-                        this.object.morphTargetInfluences[keyframe] = 0;
+                        this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 0;
+                        this.hostEntity.object['morphTargetInfluences'][this.currentKeyframe] = 1;
+                        this.hostEntity.object['morphTargetInfluences'][keyframe] = 0;
                         this.lastKeyframe = this.currentKeyframe;
                         this.currentKeyframe = keyframe;
                     }
-                    this.object.morphTargetInfluences[keyframe] = (time % this.interpolation) / this.interpolation;
-                    this.object.morphTargetInfluences[this.lastKeyframe] = 1 - this.object.morphTargetInfluences[keyframe];
-                    this.running = false;
+                    this.hostEntity.object['morphTargetInfluences'][keyframe] = (time % this.interpolation) / this.interpolation;
+                    this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 1 - this.hostEntity.object['morphTargetInfluences'][keyframe];
+                    // this.running = false;
                 }
             };
-            return AnimatedEntity;
-        })(HG.BaseEntity);
-        Entities.AnimatedEntity = AnimatedEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
+            return AnimationAbility;
+        })(HG.BaseAbility);
+        Abilities.AnimationAbility = AnimationAbility;
+    })(HG.Abilities || (HG.Abilities = {}));
+    var Abilities = HG.Abilities;
 })(HG || (HG = {}));
-/*
-* AudioEntity.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var AudioEntity = (function (_super) {
-            __extends(AudioEntity, _super);
-            function AudioEntity(url) {
-                _super.call(this);
-                this.eventsAvailable = ["loaded"];
-                if (url)
-                    this.loadAsync(url);
-            }
-            AudioEntity.prototype.onReadyStateChange = function (req) {
-                if (req.readyState === 4) {
-                    var scope = this;
-                    // context.decodeAudioData(req.response, function(buffer) {
-                    // 	scope.load(buffer);
-                    // });
-                }
-            };
-
-            AudioEntity.prototype.play = function () {
-            };
-
-            AudioEntity.prototype.pause = function () {
-            };
-
-            AudioEntity.prototype.stop = function () {
-            };
-
-            AudioEntity.prototype.setLoop = function () {
-            };
-
-            AudioEntity.prototype.getLength = function () {
-                return 0;
-            };
-
-            AudioEntity.prototype.setPosition = function () {
-            };
-
-            AudioEntity.prototype.loadAsync = function (url) {
-                var req = new XMLHttpRequest();
-                var scope = this;
-                req.responseType = 'arraybuffer';
-                req.onreadystatechange = function (req) {
-                    scope.onReadyStateChange(this);
-                };
-                req.open("GET", url, true);
-                req.send();
-            };
-
-            AudioEntity.prototype.load = function (buffer) {
-                this.buffer = buffer;
-                this.dispatch('loaded');
-            };
-
-            AudioEntity.prototype.frame = function (delta) {
-                _super.prototype.frame.call(this, delta);
-            };
-            return AudioEntity;
-        })(HG.BaseEntity);
-        Entities.AudioEntity = AudioEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/// <reference path="MovingEntity.hg.ts" />
+/// <reference path="../BaseAbility.ts" />
 /*
 * ModelEntity.hg.ts
 * Author: BeryJu
 */
 var HG;
 (function (HG) {
-    (function (Entities) {
-        var ModelEntity = (function (_super) {
-            __extends(ModelEntity, _super);
-            function ModelEntity(url) {
+    (function (Abilities) {
+        var ModelAbility = (function (_super) {
+            __extends(ModelAbility, _super);
+            function ModelAbility(url) {
                 _super.call(this);
                 this.eventsAvailable = ["loaded"];
                 if (url)
                     this.loadAsync(url);
             }
-            ModelEntity.prototype.onReadyStateChange = function (req) {
+            ModelAbility.prototype.checkCompatibility = function (entity) {
+                return (entity.object instanceof THREE.Mesh);
+            };
+
+            ModelAbility.prototype.onReadyStateChange = function (req) {
                 if (req.readyState === 4) {
                     var loader = new THREE.JSONLoader();
                     var result = loader.parse(JSON.parse(req.responseText));
@@ -1537,7 +1442,7 @@ var HG;
                 }
             };
 
-            ModelEntity.prototype.loadAsync = function (url) {
+            ModelAbility.prototype.loadAsync = function (url) {
                 var req = new XMLHttpRequest();
                 var scope = this;
                 req.onreadystatechange = function (req) {
@@ -1547,37 +1452,77 @@ var HG;
                 req.send();
             };
 
-            ModelEntity.prototype.load = function (geometry, materials) {
+            ModelAbility.prototype.load = function (geometry, materials) {
                 var material = new THREE.MeshFaceMaterial(materials);
-                this.object = new THREE.Mesh(geometry, material);
+                this.hostEntity.object = new THREE.Mesh(geometry, material);
                 this.dispatch('loaded');
             };
-
-            ModelEntity.prototype.frame = function (delta) {
-                _super.prototype.frame.call(this, delta);
-            };
-            return ModelEntity;
-        })(Entities.MovingEntity);
-        Entities.ModelEntity = ModelEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
+            return ModelAbility;
+        })(HG.BaseAbility);
+        Abilities.ModelAbility = ModelAbility;
+    })(HG.Abilities || (HG.Abilities = {}));
+    var Abilities = HG.Abilities;
 })(HG || (HG = {}));
+/// <reference path="../BaseAbility.ts" />
+/*
+* MovingAbility.hg.ts
+* Author: BeryJu
+*/
 var HG;
 (function (HG) {
-    (function (Entities) {
-        var TemplateEntity = (function (_super) {
-            __extends(TemplateEntity, _super);
-            function TemplateEntity() {
-                _super.call(this);
+    (function (Abilities) {
+        var MovingAbility = (function (_super) {
+            __extends(MovingAbility, _super);
+            function MovingAbility() {
+                _super.apply(this, arguments);
+                this.jumpState = 0;
+                //0: normal
+                //1: rising
+                //2: max
+                //3: falling
+                this.oldY = 0;
+                this.maxY = 200;
             }
-            TemplateEntity.prototype.frame = function (delta) {
-                _super.prototype.frame.call(this, delta);
+            MovingAbility.prototype.moveLeft = function (step) {
+                if (typeof step === "undefined") { step = 3.125; }
+                this.hostEntity.object.position.x -= step;
             };
-            return TemplateEntity;
-        })(HG.BaseEntity);
-        Entities.TemplateEntity = TemplateEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
+
+            MovingAbility.prototype.moveRight = function (step) {
+                if (typeof step === "undefined") { step = 3.125; }
+                this.hostEntity.object.position.x += step;
+            };
+
+            MovingAbility.prototype.jump = function () {
+                this.oldY = this.hostEntity.object.position.y;
+                this.jumpState = 1;
+            };
+
+            MovingAbility.prototype.frame = function (delta) {
+                if (this.jumpState >= 1) {
+                    if (this.jumpState === 3) {
+                        this.oldY = this.hostEntity.object.position.y;
+                        this.jumpState = 0;
+                    }
+                    if (this.hostEntity.object.position.y < (this.maxY + this.oldY) && this.jumpState === 1) {
+                        this.hostEntity.object.position.y += 3 * delta;
+                    }
+                    if (this.hostEntity.object.position.y >= (this.maxY + this.oldY) && this.jumpState >= 1) {
+                        this.jumpState = 2;
+                    }
+                    if (this.hostEntity.object.position.y <= this.oldY && this.jumpState >= 2) {
+                        this.hostEntity.object.position.y = this.oldY;
+                        this.jumpState = 3;
+                    } else if (this.jumpState >= 2) {
+                        this.hostEntity.object.position.y -= 3 * delta;
+                    }
+                }
+            };
+            return MovingAbility;
+        })(HG.BaseAbility);
+        Abilities.MovingAbility = MovingAbility;
+    })(HG.Abilities || (HG.Abilities = {}));
+    var Abilities = HG.Abilities;
 })(HG || (HG = {}));
 ///<reference path="../GameComponent" />
 var HG;
@@ -1840,20 +1785,24 @@ var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Col
 var pkg = require("./package.json");
 console.log("HorribleGame build " + pkg.build);
 game.on('preload', function () {
-    var playerLight = new HG.Entities.MovingEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance));
+    var playerLight = new HG.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance));
+    playerLight.addAbility(new HG.Abilities.MovingAbility());
     playerLight.offset(0, 150, 0);
     game.scene.add(playerLight, "playerLight");
-    var playerModel = new HG.Entities.AnimatedEntity();
-    playerModel.root(new HG.Entities.MovingEntity());
-    playerModel.on('loaded', function () {
-        playerModel.object.scale.set(10, 10, 10);
-        playerModel.object.rotation.y = HG.Utils.degToRad(90);
-        game.scene.add(playerModel, "playerModel");
+    var player = new HG.BaseEntity();
+    player.addAbility(new HG.Abilities.MovingAbility());
+    var animationAbility = new HG.Abilities.AnimationAbility();
+    player.addAbility(animationAbility);
+    animationAbility.running = true;
+    animationAbility.on('loaded', function () {
+        player.scale(10, 10, 10);
+        player.rotate(0, HG.Utils.degToRad(90), 0);
+        game.scene.add(player, "player");
         game.scene.forNamed(function (e) {
             e.position(-37.5, 270, 0);
         });
     });
-    playerModel.loadAsync("app://hg/assets/models/android.json");
+    animationAbility.loadAsync("app://hg/assets/models/android.json");
     var levelStruct = new HG.LevelStructure();
     levelStruct.on('loaded', function (args) {
         var level = new HG.Level(args['level']);
@@ -1907,30 +1856,36 @@ game.controls.bind(HG.Settings.keys.fullscreen, function (args) {
 // });
 game.controls.bind(HG.Settings.keys.left, function (args) {
     game.scene.forNamed(function (e) {
-        if (e instanceof HG.Entities.MovingEntity)
-            e.moveLeft(3.125 * args['delta']);
-        if (e instanceof HG.Entities.AnimatedEntity)
-            e.running = true;
+        e.forAbilities(function (a) {
+            if (a instanceof HG.Abilities.MovingAbility)
+                a.moveLeft(3.125 * args['delta']);
+            if (a instanceof HG.Abilities.AnimationAbility)
+                a.running = true;
+        });
     });
     game.camera.position.x -= 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.right, function (args) {
     game.scene.forNamed(function (e) {
-        if (e instanceof HG.Entities.MovingEntity)
-            e.moveRight(3.125 * args['delta']);
-        if (e instanceof HG.Entities.AnimatedEntity)
-            e.running = true;
+        e.forAbilities(function (a) {
+            if (a instanceof HG.Abilities.MovingAbility)
+                a.moveRight(3.125 * args['delta']);
+            if (a instanceof HG.Abilities.AnimationAbility)
+                a.running = true;
+        });
     });
     game.camera.position.x += 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.jump, function (args) {
     game.scene.forNamed(function (e) {
-        if (e instanceof HG.Entities.MovingEntity)
-            e.jump();
-        if (e instanceof HG.Entities.AnimatedEntity)
-            e.running = true;
+        e.forAbilities(function (a) {
+            if (a instanceof HG.Abilities.MovingAbility)
+                a.jump();
+            if (a instanceof HG.Abilities.AnimationAbility)
+                a.running = true;
+        });
     });
 });
 

@@ -1,10 +1,14 @@
-/// <reference path="MovingEntity.hg.ts" />
+/// <reference path="../BaseAbility.ts" />
+/*
+* AnimationAbility.hg.ts
+* Author: BeryJu
+*/
 
 module HG {
 
-	export module Entities {
+	export module Abilities {
 
-		export class AnimatedEntity extends BaseEntity {
+		export class AnimationAbility extends BaseAbility {
 
 			animOffset: number = 0;
 			running: boolean = false;
@@ -13,12 +17,15 @@ module HG {
 			interpolation: number = this.duration / this.keyframes;
 			lastKeyframe: number = 0;
 			currentKeyframe: number = 0;
-			object: THREE.Mesh;
 			eventsAvailable: string[] = ["loaded"];
 
 			constructor(url?: string) {
 				super();
 				if (url) this.loadAsync(url);
+			}
+			
+			checkCompatibility(entity: BaseEntity): boolean {
+				return (entity.object instanceof THREE.Mesh);
 			}
 
 			onReadyStateChange(req): void {
@@ -44,7 +51,7 @@ module HG {
 					materials[i]['morphTargets'] = true;
 				}
 				var material = new THREE.MeshFaceMaterial(materials);
-				this.object = new THREE.Mesh(geometry, material);
+				this.hostEntity.object = new THREE.Mesh(geometry, material);
 				this.dispatch('loaded');
 			}
 
@@ -54,17 +61,17 @@ module HG {
 					var time = new Date().getTime() % this.duration;
 					var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
 					if (keyframe != this.currentKeyframe ) {
-						this.object.morphTargetInfluences[this.lastKeyframe] = 0;
-						this.object.morphTargetInfluences[this.currentKeyframe] = 1;
-						this.object.morphTargetInfluences[keyframe] = 0;
+						this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 0;
+						this.hostEntity.object['morphTargetInfluences'][this.currentKeyframe] = 1;
+						this.hostEntity.object['morphTargetInfluences'][keyframe] = 0;
 						this.lastKeyframe = this.currentKeyframe;
 						this.currentKeyframe = keyframe;
 					}
-					this.object.morphTargetInfluences[keyframe] =
+					this.hostEntity.object['morphTargetInfluences'][keyframe] =
 						(time % this.interpolation) / this.interpolation;
-					this.object.morphTargetInfluences[this.lastKeyframe] =
-						1 - this.object.morphTargetInfluences[keyframe];
-					this.running = false;
+					this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] =
+						1 - this.hostEntity.object['morphTargetInfluences'][keyframe];
+					// this.running = false;
 				}
 			}
 

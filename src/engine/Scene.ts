@@ -28,10 +28,7 @@ module HG {
 			if (!type) type = HG.BaseEntity;
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
-				if (ne instanceof type) {
-					callback(ne);
-					if (ne.hasRoot() === true) callback(ne.rootEntity);
-				}
+				if (ne instanceof type) callback(ne);
 			}
 		}
 
@@ -39,10 +36,7 @@ module HG {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
-				if (ne instanceof type) {
-					es.push(ne);
-					if (ne.hasRoot() === true) es.push(ne.rootEntity);
-				};
+				if (ne instanceof type) es.push(ne);;
 			}
 			return es;
 		}
@@ -51,10 +45,7 @@ module HG {
 			var es = [];
 			for (var i = 0; i < this.entities.unnamed.length; i++) {
 				var ue = this.entities.unnamed[i];
-				if (ue instanceof type) {
-					es.push(ue);
-					if (ue.hasRoot() === true) es.push(ue.rootEntity);
-				}
+				if (ue instanceof type) es.push(ue);
 			}
 			return es;
 		}
@@ -63,17 +54,11 @@ module HG {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
-				if (ne instanceof type) {
-					es.push(ne);
-					if (ne.hasRoot() === true) es.push(ne.rootEntity);
-				}
+				if (ne instanceof type) es.push(ne);
 			}
 			for (var i = 0; i < this.entities.unnamed.length; i++) {
 				var ue = this.entities.unnamed[i];
-				if (ue instanceof type) {
-					es.push(ue);
-					if (ue.hasRoot() === true) es.push(ue.rootEntity);
-				}
+				if (ue instanceof type) es.push(ue);
 			}
 			return es;
 		}
@@ -82,17 +67,11 @@ module HG {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
-				if (ne instanceof type) {
-					callback(ne);
-					if (ne.hasRoot() === true) callback(ne.rootEntity);
-				}
+				if (ne instanceof type) callback(ne);
 			}
 			for (var i = 0; i < this.entities.unnamed.length; i++) {
 				var ue = this.entities.unnamed[i];
-				if (ue instanceof type) {
-					callback(ue);
-					if (ue.hasRoot() === true) callback(ue.rootEntity);
-				}
+				if (ue instanceof type) callback(ue);
 			}
 			return es;
 		}
