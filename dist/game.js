@@ -1269,6 +1269,28 @@ var HG;
             return es;
         };
 
+        Scene.prototype.forAll = function (callback, type) {
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
+            var es = [];
+            for (var k in this.entities.named) {
+                var ne = this.entities.named[k];
+                if (ne instanceof type) {
+                    callback(ne);
+                    if (ne.hasRoot() === true)
+                        callback(ne.rootEntity);
+                }
+            }
+            for (var i = 0; i < this.entities.unnamed.length; i++) {
+                var ue = this.entities.unnamed[i];
+                if (ue instanceof type) {
+                    callback(ue);
+                    if (ue.hasRoot() === true)
+                        callback(ue.rootEntity);
+                }
+            }
+            return es;
+        };
+
         Scene.prototype.get = function (nameTag, type) {
             if (typeof type === "undefined") { type = HG.BaseEntity; }
             var e = [];
@@ -1921,7 +1943,7 @@ game.on("connected", function (args) {
 });
 
 game.on("render", function (args) {
-    game.scene.getAll().forEach(function (e) {
+    game.scene.forAll(function (e) {
         e.frame(args['delta']);
     });
     document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.getFPS();

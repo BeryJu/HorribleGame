@@ -1,8 +1,8 @@
-///<reference path="EventDispatcher" />
+///<reference path="GameComponent" />
 
 module HG {
 
-	export class BaseEntity extends THREE.Object3D, EventDispatcher {
+	export class BaseEntity extends GameComponent {
 		_: {};
 		object: THREE.Object3D;
 		positionOffset: THREE.Vector3 = new THREE.Vector3;

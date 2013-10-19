@@ -78,7 +78,7 @@ module HG {
 			return es;
 		}
 
-		forAll(type: any = HG.BaseEntity): any[] {
+		forAll(callback: (e: any) => any, type: any = HG.BaseEntity): any[] {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
