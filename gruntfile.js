@@ -38,10 +38,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.registerTask('default', ['ts']);
 	grunt.registerTask('publish', ['ts', 'uglify', 'shell']);
-	if (!fs) fs = require('fs');
-	var pkg = require("./"+pkgFile);
-	if (!pkg.build) pkg.build = 0;
-	pkg.build ++;
-	fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, "\t"));
-	console.log("HorribleGame build"+pkg.build);
+	// if (!fs) fs = require('fs');
+	// var pkg = require("./"+pkgFile);
+	// if (!pkg.build) pkg.build = 0;
+	// pkg.build ++;
+	// fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, "\t"));
+	// console.log("HorribleGame build"+pkg.build);
 };

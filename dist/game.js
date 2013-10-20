@@ -208,9 +208,8 @@ var HG;
 (function (HG) {
     var BaseGame = (function (_super) {
         __extends(BaseGame, _super);
-        function BaseGame(container, clearColor) {
+        function BaseGame(container) {
             if (typeof container === "undefined") { container = document.body; }
-            if (typeof clearColor === "undefined") { clearColor = new THREE.Color(0x000000); }
             _super.call(this);
             this._ = {};
             this.isRunning = false;
@@ -229,10 +228,9 @@ var HG;
             if (HG.Utils.hasGL() === false) {
                 throw new Error("Your Browser doesn't support WebGL");
             }
-            this.camera = new THREE.PerspectiveCamera(HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
+            this.camera = new HG.Entities.CameraEntity(HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
             this.renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.antialiasing });
             this.renderer.setSize(window.innerWidth, window.innerHeight);
-            this.renderer.setClearColor(clearColor, 1);
             container.appendChild(this.renderer.domElement);
         }
         BaseGame.prototype.preLoad = function () {
@@ -271,8 +269,8 @@ var HG;
 
         BaseGame.prototype.onResize = function () {
             this.dispatch('resize');
-            this.camera.aspect = window.innerWidth / window.innerHeight;
-            this.camera.updateProjectionMatrix();
+            this.camera.object.aspect = window.innerWidth / window.innerHeight;
+            this.camera.object.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         };
 
@@ -281,7 +279,7 @@ var HG;
             this.dispatch('render', { delta: delta });
             this.controls.frame(delta);
             this.fpsCounter.frame(delta);
-            this.renderer.render(this.scene.scene, this.camera);
+            this.renderer.render(this.scene.scene, this.camera.object);
         };
         return BaseGame;
     })(HG.EventDispatcher);
@@ -1214,10 +1212,13 @@ var HG;
             this.camera.rotation = new THREE.Vector3(lvl.camera.rotation.x, lvl.camera.rotation.y, lvl.camera.rotation.z);
         }
         Level.prototype.applyCamera = function (camera) {
-            camera.position = this.camera.position;
-            camera.rotation.x = this.camera.rotation.x;
-            camera.rotation.y = this.camera.rotation.y;
-            camera.rotation.z = this.camera.rotation.z;
+            camera.object.position = this.camera.position;
+            camera.rotate(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
+        };
+
+        Level.prototype.applyCameraOffset = function (camera) {
+            camera.offset(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+            camera.rotate(this.camera.rotation.x, this.camera.rotation.y, this.camera.rotation.z);
         };
         return Level;
     })(HG.EventDispatcher);
@@ -1405,7 +1406,7 @@ var HG;
                     }
                     this.hostEntity.object['morphTargetInfluences'][keyframe] = (time % this.interpolation) / this.interpolation;
                     this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 1 - this.hostEntity.object['morphTargetInfluences'][keyframe];
-                    // this.running = false;
+                    this.running = false;
                 }
             };
             return AnimationAbility;
@@ -1416,25 +1417,25 @@ var HG;
 })(HG || (HG = {}));
 /// <reference path="../BaseAbility.ts" />
 /*
-* ModelEntity.hg.ts
+* AudioAbility.hg.ts
 * Author: BeryJu
 */
 var HG;
 (function (HG) {
     (function (Abilities) {
-        var ModelAbility = (function (_super) {
-            __extends(ModelAbility, _super);
-            function ModelAbility(url) {
+        var AudioAbility = (function (_super) {
+            __extends(AudioAbility, _super);
+            function AudioAbility(url) {
                 _super.call(this);
                 this.eventsAvailable = ["loaded"];
                 if (url)
                     this.loadAsync(url);
             }
-            ModelAbility.prototype.checkCompatibility = function (entity) {
+            AudioAbility.prototype.checkCompatibility = function (entity) {
                 return (entity.object instanceof THREE.Mesh);
             };
 
-            ModelAbility.prototype.onReadyStateChange = function (req) {
+            AudioAbility.prototype.onReadyStateChange = function (req) {
                 if (req.readyState === 4) {
                     var loader = new THREE.JSONLoader();
                     var result = loader.parse(JSON.parse(req.responseText));
@@ -1442,7 +1443,7 @@ var HG;
                 }
             };
 
-            ModelAbility.prototype.loadAsync = function (url) {
+            AudioAbility.prototype.loadAsync = function (url) {
                 var req = new XMLHttpRequest();
                 var scope = this;
                 req.onreadystatechange = function (req) {
@@ -1452,14 +1453,21 @@ var HG;
                 req.send();
             };
 
-            ModelAbility.prototype.load = function (geometry, materials) {
+            AudioAbility.prototype.load = function (geometry, materials) {
+                for (var i = 0; i < materials.length; i++) {
+                    materials[i]['morphTargets'] = true;
+                }
                 var material = new THREE.MeshFaceMaterial(materials);
                 this.hostEntity.object = new THREE.Mesh(geometry, material);
                 this.dispatch('loaded');
             };
-            return ModelAbility;
+
+            AudioAbility.prototype.frame = function (delta) {
+                _super.prototype.frame.call(this, delta);
+            };
+            return AudioAbility;
         })(HG.BaseAbility);
-        Abilities.ModelAbility = ModelAbility;
+        Abilities.AudioAbility = AudioAbility;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
 })(HG || (HG = {}));
@@ -1523,6 +1531,147 @@ var HG;
         Abilities.MovingAbility = MovingAbility;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
+})(HG || (HG = {}));
+/// <reference path="../BaseEntity.ts" />
+/*
+* CameraEntity.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var CameraEntity = (function (_super) {
+            __extends(CameraEntity, _super);
+            function CameraEntity(fov, aspect, zNear, zFar) {
+                if (typeof fov === "undefined") { fov = 90; }
+                if (typeof aspect === "undefined") { aspect = 1.77; }
+                if (typeof zNear === "undefined") { zNear = 0.1; }
+                if (typeof zFar === "undefined") { zFar = 10000; }
+                _super.call(this);
+                this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
+            }
+            return CameraEntity;
+        })(HG.BaseEntity);
+        Entities.CameraEntity = CameraEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/// <reference path="../BaseEntity.ts" />
+/*
+* ModelEntity.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var ModelEntity = (function (_super) {
+            __extends(ModelEntity, _super);
+            function ModelEntity(url) {
+                _super.call(this);
+                this.eventsAvailable = ["loaded"];
+                if (url)
+                    this.loadAsync(url);
+            }
+            ModelEntity.prototype.onReadyStateChange = function (req) {
+                if (req.readyState === 4) {
+                    var loader = new THREE.JSONLoader();
+                    var result = loader.parse(JSON.parse(req.responseText));
+                    this.load(result.geometry, result.materials);
+                }
+            };
+
+            ModelEntity.prototype.loadAsync = function (url) {
+                var req = new XMLHttpRequest();
+                var scope = this;
+                req.onreadystatechange = function (req) {
+                    scope.onReadyStateChange(this);
+                };
+                req.open("GET", url, true);
+                req.send();
+            };
+
+            ModelEntity.prototype.load = function (geometry, materials) {
+                var material = new THREE.MeshFaceMaterial(materials);
+                this.object = new THREE.Mesh(geometry, material);
+                this.dispatch('loaded');
+            };
+            return ModelEntity;
+        })(HG.BaseEntity);
+        Entities.ModelEntity = ModelEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+//TODo
+/// <reference path="../BaseEntity.ts" />
+/*
+* ParticleEntity.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var ParticleEntity = (function (_super) {
+            __extends(ParticleEntity, _super);
+            function ParticleEntity() {
+                _super.apply(this, arguments);
+            }
+            return ParticleEntity;
+        })(HG.BaseEntity);
+        Entities.ParticleEntity = ParticleEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/// <reference path="../BaseEntity.ts" />
+/*
+* SkyBox.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var SkyBoxEntity = (function (_super) {
+            __extends(SkyBoxEntity, _super);
+            function SkyBoxEntity(directory, size, directions, suffix) {
+                if (typeof size === "undefined") { size = 5000; }
+                if (typeof directions === "undefined") { directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
+                if (typeof suffix === "undefined") { suffix = ".png"; }
+                _super.call(this);
+                var skyGeometry = new THREE.CubeGeometry(size, size, size);
+
+                var materialArray = [];
+                for (var i = 0; i < 6; i++) {
+                    materialArray.push(new THREE.MeshBasicMaterial({
+                        map: THREE.ImageUtils.loadTexture(directory + directions[i] + suffix),
+                        side: THREE.BackSide
+                    }));
+                }
+                var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
+                this.object = new THREE.Mesh(skyGeometry, skyMaterial);
+            }
+            return SkyBoxEntity;
+        })(HG.BaseEntity);
+        Entities.SkyBoxEntity = SkyBoxEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/// <reference path="../BaseEntity.ts" />
+/*
+* VideoEntity.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var VideoEntity = (function (_super) {
+            __extends(VideoEntity, _super);
+            function VideoEntity(url) {
+                _super.call(this);
+            }
+            return VideoEntity;
+        })(HG.BaseEntity);
+        Entities.VideoEntity = VideoEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
 })(HG || (HG = {}));
 ///<reference path="../GameComponent" />
 var HG;
@@ -1781,19 +1930,50 @@ var HG;
     })();
     HG.Utils = Utils;
 })(HG || (HG = {}));
-var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
+var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 var pkg = require("./package.json");
 console.log("HorribleGame build " + pkg.build);
 game.on('preload', function () {
+    game.camera.addAbility(new HG.Abilities.MovingAbility());
+    game.scene.add(game.camera, "camera1");
+
     var playerLight = new HG.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance));
     playerLight.addAbility(new HG.Abilities.MovingAbility());
     playerLight.offset(0, 150, 0);
     game.scene.add(playerLight, "playerLight");
+
+    var textGeom = new THREE.TextGeometry(pkg.build, {
+        size: 30,
+        height: 4,
+        curveSegments: 3,
+        font: "helvetiker",
+        style: "normal",
+        bevelThickness: 1,
+        bevelSize: 2,
+        bevelEnabled: true,
+        material: 0,
+        extrudeMaterial: 1
+    });
+    textGeom.computeBoundingBox();
+    var textMesh = new THREE.Mesh(textGeom, new THREE.MeshPhongMaterial(0xff00ff));
+
+    var textWidth = textGeom.boundingBox.max.x - textGeom.boundingBox.min.x;
+    var text = new HG.BaseEntity(textMesh);
+    text.addAbility(new HG.Abilities.MovingAbility());
+    text.offset(0, 0, 75);
+    text.position(-.5 * textWidth, 50, 100);
+    text.rotate(0, HG.Utils.degToRad(270), 0);
+    game.scene.add(text, "derp");
+
+    var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/", HG.Settings.viewDistance * 1.75);
+    skyBox.addAbility(new HG.Abilities.MovingAbility());
+    game.scene.add(skyBox, "skyBox");
+
     var player = new HG.BaseEntity();
     player.addAbility(new HG.Abilities.MovingAbility());
+
     var animationAbility = new HG.Abilities.AnimationAbility();
     player.addAbility(animationAbility);
-    animationAbility.running = true;
     animationAbility.on('loaded', function () {
         player.scale(10, 10, 10);
         player.rotate(0, HG.Utils.degToRad(90), 0);
@@ -1809,7 +1989,7 @@ game.on('preload', function () {
         level.entities.forEach(function (e) {
             game.scene.add(e);
         });
-        level.applyCamera(game.camera);
+        level.applyCameraOffset(game.camera);
     });
     levelStruct.loadAsync("app://hg/assets/levels/level1.json");
 });
@@ -1851,9 +2031,6 @@ game.controls.bind(HG.Settings.keys.fullscreen, function (args) {
     HG.Utils.toggleFullScreenMode();
 });
 
-// game.controls.bind(.., function(args: {}) {
-// 	game.camera.
-// });
 game.controls.bind(HG.Settings.keys.left, function (args) {
     game.scene.forNamed(function (e) {
         e.forAbilities(function (a) {
@@ -1863,7 +2040,6 @@ game.controls.bind(HG.Settings.keys.left, function (args) {
                 a.running = true;
         });
     });
-    game.camera.position.x -= 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.right, function (args) {
@@ -1875,7 +2051,6 @@ game.controls.bind(HG.Settings.keys.right, function (args) {
                 a.running = true;
         });
     });
-    game.camera.position.x += 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.jump, function (args) {

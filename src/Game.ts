@@ -1,17 +1,45 @@
-var game = new HG.BaseGame(document.getElementById("gameWrapper"), new THREE.Color(0x000000));
+var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 var pkg = require("./package.json");
 console.log("HorribleGame build "+pkg.build);
 game.on('preload', function() {
+
+	game.camera.addAbility(new HG.Abilities.MovingAbility());
+	game.scene.add(game.camera, "camera1");
+
 	var playerLight = new HG.BaseEntity(
 		new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance));
 	playerLight.addAbility(new HG.Abilities.MovingAbility());
 	playerLight.offset(0, 150, 0);
 	game.scene.add(playerLight, "playerLight");
+
+	var textGeom = new THREE.TextGeometry(pkg.build, {
+		size: 30, height: 4, curveSegments: 3,
+		font: "helvetiker", style: "normal",
+		bevelThickness: 1, bevelSize: 2, bevelEnabled: true,
+		material: 0, extrudeMaterial: 1
+	});
+	textGeom.computeBoundingBox();
+	var textMesh = new THREE.Mesh(textGeom, new THREE.MeshPhongMaterial(0xff00ff) );
+		
+	var textWidth = textGeom.boundingBox.max.x - textGeom.boundingBox.min.x;
+	var text = new HG.BaseEntity(textMesh);
+	text.addAbility(new HG.Abilities.MovingAbility());
+	text.offset(0, 0, 75);
+	text.position(-.5 * textWidth, 50, 100);
+	text.rotate(0, HG.Utils.degToRad(270), 0);
+	game.scene.add(text, "derp");
+
+
+	var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/",
+				HG.Settings.viewDistance * 1.75);
+	skyBox.addAbility(new HG.Abilities.MovingAbility());
+	game.scene.add(skyBox, "skyBox");
+
 	var player = new HG.BaseEntity();
 	player.addAbility(new HG.Abilities.MovingAbility());
+	
 	var animationAbility = new HG.Abilities.AnimationAbility();
 	player.addAbility(animationAbility);
-	animationAbility.running = true;
 	animationAbility.on('loaded',function() {
 		player.scale(10, 10, 10);
 		player.rotate(0, HG.Utils.degToRad(90), 0);
@@ -27,7 +55,7 @@ game.on('preload', function() {
 		level.entities.forEach(function(e) {
 			game.scene.add(e);
 		});
-		level.applyCamera(game.camera);
+		level.applyCameraOffset(game.camera);
 	});
 	levelStruct.loadAsync("app://hg/assets/levels/level1.json");
 });
@@ -64,10 +92,6 @@ game.controls.bind(HG.Settings.keys.fullscreen, function(args: {}) {
 	HG.Utils.toggleFullScreenMode();
 });
 
-// game.controls.bind(.., function(args: {}) {
-// 	game.camera.
-// });
-
 game.controls.bind(HG.Settings.keys.left, function(args: {}) {
 	game.scene.forNamed(function(e) {
 		e.forAbilities(function(a) {
@@ -75,7 +99,6 @@ game.controls.bind(HG.Settings.keys.left, function(args: {}) {
 			if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
 		});
 	});
-	game.camera.position.x -= 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.right, function(args: {}) {
@@ -85,7 +108,6 @@ game.controls.bind(HG.Settings.keys.right, function(args: {}) {
 			if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
 		});
 	});
-	game.camera.position.x += 3.125 * args['delta'];
 });
 
 game.controls.bind(HG.Settings.keys.jump, function(args: {}) {

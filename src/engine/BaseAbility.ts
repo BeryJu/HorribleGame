@@ -15,7 +15,7 @@ module HG {
 		}
 
 		checkCompatibility(entity: BaseEntity): boolean { return true; }
-		
+
 		frame(delta: number): void {}
 
 	}

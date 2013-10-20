@@ -31,11 +31,20 @@ module HG {
 				new THREE.Vector3(lvl.camera.rotation.x, lvl.camera.rotation.y, lvl.camera.rotation.z);
 		}
 
-		applyCamera(camera: THREE.Camera): void {
-			camera.position = this.camera.position;
-			camera.rotation.x = this.camera.rotation.x;
-			camera.rotation.y = this.camera.rotation.y;
-			camera.rotation.z = this.camera.rotation.z;
+		applyCamera(camera: HG.Entities.CameraEntity): void {
+			camera.object.position = this.camera.position;
+			camera.rotate(this.camera.rotation.x,
+						this.camera.rotation.y,
+						this.camera.rotation.z);
+		}
+
+		applyCameraOffset(camera: HG.Entities.CameraEntity): void {
+			camera.offset(this.camera.position.x,
+						this.camera.position.y,
+						this.camera.position.z);
+			camera.rotate(this.camera.rotation.x,
+						this.camera.rotation.y,
+						this.camera.rotation.z);
 		}
 
 	}

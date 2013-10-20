@@ -10,7 +10,7 @@ module HG {
 		_: {} = {};
 		socketClient: SocketManager;
 		renderer: THREE.WebGLRenderer;
-		camera: THREE.PerspectiveCamera;
+		camera: HG.Entities.CameraEntity;
 		isRunning: boolean = false;
 		scene: HG.Scene = new HG.Scene();
 		controls: HG.InputHandler = new HG.InputHandler();
@@ -18,17 +18,15 @@ module HG {
 		eventsAvailable: string[] = ["preload", "connected", 
 			"start", "keyup", "keydown", "resize", "render"];
 
-		constructor(container: HTMLElement = document.body,
-				clearColor: THREE.Color = new THREE.Color(0x000000)) {
+		constructor(container: HTMLElement = document.body) {
 			super();
 			if (HG.Utils.hasGL() === false) {
 				throw new Error("Your Browser doesn't support WebGL");
 			}
-			this.camera = new THREE.PerspectiveCamera(HG.Settings.fov,
+			this.camera = new HG.Entities.CameraEntity(HG.Settings.fov,
 				window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
 			this.renderer = new THREE.WebGLRenderer({antialias: HG.Settings.antialiasing});
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
-			this.renderer.setClearColor(clearColor, 1);
 			container.appendChild(this.renderer.domElement);
 		}
 
@@ -68,8 +66,8 @@ module HG {
 
 		onResize(): void {
 			this.dispatch('resize');
-			this.camera.aspect = window.innerWidth / window.innerHeight;
-			this.camera.updateProjectionMatrix();
+			this.camera.object.aspect = window.innerWidth / window.innerHeight;
+			this.camera.object.updateProjectionMatrix();
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}
 
@@ -78,7 +76,7 @@ module HG {
 			this.dispatch('render', {delta: delta});
 			this.controls.frame(delta);
 			this.fpsCounter.frame(delta);
-			this.renderer.render(this.scene.scene, this.camera);
+			this.renderer.render(this.scene.scene, this.camera.object);
 		}
 
 	}

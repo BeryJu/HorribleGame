@@ -71,7 +71,7 @@ module HG {
 						(time % this.interpolation) / this.interpolation;
 					this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] =
 						1 - this.hostEntity.object['morphTargetInfluences'][keyframe];
-					// this.running = false;
+					this.running = false;
 				}
 			}
 

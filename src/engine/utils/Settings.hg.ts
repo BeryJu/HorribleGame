@@ -1,5 +1,7 @@
 module HG {
+
 	export class Settings {
+
 		static fov = 110;
 		static viewDistance = 500;
 		static shadowMapSize = 2048;
@@ -12,5 +14,7 @@ module HG {
 			devConsole: HG.KeyMap.F12,
 			fullscreen: HG.KeyMap.F11
 		};
+		
 	};
+
 }
