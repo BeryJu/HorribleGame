@@ -10,22 +10,22 @@ module HG {
 		_: {} = {};
 		socketClient: SocketManager;
 		renderer: THREE.WebGLRenderer;
-		camera: HG.Entities.CameraEntity;
+		camera: Entities.CameraEntity;
 		isRunning: boolean = false;
-		scene: HG.Scene = new HG.Scene();
-		controls: HG.InputHandler = new HG.InputHandler();
-		fpsCounter: HG.FPSCounter = new HG.FPSCounter();
+		scene: Scene = new Scene();
+		controls: InputHandler = new InputHandler();
+		fpsCounter: FPSCounter = new FPSCounter();
 		eventsAvailable: string[] = ["preload", "connected", 
 			"start", "keyup", "keydown", "resize", "render"];
 
 		constructor(container: HTMLElement = document.body) {
 			super();
-			if (HG.Utils.hasGL() === false) {
+			if (Utils.hasGL() === false) {
 				throw new Error("Your Browser doesn't support WebGL");
 			}
-			this.camera = new HG.Entities.CameraEntity(HG.Settings.fov,
-				window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
-			this.renderer = new THREE.WebGLRenderer({antialias: HG.Settings.antialiasing});
+			this.camera = new Entities.CameraEntity(Settings.fov,
+				window.innerWidth / window.innerHeight, 0.1, Settings.viewDistance);
+			this.renderer = new THREE.WebGLRenderer({antialias: Settings.antialiasing});
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 			container.appendChild(this.renderer.domElement);
 		}

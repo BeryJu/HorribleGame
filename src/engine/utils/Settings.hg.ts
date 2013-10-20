@@ -7,12 +7,12 @@ module HG {
 		static shadowMapSize = 2048;
 		static antialiasing = true;
 		static keys = {
-			left: [HG.KeyMap.A, HG.KeyMap.Left],
-			right: [HG.KeyMap.D, HG.KeyMap.Right],
-			pause: HG.KeyMap.Esc,
-			jump: HG.KeyMap.Space,
-			devConsole: HG.KeyMap.F12,
-			fullscreen: HG.KeyMap.F11
+			left: [KeyMap.A, KeyMap.Left],
+			right: [KeyMap.D, KeyMap.Right],
+			pause: KeyMap.Esc,
+			jump: KeyMap.Space,
+			devConsole: KeyMap.F12,
+			fullscreen: KeyMap.F11
 		};
 		
 	};

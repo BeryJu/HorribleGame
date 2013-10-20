@@ -29,10 +29,12 @@ game.on('preload', function() {
 	text.rotate(0, HG.Utils.degToRad(270), 0);
 	game.scene.add(text, "derp");
 
-
+	//create a skybox for demo purposes
 	var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/",
 				HG.Settings.viewDistance * 1.75);
+	//add moving ability so it's fixed to the camera
 	skyBox.addAbility(new HG.Abilities.MovingAbility());
+	//add it to the scene
 	game.scene.add(skyBox, "skyBox");
 
 	var player = new HG.BaseEntity();

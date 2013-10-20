@@ -6,8 +6,8 @@ module HG {
 
 		constructor() {
 			super();
-			for (var k in HG.KeyMap) {
-				this.eventsAvailable.push(HG.KeyMap[k]);
+			for (var k in KeyMap) {
+				this.eventsAvailable.push(KeyMap[k]);
 			}
 		}
 

@@ -4,7 +4,7 @@ module HG {
 		scene: THREE.Scene = null;
 		entities: {
 			named: {};
-			unnamed: HG.BaseEntity[];
+			unnamed: BaseEntity[];
 		};
 
 		constructor() {
@@ -15,7 +15,7 @@ module HG {
 			};
 		}
 
-		add(BaseEntity: HG.BaseEntity, nameTag?: string): void {
+		add(BaseEntity: BaseEntity, nameTag?: string): void {
 			this.scene.add(BaseEntity.object);
 			if (nameTag) {
 				this.entities.named[nameTag.toLowerCase()] = BaseEntity;
@@ -25,14 +25,14 @@ module HG {
 		}
 
 		forNamed(callback: (e: any) => any, type?: any): void {
-			if (!type) type = HG.BaseEntity;
+			if (!type) type = BaseEntity;
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
 				if (ne instanceof type) callback(ne);
 			}
 		}
 
-		getAllNamed(type: any = HG.BaseEntity): any[] {
+		getAllNamed(type: any = BaseEntity): any[] {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
@@ -41,7 +41,7 @@ module HG {
 			return es;
 		}
 
-		getAllUnnamed(type: any = HG.BaseEntity): any[] {
+		getAllUnnamed(type: any = BaseEntity): any[] {
 			var es = [];
 			for (var i = 0; i < this.entities.unnamed.length; i++) {
 				var ue = this.entities.unnamed[i];
@@ -50,7 +50,7 @@ module HG {
 			return es;
 		}
 
-		getAll(type: any = HG.BaseEntity): any[] {
+		getAll(type: any = BaseEntity): any[] {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
@@ -63,7 +63,7 @@ module HG {
 			return es;
 		}
 
-		forAll(callback: (e: any) => any, type: any = HG.BaseEntity): any[] {
+		forAll(callback: (e: any) => any, type: any = BaseEntity): any[] {
 			var es = [];
 			for (var k in this.entities.named) {
 				var ne = this.entities.named[k];
@@ -76,7 +76,7 @@ module HG {
 			return es;
 		}
 
-		get(nameTag: string[], type: any = HG.BaseEntity): any[] {
+		get(nameTag: string[], type: any = BaseEntity): any[] {
 			var e = [];
 			for (var i = 0; i < nameTag.length; i++) {
 				var ee = this.entities.named[nameTag[i].toLowerCase()];
