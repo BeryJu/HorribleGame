@@ -1,4 +1,4 @@
-/// <reference path="../BaseEntity.ts" />
+/// <reference path="BaseEntity.hg.ts" />
 /*
 * CameraEntity.hg.ts
 * Author: BeryJu

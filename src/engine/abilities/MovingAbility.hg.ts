@@ -1,4 +1,4 @@
-/// <reference path="../BaseAbility.ts" />
+/// <reference path="BaseAbility.hg.ts" />
 /*
 * MovingAbility.hg.ts
 * Author: BeryJu

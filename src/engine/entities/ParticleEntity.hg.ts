@@ -1,5 +1,5 @@
 //TODo
-/// <reference path="../BaseEntity.ts" />
+/// <reference path="BaseEntity.hg.ts" />
 /*
 * ParticleEntity.hg.ts
 * Author: BeryJu

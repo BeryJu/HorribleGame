@@ -1,4 +1,4 @@
-/// <reference path="../BaseEntity.ts" />
+/// <reference path="BaseEntity.hg.ts" />
 /*
 * ModelEntity.hg.ts
 * Author: BeryJu
@@ -29,9 +29,8 @@ module HG {
 
 			loadAsync(url: string): void {
 				var req = new XMLHttpRequest();
-				var scope = this;
-				req.onreadystatechange = function(req) {
-					scope.onReadyStateChange(this);
+				req.onreadystatechange = (req) => {
+					this.onReadyStateChange(this);
 				};
 				req.open("GET", url, true);
 				req.send();

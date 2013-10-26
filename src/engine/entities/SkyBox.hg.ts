@@ -1,4 +1,4 @@
-/// <reference path="../BaseEntity.ts" />
+/// <reference path="BaseEntity.hg.ts" />
 /*
 * SkyBox.hg.ts
 * Author: BeryJu
@@ -18,12 +18,12 @@ module HG {
 				var skyGeometry = new THREE.CubeGeometry(size, size, size);
 				
 				var materialArray = [];
-				for (var i = 0; i < 6; i++) {
+				directions.forEach((d) => {
 					materialArray.push( new THREE.MeshBasicMaterial({
-						map: THREE.ImageUtils.loadTexture(directory + directions[i] + suffix),
+						map: THREE.ImageUtils.loadTexture(directory + d + suffix),
 						side: THREE.BackSide
 					}));
-				}
+				});
 				var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
 				this.object = new THREE.Mesh(skyGeometry, skyMaterial);
 			}

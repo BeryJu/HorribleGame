@@ -56,9 +56,12 @@ module HG {
 					}
 				} else {
 					var target = this.targets[this.currentTarget];
-					var r = this.increment(this.currentColor.r, target.r, delta, this.frameSpan - this.currentTarget);
-					var g = this.increment(this.currentColor.g, target.g, delta, this.frameSpan - this.currentTarget);
-					var b = this.increment(this.currentColor.b, target.b, delta, this.frameSpan - this.currentTarget);
+					var r = this.increment(this.currentColor.r, target.r, delta, 
+						this.frameSpan - this.currentTarget);
+					var g = this.increment(this.currentColor.g, target.g, delta, 
+						this.frameSpan - this.currentTarget);
+					var b = this.increment(this.currentColor.b, target.b, delta, 
+						this.frameSpan - this.currentTarget);
 
 					console.log(r);
 					console.log(g);

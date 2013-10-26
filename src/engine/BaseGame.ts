@@ -12,7 +12,7 @@ module HG {
 		renderer: THREE.WebGLRenderer;
 		camera: Entities.CameraEntity;
 		isRunning: boolean = false;
-		scene: Scene = new Scene();
+		scene: HG.Scenes.BaseScene = new Scenes.BaseScene();
 		controls: InputHandler = new InputHandler();
 		fpsCounter: FPSCounter = new FPSCounter();
 		eventsAvailable: string[] = ["preload", "connected", 

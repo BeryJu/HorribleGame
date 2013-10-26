@@ -1,20 +1,24 @@
+/*
+* Map.hg.ts
+* Author: BeryJu
+*/
+
 module HG {
 
-	export class Map {
+	export class Map<T> {
 
 		data: {} = {};
 
-		set(data: any, x: number = 0, y: number = 0, z: number = 0): boolean {
+		set(data: T, x: number = 0, y: number = 0, z: number = 0): boolean {
 			if (!this.data[x]) this.data[x] = {};
 			if (!this.data[x][y]) this.data[x][y] = {};
-			if (!this.data[x][y][z]) this.data[x][y][z] = {};
 			var overwritten = false;
 			if (this.data[x][y][z]) overwritten = true;
 			this.data[x][y][z] = data;
 			return overwritten;
 		}
 
-		get(x: number = 0, y: number = 0, z: number = 0, fallback: any = undefined): any {
+		get(x: number = 0, y: number = 0, z: number = 0, fallback?: any): T {
 			if (!this.data[x]) return fallback;
 			if (!this.data[x][y]) return fallback;
 			if (!this.data[x][y][z]) return fallback;

@@ -12,23 +12,6 @@ game.on('preload', function() {
 	playerLight.offset(0, 150, 0);
 	game.scene.add(playerLight, "playerLight");
 
-	var textGeom = new THREE.TextGeometry(pkg.build, {
-		size: 30, height: 4, curveSegments: 3,
-		font: "helvetiker", style: "normal",
-		bevelThickness: 1, bevelSize: 2, bevelEnabled: true,
-		material: 0, extrudeMaterial: 1
-	});
-	textGeom.computeBoundingBox();
-	var textMesh = new THREE.Mesh(textGeom, new THREE.MeshPhongMaterial(0xff00ff) );
-		
-	var textWidth = textGeom.boundingBox.max.x - textGeom.boundingBox.min.x;
-	var text = new HG.BaseEntity(textMesh);
-	text.addAbility(new HG.Abilities.MovingAbility());
-	text.offset(0, 0, 75);
-	text.position(-.5 * textWidth, 50, 100);
-	text.rotate(0, HG.Utils.degToRad(270), 0);
-	game.scene.add(text, "derp");
-
 	//create a skybox for demo purposes
 	var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/",
 				HG.Settings.viewDistance * 1.75);
@@ -50,7 +33,7 @@ game.on('preload', function() {
 			e.position(-37.5, 270, 0);
 		});
 	});
-	animationAbility.loadAsync("app://hg/assets/models/android.json");
+	animationAbility.loadAsync("app://hg/assets/models/android.js");
 	var levelStruct = new HG.LevelStructure();
 	levelStruct.on('loaded', function(args: {}) {
 		var level = new HG.Level(args['level']);
