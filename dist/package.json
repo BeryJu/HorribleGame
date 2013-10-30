@@ -2,7 +2,7 @@
 	"name": "HorribleGame",
 	"main": "app://hg/index.html",
 	"user-agent": "Node-Webkit %nwver OS %osinfo",
-	"chromium-args": "--enable-webgl --ignore-gpu-blacklist",
+	"chromium-args": "--enable-webgl --ignore-gpu-blacklist --disable-gpu-vsync",
 	"window": {
 		"toolbar": false,
 		"position": "center",

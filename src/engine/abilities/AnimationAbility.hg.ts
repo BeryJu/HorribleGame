@@ -19,26 +19,21 @@ module HG {
 			currentKeyframe: number = 0;
 			eventsAvailable: string[] = ["loaded"];
 
-			constructor(url?: string) {
+			constructor(path?: string) {
 				super();
-				if (url) this.loadAsync(url);
+				if (path) this.loadAsync(path);
 			}
 			
 			checkCompatibility(entity: BaseEntity): boolean {
 				return (entity.object instanceof THREE.Mesh);
 			}
 
-			loadAsync(url: string): void {
-				var req = new XMLHttpRequest();
-				req.onreadystatechange = (ev) => {
-					if (req.readyState === 4) {
-						var loader = new THREE.JSONLoader();
-						var result = loader.parse(JSON.parse(req.responseText));
-						this.load(result.geometry, result.materials);
-					}
-				};
-				req.open("GET", url, true);
-				req.send();
+			loadAsync(path: string): void {
+				global.fs.readFile(path, (err, data) => {
+					var loader = new THREE.JSONLoader();
+					var result = loader.parse(JSON.parse(data));
+					this.load(result.geometry, result.materials);
+				});
 			}
 
 			load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void {
@@ -46,7 +41,11 @@ module HG {
 					m['morphTargets'] = true;
 				});
 				var material = new THREE.MeshFaceMaterial(materials);
+				var oldPosition = this.hostEntity.object.position;
+				var oldRotation = this.hostEntity.object.rotation;
 				this.hostEntity.object = new THREE.Mesh(geometry, material);
+				this.hostEntity.object.position = oldPosition;
+				this.hostEntity.object.rotation = oldRotation;
 				this.dispatch('loaded');
 			}
 

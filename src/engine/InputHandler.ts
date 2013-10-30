@@ -3,6 +3,13 @@ module HG {
 	export class InputHandler extends GameComponent {
 
 		private keyState: number[] = [];
+		private mouseX: number = 0;
+		private mouseY: number = 0;
+		bind = this.on;
+
+		get mousePosition(): THREE.Vector2 {
+			return new THREE.Vector2(this.mouseX, this.mouseY);
+		}
 
 		constructor() {
 			super();
@@ -10,8 +17,6 @@ module HG {
 				this.eventsAvailable.push(KeyMap[k]);
 			}
 		}
-
-		bind = this.on;
 
 		onKeyDown(e: KeyboardEvent): void {
 			this.keyState[e.keyCode] = 1;

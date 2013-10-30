@@ -107,7 +107,8 @@ var HG;
             this.isRunning = false;
             this.scene = new HG.Scenes.BaseScene();
             this.controls = new HG.InputHandler();
-            this.fpsCounter = new HG.FPSCounter();
+            this.fpsCounter = new HG.Utils.FPSCounter();
+            this.shaders = [];
             this.eventsAvailable = [
                 "preload",
                 "connected",
@@ -125,6 +126,12 @@ var HG;
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             container.appendChild(this.renderer.domElement);
         }
+        BaseGame.prototype.loadShader = function (path) {
+            var s = new HG.Shader(path);
+            this.shaders.push(s);
+            return s;
+        };
+
         BaseGame.prototype.preLoad = function () {
             console.log('loading assets');
             this.dispatch('preload');
@@ -132,11 +139,7 @@ var HG;
         };
 
         BaseGame.prototype.connect = function (serverHost) {
-            var io = require('socket.io-client');
-            if (this.socketClient !== undefined) {
-                // this.socketClient.disconnect();
-            }
-            this.socketClient = io.connect(serverHost);
+            this.socketClient = global['socket.io-client'].connect(serverHost);
             this.socketClient.on('news', function (data) {
                 console.log(data);
             });
@@ -169,9 +172,10 @@ var HG;
         BaseGame.prototype.render = function () {
             var delta = this.fpsCounter.getFrameTime() / 10;
             this.dispatch('render', { delta: delta });
+            this.camera.frame(delta);
             this.controls.frame(delta);
             this.fpsCounter.frame(delta);
-            this.renderer.render(this.scene.scene, this.camera.object);
+            this.renderer.render(this.scene.getInternal(), this.camera.object);
         };
         return BaseGame;
     })(HG.EventDispatcher);
@@ -184,8 +188,7 @@ var HG;
         __extends(BaseServer, _super);
         function BaseServer(port) {
             _super.call(this);
-            var io = require('socket.io');
-            this.socketServer = io.listen(port);
+            this.socketServer = global['socket.io'].listen(port);
             this.socketServer.set("log level", 1);
             this.socketServer.sockets.on('connection', function (socket) {
                 socket.on('my other event', function (data) {
@@ -222,11 +225,21 @@ var HG;
         function InputHandler() {
             _super.call(this);
             this.keyState = [];
+            this.mouseX = 0;
+            this.mouseY = 0;
             this.bind = this.on;
             for (var k in HG.KeyMap) {
                 this.eventsAvailable.push(HG.KeyMap[k]);
             }
         }
+        Object.defineProperty(InputHandler.prototype, "mousePosition", {
+            get: function () {
+                return new THREE.Vector2(this.mouseX, this.mouseY);
+            },
+            enumerable: true,
+            configurable: true
+        });
+
         InputHandler.prototype.onKeyDown = function (e) {
             this.keyState[e.keyCode] = 1;
         };
@@ -258,775 +271,784 @@ var HG;
         Left: 37,
         Right: 39,
         Top: 38,
+        Shift: 16,
         Bottom: 40,
         Space: 32,
         Esc: 27,
+        F5: 116,
         F11: 122,
         F12: 123
     };
 })(HG || (HG = {}));
+/*
+* Noise.hg.ts
+* Author: BeryJu
+*/
 var HG;
 (function (HG) {
-    var Noise = (function () {
-        function Noise() {
-        }
-        Noise.Generate2 = function (x, y) {
-            var F2 = 0.366025403;
-            var G2 = 0.211324865;
-
-            var n0, n1, n2;
-
-            // Skew the input space to determine which simplex cell we're in
-            var s = (x + y) * F2;
-            var xs = x + s;
-            var ys = y + s;
-            var i = Math.floor(xs);
-            var j = Math.floor(ys);
-
-            var t = (i + j) * G2;
-            var X0 = i - t;
-            var Y0 = j - t;
-            var x0 = x - X0;
-            var y0 = y - Y0;
-
-            // For the 2D case, the simplex shape is an equilateral triangle.
-            // Determine which simplex we are in.
-            var i1, j1;
-            if (x0 > y0) {
-                i1 = 1;
-                j1 = 0;
-            } else {
-                i1 = 0;
-                j1 = 1;
+    (function (Utils) {
+        var Noise = (function () {
+            function Noise() {
             }
+            Noise.Generate2 = function (x, y) {
+                var F2 = 0.366025403;
+                var G2 = 0.211324865;
 
-            // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
-            // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
-            // c = (3-sqrt(3))/6
-            var x1 = x0 - i1 + G2;
-            var y1 = y0 - j1 + G2;
-            var x2 = x0 - 1.0 + 2.0 * G2;
-            var y2 = y0 - 1.0 + 2.0 * G2;
+                var n0, n1, n2;
 
-            // Wrap the integer indices at 256, to avoid indexing Noise.perm[] out of bounds
-            var ii = i % 256;
-            var jj = j % 256;
+                // Skew the input space to determine which simplex cell we're in
+                var s = (x + y) * F2;
+                var xs = x + s;
+                var ys = y + s;
+                var i = Math.floor(xs);
+                var j = Math.floor(ys);
 
-            // Calculate the contribution from the three corners
-            var t0 = 0.5 - x0 * x0 - y0 * y0;
-            if (t0 < 0.0)
-                n0 = 0.0;
-else {
-                t0 *= t0;
-                n0 = t0 * t0 * Noise.grad2(Noise.perm[ii + Noise.perm[jj]], x0, y0);
-            }
+                var t = (i + j) * G2;
+                var X0 = i - t;
+                var Y0 = j - t;
+                var x0 = x - X0;
+                var y0 = y - Y0;
 
-            var t1 = 0.5 - x1 * x1 - y1 * y1;
-            if (t1 < 0.0)
-                n1 = 0.0;
-else {
-                t1 *= t1;
-                n1 = t1 * t1 * Noise.grad2(Noise.perm[ii + i1 + Noise.perm[jj + j1]], x1, y1);
-            }
-
-            var t2 = 0.5 - x2 * x2 - y2 * y2;
-            if (t2 < 0.0)
-                n2 = 0.0;
-else {
-                t2 *= t2;
-                n2 = t2 * t2 * Noise.grad2(Noise.perm[ii + 1 + Noise.perm[jj + 1]], x2, y2);
-            }
-
-            // Add contributions from each corner to get the final noise value.
-            // The result is scaled to return values in the interval [-1,1].
-            return 40.0 * (n0 + n1 + n2);
-        };
-
-        Noise.Generate3 = function (x, y, z) {
-            // Simple skewing factors for the 3D case
-            var F3 = 0.333333333;
-            var G3 = 0.166666667;
-
-            var n0, n1, n2, n3;
-
-            // Skew the input space to determine which simplex cell we're in
-            var s = (x + y + z) * F3;
-            var xs = x + s;
-            var ys = y + s;
-            var zs = z + s;
-            var i = Math.floor(xs);
-            var j = Math.floor(ys);
-            var k = Math.floor(zs);
-
-            var t = (i + j + k) * G3;
-            var X0 = i - t;
-            var Y0 = j - t;
-            var Z0 = k - t;
-            var x0 = x - X0;
-            var y0 = y - Y0;
-            var z0 = z - Z0;
-
-            // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
-            // Determine which simplex we are in.
-            var i1, j1, k1;
-            var i2, j2, k2;
-
-            if (x0 >= y0) {
-                if (y0 >= z0) {
+                // For the 2D case, the simplex shape is an equilateral triangle.
+                // Determine which simplex we are in.
+                var i1, j1;
+                if (x0 > y0) {
                     i1 = 1;
                     j1 = 0;
-                    k1 = 0;
-                    i2 = 1;
-                    j2 = 1;
-                    k2 = 0;
-                } else if (x0 >= z0) {
-                    i1 = 1;
-                    j1 = 0;
-                    k1 = 0;
-                    i2 = 1;
-                    j2 = 0;
-                    k2 = 1;
-                } else {
-                    i1 = 0;
-                    j1 = 0;
-                    k1 = 1;
-                    i2 = 1;
-                    j2 = 0;
-                    k2 = 1;
-                }
-            } else {
-                if (y0 < z0) {
-                    i1 = 0;
-                    j1 = 0;
-                    k1 = 1;
-                    i2 = 0;
-                    j2 = 1;
-                    k2 = 1;
-                } else if (x0 < z0) {
-                    i1 = 0;
-                    j1 = 1;
-                    k1 = 0;
-                    i2 = 0;
-                    j2 = 1;
-                    k2 = 1;
                 } else {
                     i1 = 0;
                     j1 = 1;
-                    k1 = 0;
-                    i2 = 1;
-                    j2 = 1;
-                    k2 = 0;
                 }
-            }
 
-            // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in (x,y,z),
-            // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and
-            // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where
-            // c = 1/6.
-            var x1 = x0 - i1 + G3;
-            var y1 = y0 - j1 + G3;
-            var z1 = z0 - k1 + G3;
-            var x2 = x0 - i2 + 2.0 * G3;
-            var y2 = y0 - j2 + 2.0 * G3;
-            var z2 = z0 - k2 + 2.0 * G3;
-            var x3 = x0 - 1.0 + 3.0 * G3;
-            var y3 = y0 - 1.0 + 3.0 * G3;
-            var z3 = z0 - 1.0 + 3.0 * G3;
+                // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
+                // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
+                // c = (3-sqrt(3))/6
+                var x1 = x0 - i1 + G2;
+                var y1 = y0 - j1 + G2;
+                var x2 = x0 - 1.0 + 2.0 * G2;
+                var y2 = y0 - 1.0 + 2.0 * G2;
 
-            // Wrap the integer indices at 256, to avoid indexing Noise.perm[] out of bounds
-            var ii = Noise.Mod(i, 256);
-            var jj = Noise.Mod(j, 256);
-            var kk = Noise.Mod(k, 256);
+                // Wrap the integer indices at 256, to avoid indexing Noise.perm[] out of bounds
+                var ii = i % 256;
+                var jj = j % 256;
 
-            // Calculate the contribution from the four corners
-            var t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
-            if (t0 < 0.0)
-                n0 = 0.0;
+                // Calculate the contribution from the three corners
+                var t0 = 0.5 - x0 * x0 - y0 * y0;
+                if (t0 < 0.0)
+                    n0 = 0.0;
 else {
-                t0 *= t0;
-                n0 = t0 * t0 * Noise.grad3(Noise.perm[ii + Noise.perm[jj + Noise.perm[kk]]], x0, y0, z0);
-            }
+                    t0 *= t0;
+                    n0 = t0 * t0 * Noise.grad2(Noise.perm[ii + Noise.perm[jj]], x0, y0);
+                }
 
-            var t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
-            if (t1 < 0.0)
-                n1 = 0.0;
+                var t1 = 0.5 - x1 * x1 - y1 * y1;
+                if (t1 < 0.0)
+                    n1 = 0.0;
 else {
-                t1 *= t1;
-                n1 = t1 * t1 * Noise.grad3(Noise.perm[ii + i1 + Noise.perm[jj + j1 + Noise.perm[kk + k1]]], x1, y1, z1);
-            }
+                    t1 *= t1;
+                    n1 = t1 * t1 * Noise.grad2(Noise.perm[ii + i1 + Noise.perm[jj + j1]], x1, y1);
+                }
 
-            var t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
-            if (t2 < 0.0)
-                n2 = 0.0;
+                var t2 = 0.5 - x2 * x2 - y2 * y2;
+                if (t2 < 0.0)
+                    n2 = 0.0;
 else {
-                t2 *= t2;
-                n2 = t2 * t2 * Noise.grad3(Noise.perm[ii + i2 + Noise.perm[jj + j2 + Noise.perm[kk + k2]]], x2, y2, z2);
-            }
+                    t2 *= t2;
+                    n2 = t2 * t2 * Noise.grad2(Noise.perm[ii + 1 + Noise.perm[jj + 1]], x2, y2);
+                }
 
-            var t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
-            if (t3 < 0.0)
-                n3 = 0.0;
+                // Add contributions from each corner to get the final noise value.
+                // The result is scaled to return values in the interval [-1,1].
+                return 40.0 * (n0 + n1 + n2);
+            };
+
+            Noise.Generate3 = function (x, y, z) {
+                // Simple skewing factors for the 3D case
+                var F3 = 0.333333333;
+                var G3 = 0.166666667;
+
+                var n0, n1, n2, n3;
+
+                // Skew the input space to determine which simplex cell we're in
+                var s = (x + y + z) * F3;
+                var xs = x + s;
+                var ys = y + s;
+                var zs = z + s;
+                var i = Math.floor(xs);
+                var j = Math.floor(ys);
+                var k = Math.floor(zs);
+
+                var t = (i + j + k) * G3;
+                var X0 = i - t;
+                var Y0 = j - t;
+                var Z0 = k - t;
+                var x0 = x - X0;
+                var y0 = y - Y0;
+                var z0 = z - Z0;
+
+                // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
+                // Determine which simplex we are in.
+                var i1, j1, k1;
+                var i2, j2, k2;
+
+                if (x0 >= y0) {
+                    if (y0 >= z0) {
+                        i1 = 1;
+                        j1 = 0;
+                        k1 = 0;
+                        i2 = 1;
+                        j2 = 1;
+                        k2 = 0;
+                    } else if (x0 >= z0) {
+                        i1 = 1;
+                        j1 = 0;
+                        k1 = 0;
+                        i2 = 1;
+                        j2 = 0;
+                        k2 = 1;
+                    } else {
+                        i1 = 0;
+                        j1 = 0;
+                        k1 = 1;
+                        i2 = 1;
+                        j2 = 0;
+                        k2 = 1;
+                    }
+                } else {
+                    if (y0 < z0) {
+                        i1 = 0;
+                        j1 = 0;
+                        k1 = 1;
+                        i2 = 0;
+                        j2 = 1;
+                        k2 = 1;
+                    } else if (x0 < z0) {
+                        i1 = 0;
+                        j1 = 1;
+                        k1 = 0;
+                        i2 = 0;
+                        j2 = 1;
+                        k2 = 1;
+                    } else {
+                        i1 = 0;
+                        j1 = 1;
+                        k1 = 0;
+                        i2 = 1;
+                        j2 = 1;
+                        k2 = 0;
+                    }
+                }
+
+                // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in (x,y,z),
+                // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and
+                // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where
+                // c = 1/6.
+                var x1 = x0 - i1 + G3;
+                var y1 = y0 - j1 + G3;
+                var z1 = z0 - k1 + G3;
+                var x2 = x0 - i2 + 2.0 * G3;
+                var y2 = y0 - j2 + 2.0 * G3;
+                var z2 = z0 - k2 + 2.0 * G3;
+                var x3 = x0 - 1.0 + 3.0 * G3;
+                var y3 = y0 - 1.0 + 3.0 * G3;
+                var z3 = z0 - 1.0 + 3.0 * G3;
+
+                // Wrap the integer indices at 256, to avoid indexing Noise.perm[] out of bounds
+                var ii = Noise.Mod(i, 256);
+                var jj = Noise.Mod(j, 256);
+                var kk = Noise.Mod(k, 256);
+
+                // Calculate the contribution from the four corners
+                var t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
+                if (t0 < 0.0)
+                    n0 = 0.0;
 else {
-                t3 *= t3;
-                n3 = t3 * t3 * Noise.grad3(Noise.perm[ii + 1 + Noise.perm[jj + 1 + Noise.perm[kk + 1]]], x3, y3, z3);
-            }
+                    t0 *= t0;
+                    n0 = t0 * t0 * Noise.grad3(Noise.perm[ii + Noise.perm[jj + Noise.perm[kk]]], x0, y0, z0);
+                }
 
-            // Add contributions from each corner to get the final noise value.
-            // The result is scaled to stay just inside [-1,1]
-            return 32.0 * (n0 + n1 + n2 + n3);
-        };
+                var t1 = 0.6 - x1 * x1 - y1 * y1 - z1 * z1;
+                if (t1 < 0.0)
+                    n1 = 0.0;
+else {
+                    t1 *= t1;
+                    n1 = t1 * t1 * Noise.grad3(Noise.perm[ii + i1 + Noise.perm[jj + j1 + Noise.perm[kk + k1]]], x1, y1, z1);
+                }
 
-        Noise.Mod = function (x, m) {
-            var a = x % m;
-            return a < 0 ? a + m : a;
-        };
+                var t2 = 0.6 - x2 * x2 - y2 * y2 - z2 * z2;
+                if (t2 < 0.0)
+                    n2 = 0.0;
+else {
+                    t2 *= t2;
+                    n2 = t2 * t2 * Noise.grad3(Noise.perm[ii + i2 + Noise.perm[jj + j2 + Noise.perm[kk + k2]]], x2, y2, z2);
+                }
 
-        Noise.grad1 = function (hash, x) {
-            var h = hash & 15;
-            var grad = 1.0 + (h & 7);
-            if ((h & 8) != 0)
-                grad = -grad;
-            return (grad * x);
-        };
+                var t3 = 0.6 - x3 * x3 - y3 * y3 - z3 * z3;
+                if (t3 < 0.0)
+                    n3 = 0.0;
+else {
+                    t3 *= t3;
+                    n3 = t3 * t3 * Noise.grad3(Noise.perm[ii + 1 + Noise.perm[jj + 1 + Noise.perm[kk + 1]]], x3, y3, z3);
+                }
 
-        Noise.grad2 = function (hash, x, y) {
-            var h = hash & 7;
-            var u = h < 4 ? x : y;
-            var v = h < 4 ? y : x;
-            return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -2.0 * v : 2.0 * v);
-        };
+                // Add contributions from each corner to get the final noise value.
+                // The result is scaled to stay just inside [-1,1]
+                return 32.0 * (n0 + n1 + n2 + n3);
+            };
 
-        Noise.grad3 = function (hash, x, y, z) {
-            var h = hash & 15;
-            var u = h < 8 ? x : y;
-            var v = h < 4 ? y : h == 12 || h == 14 ? x : z;
-            return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -v : v);
-        };
+            Noise.Mod = function (x, m) {
+                var a = x % m;
+                return a < 0 ? a + m : a;
+            };
 
-        Noise.grad4 = function (hash, x, y, z, t) {
-            var h = hash & 31;
-            var u = h < 24 ? x : y;
-            var v = h < 16 ? y : z;
-            var w = h < 8 ? z : t;
-            return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -v : v) + ((h & 4) != 0 ? -w : w);
-        };
-        Noise.perm = [
-            151,
-            160,
-            137,
-            91,
-            90,
-            15,
-            131,
-            13,
-            201,
-            95,
-            96,
-            53,
-            194,
-            233,
-            7,
-            225,
-            140,
-            36,
-            103,
-            30,
-            69,
-            142,
-            8,
-            99,
-            37,
-            240,
-            21,
-            10,
-            23,
-            190,
-            6,
-            148,
-            247,
-            120,
-            234,
-            75,
-            0,
-            26,
-            197,
-            62,
-            94,
-            252,
-            219,
-            203,
-            117,
-            35,
-            11,
-            32,
-            57,
-            177,
-            33,
-            88,
-            237,
-            149,
-            56,
-            87,
-            174,
-            20,
-            125,
-            136,
-            171,
-            168,
-            68,
-            175,
-            74,
-            165,
-            71,
-            134,
-            139,
-            48,
-            27,
-            166,
-            77,
-            146,
-            158,
-            22931,
-            83,
-            111,
-            229,
-            122,
-            60,
-            211,
-            133,
-            230,
-            220,
-            105,
-            92,
-            41,
-            55,
-            46,
-            245,
-            40,
-            244,
-            102,
-            143,
-            54,
-            65,
-            25,
-            63,
-            161,
-            1,
-            216,
-            80,
-            73,
-            209,
-            76,
-            132,
-            187,
-            208,
-            89,
-            18,
-            169,
-            200,
-            196,
-            135,
-            130,
-            116,
-            188,
-            159,
-            86,
-            164,
-            100,
-            109,
-            198,
-            173,
-            186,
-            3,
-            64,
-            52,
-            217,
-            226,
-            250,
-            124,
-            123,
-            5,
-            202,
-            38,
-            147,
-            118,
-            126,
-            255,
-            82,
-            85,
-            212,
-            207,
-            206,
-            59,
-            227,
-            47,
-            16,
-            58,
-            17,
-            182,
-            189,
-            28,
-            42,
-            223,
-            183,
-            170,
-            213,
-            119,
-            248,
-            152,
-            2,
-            44,
-            154,
-            163,
-            70,
-            221,
-            153,
-            101,
-            155,
-            167,
-            43,
-            172,
-            9,
-            129,
-            22,
-            39,
-            253,
-            19,
-            98,
-            108,
-            110,
-            79,
-            113,
-            224,
-            232,
-            178,
-            185,
-            112,
-            104,
-            218,
-            246,
-            97,
-            228,
-            251,
-            34,
-            242,
-            193,
-            238,
-            210,
-            144,
-            12,
-            191,
-            179,
-            162,
-            241,
-            81,
-            51,
-            145,
-            235,
-            249,
-            14,
-            239,
-            107,
-            49,
-            192,
-            214,
-            31,
-            181,
-            199,
-            106,
-            157,
-            184,
-            84,
-            204,
-            176,
-            115,
-            121,
-            50,
-            45,
-            127,
-            4,
-            150,
-            254,
-            138,
-            236,
-            205,
-            93,
-            222,
-            114,
-            67,
-            29,
-            24,
-            72,
-            243,
-            141,
-            128,
-            195,
-            78,
-            66,
-            215,
-            61,
-            156,
-            180,
-            151,
-            160,
-            137,
-            91,
-            90,
-            15,
-            131,
-            13,
-            201,
-            95,
-            96,
-            53,
-            194,
-            233,
-            7,
-            225,
-            140,
-            36,
-            103,
-            30,
-            69,
-            142,
-            8,
-            99,
-            37,
-            240,
-            21,
-            10,
-            23,
-            190,
-            6,
-            148,
-            247,
-            120,
-            234,
-            75,
-            0,
-            26,
-            197,
-            62,
-            94,
-            252,
-            219,
-            203,
-            117,
-            35,
-            11,
-            32,
-            57,
-            177,
-            33,
-            88,
-            237,
-            149,
-            56,
-            87,
-            174,
-            20,
-            125,
-            136,
-            171,
-            168,
-            68,
-            175,
-            74,
-            165,
-            71,
-            134,
-            139,
-            48,
-            27,
-            166,
-            77,
-            146,
-            158,
-            231,
-            83,
-            111,
-            229,
-            122,
-            60,
-            211,
-            133,
-            230,
-            220,
-            105,
-            92,
-            41,
-            55,
-            46,
-            245,
-            40,
-            244,
-            102,
-            143,
-            54,
-            65,
-            25,
-            63,
-            161,
-            1,
-            216,
-            80,
-            73,
-            209,
-            76,
-            132,
-            187,
-            208,
-            89,
-            18,
-            169,
-            200,
-            196,
-            135,
-            130,
-            116,
-            188,
-            159,
-            86,
-            164,
-            100,
-            109,
-            198,
-            173,
-            186,
-            3,
-            64,
-            52,
-            217,
-            226,
-            250,
-            124,
-            123,
-            5,
-            202,
-            38,
-            147,
-            118,
-            126,
-            255,
-            82,
-            85,
-            212,
-            207,
-            206,
-            59,
-            227,
-            47,
-            16,
-            58,
-            17,
-            182,
-            189,
-            28,
-            42,
-            223,
-            183,
-            170,
-            213,
-            119,
-            248,
-            152,
-            2,
-            44,
-            154,
-            163,
-            70,
-            221,
-            153,
-            101,
-            155,
-            167,
-            43,
-            172,
-            9,
-            129,
-            22,
-            39,
-            253,
-            19,
-            98,
-            108,
-            110,
-            79,
-            113,
-            224,
-            232,
-            178,
-            185,
-            112,
-            104,
-            218,
-            246,
-            97,
-            228,
-            251,
-            34,
-            242,
-            193,
-            238,
-            210,
-            144,
-            12,
-            191,
-            179,
-            162,
-            241,
-            81,
-            51,
-            145,
-            235,
-            249,
-            14,
-            239,
-            107,
-            49,
-            192,
-            214,
-            31,
-            181,
-            199,
-            106,
-            157,
-            184,
-            84,
-            204,
-            176,
-            115,
-            121,
-            50,
-            45,
-            127,
-            4,
-            150,
-            254,
-            138,
-            236,
-            205,
-            93,
-            222,
-            114,
-            67,
-            29,
-            24,
-            72,
-            243,
-            141,
-            128,
-            195,
-            78,
-            66,
-            215,
-            61,
-            156,
-            180
-        ];
-        return Noise;
-    })();
-    HG.Noise = Noise;
+            Noise.grad1 = function (hash, x) {
+                var h = hash & 15;
+                var grad = 1.0 + (h & 7);
+                if ((h & 8) != 0)
+                    grad = -grad;
+                return (grad * x);
+            };
+
+            Noise.grad2 = function (hash, x, y) {
+                var h = hash & 7;
+                var u = h < 4 ? x : y;
+                var v = h < 4 ? y : x;
+                return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -2.0 * v : 2.0 * v);
+            };
+
+            Noise.grad3 = function (hash, x, y, z) {
+                var h = hash & 15;
+                var u = h < 8 ? x : y;
+                var v = h < 4 ? y : h == 12 || h == 14 ? x : z;
+                return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -v : v);
+            };
+
+            Noise.grad4 = function (hash, x, y, z, t) {
+                var h = hash & 31;
+                var u = h < 24 ? x : y;
+                var v = h < 16 ? y : z;
+                var w = h < 8 ? z : t;
+                return ((h & 1) != 0 ? -u : u) + ((h & 2) != 0 ? -v : v) + ((h & 4) != 0 ? -w : w);
+            };
+            Noise.perm = [
+                151,
+                160,
+                137,
+                91,
+                90,
+                15,
+                131,
+                13,
+                201,
+                95,
+                96,
+                53,
+                194,
+                233,
+                7,
+                225,
+                140,
+                36,
+                103,
+                30,
+                69,
+                142,
+                8,
+                99,
+                37,
+                240,
+                21,
+                10,
+                23,
+                190,
+                6,
+                148,
+                247,
+                120,
+                234,
+                75,
+                0,
+                26,
+                197,
+                62,
+                94,
+                252,
+                219,
+                203,
+                117,
+                35,
+                11,
+                32,
+                57,
+                177,
+                33,
+                88,
+                237,
+                149,
+                56,
+                87,
+                174,
+                20,
+                125,
+                136,
+                171,
+                168,
+                68,
+                175,
+                74,
+                165,
+                71,
+                134,
+                139,
+                48,
+                27,
+                166,
+                77,
+                146,
+                158,
+                22931,
+                83,
+                111,
+                229,
+                122,
+                60,
+                211,
+                133,
+                230,
+                220,
+                105,
+                92,
+                41,
+                55,
+                46,
+                245,
+                40,
+                244,
+                102,
+                143,
+                54,
+                65,
+                25,
+                63,
+                161,
+                1,
+                216,
+                80,
+                73,
+                209,
+                76,
+                132,
+                187,
+                208,
+                89,
+                18,
+                169,
+                200,
+                196,
+                135,
+                130,
+                116,
+                188,
+                159,
+                86,
+                164,
+                100,
+                109,
+                198,
+                173,
+                186,
+                3,
+                64,
+                52,
+                217,
+                226,
+                250,
+                124,
+                123,
+                5,
+                202,
+                38,
+                147,
+                118,
+                126,
+                255,
+                82,
+                85,
+                212,
+                207,
+                206,
+                59,
+                227,
+                47,
+                16,
+                58,
+                17,
+                182,
+                189,
+                28,
+                42,
+                223,
+                183,
+                170,
+                213,
+                119,
+                248,
+                152,
+                2,
+                44,
+                154,
+                163,
+                70,
+                221,
+                153,
+                101,
+                155,
+                167,
+                43,
+                172,
+                9,
+                129,
+                22,
+                39,
+                253,
+                19,
+                98,
+                108,
+                110,
+                79,
+                113,
+                224,
+                232,
+                178,
+                185,
+                112,
+                104,
+                218,
+                246,
+                97,
+                228,
+                251,
+                34,
+                242,
+                193,
+                238,
+                210,
+                144,
+                12,
+                191,
+                179,
+                162,
+                241,
+                81,
+                51,
+                145,
+                235,
+                249,
+                14,
+                239,
+                107,
+                49,
+                192,
+                214,
+                31,
+                181,
+                199,
+                106,
+                157,
+                184,
+                84,
+                204,
+                176,
+                115,
+                121,
+                50,
+                45,
+                127,
+                4,
+                150,
+                254,
+                138,
+                236,
+                205,
+                93,
+                222,
+                114,
+                67,
+                29,
+                24,
+                72,
+                243,
+                141,
+                128,
+                195,
+                78,
+                66,
+                215,
+                61,
+                156,
+                180,
+                151,
+                160,
+                137,
+                91,
+                90,
+                15,
+                131,
+                13,
+                201,
+                95,
+                96,
+                53,
+                194,
+                233,
+                7,
+                225,
+                140,
+                36,
+                103,
+                30,
+                69,
+                142,
+                8,
+                99,
+                37,
+                240,
+                21,
+                10,
+                23,
+                190,
+                6,
+                148,
+                247,
+                120,
+                234,
+                75,
+                0,
+                26,
+                197,
+                62,
+                94,
+                252,
+                219,
+                203,
+                117,
+                35,
+                11,
+                32,
+                57,
+                177,
+                33,
+                88,
+                237,
+                149,
+                56,
+                87,
+                174,
+                20,
+                125,
+                136,
+                171,
+                168,
+                68,
+                175,
+                74,
+                165,
+                71,
+                134,
+                139,
+                48,
+                27,
+                166,
+                77,
+                146,
+                158,
+                231,
+                83,
+                111,
+                229,
+                122,
+                60,
+                211,
+                133,
+                230,
+                220,
+                105,
+                92,
+                41,
+                55,
+                46,
+                245,
+                40,
+                244,
+                102,
+                143,
+                54,
+                65,
+                25,
+                63,
+                161,
+                1,
+                216,
+                80,
+                73,
+                209,
+                76,
+                132,
+                187,
+                208,
+                89,
+                18,
+                169,
+                200,
+                196,
+                135,
+                130,
+                116,
+                188,
+                159,
+                86,
+                164,
+                100,
+                109,
+                198,
+                173,
+                186,
+                3,
+                64,
+                52,
+                217,
+                226,
+                250,
+                124,
+                123,
+                5,
+                202,
+                38,
+                147,
+                118,
+                126,
+                255,
+                82,
+                85,
+                212,
+                207,
+                206,
+                59,
+                227,
+                47,
+                16,
+                58,
+                17,
+                182,
+                189,
+                28,
+                42,
+                223,
+                183,
+                170,
+                213,
+                119,
+                248,
+                152,
+                2,
+                44,
+                154,
+                163,
+                70,
+                221,
+                153,
+                101,
+                155,
+                167,
+                43,
+                172,
+                9,
+                129,
+                22,
+                39,
+                253,
+                19,
+                98,
+                108,
+                110,
+                79,
+                113,
+                224,
+                232,
+                178,
+                185,
+                112,
+                104,
+                218,
+                246,
+                97,
+                228,
+                251,
+                34,
+                242,
+                193,
+                238,
+                210,
+                144,
+                12,
+                191,
+                179,
+                162,
+                241,
+                81,
+                51,
+                145,
+                235,
+                249,
+                14,
+                239,
+                107,
+                49,
+                192,
+                214,
+                31,
+                181,
+                199,
+                106,
+                157,
+                184,
+                84,
+                204,
+                176,
+                115,
+                121,
+                50,
+                45,
+                127,
+                4,
+                150,
+                254,
+                138,
+                236,
+                205,
+                93,
+                222,
+                114,
+                67,
+                29,
+                24,
+                72,
+                243,
+                141,
+                128,
+                195,
+                78,
+                66,
+                215,
+                61,
+                156,
+                180
+            ];
+            return Noise;
+        })();
+        Utils.Noise = Noise;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
 })(HG || (HG = {}));
 /// <reference path="utils/Noise.hg.ts" />
 var HG;
@@ -1039,7 +1061,6 @@ var HG;
         __extends(LevelStructure, _super);
         function LevelStructure() {
             _super.call(this);
-            this.entities = new HG.Map();
             this.camera = {
                 position: { x: 0, y: 0, z: 0 },
                 rotation: { x: 0, y: 0, z: 0 }
@@ -1059,27 +1080,18 @@ var HG;
             this.dispatch('loaded', { level: this });
         };
 
-        LevelStructure.prototype.onReadyStateChange = function (req) {
-            if (req.readyState === 4) {
-                this.load(req.responseText);
-            }
+        LevelStructure.prototype.loadAsync = function (path) {
+            var _this = this;
+            global.fs.readFile(path, function (err, data) {
+                _this.load(data);
+            });
         };
 
-        LevelStructure.prototype.loadAsync = function (url) {
-            var req = new XMLHttpRequest();
-            var t = this;
-            req.onreadystatechange = function (req) {
-                t.onReadyStateChange(this);
-            };
-            req.open("GET", url, true);
-            req.send();
-        };
-
-        LevelStructure.prototype.create = function (Seed) {
+        LevelStructure.prototype.create = function () {
             this.entities = new HG.Map();
             for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
                 for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
-                    var noise = HG.Noise.Generate2(i, j);
+                    var noise = HG.Utils.Noise.Generate2(i, j);
                     var l = Math.floor((noise * 50) - 50);
                     var color = HG.Utils.rgbToHex(i / 10 + 50, j / 10 + 50, ((i + j) / 2) / 10 + 50);
                     var e = {
@@ -1090,7 +1102,7 @@ var HG;
                     this.entities.set(e, i, j);
                 }
             }
-            this.camera.position = { x: -127, y: 290, z: 250 };
+            this.camera.position = { x: 0, y: 25, z: -25 };
             this.camera.rotation = { x: 75, y: 75, z: 0 };
             this.dispatch('created', { level: this });
         };
@@ -1110,10 +1122,13 @@ var HG;
                 position: new THREE.Vector3(),
                 rotation: new THREE.Vector3()
             };
+            var g = new THREE.CubeGeometry(HG.BLOCK_SIZE, HG.BLOCK_SIZE, HG.BLOCK_SIZE);
+            var m = new THREE.MeshPhongMaterial({ color: 0x000000 });
             for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
                 for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
                     var be = lvl.entities.get(i, j);
-                    var re = new HG.BaseEntity(new THREE.Mesh(new THREE.CubeGeometry(HG.BLOCK_SIZE, HG.BLOCK_SIZE, HG.BLOCK_SIZE), new THREE.MeshPhongMaterial({ color: be.color })));
+                    m.color = new THREE.Color(be.color);
+                    var re = new HG.Entities.MeshEntity(g, m);
                     re.position(i, j, be.indentation);
                     this.entities.push(re);
                 }
@@ -1134,6 +1149,108 @@ var HG;
     })(HG.EventDispatcher);
     HG.Level = Level;
 })(HG || (HG = {}));
+/*
+* Map.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    var Map = (function () {
+        function Map() {
+            this.data = {};
+        }
+        Map.prototype.set = function (data, x, y, z) {
+            if (typeof x === "undefined") { x = 0; }
+            if (typeof y === "undefined") { y = 0; }
+            if (typeof z === "undefined") { z = 0; }
+            if (!this.data[x])
+                this.data[x] = {};
+            if (!this.data[x][y])
+                this.data[x][y] = {};
+            var overwritten = false;
+            if (this.data[x][y][z])
+                overwritten = true;
+            this.data[x][y][z] = data;
+            return overwritten;
+        };
+
+        Map.prototype.get = function (x, y, z, fallback) {
+            if (typeof x === "undefined") { x = 0; }
+            if (typeof y === "undefined") { y = 0; }
+            if (typeof z === "undefined") { z = 0; }
+            if (!this.data[x])
+                return fallback;
+            if (!this.data[x][y])
+                return fallback;
+            if (!this.data[x][y][z])
+                return fallback;
+            return this.data[x][y][z];
+        };
+
+        Map.prototype.clearX = function (x) {
+            if (this.data[x])
+                this.data[x] = {};
+            return true;
+        };
+
+        Map.prototype.clearY = function (x, y) {
+            if (!this.data[x])
+                return false;
+            if (this.data[x][y])
+                this.data[x][y] = {};
+        };
+
+        Map.prototype.clearZ = function (x, y, z) {
+            if (!this.data[x])
+                return false;
+            if (!this.data[x][y])
+                return false;
+            if (this.data[x][y][z])
+                this.data[x][y][z] = {};
+        };
+        return Map;
+    })();
+    HG.Map = Map;
+})(HG || (HG = {}));
+/*
+* ModuleLoader.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    var ModuleLoader = (function (_super) {
+        __extends(ModuleLoader, _super);
+        function ModuleLoader() {
+            _super.call(this);
+            this.modules = ['fs', 'http', 'socket.io', 'socket.io-client'];
+            for (var i = 0; i < this.modules.length; i++) {
+                console.log("[ModuleLoader] Required " + this.modules[i]);
+                global[this.modules[i]] = require(this.modules[i]);
+            }
+            // this.modules.forEach((m) => {
+            // 	console.log("[ModuleLoader] Required "+m);
+            // 	global[m] = require(m);
+            // });
+        }
+        return ModuleLoader;
+    })(HG.EventDispatcher);
+    HG.ModuleLoader = ModuleLoader;
+})(HG || (HG = {}));
+/*
+* Renderer.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    var Renderer = (function (_super) {
+        __extends(Renderer, _super);
+        function Renderer(params) {
+            _super.call(this, params);
+        }
+        return Renderer;
+    })(THREE.WebGLRenderer);
+    HG.Renderer = Renderer;
+})(HG || (HG = {}));
 var HG;
 (function (HG) {
     var ServerConnection = (function (_super) {
@@ -1147,6 +1264,30 @@ var HG;
         return ServerConnection;
     })(HG.EventDispatcher);
     HG.ServerConnection = ServerConnection;
+})(HG || (HG = {}));
+/*
+* Shader.ts
+* Author: BeryJU
+*/
+var HG;
+(function (HG) {
+    var Shader = (function (_super) {
+        __extends(Shader, _super);
+        function Shader(path) {
+            _super.call(this);
+            if (path) {
+                var shader = require('./' + path);
+                this.load(shader);
+            }
+        }
+        Shader.prototype.load = function (raw) {
+            this.vertexShader = raw['vertex'];
+            this.fragmentShader = raw['fragment'];
+            this.dispatch('loaded');
+        };
+        return Shader;
+    })(HG.EventDispatcher);
+    HG.Shader = Shader;
 })(HG || (HG = {}));
 /*
 * StringFormatter.ts
@@ -1206,7 +1347,7 @@ var HG;
     (function (Abilities) {
         var AnimationAbility = (function (_super) {
             __extends(AnimationAbility, _super);
-            function AnimationAbility(url) {
+            function AnimationAbility(path) {
                 _super.call(this);
                 this.animOffset = 0;
                 this.running = false;
@@ -1216,25 +1357,20 @@ var HG;
                 this.lastKeyframe = 0;
                 this.currentKeyframe = 0;
                 this.eventsAvailable = ["loaded"];
-                if (url)
-                    this.loadAsync(url);
+                if (path)
+                    this.loadAsync(path);
             }
             AnimationAbility.prototype.checkCompatibility = function (entity) {
                 return (entity.object instanceof THREE.Mesh);
             };
 
-            AnimationAbility.prototype.loadAsync = function (url) {
+            AnimationAbility.prototype.loadAsync = function (path) {
                 var _this = this;
-                var req = new XMLHttpRequest();
-                req.onreadystatechange = function (ev) {
-                    if (req.readyState === 4) {
-                        var loader = new THREE.JSONLoader();
-                        var result = loader.parse(JSON.parse(req.responseText));
-                        _this.load(result.geometry, result.materials);
-                    }
-                };
-                req.open("GET", url, true);
-                req.send();
+                global.fs.readFile(path, function (err, data) {
+                    var loader = new THREE.JSONLoader();
+                    var result = loader.parse(JSON.parse(data));
+                    _this.load(result.geometry, result.materials);
+                });
             };
 
             AnimationAbility.prototype.load = function (geometry, materials) {
@@ -1242,7 +1378,11 @@ var HG;
                     m['morphTargets'] = true;
                 });
                 var material = new THREE.MeshFaceMaterial(materials);
+                var oldPosition = this.hostEntity.object.position;
+                var oldRotation = this.hostEntity.object.rotation;
                 this.hostEntity.object = new THREE.Mesh(geometry, material);
+                this.hostEntity.object.position = oldPosition;
+                this.hostEntity.object.rotation = oldRotation;
                 this.dispatch('loaded');
             };
 
@@ -1338,13 +1478,31 @@ var HG;
                 this.maxY = 200;
             }
             MovingAbility.prototype.moveLeft = function (step) {
-                if (typeof step === "undefined") { step = 3.125; }
-                this.hostEntity.object.position.x -= step;
+                this.hostEntity.object.translateX(step);
             };
 
             MovingAbility.prototype.moveRight = function (step) {
-                if (typeof step === "undefined") { step = 3.125; }
-                this.hostEntity.object.position.x += step;
+                this.hostEntity.object.translateX(-step);
+            };
+
+            MovingAbility.prototype.lower = function (step) {
+                this.hostEntity.object.position.y -= step;
+            };
+
+            MovingAbility.prototype.turnLeft = function (step) {
+                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), HG.Utils.degToRad(step));
+            };
+
+            MovingAbility.prototype.turnRight = function (step) {
+                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), HG.Utils.degToRad(-step));
+            };
+
+            MovingAbility.prototype.moveForward = function (step) {
+                this.hostEntity.object.translateZ(step);
+            };
+
+            MovingAbility.prototype.moveBackward = function (step) {
+                this.hostEntity.object.translateZ(-step);
             };
 
             MovingAbility.prototype.jump = function () {
@@ -1479,6 +1637,103 @@ var HG;
 })(HG || (HG = {}));
 /// <reference path="BaseEntity.hg.ts" />
 /*
+* CameraEntity.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var ChasingCameraEntity = (function (_super) {
+            __extends(ChasingCameraEntity, _super);
+            function ChasingCameraEntity(target, fov, aspect, zNear, zFar) {
+                if (typeof fov === "undefined") { fov = 90; }
+                if (typeof aspect === "undefined") { aspect = 1.77; }
+                if (typeof zNear === "undefined") { zNear = 0.1; }
+                if (typeof zFar === "undefined") { zFar = 10000; }
+                _super.call(this);
+                this.lookAt = true;
+                this.target = target;
+                this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
+            }
+            ChasingCameraEntity.prototype.setViewDistance = function (d) {
+                this.object.far = d;
+                this.object.updateProjectionMatrix();
+            };
+
+            ChasingCameraEntity.prototype.frame = function (delta) {
+                var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
+
+                this.object.position.x = cameraOffset.x;
+                this.object.position.y = cameraOffset.y;
+                this.object.position.z = cameraOffset.z;
+                if (this.lookAt)
+                    this.object.lookAt(this.target.object.position);
+            };
+            return ChasingCameraEntity;
+        })(Entities.CameraEntity);
+        Entities.ChasingCameraEntity = ChasingCameraEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/// <reference path="BaseEntity.hg.ts" />
+/*
+* HeightMapEntity.hg.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var HeightMapEntity = (function (_super) {
+            __extends(HeightMapEntity, _super);
+            function HeightMapEntity(directory, size, directions, suffix) {
+                if (typeof size === "undefined") { size = 5000; }
+                if (typeof directions === "undefined") { directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
+                if (typeof suffix === "undefined") { suffix = ".png"; }
+                _super.call(this);
+                var skyGeometry = new THREE.CubeGeometry(size, size, size);
+
+                var materialArray = [];
+                directions.forEach(function (d) {
+                    materialArray.push(new THREE.MeshBasicMaterial({
+                        map: THREE.ImageUtils.loadTexture(directory + d + suffix),
+                        side: THREE.BackSide
+                    }));
+                });
+                var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
+                this.object = new THREE.Mesh(skyGeometry, skyMaterial);
+            }
+            return HeightMapEntity;
+        })(HG.BaseEntity);
+        Entities.HeightMapEntity = HeightMapEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/// <reference path="../GameComponent.ts" />
+/// <reference path="../abilities/BaseAbility.hg.ts" />
+/*
+* MeshEntity.ts
+* Author: BeryJu
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var MeshEntity = (function (_super) {
+            __extends(MeshEntity, _super);
+            function MeshEntity(geo, mat) {
+                _super.call(this);
+                this.abilities = [];
+                this.positionOffset = new THREE.Vector3();
+                if (geo && mat)
+                    this.object = new THREE.Mesh(geo, mat);
+            }
+            return MeshEntity;
+        })(HG.BaseEntity);
+        Entities.MeshEntity = MeshEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/// <reference path="BaseEntity.hg.ts" />
+/*
 * ModelEntity.hg.ts
 * Author: BeryJu
 */
@@ -1544,7 +1799,7 @@ var HG;
 })(HG || (HG = {}));
 /// <reference path="BaseEntity.hg.ts" />
 /*
-* SkyBox.hg.ts
+* SkyBoxEntity.hg.ts
 * Author: BeryJu
 */
 var HG;
@@ -1655,7 +1910,7 @@ var HG;
                 for (var k in this.entities.named) {
                     var ne = this.entities.named[k];
                     if (ne instanceof type)
-                        callback(ne);
+                        callback(ne, k);
                 }
             };
 
@@ -1696,186 +1951,135 @@ var HG;
     var Scenes = HG.Scenes;
 })(HG || (HG = {}));
 ///<reference path="../GameComponent" />
-var HG;
-(function (HG) {
-    var ColorTransition = (function (_super) {
-        __extends(ColorTransition, _super);
-        function ColorTransition() {
-            _super.call(this);
-            this.isDone = false;
-            this.baseColor = new THREE.Color();
-            this.currentColor = new THREE.Color();
-            this.currentFrame = 0;
-            this.frameSpan = 0;
-            this.currentTarget = 0;
-            this.targets = [];
-        }
-        ColorTransition.prototype.getColor = function () {
-            return this.currentColor;
-        };
-
-        ColorTransition.prototype.target = function (color) {
-            this.targets.push(color);
-            this.dispatch('targetAdded', color);
-            return this;
-        };
-
-        ColorTransition.prototype.over = function (frames) {
-            this.frameSpan = frames;
-            return this;
-        };
-
-        ColorTransition.prototype.from = function (color) {
-            this.baseColor = color;
-            return this;
-        };
-
-        ColorTransition.prototype.frame = function (delta) {
-            if (this.currentFrame >= this.frameSpan) {
-                this.isDone = true;
-                this.dispatch('done', this);
-            } else {
-                if (this.currentColor === this.targets[this.currentTarget]) {
-                    this.currentTarget++;
-                    this.currentFrame = 0;
-                    if (this.currentTarget > this.targets.length) {
-                        this.isDone = true;
-                        this.dispatch('done', this);
-                    }
-                } else {
-                    var target = this.targets[this.currentTarget];
-                    var r = this.increment(this.currentColor.r, target.r, delta, this.frameSpan - this.currentTarget);
-                    var g = this.increment(this.currentColor.g, target.g, delta, this.frameSpan - this.currentTarget);
-                    var b = this.increment(this.currentColor.b, target.b, delta, this.frameSpan - this.currentTarget);
-
-                    console.log(r);
-                    console.log(g);
-                    console.log(b);
-                    this.currentColor.r += r;
-                    this.currentColor.g += g;
-                    this.currentColor.b += b;
-                }
-                this.currentFrame++;
-            }
-        };
-
-        ColorTransition.prototype.increment = function (from, to, delta, framesLeft) {
-            return ((to - from) / framesLeft);
-        };
-        return ColorTransition;
-    })(HG.GameComponent);
-    HG.ColorTransition = ColorTransition;
-})(HG || (HG = {}));
-/// <reference path="../GameComponent" />
-var HG;
-(function (HG) {
-    var FPSCounter = (function (_super) {
-        __extends(FPSCounter, _super);
-        function FPSCounter() {
-            _super.call(this);
-            this.lastFrameTime = 0;
-            this.lastSecond = 0;
-            this.currentFrames = 0;
-            this.highestFPS = 0;
-            this.frameTime = 0;
-            this.fps = 0;
-            this.lastFrameTime = new Date().getTime();
-        }
-        FPSCounter.prototype.getFPS = function () {
-            return this.fps;
-        };
-
-        FPSCounter.prototype.getMaxFPS = function () {
-            return this.highestFPS;
-        };
-
-        FPSCounter.prototype.getFrameTime = function () {
-            return this.frameTime;
-        };
-
-        FPSCounter.prototype.frame = function (delta) {
-            var Now = new Date();
-            var Diff = new Date(Now.getTime() - this.lastFrameTime);
-
-            //FrameTime
-            this.frameTime = Diff.getTime();
-            this.lastFrameTime = Now.getTime();
-
-            //FPS
-            var FPSDiff = new Date(Now.getTime() - this.lastSecond);
-            if (FPSDiff.getSeconds() > 0) {
-                this.fps = this.currentFrames;
-                if (this.fps > this.highestFPS)
-                    this.highestFPS = this.fps;
-                this.currentFrames = 0;
-                this.lastSecond = Now.getTime();
-            }
-            this.currentFrames++;
-        };
-        return FPSCounter;
-    })(HG.GameComponent);
-    HG.FPSCounter = FPSCounter;
-})(HG || (HG = {}));
 /*
-* Map.hg.ts
+* ColorTransition.hg.ts
 * Author: BeryJu
 */
 var HG;
 (function (HG) {
-    var Map = (function () {
-        function Map() {
-            this.data = {};
-        }
-        Map.prototype.set = function (data, x, y, z) {
-            if (typeof x === "undefined") { x = 0; }
-            if (typeof y === "undefined") { y = 0; }
-            if (typeof z === "undefined") { z = 0; }
-            if (!this.data[x])
-                this.data[x] = {};
-            if (!this.data[x][y])
-                this.data[x][y] = {};
-            var overwritten = false;
-            if (this.data[x][y][z])
-                overwritten = true;
-            this.data[x][y][z] = data;
-            return overwritten;
-        };
+    (function (Utils) {
+        var ColorTransition = (function (_super) {
+            __extends(ColorTransition, _super);
+            function ColorTransition() {
+                _super.call(this);
+                this.isDone = false;
+                this.baseColor = new THREE.Color();
+                this.currentColor = new THREE.Color();
+                this.currentFrame = 0;
+                this.frameSpan = 0;
+                this.currentTarget = 0;
+                this.targets = [];
+            }
+            ColorTransition.prototype.getColor = function () {
+                return this.currentColor;
+            };
 
-        Map.prototype.get = function (x, y, z, fallback) {
-            if (typeof x === "undefined") { x = 0; }
-            if (typeof y === "undefined") { y = 0; }
-            if (typeof z === "undefined") { z = 0; }
-            if (!this.data[x])
-                return fallback;
-            if (!this.data[x][y])
-                return fallback;
-            if (!this.data[x][y][z])
-                return fallback;
-            return this.data[x][y][z];
-        };
+            ColorTransition.prototype.target = function (color) {
+                this.targets.push(color);
+                this.dispatch('targetAdded', color);
+                return this;
+            };
 
-        Map.prototype.clearX = function (x) {
-            if (this.data[x])
-                this.data[x] = {};
-            return true;
-        };
-        Map.prototype.clearY = function (x, y) {
-            if (!this.data[x])
-                return false;
-            if (this.data[x][y])
-                this.data[x][y] = {};
-        };
-        Map.prototype.clearZ = function (x, y, z) {
-            if (!this.data[x])
-                return false;
-            if (!this.data[x][y])
-                return false;
-            if (this.data[x][y][z])
-                this.data[x][y][z] = {};
-        };
-        return Map;
-    })();
-    HG.Map = Map;
+            ColorTransition.prototype.over = function (frames) {
+                this.frameSpan = frames;
+                return this;
+            };
+
+            ColorTransition.prototype.from = function (color) {
+                this.baseColor = color;
+                return this;
+            };
+
+            ColorTransition.prototype.frame = function (delta) {
+                if (this.currentFrame >= this.frameSpan) {
+                    this.isDone = true;
+                    this.dispatch('done', this);
+                } else {
+                    if (this.currentColor === this.targets[this.currentTarget]) {
+                        this.currentTarget++;
+                        this.currentFrame = 0;
+                        if (this.currentTarget > this.targets.length) {
+                            this.isDone = true;
+                            this.dispatch('done', this);
+                        }
+                    } else {
+                        var target = this.targets[this.currentTarget];
+                        var r = this.increment(this.currentColor.r, target.r, delta, this.frameSpan - this.currentTarget);
+                        var g = this.increment(this.currentColor.g, target.g, delta, this.frameSpan - this.currentTarget);
+                        var b = this.increment(this.currentColor.b, target.b, delta, this.frameSpan - this.currentTarget);
+
+                        console.log(r);
+                        console.log(g);
+                        console.log(b);
+                        this.currentColor.r += r;
+                        this.currentColor.g += g;
+                        this.currentColor.b += b;
+                    }
+                    this.currentFrame++;
+                }
+            };
+
+            ColorTransition.prototype.increment = function (from, to, delta, framesLeft) {
+                return ((to - from) / framesLeft);
+            };
+            return ColorTransition;
+        })(HG.GameComponent);
+        Utils.ColorTransition = ColorTransition;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+/// <reference path="../GameComponent" />
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var FPSCounter = (function (_super) {
+            __extends(FPSCounter, _super);
+            function FPSCounter() {
+                _super.call(this);
+                this.lastFrameTime = 0;
+                this.lastSecond = 0;
+                this.currentFrames = 0;
+                this.highestFPS = 0;
+                this.frameTime = 0;
+                this.fps = 0;
+                this.lastFrameTime = new Date().getTime();
+            }
+            FPSCounter.prototype.getFPS = function () {
+                return this.fps;
+            };
+
+            FPSCounter.prototype.getMaxFPS = function () {
+                return this.highestFPS;
+            };
+
+            FPSCounter.prototype.getFrameTime = function () {
+                return this.frameTime;
+            };
+
+            FPSCounter.prototype.frame = function (delta) {
+                var Now = new Date();
+                var Diff = new Date(Now.getTime() - this.lastFrameTime);
+
+                //FrameTime
+                this.frameTime = Diff.getTime();
+                this.lastFrameTime = Now.getTime();
+
+                //FPS
+                var FPSDiff = new Date(Now.getTime() - this.lastSecond);
+                if (FPSDiff.getSeconds() > 0) {
+                    this.fps = this.currentFrames;
+                    if (this.fps > this.highestFPS)
+                        this.highestFPS = this.fps;
+                    this.currentFrames = 0;
+                    this.lastSecond = Now.getTime();
+                }
+                this.currentFrames++;
+            };
+            return FPSCounter;
+        })(HG.GameComponent);
+        Utils.FPSCounter = FPSCounter;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -1883,15 +2087,20 @@ var HG;
         function Settings() {
         }
         Settings.fov = 110;
-        Settings.viewDistance = 500;
+        Settings.viewDistance = 5000;
         Settings.shadowMapSize = 2048;
         Settings.antialiasing = true;
+        Settings.debug = true;
         Settings.keys = {
+            forward: [HG.KeyMap.W, HG.KeyMap.Top],
+            backward: [HG.KeyMap.S, HG.KeyMap.Bottom],
             left: [HG.KeyMap.A, HG.KeyMap.Left],
             right: [HG.KeyMap.D, HG.KeyMap.Right],
             pause: HG.KeyMap.Esc,
+            lower: HG.KeyMap.Shift,
             jump: HG.KeyMap.Space,
             devConsole: HG.KeyMap.F12,
+            refresh: HG.KeyMap.F5,
             fullscreen: HG.KeyMap.F11
         };
         return Settings;
@@ -1901,10 +2110,8 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    var Utils = (function () {
-        function Utils() {
-        }
-        Utils.rgbToHex = function (r, g, b) {
+    (function (Utils) {
+        function rgbToHex(r, g, b) {
             var componentToHex = function (c) {
                 c = Math.abs(Math.floor(c));
                 if (c > 255)
@@ -1913,123 +2120,146 @@ var HG;
                 return hex.length == 1 ? "0" + hex : hex;
             };
             return parseInt(componentToHex(r) + componentToHex(g) + componentToHex(b), 16);
-        };
+        }
+        Utils.rgbToHex = rgbToHex;
 
-        Utils.degToRad = function (deg) {
+        function degToRad(deg) {
             return deg * Math.PI / 180;
-        };
+        }
+        Utils.degToRad = degToRad;
 
-        Utils.hasGL = function () {
+        function hasGL() {
             return (window.WebGLRenderingContext) ? true : false;
-        };
+        }
+        Utils.hasGL = hasGL;
 
-        Utils.setFullScreenMode = function (state) {
+        function setFullScreenMode(state) {
             var whwnd = require('nw.gui').Window.get();
             if (state === true) {
                 whwnd.enterFullscreen();
             } else {
                 whwnd.leaveFullscreen();
             }
-        };
+        }
+        Utils.setFullScreenMode = setFullScreenMode;
 
-        Utils.reload = function () {
+        function reload() {
             var whwnd = require('nw.gui').Window.get();
             whwnd.reloadIgnoringCache();
-        };
+        }
+        Utils.reload = reload;
 
-        Utils.toggleFullScreenMode = function () {
+        function toggleFullScreenMode() {
             var whwnd = require('nw.gui').Window.get();
             whwnd.toggleFullscreen();
-        };
+        }
+        Utils.toggleFullScreenMode = toggleFullScreenMode;
 
-        Utils.openDevConsole = function () {
+        function openDevConsole() {
             require('nw.gui').Window.get().showDevTools();
-        };
+        }
+        Utils.openDevConsole = openDevConsole;
 
-        Utils.isNode = function () {
+        function isNode() {
             return (process) ? true : false;
-        };
-        return Utils;
-    })();
-    HG.Utils = Utils;
+        }
+        Utils.isNode = isNode;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
 })(HG || (HG = {}));
+var loader = new HG.ModuleLoader();
 var game = new HG.BaseGame(document.getElementById("gameWrapper"));
+
+// game.loadShader('assets/shaders/heightmap.js')
 var pkg = require("./package.json");
 console.log("HorribleGame build " + pkg.build);
 game.on('preload', function () {
-    game.camera.addAbility(new HG.Abilities.MovingAbility());
-    game.scene.add(game.camera, "camera1");
+    game.renderer.setClearColor(new THREE.Color(0x000000), 1);
 
-    var playerLight = new HG.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance));
+    // game.camera.addAbility(new HG.Abilities.MovingAbility());
+    // game.scene.add(game.camera, "camera1");
+    var playerLight = new HG.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance / 10));
     playerLight.addAbility(new HG.Abilities.MovingAbility());
     playerLight.offset(0, 150, 0);
+
+    // playerLight.rotate(0, HG.Utils.degToRad(90), 0);
     game.scene.add(playerLight, "playerLight");
 
-    //create a skybox for demo purposes
-    var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/", HG.Settings.viewDistance * 1.75);
-
-    //add moving ability so it's fixed to the camera
-    skyBox.addAbility(new HG.Abilities.MovingAbility());
-
-    //add it to the scene
-    game.scene.add(skyBox, "skyBox");
-
-    var player = new HG.BaseEntity();
+    // //create a skybox for demo purposes
+    // var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/",
+    // 			HG.Settings.viewDistance * 1.75);
+    // //add moving ability so it's fixed to the camera
+    // skyBox.addAbility(new HG.Abilities.MovingAbility());
+    // //add it to the scene
+    // game.scene.add(skyBox, "skyBox");
+    var player = new HG.Entities.MeshEntity();
     player.addAbility(new HG.Abilities.MovingAbility());
-
     var animationAbility = new HG.Abilities.AnimationAbility();
     player.addAbility(animationAbility);
     animationAbility.on('loaded', function () {
         player.scale(10, 10, 10);
-        player.rotate(0, HG.Utils.degToRad(90), 0);
-        game.scene.add(player, "player");
+        player.offset(0, 0, 50);
+
+        // player.rotate(0, HG.Utils.degToRad(90), 0);
         game.scene.forNamed(function (e) {
-            e.position(-37.5, 270, 0);
+            return e.position(0, 0, 0);
         });
+        game.scene.add(player, "player");
     });
-    animationAbility.loadAsync("app://hg/assets/models/android.js");
+    animationAbility.loadAsync("assets/models/android.js");
+
     var levelStruct = new HG.LevelStructure();
-    levelStruct.on('loaded', function (args) {
+    levelStruct.on(['loaded', 'created'], function (args) {
         var level = new HG.Level(args['level']);
         level.entities.forEach(function (e) {
             game.scene.add(e);
         });
-        level.applyCameraOffset(game.camera);
+        var cam = new HG.Entities.ChasingCameraEntity(player, HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
+        level.applyCameraOffset(cam);
+        game.camera = cam;
     });
-    levelStruct.loadAsync("app://hg/assets/levels/level1.json");
+
+    // levelStruct.loadAsync("assets/levels/level1.json");
+    levelStruct.create();
+
+    if (HG.Settings.debug === true) {
+        var axes = new HG.BaseEntity(new THREE.AxisHelper(500));
+        axes.position(0, 0, 0);
+        game.scene.add(axes);
+    }
 });
 
-// var levelStruct = new HG.LevelStructure();
-// levelStruct.on('created', function(args: {}) {
-// 	var level = new HG.Level(args['level']);
-// 	level.entities.forEach(function(e) {
-// 		game.scene.add(e);
-// 	});
-// 	level.applyCamera(game.camera);
-// });
-// levelStruct.create();
 game.on('start', function () {
     document.getElementById('build').innerText = "HorribleGame build " + pkg.build;
     window.onresize = function () {
-        game.onResize();
+        return game.onResize();
     };
     window.onkeydown = function (a) {
-        game.onKeyDown(a);
+        return game.onKeyDown(a);
     };
     window.onkeyup = function (a) {
-        game.onKeyUp(a);
+        return game.onKeyUp(a);
     };
-    var r = function () {
+    var render = function () {
         game.render();
-        requestAnimationFrame(r);
+        requestAnimationFrame(render);
     };
-    r();
+    if (HG.Settings.debug === true) {
+        console.profile("Frame");
+        game.render();
+        console.profileEnd();
+    }
+    render();
 });
 
 game.on('keydown', function (a) {
     if (a['event']['keyCode'] === HG.Settings.keys.devConsole) {
         HG.Utils.openDevConsole();
     }
+});
+
+game.controls.bind(HG.Settings.keys.refresh, function (args) {
+    HG.Utils.reload();
 });
 
 game.controls.bind(HG.Settings.keys.fullscreen, function (args) {
@@ -2040,9 +2270,8 @@ game.controls.bind(HG.Settings.keys.left, function (args) {
     game.scene.forNamed(function (e) {
         e.forAbilities(function (a) {
             if (a instanceof HG.Abilities.MovingAbility)
-                a.moveLeft(3.125 * args['delta']);
-            if (a instanceof HG.Abilities.AnimationAbility)
-                a.running = true;
+                a.turnLeft(3.125 * args['delta']);
+            // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
         });
     });
 });
@@ -2051,7 +2280,39 @@ game.controls.bind(HG.Settings.keys.right, function (args) {
     game.scene.forNamed(function (e) {
         e.forAbilities(function (a) {
             if (a instanceof HG.Abilities.MovingAbility)
-                a.moveRight(3.125 * args['delta']);
+                a.turnRight(3.125 * args['delta']);
+            // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
+        });
+    });
+});
+
+game.controls.bind(HG.Settings.keys.forward, function (args) {
+    game.scene.forNamed(function (e) {
+        e.forAbilities(function (a) {
+            if (a instanceof HG.Abilities.MovingAbility)
+                a.moveForward(3.125 * args['delta']);
+            if (a instanceof HG.Abilities.AnimationAbility)
+                a.running = true;
+        });
+    });
+});
+
+game.controls.bind(HG.Settings.keys.backward, function (args) {
+    game.scene.forNamed(function (e) {
+        e.forAbilities(function (a) {
+            if (a instanceof HG.Abilities.MovingAbility)
+                a.moveBackward(3.125 * args['delta']);
+            if (a instanceof HG.Abilities.AnimationAbility)
+                a.running = true;
+        });
+    });
+});
+
+game.controls.bind(HG.Settings.keys.lower, function (args) {
+    game.scene.forNamed(function (e, tag) {
+        e.forAbilities(function (a) {
+            if (a instanceof HG.Abilities.MovingAbility)
+                a.lower(3.125 * args['delta']);
             if (a instanceof HG.Abilities.AnimationAbility)
                 a.running = true;
         });
@@ -2078,16 +2339,16 @@ game.on("connected", function (args) {
 });
 
 game.on("render", function (args) {
-    game.scene.forAll(function (e) {
-        e.frame(args['delta']);
+    game.scene.forNamed(function (e) {
+        return e.frame(args['delta']);
     });
     document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.getFPS();
-    document.getElementById("hfps").innerText = "Highest FPS: " + game.fpsCounter.getMaxFPS();
+    document.getElementById("verts").innerText = "Vertices: " + game.renderer.info.render.vertices;
     document.getElementById("frametime").innerText = "Frametime: " + game.fpsCounter.getFrameTime() + "ms";
 });
 
 window.onload = function () {
-    game.preLoad();
+    return game.preLoad();
 };
 
 var srv = new HG.BaseServer(9898);

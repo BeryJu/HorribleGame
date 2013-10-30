@@ -9,9 +9,11 @@ module HG {
 		Left: 37,
 		Right: 39,
 		Top: 38,
+		Shift: 16,
 		Bottom: 40,
 		Space: 32,
 		Esc: 27,
+		F5: 116,
 		F11: 122,
 		F12: 123
 	}

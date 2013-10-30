@@ -3,6 +3,7 @@ var outFile = "dist/game.js";
 var libDefinitionDir = "src/lib/*.d.ts";
 var libSourceDir = "src/lib/*.js";
 var mainDir = "src/engine/*.ts";
+var contentDir = "src/content/*.ts";
 var extensionsDir = "src/engine/**/*.hg.ts";
 var pkgFile = "dist/package.json";
 
@@ -11,7 +12,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		ts: {
 			game: {
-				src: [libDefinitionDir, mainDir, extensionsDir, mainFile],
+				src: [libDefinitionDir, mainDir, extensionsDir, contentDir, mainFile],
 				out: outFile,
 				options: {
 					target: 'es5',

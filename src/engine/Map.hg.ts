@@ -9,7 +9,7 @@ module HG {
 
 		data: {} = {};
 
-		set(data: T, x: number = 0, y: number = 0, z: number = 0): boolean {
+		set<T>(data: T, x: number = 0, y: number = 0, z: number = 0): boolean {
 			if (!this.data[x]) this.data[x] = {};
 			if (!this.data[x][y]) this.data[x][y] = {};
 			var overwritten = false;
@@ -18,21 +18,23 @@ module HG {
 			return overwritten;
 		}
 
-		get(x: number = 0, y: number = 0, z: number = 0, fallback?: any): T {
+		get<T>(x: number = 0, y: number = 0, z: number = 0, fallback?: any): T {
 			if (!this.data[x]) return fallback;
 			if (!this.data[x][y]) return fallback;
 			if (!this.data[x][y][z]) return fallback;
-			return this.data[x][y][z];
+			return <T> this.data[x][y][z];
 		}
 
 		clearX(x: number): boolean {
 			if (this.data[x]) this.data[x] = {};
 			return true;
 		}
+
 		clearY(x: number, y: number): boolean {
 			if (!this.data[x]) return false;
 			if (this.data[x][y]) this.data[x][y] = {}
 		}
+		
 		clearZ(x: number, y: number, z: number): boolean {
 			if (!this.data[x]) return false;
 			if (!this.data[x][y]) return false;

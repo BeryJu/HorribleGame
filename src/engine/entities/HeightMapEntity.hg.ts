@@ -1,6 +1,6 @@
 /// <reference path="BaseEntity.hg.ts" />
 /*
-* SkyBox.hg.ts
+* HeightMapEntity.hg.ts
 * Author: BeryJu
 */
 
@@ -8,7 +8,7 @@ module HG {
 	
 	export module Entities {
 
-		export class SkyBoxEntity extends BaseEntity {
+		export class HeightMapEntity extends BaseEntity {
 
 			constructor(directory: string, 
 					size: number = 5000,

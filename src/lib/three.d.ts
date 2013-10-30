@@ -1848,7 +1848,7 @@ declare module THREE {
          * Updates global transform of the object and its children.
          */
         updateMatrixWorld(force: boolean): void;
-
+        rotateOnAxis(axis: THREE.Vector3, angle: number): void
         /**
          * Creates a new clone of this object and all descendants.
          */
@@ -4018,6 +4018,7 @@ declare module THREE {
         constructor(geometry?: BufferGeometry , material?: ShaderMaterial);
 
         geometry: Geometry;
+        matrixWorld: Matrix4;
         material: Material;
         morphTargetBase: number;
         morphTargetForcedOrder: number;

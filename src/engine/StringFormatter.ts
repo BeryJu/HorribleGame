@@ -8,7 +8,7 @@ module HG {
 	export class StringFormatter {
 
 		static format(s: string, values: {}): string {
-			var replaceAll = function(find, replace, str) {
+			var replaceAll = (find, replace, str) => {
 				return str.replace(new RegExp(find, 'g'), replace);
 			};
 			for (var k in values) {

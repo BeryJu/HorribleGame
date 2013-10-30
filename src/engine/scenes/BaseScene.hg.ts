@@ -56,11 +56,11 @@ module HG {
 				return es;
 			}
 
-			forNamed(callback: (e: any) => any, type?: any): void {
+			forNamed(callback: (e: any, k: string) => any, type?: any): void {
 				if (!type) type = BaseEntity;
 				for (var k in this.entities.named) {
 					var ne = this.entities.named[k];
-					if (ne instanceof type) callback(ne);
+					if (ne instanceof type) callback(ne, k);
 				}
 			}
 

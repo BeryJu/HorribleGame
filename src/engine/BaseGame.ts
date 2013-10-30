@@ -10,11 +10,12 @@ module HG {
 		_: {} = {};
 		socketClient: SocketManager;
 		renderer: THREE.WebGLRenderer;
-		camera: Entities.CameraEntity;
+		camera: HG.Entities.CameraEntity;
 		isRunning: boolean = false;
-		scene: HG.Scenes.BaseScene = new Scenes.BaseScene();
-		controls: InputHandler = new InputHandler();
-		fpsCounter: FPSCounter = new FPSCounter();
+		scene: HG.Scenes.BaseScene = new HG.Scenes.BaseScene();
+		controls: HG.InputHandler = new HG.InputHandler();
+		fpsCounter: HG.Utils.FPSCounter = new HG.Utils.FPSCounter();
+		shaders: HG.Shader[] = [];
 		eventsAvailable: string[] = ["preload", "connected", 
 			"start", "keyup", "keydown", "resize", "render"];
 
@@ -30,6 +31,12 @@ module HG {
 			container.appendChild(this.renderer.domElement);
 		}
 
+		loadShader(path): HG.Shader {
+			var s = new HG.Shader(path);
+			this.shaders.push(s);
+			return s;
+		}
+
 		preLoad(): void {
 			console.log('loading assets');
 			this.dispatch('preload');
@@ -37,12 +44,8 @@ module HG {
 		}
 
 		connect(serverHost: string): void {
-			var io = require('socket.io-client');
-			if (this.socketClient !== undefined) {
-				// this.socketClient.disconnect();
-			}
-			this.socketClient = io.connect(serverHost);
-			this.socketClient.on('news', function (data) {
+			this.socketClient = global['socket.io-client'].connect(serverHost);
+			this.socketClient.on('news', (data) => {
 				console.log(data);
 			});
 			this.dispatch("connected", {host: serverHost});
@@ -74,9 +77,10 @@ module HG {
 		render(): void {
 			var delta = this.fpsCounter.getFrameTime() / 10;
 			this.dispatch('render', {delta: delta});
+			this.camera.frame(delta);
 			this.controls.frame(delta);
 			this.fpsCounter.frame(delta);
-			this.renderer.render(this.scene.scene, this.camera.object);
+			this.renderer.render(this.scene.getInternal(), this.camera.object);
 		}
 
 	}

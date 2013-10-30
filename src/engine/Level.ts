@@ -12,15 +12,13 @@ module HG {
 
 		constructor(lvl: LevelStructure) {
 			super();
+			var g = new THREE.CubeGeometry(BLOCK_SIZE,BLOCK_SIZE, BLOCK_SIZE);
+			var m =  new THREE.MeshPhongMaterial({color: 0x000000});
 			for (var i = 0; i < SIZE_X * BLOCK_SIZE; i += BLOCK_SIZE) {
 				for (var j = 0; j < SIZE_Y * BLOCK_SIZE; j += BLOCK_SIZE) {
 					var be = lvl.entities.get(i, j);
-					var re = new BaseEntity(
-						new THREE.Mesh(
-							new THREE.CubeGeometry(BLOCK_SIZE,BLOCK_SIZE, BLOCK_SIZE),
-							new THREE.MeshPhongMaterial({color: be.color})
-						)
-					);
+					m.color = new THREE.Color(be.color);
+					var re = new HG.Entities.MeshEntity(g, m);
 					re.position(i, j, be.indentation);
 					this.entities.push(re);
 				}

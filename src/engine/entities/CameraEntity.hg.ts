@@ -12,7 +12,8 @@ module HG {
 
 			object: THREE.PerspectiveCamera;
 
-			constructor(fov: number = 90, aspect: number = 1.77, zNear: number = 0.1, zFar: number = 10000) {
+			constructor(fov: number = 90, aspect: number = 1.77, 
+					zNear: number = 0.1, zFar: number = 10000) {
 				super();
 				this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
 			}

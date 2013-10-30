@@ -10,12 +10,34 @@ module HG {
 
 		export class MovingAbility extends BaseAbility {
 
-			moveLeft(step: number = 3.125): void {
-				this.hostEntity.object.position.x -= step;
+			moveLeft(step: number): void {
+				this.hostEntity.object.translateX(step);
 			}
 
-			moveRight(step: number = 3.125): void {
-				this.hostEntity.object.position.x += step;
+			moveRight(step: number): void {
+				this.hostEntity.object.translateX(-step);
+			}
+
+			lower(step: number): void {
+				this.hostEntity.object.position.y -= step;
+			}
+
+			turnLeft(step: number): void {
+				this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), 
+					HG.Utils.degToRad(step));
+			}
+
+			turnRight(step: number): void {
+				this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), 
+					HG.Utils.degToRad(-step));
+			}
+
+			moveForward(step: number): void {
+				this.hostEntity.object.translateZ(step);
+			}
+
+			moveBackward(step: number): void {
+				this.hostEntity.object.translateZ(-step);
 			}
 
 			jumpState: number = 0;
