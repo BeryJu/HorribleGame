@@ -1,36 +1,29 @@
 var mainFile = "src/*.ts";
 var outFile = "dist/game.js";
-var libDefinitionDir = "src/lib/*.d.ts";
-var libSourceDir = "src/lib/*.js";
+var pkgFile = "dist/package.json";
+var libDefinitionDir = "src/lib/*";
 var mainDir = "src/engine/*.ts";
 var contentDir = "src/content/*.ts";
 var extensionsDir = "src/engine/**/*.hg.ts";
-var pkgFile = "dist/package.json";
 
 var fs = require('fs');
 module.exports = function(grunt) {
 	grunt.initConfig({
 		ts: {
-			game: {
+			hg: {
 				src: [libDefinitionDir, mainDir, extensionsDir, contentDir, mainFile],
 				out: outFile,
 				options: {
 					target: 'es5',
 					comments: true,
-					sourcemap: false
-				}
-			}
-		},
-		uglify: {
-			app: {
-				files: {
-					"dist/lib.js": [libSourceDir]
+					sourcemap: true,
+					fullSourceMapPath: true
 				}
 			}
 		},
 		shell: {
 			app: {
-				command: "rm tscommand.tmp.txt ; cd dist/ ; zip -r dist.nw . ; mv dist.nw ../bin ; cp ../bin/dist.nw /var/www/stuff/HorribleGame/"
+				command: "rm tscommand.tmp.txt ; cd dist/ ; zip -r dist.nw . ; mv dist.nw ../bin ; cp ../bin/dist.nw /srvroot/documentRoot/stuff/HorribleGame/"
 			}
 		}
 	});
@@ -38,7 +31,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-shell');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.registerTask('default', ['ts']);
-	grunt.registerTask('publish', ['ts', 'uglify', 'shell']);
+	grunt.registerTask('publish', ['ts', 'shell']);
 	// if (!fs) fs = require('fs');
 	// var pkg = require("./"+pkgFile);
 	// if (!pkg.build) pkg.build = 0;

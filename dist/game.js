@@ -1,12 +1,20 @@
 /*
-* EventDispatcher.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 21:46:51
 */
 var HG;
 (function (HG) {
     var EventDispatcher = (function () {
         function EventDispatcher() {
+            //holds all event callbacks like
+            //{ name: [cb1, cb2 ] }
             this.events = {};
+            //holds events available to subscribe to
+            //if subscribed to an event not in there,
+            //there will be a warning
             this.eventsAvailable = [];
         }
         EventDispatcher.prototype.on = function (name, callback) {
@@ -16,16 +24,29 @@ var HG;
                     _this.on(n, callback);
                 });
             } else {
-                if (typeof name !== "number")
-                    name = name.toString().toLowerCase();
                 var type = this['constructor']['name'];
+
+                if (typeof name !== "number") {
+                    name = name.toString().toLowerCase();
+                }
+
                 if (this.eventsAvailable.indexOf(name) === -1) {
                     console.warn("[" + type + "] Event '" + name + "' not available, still added though");
                 } else {
                     console.log("[" + type + "] Added EventHandler for '" + name + "'");
                 }
-                if (!this.events[name])
+
+                if (!this.events[name]) {
                     this.events[name] = [];
+                }
+
+                if (!callback) {
+                    if (this[name] && typeof (this[name]) === 'function') {
+                        callback = this[name];
+                    }
+                }
+
+                //actually add the callback
                 this.events[name].push(callback);
             }
         };
@@ -57,7 +78,11 @@ var HG;
             this.events[name] = [];
         };
 
-        EventDispatcher.prototype.dispatch = function (name, args) {
+        EventDispatcher.prototype.dispatch = function (name) {
+            var args = [];
+            for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                args[_i] = arguments[_i + 1];
+            }
             var _this = this;
             if (Array.isArray(name) === true) {
                 name.forEach(function (n) {
@@ -72,12 +97,10 @@ var HG;
                     return;
                 if (this.events[name].length === 0)
                     return;
-                if (!args)
-                    args = {};
-                if (!args['callee'])
-                    args['callee'] = name;
+                var parameters = Array.prototype.splice.call(arguments, 1);
+                parameters.push(name);
                 this.events[name].forEach(function (event) {
-                    event(args);
+                    event.apply(_this, parameters);
                 });
             }
         };
@@ -85,11 +108,14 @@ var HG;
     })();
     HG.EventDispatcher = EventDispatcher;
 })(HG || (HG = {}));
-///<reference path="EventDispatcher" />
 /*
-* BaseGame.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 19:40:06
 */
+///<reference path="EventDispatcher" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -103,24 +129,23 @@ var HG;
         function BaseGame(container) {
             if (typeof container === "undefined") { container = document.body; }
             _super.call(this);
-            this._ = {};
             this.isRunning = false;
-            this.scene = new HG.Scenes.BaseScene();
             this.controls = new HG.InputHandler();
             this.fpsCounter = new HG.Utils.FPSCounter();
             this.shaders = [];
             this.eventsAvailable = [
-                "preload",
+                "load",
                 "connected",
                 "start",
                 "keyup",
                 "keydown",
                 "resize",
-                "render"
+                "render",
+                "mouseDown",
+                "mouseUp",
+                "mouseMove"
             ];
-            if (HG.Utils.hasGL() === false) {
-                throw new Error("Your Browser doesn't support WebGL");
-            }
+            new HG.Utils.Bootstrapper().bootstrap();
             this.camera = new HG.Entities.CameraEntity(HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
             this.renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.antialiasing });
             this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -132,10 +157,10 @@ var HG;
             return s;
         };
 
-        BaseGame.prototype.preLoad = function () {
-            console.log('loading assets');
-            this.dispatch('preload');
-            console.log('loaded assets');
+        BaseGame.prototype.load = function () {
+            console.log('[BaseGame] Loading assets');
+            this.dispatch('load');
+            console.log('[BaseGame] Loaded assets');
         };
 
         BaseGame.prototype.connect = function (serverHost) {
@@ -143,7 +168,7 @@ var HG;
             this.socketClient.on('news', function (data) {
                 console.log(data);
             });
-            this.dispatch("connected", { host: serverHost });
+            this.dispatch("connected", serverHost);
         };
 
         BaseGame.prototype.start = function (serverHost) {
@@ -152,14 +177,29 @@ var HG;
             this.isRunning = true;
         };
 
-        BaseGame.prototype.onKeyUp = function (a) {
-            this.controls.onKeyUp(a);
-            this.dispatch('keyUp', { event: a });
+        BaseGame.prototype.onKeyUp = function (e) {
+            this.controls.onKeyUp(e);
+            this.dispatch('keyUp', e);
         };
 
-        BaseGame.prototype.onKeyDown = function (a) {
-            this.controls.onKeyDown(a);
-            this.dispatch('keyDown', { event: a });
+        BaseGame.prototype.onKeyDown = function (e) {
+            this.controls.onKeyDown(e);
+            this.dispatch('keyDown', e);
+        };
+
+        BaseGame.prototype.onMouseDown = function (e) {
+            this.controls.onMouseDown(e);
+            this.dispatch('mouseDown', e);
+        };
+
+        BaseGame.prototype.onMouseUp = function (e) {
+            this.controls.onMouseUp(e);
+            this.dispatch('mouseUp', e);
+        };
+
+        BaseGame.prototype.onMouseMove = function (e) {
+            this.controls.onMouseMove(e);
+            this.dispatch('mouseMove', e);
         };
 
         BaseGame.prototype.onResize = function () {
@@ -169,18 +209,26 @@ var HG;
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         };
 
-        BaseGame.prototype.render = function () {
+        BaseGame.prototype.render = function (scene) {
             var delta = this.fpsCounter.getFrameTime() / 10;
-            this.dispatch('render', { delta: delta });
+            this.dispatch('render', delta);
             this.camera.frame(delta);
             this.controls.frame(delta);
             this.fpsCounter.frame(delta);
-            this.renderer.render(this.scene.getInternal(), this.camera.object);
+            scene.getInternal().simulate();
+            this.renderer.render(scene.getInternal(), this.camera.getInternal());
         };
         return BaseGame;
     })(HG.EventDispatcher);
     HG.BaseGame = BaseGame;
 })(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:44
+*/
 ///<reference path="EventDispatcher" />
 var HG;
 (function (HG) {
@@ -200,24 +248,13 @@ var HG;
     })(HG.EventDispatcher);
     HG.BaseServer = BaseServer;
 })(HG || (HG = {}));
-/// <reference path="EventDispatcher.ts" />
 /*
-* GameComponent.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-07 16:19:55
 */
-var HG;
-(function (HG) {
-    var GameComponent = (function (_super) {
-        __extends(GameComponent, _super);
-        function GameComponent() {
-            _super.apply(this, arguments);
-        }
-        GameComponent.prototype.frame = function (delta) {
-        };
-        return GameComponent;
-    })(HG.EventDispatcher);
-    HG.GameComponent = GameComponent;
-})(HG || (HG = {}));
 var HG;
 (function (HG) {
     var InputHandler = (function (_super) {
@@ -225,8 +262,8 @@ var HG;
         function InputHandler() {
             _super.call(this);
             this.keyState = [];
-            this.mouseX = 0;
-            this.mouseY = 0;
+            this.mouseState = [];
+            this.eventsAvailable = ['mouseX', 'mouseY'];
             this.bind = this.on;
             for (var k in HG.KeyMap) {
                 this.eventsAvailable.push(HG.KeyMap[k]);
@@ -234,11 +271,34 @@ var HG;
         }
         Object.defineProperty(InputHandler.prototype, "mousePosition", {
             get: function () {
-                return new THREE.Vector2(this.mouseX, this.mouseY);
+                return this.lastMouse;
             },
             enumerable: true,
             configurable: true
         });
+
+        InputHandler.prototype.onMouseMove = function (e) {
+            var x = e.x || e.clientX;
+            var y = e.y || e.clientY;
+            if (x !== this.lastMouse.x) {
+                var diffX = this.lastMouse.x - x;
+                this.lastMouse.x = x;
+                this.dispatch('mouseX', diffX, x);
+            }
+            if (y !== this.lastMouse.y) {
+                var diffY = this.lastMouse.y - y;
+                this.lastMouse.y = y;
+                this.dispatch('mouseX', diffY, y);
+            }
+        };
+
+        InputHandler.prototype.onMouseDown = function (e) {
+            this.mouseState[e.button] = 1;
+        };
+
+        InputHandler.prototype.onMouseUp = function (e) {
+            this.mouseState[e.button] = 0;
+        };
 
         InputHandler.prototype.onKeyDown = function (e) {
             this.keyState[e.keyCode] = 1;
@@ -249,40 +309,755 @@ var HG;
         };
 
         InputHandler.prototype.frame = function (delta) {
-            for (var i = 0; i < this.keyState.length; i++) {
-                if (this.keyState[i] === 1) {
-                    this.dispatch(i, { delta: delta });
-                }
-            }
+            var _this = this;
+            this.keyState.forEach(function (s, i) {
+                if (s === 1)
+                    _this.dispatch("keyboard" + i, delta);
+            });
+            this.mouseState.forEach(function (s, i) {
+                if (s === 1)
+                    _this.dispatch("mouse" + i, delta);
+            });
         };
         return InputHandler;
-    })(HG.GameComponent);
+    })(HG.EventDispatcher);
     HG.InputHandler = InputHandler;
 })(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:09:02
+*/
 var HG;
 (function (HG) {
     HG.KeyMap = {
-        D: 68,
-        A: 65,
-        S: 83,
-        W: 87,
-        Q: 81,
-        E: 69,
-        Left: 37,
-        Right: 39,
-        Top: 38,
-        Shift: 16,
-        Bottom: 40,
-        Space: 32,
-        Esc: 27,
-        F5: 116,
-        F11: 122,
-        F12: 123
+        D: "keyboard68",
+        A: "keyboard65",
+        S: "keyboard83",
+        W: "keyboard87",
+        Q: "keyboard81",
+        E: "keyboard69",
+        Left: "keyboard37",
+        Right: "keyboard39",
+        Top: "keyboard38",
+        Shift: "keyboard16",
+        Bottom: "keyboard40",
+        Space: "keyboard32",
+        Esc: "keyboard27",
+        F5: "keyboard116",
+        F11: "keyboard122",
+        F12: "keyboard123"
     };
 })(HG || (HG = {}));
 /*
-* Noise.hg.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-07 17:24:34
+*/
+var HG;
+(function (HG) {
+    var ModuleLoader = (function (_super) {
+        __extends(ModuleLoader, _super);
+        function ModuleLoader() {
+            _super.call(this);
+            this.modules = ['fs', 'http', 'socket.io', 'socket.io-client'];
+            this.modules.forEach(function (m) {
+                console.log("[ModuleLoader] Required " + m);
+                global[m] = require(m);
+            });
+            global.moduled = true;
+        }
+        return ModuleLoader;
+    })(HG.EventDispatcher);
+    HG.ModuleLoader = ModuleLoader;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:09:06
+*/
+var HG;
+(function (HG) {
+    var Renderer = (function (_super) {
+        __extends(Renderer, _super);
+        function Renderer(params) {
+            _super.call(this, params);
+        }
+        return Renderer;
+    })(THREE.WebGLRenderer);
+    HG.Renderer = Renderer;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:56
+*/
+var HG;
+(function (HG) {
+    var ServerConnection = (function (_super) {
+        __extends(ServerConnection, _super);
+        function ServerConnection(host) {
+            _super.call(this);
+            var io = require('socket.io-client');
+            this.socket = io.connect(host);
+            this.socket.emit("join", {});
+        }
+        return ServerConnection;
+    })(HG.EventDispatcher);
+    HG.ServerConnection = ServerConnection;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:50
+*/
+var HG;
+(function (HG) {
+    var Shader = (function (_super) {
+        __extends(Shader, _super);
+        function Shader(path) {
+            _super.call(this);
+            if (path) {
+                var shader = require('./' + path);
+                this.load(shader);
+            }
+        }
+        Shader.prototype.load = function (raw) {
+            this.vertexShader = raw['vertex'];
+            this.fragmentShader = raw['fragment'];
+            this.dispatch('loaded');
+        };
+        return Shader;
+    })(HG.EventDispatcher);
+    HG.Shader = Shader;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:32
+*/
+/// <reference path="../EventDispatcher.ts" />
+var HG;
+(function (HG) {
+    var BaseAbility = (function (_super) {
+        __extends(BaseAbility, _super);
+        function BaseAbility() {
+            _super.apply(this, arguments);
+        }
+        BaseAbility.prototype.setHost = function (entity) {
+            this.hostEntity = entity;
+        };
+
+        BaseAbility.prototype.checkCompatibility = function (entity) {
+            return true;
+        };
+
+        BaseAbility.prototype.frame = function (delta) {
+        };
+        return BaseAbility;
+    })(HG.EventDispatcher);
+    HG.BaseAbility = BaseAbility;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 22:00:00
+*/
+/// <reference path="BaseAbility.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Abilities) {
+        var AnimationAbility = (function (_super) {
+            __extends(AnimationAbility, _super);
+            function AnimationAbility() {
+                _super.apply(this, arguments);
+                this.animOffset = 0;
+                this.running = false;
+                this.duration = 1000;
+                this.keyframes = 20;
+                this.interpolation = this.duration / this.keyframes;
+                this.lastKeyframe = 0;
+                this.currentKeyframe = 0;
+                this.eventsAvailable = ["loaded"];
+            }
+            AnimationAbility.prototype.setHost = function (entity) {
+                var _this = this;
+                this.hostEntity = entity;
+                entity.on('loaded', function (g, m) {
+                    g = g;
+                    m = m;
+                    _this.load(g, m.materials);
+                });
+            };
+
+            AnimationAbility.prototype.checkCompatibility = function (entity) {
+                var mesh = (entity instanceof HG.Entities.MeshEntity);
+                var model = (entity instanceof HG.Entities.ModelEntity);
+                return mesh || model;
+            };
+
+            AnimationAbility.prototype.fromJS = function (path) {
+                var _this = this;
+                global.fs.readFile(path, function (err, data) {
+                    var loader = new THREE.JSONLoader();
+                    var result = loader.parse(JSON.parse(data));
+                    _this.load(result.geometry, result.materials);
+                });
+            };
+
+            AnimationAbility.prototype.load = function (geometry, materials) {
+                materials.forEach(function (material) {
+                    material.morphTargets = true;
+                });
+                var material = new THREE.MeshFaceMaterial(materials);
+                var oldPosition = this.hostEntity.object.position;
+                var oldRotation = this.hostEntity.object.rotation;
+                this.hostEntity.object = new THREE.Mesh(geometry, material);
+                this.hostEntity.object.position = oldPosition;
+                this.hostEntity.object.rotation = oldRotation;
+                this.dispatch('loaded');
+            };
+
+            AnimationAbility.prototype.frame = function (delta) {
+                _super.prototype.frame.call(this, delta);
+                if (this.running === true) {
+                    var time = new Date().getTime() % this.duration;
+                    var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
+                    if (keyframe != this.currentKeyframe) {
+                        this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 0;
+                        this.hostEntity.object['morphTargetInfluences'][this.currentKeyframe] = 1;
+                        this.hostEntity.object['morphTargetInfluences'][keyframe] = 0;
+                        this.lastKeyframe = this.currentKeyframe;
+                        this.currentKeyframe = keyframe;
+                    }
+                    this.hostEntity.object['morphTargetInfluences'][keyframe] = (time % this.interpolation) / this.interpolation;
+                    this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 1 - this.hostEntity.object['morphTargetInfluences'][keyframe];
+                    this.running = false;
+                }
+            };
+            return AnimationAbility;
+        })(HG.BaseAbility);
+        Abilities.AnimationAbility = AnimationAbility;
+    })(HG.Abilities || (HG.Abilities = {}));
+    var Abilities = HG.Abilities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:35
+*/
+/// <reference path="BaseAbility.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Abilities) {
+        var AudioAbility = (function (_super) {
+            __extends(AudioAbility, _super);
+            function AudioAbility() {
+                _super.apply(this, arguments);
+                this.eventsAvailable = ["loaded"];
+            }
+            AudioAbility.prototype.checkCompatibility = function (entity) {
+                return (entity.object instanceof THREE.Mesh);
+            };
+
+            AudioAbility.prototype.fromMP3 = function (path) {
+                global.fs.readFile(path, function (err, data) {
+                });
+            };
+
+            AudioAbility.prototype.load = function (geometry, materials) {
+                // this.hostEntity.object = new THREE.Mesh(geometry, material);
+                this.dispatch('loaded');
+            };
+
+            AudioAbility.prototype.frame = function (delta) {
+                _super.prototype.frame.call(this, delta);
+            };
+            return AudioAbility;
+        })(HG.BaseAbility);
+        Abilities.AudioAbility = AudioAbility;
+    })(HG.Abilities || (HG.Abilities = {}));
+    var Abilities = HG.Abilities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:25
+*/
+/// <reference path="BaseAbility.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Abilities) {
+        var MovingAbility = (function (_super) {
+            __extends(MovingAbility, _super);
+            function MovingAbility() {
+                _super.apply(this, arguments);
+                this.jumpState = 0;
+                //0: normal
+                //1: rising
+                //2: max
+                //3: falling
+                this.oldY = 0;
+                this.maxY = 200;
+            }
+            MovingAbility.prototype.moveLeft = function (step) {
+                this.hostEntity.object.translateX(step);
+            };
+
+            MovingAbility.prototype.moveRight = function (step) {
+                this.hostEntity.object.translateX(-step);
+            };
+
+            MovingAbility.prototype.lower = function (step) {
+                this.hostEntity.object.position.y -= step;
+            };
+
+            MovingAbility.prototype.turnLeft = function (step) {
+                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), HG.Utils.degToRad(step));
+            };
+
+            MovingAbility.prototype.turnRight = function (step) {
+                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), HG.Utils.degToRad(-step));
+            };
+
+            MovingAbility.prototype.moveForward = function (step) {
+                this.hostEntity.object.translateZ(step);
+            };
+
+            MovingAbility.prototype.moveBackward = function (step) {
+                this.hostEntity.object.translateZ(-step);
+            };
+
+            MovingAbility.prototype.jump = function () {
+                this.oldY = this.hostEntity.object.position.y;
+                this.jumpState = 1;
+            };
+
+            MovingAbility.prototype.frame = function (delta) {
+                if (this.jumpState >= 1) {
+                    if (this.jumpState === 3) {
+                        this.oldY = this.hostEntity.object.position.y;
+                        this.jumpState = 0;
+                    }
+                    if (this.hostEntity.object.position.y < (this.maxY + this.oldY) && this.jumpState === 1) {
+                        this.hostEntity.object.position.y += 3 * delta;
+                    }
+                    if (this.hostEntity.object.position.y >= (this.maxY + this.oldY) && this.jumpState >= 1) {
+                        this.jumpState = 2;
+                    }
+                    if (this.hostEntity.object.position.y <= this.oldY && this.jumpState >= 2) {
+                        this.hostEntity.object.position.y = this.oldY;
+                        this.jumpState = 3;
+                    } else if (this.jumpState >= 2) {
+                        this.hostEntity.object.position.y -= 3 * delta;
+                    }
+                }
+            };
+            return MovingAbility;
+        })(HG.BaseAbility);
+        Abilities.MovingAbility = MovingAbility;
+    })(HG.Abilities || (HG.Abilities = {}));
+    var Abilities = HG.Abilities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 14:36:14
+*/
+/// <reference path="../EventDispatcher.ts" />
+/// <reference path="../abilities/BaseAbility.hg.ts" />
+var HG;
+(function (HG) {
+    var BaseEntity = (function (_super) {
+        __extends(BaseEntity, _super);
+        function BaseEntity(object) {
+            _super.call(this);
+            this.abilities = [];
+            this.positionOffset = new THREE.Vector3();
+            if (object) {
+                this.object = object;
+            } else {
+                this.object = new THREE.Mesh();
+            }
+        }
+        BaseEntity.prototype.addAbility = function (a) {
+            var compatible = a.checkCompatibility(this);
+            if (compatible === true) {
+                a.setHost(this);
+                this.abilities.push(a);
+            }
+            return compatible;
+        };
+
+        BaseEntity.prototype.forAbilities = function (callback) {
+            this.abilities.forEach(callback);
+        };
+
+        BaseEntity.prototype.offset = function (x, y, z) {
+            this.positionOffset.set(x, y, z);
+            return this;
+        };
+
+        BaseEntity.prototype.scale = function (x, y, z) {
+            this.object.scale.set(x, y, z);
+            return this;
+        };
+
+        BaseEntity.prototype.position = function (x, y, z) {
+            x = x + this.positionOffset.x;
+            y = y + this.positionOffset.y;
+            z = z + this.positionOffset.z;
+            this.object.position.set(x, y, z);
+            return this;
+        };
+
+        BaseEntity.prototype.rotate = function (x, y, z) {
+            this.object.rotation.set(x, y, z);
+            return this;
+        };
+
+        BaseEntity.prototype.getInternal = function () {
+            return this.object;
+        };
+
+        BaseEntity.prototype.frame = function (delta) {
+            if (this.abilities.length > 0) {
+                this.abilities.forEach(function (ability) {
+                    ability.frame(delta);
+                });
+            }
+        };
+        return BaseEntity;
+    })(HG.EventDispatcher);
+    HG.BaseEntity = BaseEntity;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:07:48
+*/
+/// <reference path="BaseEntity.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var CameraEntity = (function (_super) {
+            __extends(CameraEntity, _super);
+            function CameraEntity(fov, aspect, zNear, zFar) {
+                if (typeof fov === "undefined") { fov = 90; }
+                if (typeof aspect === "undefined") { aspect = 1.77; }
+                if (typeof zNear === "undefined") { zNear = 0.1; }
+                if (typeof zFar === "undefined") { zFar = 10000; }
+                _super.call(this);
+                this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
+            }
+            CameraEntity.prototype.setViewDistance = function (distance) {
+                this.object.far = distance;
+                this.object.updateProjectionMatrix();
+            };
+            return CameraEntity;
+        })(HG.BaseEntity);
+        Entities.CameraEntity = CameraEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:07:44
+*/
+/// <reference path="BaseEntity.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var ChasingCameraEntity = (function (_super) {
+            __extends(ChasingCameraEntity, _super);
+            function ChasingCameraEntity(target, fov, aspect, zNear, zFar) {
+                if (typeof fov === "undefined") { fov = 90; }
+                if (typeof aspect === "undefined") { aspect = 1.77; }
+                if (typeof zNear === "undefined") { zNear = 0.1; }
+                if (typeof zFar === "undefined") { zFar = 10000; }
+                _super.call(this);
+                this.lookAt = true;
+                this.target = target;
+                this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
+            }
+            ChasingCameraEntity.prototype.setViewDistance = function (distance) {
+                this.object.far = distance;
+                this.object.updateProjectionMatrix();
+            };
+
+            ChasingCameraEntity.prototype.frame = function (delta) {
+                var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
+
+                this.object.position.x = cameraOffset.x;
+                this.object.position.y = cameraOffset.y;
+                this.object.position.z = cameraOffset.z;
+                if (this.lookAt)
+                    this.object.lookAt(this.target.object.position);
+            };
+            return ChasingCameraEntity;
+        })(Entities.CameraEntity);
+        Entities.ChasingCameraEntity = ChasingCameraEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 14:36:18
+*/
+/// <reference path="BaseEntity.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var FirstPersonCameraEntity = (function (_super) {
+            __extends(FirstPersonCameraEntity, _super);
+            function FirstPersonCameraEntity(fov, aspect, zNear, zFar) {
+                if (typeof fov === "undefined") { fov = 90; }
+                if (typeof aspect === "undefined") { aspect = 1.77; }
+                if (typeof zNear === "undefined") { zNear = 0.1; }
+                if (typeof zFar === "undefined") { zFar = 10000; }
+                _super.call(this);
+                this.lookAt = true;
+                this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
+            }
+            FirstPersonCameraEntity.prototype.setViewDistance = function (d) {
+                this.object.far = d;
+                this.object.updateProjectionMatrix();
+            };
+
+            FirstPersonCameraEntity.prototype.frame = function (delta) {
+                var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
+                console.log(typeof cameraOffset);
+                this.object.position.x = cameraOffset.x;
+                this.object.position.y = cameraOffset.y;
+                this.object.position.z = cameraOffset.z;
+                if (this.lookAt)
+                    this.object.lookAt(this.target.object.position);
+            };
+            return FirstPersonCameraEntity;
+        })(Entities.CameraEntity);
+        Entities.FirstPersonCameraEntity = FirstPersonCameraEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 14:36:21
+*/
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var HeightMapEntity = (function (_super) {
+            __extends(HeightMapEntity, _super);
+            function HeightMapEntity(directory, size, directions, suffix) {
+                if (typeof size === "undefined") { size = 5000; }
+                if (typeof directions === "undefined") { directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
+                if (typeof suffix === "undefined") { suffix = ".png"; }
+                _super.call(this);
+                var skyGeometry = new THREE.CubeGeometry(size, size, size);
+
+                var materialArray = [];
+                directions.forEach(function (d) {
+                    materialArray.push(new THREE.MeshBasicMaterial({
+                        map: THREE.ImageUtils.loadTexture(directory + d + suffix),
+                        side: THREE.BackSide
+                    }));
+                });
+                var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
+                this.object = new THREE.Mesh(skyGeometry, skyMaterial);
+            }
+            return HeightMapEntity;
+        })(HG.BaseEntity);
+        Entities.HeightMapEntity = HeightMapEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:07:46
+*/
+/// <reference path="../abilities/BaseAbility.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var MeshEntity = (function (_super) {
+            __extends(MeshEntity, _super);
+            function MeshEntity(geo, mat) {
+                _super.call(this);
+                this.abilities = [];
+                this.positionOffset = new THREE.Vector3();
+                if (geo && mat)
+                    this.object = new THREE.Mesh(geo, mat);
+            }
+            return MeshEntity;
+        })(HG.BaseEntity);
+        Entities.MeshEntity = MeshEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 20:03:27
+*/
+/// <reference path="BaseEntity.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var ModelEntity = (function (_super) {
+            __extends(ModelEntity, _super);
+            function ModelEntity() {
+                _super.apply(this, arguments);
+                this.eventsAvailable = ["loaded"];
+            }
+            // fromSTL(path: string): void {
+            // 	global.fs.readFile(path, (err, data) => {
+            // 		var sloader = new THREE.STLLoader();
+            // 		var a = sloader.parse(data);
+            // 		console.log(a);
+            // 	});
+            // }
+            ModelEntity.prototype.fromJS = function (path) {
+                var _this = this;
+                global.fs.readFile(path, function (err, data) {
+                    var loader = new THREE.JSONLoader();
+                    var result = loader.parse(JSON.parse(data));
+                    _this.load(result.geometry, result.materials);
+                });
+            };
+
+            ModelEntity.prototype.load = function (geometry, materials) {
+                var material = new THREE.MeshFaceMaterial(materials);
+                this.object = new THREE.Mesh(geometry, material);
+                this.dispatch('loaded', geometry, material);
+            };
+            return ModelEntity;
+        })(HG.BaseEntity);
+        Entities.ModelEntity = ModelEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:07:41
+*/
+/// <reference path="BaseEntity.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var ParticleEntity = (function (_super) {
+            __extends(ParticleEntity, _super);
+            function ParticleEntity() {
+                _super.apply(this, arguments);
+            }
+            return ParticleEntity;
+        })(HG.BaseEntity);
+        Entities.ParticleEntity = ParticleEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 14:37:41
+*/
+/// <reference path="BaseEntity.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var SkyBoxEntity = (function (_super) {
+            __extends(SkyBoxEntity, _super);
+            function SkyBoxEntity(directory, size, directions, suffix) {
+                if (typeof size === "undefined") { size = 5000; }
+                if (typeof directions === "undefined") { directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
+                if (typeof suffix === "undefined") { suffix = ".png"; }
+                _super.call(this);
+                var skyGeometry = new THREE.CubeGeometry(size, size, size);
+
+                var materialArray = [];
+                directions.forEach(function (d) {
+                    materialArray.push(new THREE.MeshBasicMaterial({
+                        map: THREE.ImageUtils.loadTexture(directory + d + suffix),
+                        side: THREE.BackSide
+                    }));
+                });
+                var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
+                this.object = new THREE.Mesh(skyGeometry, skyMaterial);
+            }
+            return SkyBoxEntity;
+        })(HG.BaseEntity);
+        Entities.SkyBoxEntity = SkyBoxEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 14:36:25
+*/
+/// <reference path="BaseEntity.hg.ts" />
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var VideoEntity = (function (_super) {
+            __extends(VideoEntity, _super);
+            function VideoEntity(url) {
+                _super.call(this);
+            }
+            return VideoEntity;
+        })(HG.BaseEntity);
+        Entities.VideoEntity = VideoEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:07:54
 */
 var HG;
 (function (HG) {
@@ -1050,56 +1825,54 @@ else {
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/// <reference path="utils/Noise.hg.ts" />
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:07
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-07 16:52:04
+*/
+/// <reference path="../utils/Noise.hg.ts" />
 var HG;
 (function (HG) {
-    HG.SIZE_X = 64;
-    HG.SIZE_Y = HG.SIZE_X / 4;
-    HG.BLOCK_SIZE = 50;
+    (function (CONSTANTS) {
+        CONSTANTS.SIZE_X = 64;
+        CONSTANTS.SIZE_Y = CONSTANTS.SIZE_X / 4;
+        CONSTANTS.BLOCK_SIZE = 50;
+    })(HG.CONSTANTS || (HG.CONSTANTS = {}));
+    var CONSTANTS = HG.CONSTANTS;
 
     var LevelStructure = (function (_super) {
         __extends(LevelStructure, _super);
         function LevelStructure() {
-            _super.call(this);
+            _super.apply(this, arguments);
             this.camera = {
                 position: { x: 0, y: 0, z: 0 },
                 rotation: { x: 0, y: 0, z: 0 }
             };
             this.eventsAvailable = ["loaded", "created"];
         }
-        LevelStructure.prototype.load = function (JSONString) {
-            var r = JSON.parse(JSONString);
-            this.entities = new HG.Map();
-            for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
-                for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
-                    var e = r.entities['data'][i][j][0];
-                    this.entities.set(e, i, j);
-                }
-            }
-            this.camera = r.camera;
-            this.dispatch('loaded', { level: this });
-        };
-
-        LevelStructure.prototype.loadAsync = function (path) {
+        LevelStructure.prototype.fromJS = function (path) {
             var _this = this;
             global.fs.readFile(path, function (err, data) {
-                _this.load(data);
+                var r = JSON.parse(data);
+                _this.entities = r.entities;
+                _this.camera = r.camera;
+                _this.dispatch('loaded', { level: _this });
             });
         };
 
         LevelStructure.prototype.create = function () {
-            this.entities = new HG.Map();
-            for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
-                for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
+            this.entities = [];
+            for (var i = 0; i < CONSTANTS.SIZE_X * CONSTANTS.BLOCK_SIZE; i += CONSTANTS.BLOCK_SIZE) {
+                for (var j = 0; j < CONSTANTS.SIZE_Y * CONSTANTS.BLOCK_SIZE; j += CONSTANTS.BLOCK_SIZE) {
                     var noise = HG.Utils.Noise.Generate2(i, j);
-                    var l = Math.floor((noise * 50) - 50);
+                    var k = Math.floor((noise * 50) - 50);
                     var color = HG.Utils.rgbToHex(i / 10 + 50, j / 10 + 50, ((i + j) / 2) / 10 + 50);
-                    var e = {
-                        type: "solid",
-                        indentation: l,
-                        color: color
-                    };
-                    this.entities.set(e, i, j);
+                    var entity = new HG.LevelStructureEntity();
+                    entity.position = { x: i, y: j, z: k };
+                    entity.color = color;
+                    this.entities.push(entity);
                 }
             }
             this.camera.position = { x: 0, y: 25, z: -25 };
@@ -1110,7 +1883,14 @@ var HG;
     })(HG.EventDispatcher);
     HG.LevelStructure = LevelStructure;
 })(HG || (HG = {}));
-/// <reference path="LevelStructure.ts" />
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 18:17:12
+*/
+/// <reference path="LevelStructure.hg.ts" />
 var HG;
 (function (HG) {
     var Level = (function (_super) {
@@ -1122,17 +1902,13 @@ var HG;
                 position: new THREE.Vector3(),
                 rotation: new THREE.Vector3()
             };
-            var g = new THREE.CubeGeometry(HG.BLOCK_SIZE, HG.BLOCK_SIZE, HG.BLOCK_SIZE);
+            var g = new THREE.CubeGeometry(HG.CONSTANTS.BLOCK_SIZE, HG.CONSTANTS.BLOCK_SIZE, HG.CONSTANTS.BLOCK_SIZE);
             var m = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            for (var i = 0; i < HG.SIZE_X * HG.BLOCK_SIZE; i += HG.BLOCK_SIZE) {
-                for (var j = 0; j < HG.SIZE_Y * HG.BLOCK_SIZE; j += HG.BLOCK_SIZE) {
-                    var be = lvl.entities.get(i, j);
-                    m.color = new THREE.Color(be.color);
-                    var re = new HG.Entities.MeshEntity(g, m);
-                    re.position(i, j, be.indentation);
-                    this.entities.push(re);
-                }
-            }
+            lvl.entities.forEach(function (e) {
+                m.color = new THREE.Color(e.color);
+                var en = new HG.Entities.MeshEntity(g, m);
+                en.position(e.position.x, e.position.y, e.position.z);
+            });
             this.camera.position = new THREE.Vector3(lvl.camera.position.x, lvl.camera.position.y, lvl.camera.position.z);
             this.camera.rotation = new THREE.Vector3(lvl.camera.rotation.x, lvl.camera.rotation.y, lvl.camera.rotation.z);
         }
@@ -1150,708 +1926,162 @@ var HG;
     HG.Level = Level;
 })(HG || (HG = {}));
 /*
-* Map.hg.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:22
 */
 var HG;
 (function (HG) {
-    var Map = (function () {
-        function Map() {
-            this.data = {};
+    var LevelStructureEntity = (function () {
+        function LevelStructureEntity() {
+            this.position = { x: 0, y: 0, z: 0 };
+            this.color = 0x000000;
         }
-        Map.prototype.set = function (data, x, y, z) {
-            if (typeof x === "undefined") { x = 0; }
-            if (typeof y === "undefined") { y = 0; }
-            if (typeof z === "undefined") { z = 0; }
-            if (!this.data[x])
-                this.data[x] = {};
-            if (!this.data[x][y])
-                this.data[x][y] = {};
-            var overwritten = false;
-            if (this.data[x][y][z])
-                overwritten = true;
-            this.data[x][y][z] = data;
-            return overwritten;
-        };
-
-        Map.prototype.get = function (x, y, z, fallback) {
-            if (typeof x === "undefined") { x = 0; }
-            if (typeof y === "undefined") { y = 0; }
-            if (typeof z === "undefined") { z = 0; }
-            if (!this.data[x])
-                return fallback;
-            if (!this.data[x][y])
-                return fallback;
-            if (!this.data[x][y][z])
-                return fallback;
-            return this.data[x][y][z];
-        };
-
-        Map.prototype.clearX = function (x) {
-            if (this.data[x])
-                this.data[x] = {};
-            return true;
-        };
-
-        Map.prototype.clearY = function (x, y) {
-            if (!this.data[x])
-                return false;
-            if (this.data[x][y])
-                this.data[x][y] = {};
-        };
-
-        Map.prototype.clearZ = function (x, y, z) {
-            if (!this.data[x])
-                return false;
-            if (!this.data[x][y])
-                return false;
-            if (this.data[x][y][z])
-                this.data[x][y][z] = {};
-        };
-        return Map;
+        return LevelStructureEntity;
     })();
-    HG.Map = Map;
+    HG.LevelStructureEntity = LevelStructureEntity;
 })(HG || (HG = {}));
+/// <reference path="IProvider.hg.ts" />
 /*
-* ModuleLoader.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-07 13:03:40
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 17:06:12
 */
 var HG;
 (function (HG) {
-    var ModuleLoader = (function (_super) {
-        __extends(ModuleLoader, _super);
-        function ModuleLoader() {
-            _super.call(this);
-            this.modules = ['fs', 'http', 'socket.io', 'socket.io-client'];
-            for (var i = 0; i < this.modules.length; i++) {
-                console.log("[ModuleLoader] Required " + this.modules[i]);
-                global[this.modules[i]] = require(this.modules[i]);
+    (function (LINQ) {
+        var ArrayProvider = (function () {
+            function ArrayProvider() {
             }
-            // this.modules.forEach((m) => {
-            // 	console.log("[ModuleLoader] Required "+m);
-            // 	global[m] = require(m);
-            // });
-        }
-        return ModuleLoader;
-    })(HG.EventDispatcher);
-    HG.ModuleLoader = ModuleLoader;
-})(HG || (HG = {}));
-/*
-* Renderer.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    var Renderer = (function (_super) {
-        __extends(Renderer, _super);
-        function Renderer(params) {
-            _super.call(this, params);
-        }
-        return Renderer;
-    })(THREE.WebGLRenderer);
-    HG.Renderer = Renderer;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    var ServerConnection = (function (_super) {
-        __extends(ServerConnection, _super);
-        function ServerConnection(host) {
-            _super.call(this);
-            var io = require('socket.io-client');
-            this.socket = io.connect(host);
-            this.socket.emit("join", {});
-        }
-        return ServerConnection;
-    })(HG.EventDispatcher);
-    HG.ServerConnection = ServerConnection;
-})(HG || (HG = {}));
-/*
-* Shader.ts
-* Author: BeryJU
-*/
-var HG;
-(function (HG) {
-    var Shader = (function (_super) {
-        __extends(Shader, _super);
-        function Shader(path) {
-            _super.call(this);
-            if (path) {
-                var shader = require('./' + path);
-                this.load(shader);
-            }
-        }
-        Shader.prototype.load = function (raw) {
-            this.vertexShader = raw['vertex'];
-            this.fragmentShader = raw['fragment'];
-            this.dispatch('loaded');
-        };
-        return Shader;
-    })(HG.EventDispatcher);
-    HG.Shader = Shader;
-})(HG || (HG = {}));
-/*
-* StringFormatter.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    var StringFormatter = (function () {
-        function StringFormatter() {
-        }
-        StringFormatter.format = function (s, values) {
-            var replaceAll = function (find, replace, str) {
-                return str.replace(new RegExp(find, 'g'), replace);
-            };
-            for (var k in values) {
-                replaceAll(k, values[k], s);
-            }
-            return s;
-        };
-        return StringFormatter;
-    })();
-    HG.StringFormatter = StringFormatter;
-})(HG || (HG = {}));
-/// <reference path="../EventDispatcher.ts" />
-/*
-* BaseAbility.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    var BaseAbility = (function (_super) {
-        __extends(BaseAbility, _super);
-        function BaseAbility() {
-            _super.apply(this, arguments);
-        }
-        BaseAbility.prototype.setHost = function (entity) {
-            this.hostEntity = entity;
-        };
-
-        BaseAbility.prototype.checkCompatibility = function (entity) {
-            return true;
-        };
-
-        BaseAbility.prototype.frame = function (delta) {
-        };
-        return BaseAbility;
-    })(HG.EventDispatcher);
-    HG.BaseAbility = BaseAbility;
-})(HG || (HG = {}));
-/// <reference path="BaseAbility.hg.ts" />
-/*
-* AnimationAbility.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Abilities) {
-        var AnimationAbility = (function (_super) {
-            __extends(AnimationAbility, _super);
-            function AnimationAbility(path) {
-                _super.call(this);
-                this.animOffset = 0;
-                this.running = false;
-                this.duration = 1000;
-                this.keyframes = 20;
-                this.interpolation = this.duration / this.keyframes;
-                this.lastKeyframe = 0;
-                this.currentKeyframe = 0;
-                this.eventsAvailable = ["loaded"];
-                if (path)
-                    this.loadAsync(path);
-            }
-            AnimationAbility.prototype.checkCompatibility = function (entity) {
-                return (entity.object instanceof THREE.Mesh);
+            ArrayProvider.prototype.each = function (context, fn) {
+                context.forEach(fn);
             };
 
-            AnimationAbility.prototype.loadAsync = function (path) {
-                var _this = this;
-                global.fs.readFile(path, function (err, data) {
-                    var loader = new THREE.JSONLoader();
-                    var result = loader.parse(JSON.parse(data));
-                    _this.load(result.geometry, result.materials);
+            ArrayProvider.prototype.where = function (context, query) {
+                var result = [];
+                context.forEach(function (e) {
+                    if (query(e) === true)
+                        result.push(e);
                 });
+                console.log(result);
+                return result;
             };
 
-            AnimationAbility.prototype.load = function (geometry, materials) {
-                materials.forEach(function (m) {
-                    m['morphTargets'] = true;
+            ArrayProvider.prototype.order = function (context, order) {
+                return context.sort(order);
+            };
+
+            ArrayProvider.prototype.select = function (context, selector) {
+                var result = [];
+                context.forEach(function (e) {
+                    result.push(selector(e));
                 });
-                var material = new THREE.MeshFaceMaterial(materials);
-                var oldPosition = this.hostEntity.object.position;
-                var oldRotation = this.hostEntity.object.rotation;
-                this.hostEntity.object = new THREE.Mesh(geometry, material);
-                this.hostEntity.object.position = oldPosition;
-                this.hostEntity.object.rotation = oldRotation;
-                this.dispatch('loaded');
+                return result;
             };
 
-            AnimationAbility.prototype.frame = function (delta) {
-                _super.prototype.frame.call(this, delta);
-                if (this.running === true) {
-                    var time = new Date().getTime() % this.duration;
-                    var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
-                    if (keyframe != this.currentKeyframe) {
-                        this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 0;
-                        this.hostEntity.object['morphTargetInfluences'][this.currentKeyframe] = 1;
-                        this.hostEntity.object['morphTargetInfluences'][keyframe] = 0;
-                        this.lastKeyframe = this.currentKeyframe;
-                        this.currentKeyframe = keyframe;
+            ArrayProvider.prototype.provide = function () {
+                var scope = this;
+                for (var k in this) {
+                    if (k !== "provide") {
+                        var fn = scope[k];
+                        Array.prototype[k] = function () {
+                            var args = Array.prototype.slice.call(arguments);
+                            args.splice(0, 0, this);
+                            return fn.apply(this, args);
+                        };
                     }
-                    this.hostEntity.object['morphTargetInfluences'][keyframe] = (time % this.interpolation) / this.interpolation;
-                    this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 1 - this.hostEntity.object['morphTargetInfluences'][keyframe];
-                    this.running = false;
                 }
             };
-            return AnimationAbility;
-        })(HG.BaseAbility);
-        Abilities.AnimationAbility = AnimationAbility;
-    })(HG.Abilities || (HG.Abilities = {}));
-    var Abilities = HG.Abilities;
+            return ArrayProvider;
+        })();
+        LINQ.ArrayProvider = ArrayProvider;
+    })(HG.LINQ || (HG.LINQ = {}));
+    var LINQ = HG.LINQ;
 })(HG || (HG = {}));
-/// <reference path="BaseAbility.hg.ts" />
 /*
-* AudioAbility.hg.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-07 13:15:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 21:45:43
 */
 var HG;
 (function (HG) {
-    (function (Abilities) {
-        var AudioAbility = (function (_super) {
-            __extends(AudioAbility, _super);
-            function AudioAbility(url) {
-                _super.call(this);
-                this.eventsAvailable = ["loaded"];
-                if (url)
-                    this.loadAsync(url);
+    (function (LINQ) {
+        function initialize() {
+            for (var m in HG.LINQ) {
+                if (m.toString() !== "initialize") {
+                    var provider = new HG.LINQ[m]();
+                    provider.provide();
+                    console.log("[LINQ] Provided " + m);
+                }
             }
-            AudioAbility.prototype.checkCompatibility = function (entity) {
-                return (entity.object instanceof THREE.Mesh);
+
+            global.linqd = true;
+        }
+        LINQ.initialize = initialize;
+    })(HG.LINQ || (HG.LINQ = {}));
+    var LINQ = HG.LINQ;
+})(HG || (HG = {}));
+/// <reference path="IProvider.hg.ts" />
+/*
+* @Author: BeryJu
+* @Date:   2013-11-07 13:03:40
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 17:06:08
+*/
+var HG;
+(function (HG) {
+    (function (LINQ) {
+        var StringProvider = (function () {
+            function StringProvider() {
+            }
+            StringProvider.prototype.f = function (context) {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                    args[_i] = arguments[_i + 1];
+                }
+                return "";
             };
 
-            AudioAbility.prototype.loadAsync = function (url) {
-                var _this = this;
-                var req = new XMLHttpRequest();
-                req.onreadystatechange = function (ev) {
-                    if (req.readyState === 4) {
-                        var loader = new THREE.JSONLoader();
-                        var result = loader.parse(JSON.parse(req.responseText));
-                        _this.load(result.geometry, result.materials);
-                    }
+            StringProvider.prototype.replaceAll = function (context, find, replace) {
+                find.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+                return context.replace(new RegExp(find, 'g'), replace);
+            };
+
+            StringProvider.prototype.provide = function () {
+                var scope = this;
+                String.prototype['replaceAll'] = function (find, replace) {
+                    return scope.replaceAll(this, find, replace);
                 };
-                req.open("GET", url, true);
-                req.send();
+                // for (var k in this) {
+                // 	if (k !== "provide") {
+                // 		var fn = scope[k];
+                // 		String.prototype[k] = function() {
+                // 			var args = Array.prototype.slice.call(arguments);
+                // 			args.splice(0, 0, this);
+                // 			return fn.apply(this, args);
+                // 		}
+                // 	}
+                // }
             };
-
-            AudioAbility.prototype.load = function (geometry, materials) {
-                // this.hostEntity.object = new THREE.Mesh(geometry, material);
-                this.dispatch('loaded');
-            };
-
-            AudioAbility.prototype.frame = function (delta) {
-                _super.prototype.frame.call(this, delta);
-            };
-            return AudioAbility;
-        })(HG.BaseAbility);
-        Abilities.AudioAbility = AudioAbility;
-    })(HG.Abilities || (HG.Abilities = {}));
-    var Abilities = HG.Abilities;
-})(HG || (HG = {}));
-/// <reference path="BaseAbility.hg.ts" />
-/*
-* MovingAbility.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Abilities) {
-        var MovingAbility = (function (_super) {
-            __extends(MovingAbility, _super);
-            function MovingAbility() {
-                _super.apply(this, arguments);
-                this.jumpState = 0;
-                //0: normal
-                //1: rising
-                //2: max
-                //3: falling
-                this.oldY = 0;
-                this.maxY = 200;
-            }
-            MovingAbility.prototype.moveLeft = function (step) {
-                this.hostEntity.object.translateX(step);
-            };
-
-            MovingAbility.prototype.moveRight = function (step) {
-                this.hostEntity.object.translateX(-step);
-            };
-
-            MovingAbility.prototype.lower = function (step) {
-                this.hostEntity.object.position.y -= step;
-            };
-
-            MovingAbility.prototype.turnLeft = function (step) {
-                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), HG.Utils.degToRad(step));
-            };
-
-            MovingAbility.prototype.turnRight = function (step) {
-                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), HG.Utils.degToRad(-step));
-            };
-
-            MovingAbility.prototype.moveForward = function (step) {
-                this.hostEntity.object.translateZ(step);
-            };
-
-            MovingAbility.prototype.moveBackward = function (step) {
-                this.hostEntity.object.translateZ(-step);
-            };
-
-            MovingAbility.prototype.jump = function () {
-                this.oldY = this.hostEntity.object.position.y;
-                this.jumpState = 1;
-            };
-
-            MovingAbility.prototype.frame = function (delta) {
-                if (this.jumpState >= 1) {
-                    if (this.jumpState === 3) {
-                        this.oldY = this.hostEntity.object.position.y;
-                        this.jumpState = 0;
-                    }
-                    if (this.hostEntity.object.position.y < (this.maxY + this.oldY) && this.jumpState === 1) {
-                        this.hostEntity.object.position.y += 3 * delta;
-                    }
-                    if (this.hostEntity.object.position.y >= (this.maxY + this.oldY) && this.jumpState >= 1) {
-                        this.jumpState = 2;
-                    }
-                    if (this.hostEntity.object.position.y <= this.oldY && this.jumpState >= 2) {
-                        this.hostEntity.object.position.y = this.oldY;
-                        this.jumpState = 3;
-                    } else if (this.jumpState >= 2) {
-                        this.hostEntity.object.position.y -= 3 * delta;
-                    }
-                }
-            };
-            return MovingAbility;
-        })(HG.BaseAbility);
-        Abilities.MovingAbility = MovingAbility;
-    })(HG.Abilities || (HG.Abilities = {}));
-    var Abilities = HG.Abilities;
-})(HG || (HG = {}));
-/// <reference path="../GameComponent.ts" />
-/// <reference path="../abilities/BaseAbility.hg.ts" />
-/*
-* BaseEntity.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    var BaseEntity = (function (_super) {
-        __extends(BaseEntity, _super);
-        function BaseEntity(object) {
-            _super.call(this);
-            this.abilities = [];
-            this.positionOffset = new THREE.Vector3();
-            if (object) {
-                this.object = object;
-            } else {
-                this.object = new THREE.Mesh();
-            }
-        }
-        BaseEntity.prototype.addAbility = function (a) {
-            var compatible = a.checkCompatibility(this);
-            if (compatible === true) {
-                a.setHost(this);
-                this.abilities.push(a);
-            }
-            return compatible;
-        };
-
-        BaseEntity.prototype.forAbilities = function (callback) {
-            this.abilities.forEach(callback);
-        };
-
-        BaseEntity.prototype.offset = function (x, y, z) {
-            this.positionOffset.set(x, y, z);
-            return this;
-        };
-
-        BaseEntity.prototype.scale = function (x, y, z) {
-            this.object.scale.set(x, y, z);
-            return this;
-        };
-
-        BaseEntity.prototype.position = function (x, y, z) {
-            x = x + this.positionOffset.x;
-            y = y + this.positionOffset.y;
-            z = z + this.positionOffset.z;
-            this.object.position.set(x, y, z);
-            return this;
-        };
-
-        BaseEntity.prototype.rotate = function (x, y, z) {
-            this.object.rotation.set(x, y, z);
-            return this;
-        };
-
-        BaseEntity.prototype.getInternal = function () {
-            return this.object;
-        };
-
-        BaseEntity.prototype.frame = function (delta) {
-            if (this.abilities.length > 0) {
-                this.abilities.forEach(function (ability) {
-                    ability.frame(delta);
-                });
-            }
-        };
-        return BaseEntity;
-    })(HG.GameComponent);
-    HG.BaseEntity = BaseEntity;
-})(HG || (HG = {}));
-/// <reference path="BaseEntity.hg.ts" />
-/*
-* CameraEntity.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var CameraEntity = (function (_super) {
-            __extends(CameraEntity, _super);
-            function CameraEntity(fov, aspect, zNear, zFar) {
-                if (typeof fov === "undefined") { fov = 90; }
-                if (typeof aspect === "undefined") { aspect = 1.77; }
-                if (typeof zNear === "undefined") { zNear = 0.1; }
-                if (typeof zFar === "undefined") { zFar = 10000; }
-                _super.call(this);
-                this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
-            }
-            CameraEntity.prototype.setViewDistance = function (d) {
-                this.object.far = d;
-                this.object.updateProjectionMatrix();
-            };
-            return CameraEntity;
-        })(HG.BaseEntity);
-        Entities.CameraEntity = CameraEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/// <reference path="BaseEntity.hg.ts" />
-/*
-* CameraEntity.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var ChasingCameraEntity = (function (_super) {
-            __extends(ChasingCameraEntity, _super);
-            function ChasingCameraEntity(target, fov, aspect, zNear, zFar) {
-                if (typeof fov === "undefined") { fov = 90; }
-                if (typeof aspect === "undefined") { aspect = 1.77; }
-                if (typeof zNear === "undefined") { zNear = 0.1; }
-                if (typeof zFar === "undefined") { zFar = 10000; }
-                _super.call(this);
-                this.lookAt = true;
-                this.target = target;
-                this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
-            }
-            ChasingCameraEntity.prototype.setViewDistance = function (d) {
-                this.object.far = d;
-                this.object.updateProjectionMatrix();
-            };
-
-            ChasingCameraEntity.prototype.frame = function (delta) {
-                var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
-
-                this.object.position.x = cameraOffset.x;
-                this.object.position.y = cameraOffset.y;
-                this.object.position.z = cameraOffset.z;
-                if (this.lookAt)
-                    this.object.lookAt(this.target.object.position);
-            };
-            return ChasingCameraEntity;
-        })(Entities.CameraEntity);
-        Entities.ChasingCameraEntity = ChasingCameraEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/// <reference path="BaseEntity.hg.ts" />
-/*
-* HeightMapEntity.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var HeightMapEntity = (function (_super) {
-            __extends(HeightMapEntity, _super);
-            function HeightMapEntity(directory, size, directions, suffix) {
-                if (typeof size === "undefined") { size = 5000; }
-                if (typeof directions === "undefined") { directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
-                if (typeof suffix === "undefined") { suffix = ".png"; }
-                _super.call(this);
-                var skyGeometry = new THREE.CubeGeometry(size, size, size);
-
-                var materialArray = [];
-                directions.forEach(function (d) {
-                    materialArray.push(new THREE.MeshBasicMaterial({
-                        map: THREE.ImageUtils.loadTexture(directory + d + suffix),
-                        side: THREE.BackSide
-                    }));
-                });
-                var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
-                this.object = new THREE.Mesh(skyGeometry, skyMaterial);
-            }
-            return HeightMapEntity;
-        })(HG.BaseEntity);
-        Entities.HeightMapEntity = HeightMapEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/// <reference path="../GameComponent.ts" />
-/// <reference path="../abilities/BaseAbility.hg.ts" />
-/*
-* MeshEntity.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var MeshEntity = (function (_super) {
-            __extends(MeshEntity, _super);
-            function MeshEntity(geo, mat) {
-                _super.call(this);
-                this.abilities = [];
-                this.positionOffset = new THREE.Vector3();
-                if (geo && mat)
-                    this.object = new THREE.Mesh(geo, mat);
-            }
-            return MeshEntity;
-        })(HG.BaseEntity);
-        Entities.MeshEntity = MeshEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/// <reference path="BaseEntity.hg.ts" />
-/*
-* ModelEntity.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var ModelEntity = (function (_super) {
-            __extends(ModelEntity, _super);
-            function ModelEntity(url) {
-                _super.call(this);
-                this.eventsAvailable = ["loaded"];
-                if (url)
-                    this.loadAsync(url);
-            }
-            ModelEntity.prototype.onReadyStateChange = function (req) {
-                if (req.readyState === 4) {
-                    var loader = new THREE.JSONLoader();
-                    var result = loader.parse(JSON.parse(req.responseText));
-                    this.load(result.geometry, result.materials);
-                }
-            };
-
-            ModelEntity.prototype.loadAsync = function (url) {
-                var _this = this;
-                var req = new XMLHttpRequest();
-                req.onreadystatechange = function (req) {
-                    _this.onReadyStateChange(_this);
-                };
-                req.open("GET", url, true);
-                req.send();
-            };
-
-            ModelEntity.prototype.load = function (geometry, materials) {
-                var material = new THREE.MeshFaceMaterial(materials);
-                this.object = new THREE.Mesh(geometry, material);
-                this.dispatch('loaded');
-            };
-            return ModelEntity;
-        })(HG.BaseEntity);
-        Entities.ModelEntity = ModelEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-//TODo
-/// <reference path="BaseEntity.hg.ts" />
-/*
-* ParticleEntity.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var ParticleEntity = (function (_super) {
-            __extends(ParticleEntity, _super);
-            function ParticleEntity() {
-                _super.apply(this, arguments);
-            }
-            return ParticleEntity;
-        })(HG.BaseEntity);
-        Entities.ParticleEntity = ParticleEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/// <reference path="BaseEntity.hg.ts" />
-/*
-* SkyBoxEntity.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var SkyBoxEntity = (function (_super) {
-            __extends(SkyBoxEntity, _super);
-            function SkyBoxEntity(directory, size, directions, suffix) {
-                if (typeof size === "undefined") { size = 5000; }
-                if (typeof directions === "undefined") { directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
-                if (typeof suffix === "undefined") { suffix = ".png"; }
-                _super.call(this);
-                var skyGeometry = new THREE.CubeGeometry(size, size, size);
-
-                var materialArray = [];
-                directions.forEach(function (d) {
-                    materialArray.push(new THREE.MeshBasicMaterial({
-                        map: THREE.ImageUtils.loadTexture(directory + d + suffix),
-                        side: THREE.BackSide
-                    }));
-                });
-                var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
-                this.object = new THREE.Mesh(skyGeometry, skyMaterial);
-            }
-            return SkyBoxEntity;
-        })(HG.BaseEntity);
-        Entities.SkyBoxEntity = SkyBoxEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/// <reference path="BaseEntity.hg.ts" />
-/*
-* VideoEntity.hg.ts
-* Author: BeryJu
-*/
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var VideoEntity = (function (_super) {
-            __extends(VideoEntity, _super);
-            function VideoEntity(url) {
-                _super.call(this);
-            }
-            return VideoEntity;
-        })(HG.BaseEntity);
-        Entities.VideoEntity = VideoEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
+            return StringProvider;
+        })();
+        LINQ.StringProvider = StringProvider;
+    })(HG.LINQ || (HG.LINQ = {}));
+    var LINQ = HG.LINQ;
 })(HG || (HG = {}));
 /*
-* BaseScene.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 19:40:14
 */
 var HG;
 (function (HG) {
@@ -1859,7 +2089,7 @@ var HG;
         var BaseScene = (function () {
             function BaseScene() {
                 this.scene = null;
-                this.scene = new THREE.Scene();
+                this.scene = new Physijs.Scene();
                 this.entities = {
                     named: {},
                     unnamed: []
@@ -1950,92 +2180,72 @@ var HG;
     })(HG.Scenes || (HG.Scenes = {}));
     var Scenes = HG.Scenes;
 })(HG || (HG = {}));
-///<reference path="../GameComponent" />
 /*
-* ColorTransition.hg.ts
-* Author: BeryJu
+* @Author: BeryJu
+* @Date:   2013-11-07 16:30:32
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 22:00:48
 */
 var HG;
 (function (HG) {
     (function (Utils) {
-        var ColorTransition = (function (_super) {
-            __extends(ColorTransition, _super);
-            function ColorTransition() {
+        var Bootstrapper = (function (_super) {
+            __extends(Bootstrapper, _super);
+            function Bootstrapper() {
+                var _this = this;
                 _super.call(this);
-                this.isDone = false;
-                this.baseColor = new THREE.Color();
-                this.currentColor = new THREE.Color();
-                this.currentFrame = 0;
-                this.frameSpan = 0;
-                this.currentTarget = 0;
-                this.targets = [];
+                this.eventsAvailable = ['error'];
+                process.on('uncaughtException', function (err) {
+                    _this.dispatch('error', err.message);
+                });
+
+                // window.addEventListener('error', (e) => {
+                // 	this.dispatch('error', (<ErrorEvent> e).message);
+                // 	e.preventDefault();
+                // });
+                this.on('error');
             }
-            ColorTransition.prototype.getColor = function () {
-                return this.currentColor;
-            };
-
-            ColorTransition.prototype.target = function (color) {
-                this.targets.push(color);
-                this.dispatch('targetAdded', color);
-                return this;
-            };
-
-            ColorTransition.prototype.over = function (frames) {
-                this.frameSpan = frames;
-                return this;
-            };
-
-            ColorTransition.prototype.from = function (color) {
-                this.baseColor = color;
-                return this;
-            };
-
-            ColorTransition.prototype.frame = function (delta) {
-                if (this.currentFrame >= this.frameSpan) {
-                    this.isDone = true;
-                    this.dispatch('done', this);
-                } else {
-                    if (this.currentColor === this.targets[this.currentTarget]) {
-                        this.currentTarget++;
-                        this.currentFrame = 0;
-                        if (this.currentTarget > this.targets.length) {
-                            this.isDone = true;
-                            this.dispatch('done', this);
-                        }
-                    } else {
-                        var target = this.targets[this.currentTarget];
-                        var r = this.increment(this.currentColor.r, target.r, delta, this.frameSpan - this.currentTarget);
-                        var g = this.increment(this.currentColor.g, target.g, delta, this.frameSpan - this.currentTarget);
-                        var b = this.increment(this.currentColor.b, target.b, delta, this.frameSpan - this.currentTarget);
-
-                        console.log(r);
-                        console.log(g);
-                        console.log(b);
-                        this.currentColor.r += r;
-                        this.currentColor.g += g;
-                        this.currentColor.b += b;
-                    }
-                    this.currentFrame++;
+            Bootstrapper.prototype.bootstrap = function () {
+                Physijs.scripts = {
+                    ammo: "ammo.js",
+                    worker: "lib/physijs_worker.js"
+                };
+                if (HG.Utils.hasGL() === false)
+                    this.dispatch('error', new Error("Runtime or Graphiscard doesn't support GL"));
+                if (!global.moduled) {
+                    var loader = new HG.ModuleLoader();
+                }
+                if (!global.linqd) {
+                    HG.LINQ.initialize();
                 }
             };
 
-            ColorTransition.prototype.increment = function (from, to, delta, framesLeft) {
-                return ((to - from) / framesLeft);
+            Bootstrapper.prototype.error = function (error) {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                    args[_i] = arguments[_i + 1];
+                }
+                console.warn(error);
             };
-            return ColorTransition;
-        })(HG.GameComponent);
-        Utils.ColorTransition = ColorTransition;
+            return Bootstrapper;
+        })(HG.EventDispatcher);
+        Utils.Bootstrapper = Bootstrapper;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/// <reference path="../GameComponent" />
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:05
+*/
 var HG;
 (function (HG) {
     (function (Utils) {
-        var FPSCounter = (function (_super) {
-            __extends(FPSCounter, _super);
+        var FPSCounter = (function () {
             function FPSCounter() {
-                _super.call(this);
                 this.lastFrameTime = 0;
                 this.lastSecond = 0;
                 this.currentFrames = 0;
@@ -2076,11 +2286,87 @@ var HG;
                 this.currentFrames++;
             };
             return FPSCounter;
-        })(HG.GameComponent);
+        })();
         Utils.FPSCounter = FPSCounter;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:08
+*/
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var Map = (function () {
+            function Map() {
+                this.data = {};
+            }
+            Map.prototype.set = function (data, x, y, z) {
+                if (typeof x === "undefined") { x = 0; }
+                if (typeof y === "undefined") { y = 0; }
+                if (typeof z === "undefined") { z = 0; }
+                if (!this.data[x])
+                    this.data[x] = {};
+                if (!this.data[x][y])
+                    this.data[x][y] = {};
+                var overwritten = false;
+                if (this.data[x][y][z])
+                    overwritten = true;
+                this.data[x][y][z] = data;
+                return overwritten;
+            };
+
+            Map.prototype.get = function (x, y, z, fallback) {
+                if (typeof x === "undefined") { x = 0; }
+                if (typeof y === "undefined") { y = 0; }
+                if (typeof z === "undefined") { z = 0; }
+                if (!this.data[x])
+                    return fallback;
+                if (!this.data[x][y])
+                    return fallback;
+                if (!this.data[x][y][z])
+                    return fallback;
+                return this.data[x][y][z];
+            };
+
+            Map.prototype.clearX = function (x) {
+                if (this.data[x])
+                    this.data[x] = {};
+                return true;
+            };
+
+            Map.prototype.clearY = function (x, y) {
+                if (!this.data[x])
+                    return false;
+                if (this.data[x][y])
+                    this.data[x][y] = {};
+            };
+
+            Map.prototype.clearZ = function (x, y, z) {
+                if (!this.data[x])
+                    return false;
+                if (!this.data[x][y])
+                    return false;
+                if (this.data[x][y][z])
+                    this.data[x][y][z] = {};
+            };
+            return Map;
+        })();
+        Utils.Map = Map;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:10
+*/
 var HG;
 (function (HG) {
     var Settings = (function () {
@@ -2108,6 +2394,13 @@ var HG;
     HG.Settings = Settings;
     ;
 })(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 16:39:48
+*/
 var HG;
 (function (HG) {
     (function (Utils) {
@@ -2122,6 +2415,13 @@ var HG;
             return parseInt(componentToHex(r) + componentToHex(g) + componentToHex(b), 16);
         }
         Utils.rgbToHex = rgbToHex;
+
+        function profile(fn) {
+            console.profile("HG Profile");
+            fn();
+            console.profileEnd();
+        }
+        Utils.profile = profile;
 
         function degToRad(deg) {
             return deg * Math.PI / 180;
@@ -2167,23 +2467,24 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-var loader = new HG.ModuleLoader();
+var pkg = require("./package.json");
+console.log("[HorribleGame] Build " + pkg.build);
 var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 
 // game.loadShader('assets/shaders/heightmap.js')
-var pkg = require("./package.json");
-console.log("HorribleGame build " + pkg.build);
-game.on('preload', function () {
-    game.renderer.setClearColor(new THREE.Color(0x000000), 1);
+var scene = new HG.Scenes.BaseScene();
+game.on('load', function () {
+    game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
     // game.camera.addAbility(new HG.Abilities.MovingAbility());
-    // game.scene.add(game.camera, "camera1");
+    // scene.add(game.camera, "camera1");
     var playerLight = new HG.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance / 10));
-    playerLight.addAbility(new HG.Abilities.MovingAbility());
+    var playerLightMove = new HG.Abilities.MovingAbility();
+    playerLight.addAbility(playerLightMove);
     playerLight.offset(0, 150, 0);
 
     // playerLight.rotate(0, HG.Utils.degToRad(90), 0);
-    game.scene.add(playerLight, "playerLight");
+    scene.add(playerLight, "playerLight");
 
     // //create a skybox for demo purposes
     // var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/",
@@ -2191,28 +2492,38 @@ game.on('preload', function () {
     // //add moving ability so it's fixed to the camera
     // skyBox.addAbility(new HG.Abilities.MovingAbility());
     // //add it to the scene
-    // game.scene.add(skyBox, "skyBox");
-    var player = new HG.Entities.MeshEntity();
-    player.addAbility(new HG.Abilities.MovingAbility());
+    // scene.add(skyBox, "skyBox");
+    var player = new HG.Entities.ModelEntity();
+    var playerMove = new HG.Abilities.MovingAbility();
+    player.addAbility(playerMove);
     var animationAbility = new HG.Abilities.AnimationAbility();
     player.addAbility(animationAbility);
-    animationAbility.on('loaded', function () {
+    player.on('loaded', function () {
         player.scale(10, 10, 10);
         player.offset(0, 0, 50);
 
         // player.rotate(0, HG.Utils.degToRad(90), 0);
-        game.scene.forNamed(function (e) {
+        scene.forNamed(function (e) {
             return e.position(0, 0, 0);
         });
-        game.scene.add(player, "player");
+        scene.add(player, "player");
     });
-    animationAbility.loadAsync("assets/models/android.js");
+    player.fromJS("assets/models/android.js");
 
+    var room = new HG.Entities.ModelEntity();
+    room.on('loaded', function () {
+        room.scale(5, 5, 5);
+        room.position(0, 0, 0);
+        room.rotate(HG.Utils.degToRad(90), 0, 0);
+        scene.add(room);
+    });
+
+    // room.fromSTL("assets/models/room01.js");
     var levelStruct = new HG.LevelStructure();
     levelStruct.on(['loaded', 'created'], function (args) {
         var level = new HG.Level(args['level']);
         level.entities.forEach(function (e) {
-            game.scene.add(e);
+            scene.add(e);
         });
         var cam = new HG.Entities.ChasingCameraEntity(player, HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
         level.applyCameraOffset(cam);
@@ -2225,8 +2536,44 @@ game.on('preload', function () {
     if (HG.Settings.debug === true) {
         var axes = new HG.BaseEntity(new THREE.AxisHelper(500));
         axes.position(0, 0, 0);
-        game.scene.add(axes);
+        scene.add(axes);
     }
+
+    game.controls.bind(HG.Settings.keys.left, function (delta) {
+        playerLightMove.turnLeft(3.125 * delta);
+        playerMove.turnLeft(3.125 * delta);
+        // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
+    });
+
+    game.controls.bind(HG.Settings.keys.right, function (delta) {
+        playerLightMove.turnRight(3.125 * delta);
+        playerMove.turnRight(3.125 * delta);
+        // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
+    });
+
+    game.controls.bind(HG.Settings.keys.forward, function (delta) {
+        playerLightMove.moveForward(3.125 * delta);
+        playerMove.moveForward(3.125 * delta);
+        animationAbility.running = true;
+    });
+
+    game.controls.bind(HG.Settings.keys.backward, function (delta) {
+        playerLightMove.moveBackward(3.125 * delta);
+        playerMove.moveBackward(3.125 * delta);
+        animationAbility.running = true;
+    });
+
+    game.controls.bind(HG.Settings.keys.lower, function (delta) {
+        playerLightMove.lower(3.125 * delta);
+        playerMove.lower(3.125 * delta);
+        animationAbility.running = true;
+    });
+
+    game.controls.bind(HG.Settings.keys.jump, function (delta) {
+        playerLightMove.jump();
+        playerMove.jump();
+        animationAbility.running = true;
+    });
 });
 
 game.on('start', function () {
@@ -2241,106 +2588,43 @@ game.on('start', function () {
         return game.onKeyUp(a);
     };
     var render = function () {
-        game.render();
+        game.render(scene);
         requestAnimationFrame(render);
     };
     if (HG.Settings.debug === true) {
-        console.profile("Frame");
-        game.render();
-        console.profileEnd();
+        HG.Utils.profile(function () {
+            game.render(scene);
+        });
     }
     render();
 });
 
 game.on('keydown', function (a) {
-    if (a['event']['keyCode'] === HG.Settings.keys.devConsole) {
+    a = a;
+    if ("keyboard" + a.keyCode === HG.Settings.keys.devConsole) {
         HG.Utils.openDevConsole();
     }
 });
 
-game.controls.bind(HG.Settings.keys.refresh, function (args) {
+game.controls.bind(HG.Settings.keys.refresh, function (delta) {
     HG.Utils.reload();
 });
 
-game.controls.bind(HG.Settings.keys.fullscreen, function (args) {
+game.controls.bind(HG.Settings.keys.fullscreen, function (delta) {
     HG.Utils.toggleFullScreenMode();
-});
-
-game.controls.bind(HG.Settings.keys.left, function (args) {
-    game.scene.forNamed(function (e) {
-        e.forAbilities(function (a) {
-            if (a instanceof HG.Abilities.MovingAbility)
-                a.turnLeft(3.125 * args['delta']);
-            // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
-        });
-    });
-});
-
-game.controls.bind(HG.Settings.keys.right, function (args) {
-    game.scene.forNamed(function (e) {
-        e.forAbilities(function (a) {
-            if (a instanceof HG.Abilities.MovingAbility)
-                a.turnRight(3.125 * args['delta']);
-            // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
-        });
-    });
-});
-
-game.controls.bind(HG.Settings.keys.forward, function (args) {
-    game.scene.forNamed(function (e) {
-        e.forAbilities(function (a) {
-            if (a instanceof HG.Abilities.MovingAbility)
-                a.moveForward(3.125 * args['delta']);
-            if (a instanceof HG.Abilities.AnimationAbility)
-                a.running = true;
-        });
-    });
-});
-
-game.controls.bind(HG.Settings.keys.backward, function (args) {
-    game.scene.forNamed(function (e) {
-        e.forAbilities(function (a) {
-            if (a instanceof HG.Abilities.MovingAbility)
-                a.moveBackward(3.125 * args['delta']);
-            if (a instanceof HG.Abilities.AnimationAbility)
-                a.running = true;
-        });
-    });
-});
-
-game.controls.bind(HG.Settings.keys.lower, function (args) {
-    game.scene.forNamed(function (e, tag) {
-        e.forAbilities(function (a) {
-            if (a instanceof HG.Abilities.MovingAbility)
-                a.lower(3.125 * args['delta']);
-            if (a instanceof HG.Abilities.AnimationAbility)
-                a.running = true;
-        });
-    });
-});
-
-game.controls.bind(HG.Settings.keys.jump, function (args) {
-    game.scene.forNamed(function (e) {
-        e.forAbilities(function (a) {
-            if (a instanceof HG.Abilities.MovingAbility)
-                a.jump();
-            if (a instanceof HG.Abilities.AnimationAbility)
-                a.running = true;
-        });
-    });
 });
 
 game.on(['start', 'resize'], function () {
     document.getElementById("resolution").innerText = "Rendering on: " + window.innerWidth + "x" + window.innerHeight;
 });
 
-game.on("connected", function (args) {
-    document.getElementById("server").innerText = "Connected to " + args['host'];
+game.on("connected", function (host) {
+    document.getElementById("server").innerText = "Connected to " + host;
 });
 
-game.on("render", function (args) {
-    game.scene.forNamed(function (e) {
-        return e.frame(args['delta']);
+game.on("render", function (delta) {
+    scene.forNamed(function (e) {
+        return e.frame(delta);
     });
     document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.getFPS();
     document.getElementById("verts").innerText = "Vertices: " + game.renderer.info.render.vertices;
@@ -2348,7 +2632,7 @@ game.on("render", function (args) {
 });
 
 window.onload = function () {
-    return game.preLoad();
+    return game.load();
 };
 
 var srv = new HG.BaseServer(9898);
@@ -2356,3 +2640,4 @@ var srv = new HG.BaseServer(9898);
 if (game.isRunning === false) {
     game.start("http://localhost:9898");
 }
+//# sourceMappingURL=game.js.map

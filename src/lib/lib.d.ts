@@ -97,11 +97,12 @@ declare var Function: {
     prototype: Function;
 }
 
-interface IArguments {
-    [index: number]: any;
-    length: number;
-    callee: Function;
-}
+// interface IArguments {
+//     [index: number]: any;
+//     length: number;
+//     callee: Function;
+//     splice: Function;
+// }
 
 interface String {
     toString(): string;
@@ -6467,6 +6468,7 @@ interface ErrorEvent extends Event {
     filename: string;
     lineno: number;
     message: string;
+    error: Error;
     initErrorEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, messageArg: string, filenameArg: string, linenoArg: number): void;
 }
 declare var ErrorEvent: {

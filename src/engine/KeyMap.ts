@@ -1,20 +1,27 @@
+/* 
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:09:02
+*/
 module HG {
 	export var KeyMap = {
-		D: 68,
-		A: 65,
-		S: 83,
-		W: 87,
-		Q: 81,
-		E: 69,
-		Left: 37,
-		Right: 39,
-		Top: 38,
-		Shift: 16,
-		Bottom: 40,
-		Space: 32,
-		Esc: 27,
-		F5: 116,
-		F11: 122,
-		F12: 123
+		D: "keyboard68",
+		A: "keyboard65",
+		S: "keyboard83",
+		W: "keyboard87",
+		Q: "keyboard81",
+		E: "keyboard69",
+		Left: "keyboard37",
+		Right: "keyboard39",
+		Top: "keyboard38",
+		Shift: "keyboard16",
+		Bottom: "keyboard40",
+		Space: "keyboard32",
+		Esc: "keyboard27",
+		F5: "keyboard116",
+		F11: "keyboard122",
+		F12: "keyboard123"
 	}
 }

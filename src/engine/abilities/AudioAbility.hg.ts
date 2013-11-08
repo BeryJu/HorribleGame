@@ -1,8 +1,11 @@
-/// <reference path="BaseAbility.hg.ts" />
-/*
-* AudioAbility.hg.ts
-* Author: BeryJu
+/* 
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:35
 */
+/// <reference path="BaseAbility.hg.ts" />
 
 module HG {
 
@@ -12,26 +15,14 @@ module HG {
 
 			eventsAvailable: string[] = ["loaded"];
 
-			constructor(url?: string) {
-				super();
-				if (url) this.loadAsync(url);
-			}
-
 			checkCompatibility(entity: BaseEntity): boolean {
 				return (entity.object instanceof THREE.Mesh);
 			}
 			
-			loadAsync(url: string): void {
-				var req = new XMLHttpRequest();
-				req.onreadystatechange = (ev) => {
-					if (req.readyState === 4) {
-						var loader = new THREE.JSONLoader();
-						var result = loader.parse(JSON.parse(req.responseText));
-						this.load(result.geometry, result.materials);
-					}
-				};
-				req.open("GET", url, true);
-				req.send();
+			fromMP3(path: string): void {
+				global.fs.readFile(path, (err, data) => {
+
+				});
 			}
 
 			load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void {

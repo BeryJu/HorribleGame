@@ -1,3 +1,10 @@
+/* 
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 16:39:48
+*/
 module HG {
 	export module Utils {
 		export function rgbToHex(r: number, g: number, b: number): number {
@@ -8,6 +15,12 @@ module HG {
 				return hex.length == 1 ? "0" + hex : hex;
 			}
 			return parseInt(componentToHex(r) + componentToHex(g) + componentToHex(b), 16);
+		}
+
+		export function profile(fn: () => any): void {
+			console.profile("HG Profile");
+			fn();
+			console.profileEnd();
 		}
 
 		export function degToRad(deg: number): number {

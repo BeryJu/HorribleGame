@@ -1,6 +1,9 @@
-/*
-* ModuleLoader.ts
-* Author: BeryJu
+/* 
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-07 17:24:34
 */
 
 module HG {
@@ -11,14 +14,11 @@ module HG {
 
 		constructor() {
 			super();
-			for (var i = 0; i < this.modules.length; i++) {
-				console.log("[ModuleLoader] Required "+this.modules[i]);
-				global[this.modules[i]] = require(this.modules[i]);
-			}
-			// this.modules.forEach((m) => {
-			// 	console.log("[ModuleLoader] Required "+m);
-			// 	global[m] = require(m);
-			// });
+			this.modules.forEach((m) => {
+				console.log("[ModuleLoader] Required "+m);
+				global[m] = require(m);
+			});
+			global.moduled = true;
 		}
 
 	}

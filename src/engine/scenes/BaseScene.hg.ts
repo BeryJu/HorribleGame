@@ -1,6 +1,9 @@
-/*
-* BaseScene.ts
-* Author: BeryJu
+/* 
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 19:40:14
 */
 
 module HG {
@@ -9,14 +12,14 @@ module HG {
 
 		export class BaseScene {
 
-			scene: THREE.Scene = null;
+			scene: Physijs.Scene = null;
 			entities: {
 				named: {};
 				unnamed: BaseEntity[];
 			};
 
 			constructor() {
-				this.scene = new THREE.Scene();
+				this.scene = new Physijs.Scene();
 				this.entities = {
 					named: {},
 					unnamed: []
@@ -76,7 +79,7 @@ module HG {
 				this.forUnamed(callback, type);
 			}
 
-			getInternal(): THREE.Scene {
+			getInternal(): Physijs.Scene {
 				return this.scene;
 			}
 

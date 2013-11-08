@@ -1,30 +1,31 @@
-///<reference path="EventDispatcher" />
-/*
-* BaseGame.ts
-* Author: BeryJu
+/* 
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 19:40:06
 */
+///<reference path="EventDispatcher" />
 
 module HG {
 
 	export class BaseGame extends EventDispatcher {
-		_: {} = {};
+
 		socketClient: SocketManager;
 		renderer: THREE.WebGLRenderer;
 		camera: HG.Entities.CameraEntity;
 		isRunning: boolean = false;
-		scene: HG.Scenes.BaseScene = new HG.Scenes.BaseScene();
 		controls: HG.InputHandler = new HG.InputHandler();
 		fpsCounter: HG.Utils.FPSCounter = new HG.Utils.FPSCounter();
 		shaders: HG.Shader[] = [];
-		eventsAvailable: string[] = ["preload", "connected", 
-			"start", "keyup", "keydown", "resize", "render"];
+		eventsAvailable: string[] = ["load", "connected", 
+			"start", "keyup", "keydown", "resize", "render",
+			"mouseDown", "mouseUp", "mouseMove"];
 
 		constructor(container: HTMLElement = document.body) {
 			super();
-			if (Utils.hasGL() === false) {
-				throw new Error("Your Browser doesn't support WebGL");
-			}
-			this.camera = new Entities.CameraEntity(Settings.fov,
+			new HG.Utils.Bootstrapper().bootstrap();
+			this.camera = new HG.Entities.CameraEntity(Settings.fov,
 				window.innerWidth / window.innerHeight, 0.1, Settings.viewDistance);
 			this.renderer = new THREE.WebGLRenderer({antialias: Settings.antialiasing});
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -37,10 +38,10 @@ module HG {
 			return s;
 		}
 
-		preLoad(): void {
-			console.log('loading assets');
-			this.dispatch('preload');
-			console.log('loaded assets');
+		load(): void {
+			console.log('[BaseGame] Loading assets');
+			this.dispatch('load');
+			console.log('[BaseGame] Loaded assets');
 		}
 
 		connect(serverHost: string): void {
@@ -48,7 +49,7 @@ module HG {
 			this.socketClient.on('news', (data) => {
 				console.log(data);
 			});
-			this.dispatch("connected", {host: serverHost});
+			this.dispatch("connected", serverHost);
 		}
 
 		start(serverHost: string): void {
@@ -57,14 +58,29 @@ module HG {
 			this.isRunning = true;
 		}
 
-		onKeyUp(a: KeyboardEvent): void {
-			this.controls.onKeyUp(a);
-			this.dispatch('keyUp', {event: a});
+		onKeyUp(e: KeyboardEvent): void {
+			this.controls.onKeyUp(e);
+			this.dispatch('keyUp', e);
 		}
 
-		onKeyDown(a: KeyboardEvent): void {
-			this.controls.onKeyDown(a);
-			this.dispatch('keyDown', {event: a});
+		onKeyDown(e: KeyboardEvent): void {
+			this.controls.onKeyDown(e);
+			this.dispatch('keyDown', e);
+		}
+
+		onMouseDown(e: MouseEvent): void {
+			this.controls.onMouseDown(e);
+			this.dispatch('mouseDown', e);
+		}
+
+		onMouseUp(e: MouseEvent): void {
+			this.controls.onMouseUp(e);
+			this.dispatch('mouseUp', e);
+		}
+
+		onMouseMove(e: MouseEvent): void {
+			this.controls.onMouseMove(e);
+			this.dispatch('mouseMove', e);
 		}
 
 		onResize(): void {
@@ -74,13 +90,15 @@ module HG {
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}
 
-		render(): void {
+		render(scene: HG.Scenes.BaseScene): void {
 			var delta = this.fpsCounter.getFrameTime() / 10;
-			this.dispatch('render', {delta: delta});
+			this.dispatch('render', delta);
 			this.camera.frame(delta);
 			this.controls.frame(delta);
 			this.fpsCounter.frame(delta);
-			this.renderer.render(this.scene.getInternal(), this.camera.object);
+			scene.getInternal().simulate();
+			this.renderer.render(scene.getInternal(), 
+				<THREE.PerspectiveCamera> this.camera.getInternal());
 		}
 
 	}

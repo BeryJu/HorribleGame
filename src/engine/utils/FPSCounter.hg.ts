@@ -1,9 +1,16 @@
-/// <reference path="../GameComponent" />
+/* 
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-06 15:08:05
+*/
 
 module HG {
 
 	export module Utils {
-		export class FPSCounter extends GameComponent{
+
+		export class FPSCounter {
 			private lastFrameTime: number = 0;
 			private lastSecond: number = 0;
 			private currentFrames: number = 0;
@@ -13,7 +20,6 @@ module HG {
 			private fps: number = 0;
 
 			constructor() {
-				super();
 				this.lastFrameTime = new Date().getTime();
 			}
 

@@ -1,8 +1,11 @@
-/// <reference path="BaseAbility.hg.ts" />
-/*
-* AnimationAbility.hg.ts
-* Author: BeryJu
+/* 
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-08 22:00:00
 */
+/// <reference path="BaseAbility.hg.ts" />
 
 module HG {
 
@@ -19,16 +22,22 @@ module HG {
 			currentKeyframe: number = 0;
 			eventsAvailable: string[] = ["loaded"];
 
-			constructor(path?: string) {
-				super();
-				if (path) this.loadAsync(path);
-			}
-			
-			checkCompatibility(entity: BaseEntity): boolean {
-				return (entity.object instanceof THREE.Mesh);
+			setHost(entity: BaseEntity): void {
+				this.hostEntity = entity;
+				entity.on('loaded', (g, m) => {
+					g = <THREE.Geometry> g;
+					m = <THREE.MeshLambertMaterial[]> m;
+					this.load(g, m.materials);
+				});
 			}
 
-			loadAsync(path: string): void {
+			checkCompatibility(entity: BaseEntity): boolean {
+				var mesh = (entity instanceof HG.Entities.MeshEntity);
+				var model = (entity instanceof HG.Entities.ModelEntity);
+				return mesh || model;
+			}
+
+			fromJS(path: string): void {
 				global.fs.readFile(path, (err, data) => {
 					var loader = new THREE.JSONLoader();
 					var result = loader.parse(JSON.parse(data));
@@ -37,8 +46,8 @@ module HG {
 			}
 
 			load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void {
-				materials.forEach((m) => {
-					m['morphTargets'] = true;
+				materials.forEach((material) => {
+					material.morphTargets = true;
 				});
 				var material = new THREE.MeshFaceMaterial(materials);
 				var oldPosition = this.hostEntity.object.position;
