@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 16:30:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 22:00:48
+* @Last Modified time: 2013-11-09 00:08:31
 */
 module HG {
 
@@ -33,7 +33,7 @@ module HG {
 				if (HG.Utils.hasGL() === false) this.dispatch('error', 
 					new Error("Runtime or Graphiscard doesn't support GL"));
 				if (!global.moduled) {
-					var loader = new HG.ModuleLoader();
+					var loader = new HG.Utils.ModuleLoader();
 				}
 				if (!global.linqd) {
 					HG.LINQ.initialize();

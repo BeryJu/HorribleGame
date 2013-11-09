@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-07 16:19:55
+* @Last Modified time: 2013-11-09 12:02:56
 */
 module HG {
 
@@ -12,7 +12,7 @@ module HG {
 		private keyState: number[] = [];
 		private mouseState: number[] = [];
 		private lastMouse: THREE.Vector2;
-		eventsAvailable: string[] = ['mouseX', 'mouseY'];
+		eventsAvailable: string[] = ['mouseX', 'mouseY', 'mousemove'];
 		bind = this.on;
 
 		get mousePosition(): THREE.Vector2 {
@@ -21,6 +21,7 @@ module HG {
 
 		constructor() {
 			super();
+			this.lastMouse = new THREE.Vector2();
 			for (var k in KeyMap) {
 				this.eventsAvailable.push(KeyMap[k]);
 			}
@@ -37,8 +38,9 @@ module HG {
 			if (y !== this.lastMouse.y) {
 				var diffY = this.lastMouse.y - y;
 				this.lastMouse.y = y;
-				this.dispatch('mouseX', diffY, y)
+				this.dispatch('mouseY', diffY, y)
 			}
+			this.dispatch('mouseMove', x, y);
 		}
 
 		onMouseDown(e: MouseEvent): void {

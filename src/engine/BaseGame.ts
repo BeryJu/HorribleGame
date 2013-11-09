@@ -3,9 +3,9 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 19:40:06
+* @Last Modified time: 2013-11-09 11:47:56
 */
-///<reference path="EventDispatcher" />
+///<reference path="EventDispatcher.ts" />
 
 module HG {
 
@@ -25,11 +25,15 @@ module HG {
 		constructor(container: HTMLElement = document.body) {
 			super();
 			new HG.Utils.Bootstrapper().bootstrap();
-			this.camera = new HG.Entities.CameraEntity(Settings.fov,
-				window.innerWidth / window.innerHeight, 0.1, Settings.viewDistance);
-			this.renderer = new THREE.WebGLRenderer({antialias: Settings.antialiasing});
+			this.camera = new HG.Entities.CameraEntity(HG.Settings.Graphics.fov,
+				window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
+			this.renderer = new THREE.WebGLRenderer({antialias: HG.Settings.Graphics.antialiasing});
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 			container.appendChild(this.renderer.domElement);
+		}
+
+		title(...args): void {
+			document.title = args.join("");
 		}
 
 		loadShader(path): HG.Shader {
@@ -85,13 +89,12 @@ module HG {
 
 		onResize(): void {
 			this.dispatch('resize');
-			this.camera.object.aspect = window.innerWidth / window.innerHeight;
-			this.camera.object.updateProjectionMatrix();
+			this.camera.resize(window.innerWidth / window.innerHeight);
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}
 
 		render(scene: HG.Scenes.BaseScene): void {
-			var delta = this.fpsCounter.getFrameTime() / 10;
+			var delta = this.fpsCounter.frameTime / 10;
 			this.dispatch('render', delta);
 			this.camera.frame(delta);
 			this.controls.frame(delta);

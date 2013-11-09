@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 18:17:12
+* @Last Modified time: 2013-11-09 13:04:48
 */
 /// <reference path="LevelStructure.hg.ts" />
 
@@ -19,17 +19,18 @@ module HG {
 
 		constructor(lvl: LevelStructure) {
 			super();
-			var g = new THREE.CubeGeometry(
-				HG.CONSTANTS.BLOCK_SIZE,
-				HG.CONSTANTS.BLOCK_SIZE,
-				HG.CONSTANTS.BLOCK_SIZE
-			);
-			var m =  new THREE.MeshPhongMaterial({color: 0x000000});
-			lvl.entities.forEach((e) => {
-				m.color = new THREE.Color(e.color);
-				var en = new HG.Entities.MeshEntity(g, m);
-				en.position(e.position.x, e.position.y, e.position.z);
-			});
+			// Todo redo this
+			// var g = new THREE.CubeGeometry(
+			// 	HG.CONSTANTS.BLOCK_SIZE,
+			// 	HG.CONSTANTS.BLOCK_SIZE,
+			// 	HG.CONSTANTS.BLOCK_SIZE
+			// );
+			// var m =  new THREE.MeshPhongMaterial({color: 0x000000});
+			// lvl.entities.forEach((e) => {
+			// 	m.color = new THREE.Color(e.color);
+			// 	var en = new HG.Entities.MeshEntity(g, m);
+			// 	en.position(e.position.x, e.position.y, e.position.z);
+			// });
 			this.camera.position =
 				new THREE.Vector3(lvl.camera.position.x, lvl.camera.position.y, 
 					lvl.camera.position.z);

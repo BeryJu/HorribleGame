@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 15:07:48
+* @Last Modified time: 2013-11-09 11:12:48
 */
 /// <reference path="BaseEntity.hg.ts" />
 
@@ -23,6 +23,11 @@ module HG {
 
 			setViewDistance(distance: number): void {
 				this.object.far = distance;
+				this.object.updateProjectionMatrix();
+			}
+
+			resize(ratio: number): void {
+				this.object.aspect = ratio;
 				this.object.updateProjectionMatrix();
 			}
 

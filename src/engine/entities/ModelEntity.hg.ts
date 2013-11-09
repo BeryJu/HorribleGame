@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 20:03:27
+* @Last Modified time: 2013-11-08 23:43:43
 */
 /// <reference path="BaseEntity.hg.ts" />
 
@@ -16,13 +16,13 @@ module HG {
 			object: THREE.Mesh;
 			eventsAvailable: string[] = ["loaded"];
 
-			// fromSTL(path: string): void {
-			// 	global.fs.readFile(path, (err, data) => {
-			// 		var sloader = new THREE.STLLoader();
-			// 		var a = sloader.parse(data);
-			// 		console.log(a);
-			// 	});
-			// }
+			fromSTL(path: string): void {
+				global.fs.readFile(path, (err, data) => {
+					var sloader = new THREE.STLLoader();
+					var a = sloader.parse(data);
+					console.log(a);
+				});
+			}
 
 			fromJS(path: string): void {
 				global.fs.readFile(path, (err, data) => {

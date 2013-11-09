@@ -11,7 +11,7 @@ game.on('load', function() {
 	// scene.add(game.camera, "camera1");
 
 	var playerLight = new HG.BaseEntity(
-		new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance / 10));
+		new THREE.PointLight(0xffffff, 3, HG.Settings.Graphics.viewDistance / 10));
 	var playerLightMove = new HG.Abilities.MovingAbility();
 	playerLight.addAbility(playerLightMove);
 	playerLight.offset(0, 150, 0);
@@ -56,8 +56,8 @@ game.on('load', function() {
 		level.entities.forEach((e) => {
 			scene.add(e);
 		});
-		var cam = new HG.Entities.ChasingCameraEntity(player, HG.Settings.fov,
-					window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
+		var cam = new HG.Entities.ChasingCameraEntity(player, HG.Settings.Graphics.fov,
+					window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
 		level.applyCameraOffset(cam);
 		game.camera = cam;
 	});
@@ -111,16 +111,25 @@ game.on('load', function() {
 
 game.on('start', () => {
 	document.getElementById('build').innerText = "HorribleGame build "+pkg.build; 
-	window.onresize = () => game.onResize();
-	window.onkeydown = (a: any) => game.onKeyDown(a);
-	window.onkeyup = (a: any) => game.onKeyUp(a);
-	var render = () => { game.render(scene); requestAnimationFrame(render); };
 	if (HG.Settings.debug === true) {
 		HG.Utils.profile(() => {
 			game.render(scene);
 		});
 	}
-	render();
+	window.onresize = () => game.onResize();
+	window.onkeydown = (a: any) => game.onKeyDown(a);
+	window.onkeyup = (a: any) => game.onKeyUp(a);
+	window.onmousemove = (a: any) => game.onMouseMove(a);
+	window.onmousedown = (a: any) => game.onMouseDown(a);
+	window.onmouseup = (a: any) => game.onMouseUp(a);
+	if (HG.Settings.Graphics.useStaticFramerate === true) {
+		var render = () => { game.render(scene); };
+		setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
+		render();
+	} else {
+		var render = () => { game.render(scene); requestAnimationFrame(render); };
+		render();
+	}
 });
 
 game.on('keydown', (a: any) => {
@@ -128,6 +137,10 @@ game.on('keydown', (a: any) => {
 	if ("keyboard"+a.keyCode === HG.Settings.keys.devConsole) {
 		HG.Utils.openDevConsole();
 	}
+});
+
+game.controls.bind("mouseMove", (x: number, y: number) => {
+	game.title("x: ", x, ", y: ", y);
 });
 
 game.controls.bind(HG.Settings.keys.refresh, (delta: number) => {
@@ -149,10 +162,10 @@ game.on("connected", (host) => {
 
 game.on("render", (delta: number) => {
 	scene.forNamed((e) => e.frame(delta));
-	document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.getFPS();
+	document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.FPS;
 	document.getElementById("verts").innerText = "Vertices: "+game.renderer.info.render.vertices;
 	document.getElementById("frametime").innerText =
-		"Frametime: "+game.fpsCounter.getFrameTime()+"ms";
+		"Frametime: "+game.fpsCounter.frameTime+"ms";
 });
 
 window.onload = () => game.load();

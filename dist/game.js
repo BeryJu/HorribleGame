@@ -113,9 +113,9 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 19:40:06
+* @Last Modified time: 2013-11-09 11:47:56
 */
-///<reference path="EventDispatcher" />
+///<reference path="EventDispatcher.ts" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -146,11 +146,19 @@ var HG;
                 "mouseMove"
             ];
             new HG.Utils.Bootstrapper().bootstrap();
-            this.camera = new HG.Entities.CameraEntity(HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
-            this.renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.antialiasing });
+            this.camera = new HG.Entities.CameraEntity(HG.Settings.Graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
+            this.renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.Graphics.antialiasing });
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             container.appendChild(this.renderer.domElement);
         }
+        BaseGame.prototype.title = function () {
+            var args = [];
+            for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                args[_i] = arguments[_i + 0];
+            }
+            document.title = args.join("");
+        };
+
         BaseGame.prototype.loadShader = function (path) {
             var s = new HG.Shader(path);
             this.shaders.push(s);
@@ -204,13 +212,12 @@ var HG;
 
         BaseGame.prototype.onResize = function () {
             this.dispatch('resize');
-            this.camera.object.aspect = window.innerWidth / window.innerHeight;
-            this.camera.object.updateProjectionMatrix();
+            this.camera.resize(window.innerWidth / window.innerHeight);
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         };
 
         BaseGame.prototype.render = function (scene) {
-            var delta = this.fpsCounter.getFrameTime() / 10;
+            var delta = this.fpsCounter.frameTime / 10;
             this.dispatch('render', delta);
             this.camera.frame(delta);
             this.controls.frame(delta);
@@ -253,7 +260,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-07 16:19:55
+* @Last Modified time: 2013-11-09 12:02:56
 */
 var HG;
 (function (HG) {
@@ -263,8 +270,9 @@ var HG;
             _super.call(this);
             this.keyState = [];
             this.mouseState = [];
-            this.eventsAvailable = ['mouseX', 'mouseY'];
+            this.eventsAvailable = ['mouseX', 'mouseY', 'mousemove'];
             this.bind = this.on;
+            this.lastMouse = new THREE.Vector2();
             for (var k in HG.KeyMap) {
                 this.eventsAvailable.push(HG.KeyMap[k]);
             }
@@ -288,8 +296,9 @@ var HG;
             if (y !== this.lastMouse.y) {
                 var diffY = this.lastMouse.y - y;
                 this.lastMouse.y = y;
-                this.dispatch('mouseX', diffY, y);
+                this.dispatch('mouseY', diffY, y);
             }
+            this.dispatch('mouseMove', x, y);
         };
 
         InputHandler.prototype.onMouseDown = function (e) {
@@ -350,30 +359,6 @@ var HG;
         F11: "keyboard122",
         F12: "keyboard123"
     };
-})(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-07 17:24:34
-*/
-var HG;
-(function (HG) {
-    var ModuleLoader = (function (_super) {
-        __extends(ModuleLoader, _super);
-        function ModuleLoader() {
-            _super.call(this);
-            this.modules = ['fs', 'http', 'socket.io', 'socket.io-client'];
-            this.modules.forEach(function (m) {
-                console.log("[ModuleLoader] Required " + m);
-                global[m] = require(m);
-            });
-            global.moduled = true;
-        }
-        return ModuleLoader;
-    })(HG.EventDispatcher);
-    HG.ModuleLoader = ModuleLoader;
 })(HG || (HG = {}));
 /*
 * @Author: BeryJu
@@ -756,7 +741,7 @@ var HG;
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 15:07:48
+* @Last Modified time: 2013-11-09 11:12:48
 */
 /// <reference path="BaseEntity.hg.ts" />
 var HG;
@@ -776,6 +761,11 @@ var HG;
                 this.object.far = distance;
                 this.object.updateProjectionMatrix();
             };
+
+            CameraEntity.prototype.resize = function (ratio) {
+                this.object.aspect = ratio;
+                this.object.updateProjectionMatrix();
+            };
             return CameraEntity;
         })(HG.BaseEntity);
         Entities.CameraEntity = CameraEntity;
@@ -787,7 +777,7 @@ var HG;
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 15:07:44
+* @Last Modified time: 2013-11-09 11:05:08
 */
 /// <reference path="BaseEntity.hg.ts" />
 var HG;
@@ -805,11 +795,6 @@ var HG;
                 this.target = target;
                 this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
             }
-            ChasingCameraEntity.prototype.setViewDistance = function (distance) {
-                this.object.far = distance;
-                this.object.updateProjectionMatrix();
-            };
-
             ChasingCameraEntity.prototype.frame = function (delta) {
                 var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
 
@@ -933,7 +918,7 @@ var HG;
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 20:03:27
+* @Last Modified time: 2013-11-08 23:43:43
 */
 /// <reference path="BaseEntity.hg.ts" />
 var HG;
@@ -945,13 +930,14 @@ var HG;
                 _super.apply(this, arguments);
                 this.eventsAvailable = ["loaded"];
             }
-            // fromSTL(path: string): void {
-            // 	global.fs.readFile(path, (err, data) => {
-            // 		var sloader = new THREE.STLLoader();
-            // 		var a = sloader.parse(data);
-            // 		console.log(a);
-            // 	});
-            // }
+            ModelEntity.prototype.fromSTL = function (path) {
+                global.fs.readFile(path, function (err, data) {
+                    var sloader = new THREE.STLLoader();
+                    var a = sloader.parse(data);
+                    console.log(a);
+                });
+            };
+
             ModelEntity.prototype.fromJS = function (path) {
                 var _this = this;
                 global.fs.readFile(path, function (err, data) {
@@ -1888,7 +1874,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 18:17:12
+* @Last Modified time: 2013-11-09 13:04:48
 */
 /// <reference path="LevelStructure.hg.ts" />
 var HG;
@@ -1902,13 +1888,19 @@ var HG;
                 position: new THREE.Vector3(),
                 rotation: new THREE.Vector3()
             };
-            var g = new THREE.CubeGeometry(HG.CONSTANTS.BLOCK_SIZE, HG.CONSTANTS.BLOCK_SIZE, HG.CONSTANTS.BLOCK_SIZE);
-            var m = new THREE.MeshPhongMaterial({ color: 0x000000 });
-            lvl.entities.forEach(function (e) {
-                m.color = new THREE.Color(e.color);
-                var en = new HG.Entities.MeshEntity(g, m);
-                en.position(e.position.x, e.position.y, e.position.z);
-            });
+
+            // Todo redo this
+            // var g = new THREE.CubeGeometry(
+            // 	HG.CONSTANTS.BLOCK_SIZE,
+            // 	HG.CONSTANTS.BLOCK_SIZE,
+            // 	HG.CONSTANTS.BLOCK_SIZE
+            // );
+            // var m =  new THREE.MeshPhongMaterial({color: 0x000000});
+            // lvl.entities.forEach((e) => {
+            // 	m.color = new THREE.Color(e.color);
+            // 	var en = new HG.Entities.MeshEntity(g, m);
+            // 	en.position(e.position.x, e.position.y, e.position.z);
+            // });
             this.camera.position = new THREE.Vector3(lvl.camera.position.x, lvl.camera.position.y, lvl.camera.position.z);
             this.camera.rotation = new THREE.Vector3(lvl.camera.rotation.x, lvl.camera.rotation.y, lvl.camera.rotation.z);
         }
@@ -2182,10 +2174,123 @@ var HG;
 })(HG || (HG = {}));
 /*
 * @Author: BeryJu
+* @Date:   2013-11-09 15:07:32
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-09 16:15:12
+*/
+/// <reference path="../EventDispatcher.ts" />
+var HG;
+(function (HG) {
+    (function (Sound) {
+        var Channel = (function () {
+            function Channel(mx) {
+                this.rootContext = mx.context;
+            }
+            Channel.prototype.volume = function (gain) {
+                if (this.gainNode)
+                    this.gainNode.gain.value = gain;
+            };
+            return Channel;
+        })();
+        Sound.Channel = Channel;
+    })(HG.Sound || (HG.Sound = {}));
+    var Sound = HG.Sound;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-09 15:07:32
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-09 16:15:25
+*/
+/// <reference path="../EventDispatcher.ts" />
+var HG;
+(function (HG) {
+    (function (Sound) {
+        var Effect = (function () {
+            function Effect(ch) {
+                this.destination = ch;
+                this.gainNode = this.destination.context.createGain();
+                this.gainNode.connect(this.destination.context.destination);
+            }
+            Object.defineProperty(Effect.prototype, "gain", {
+                get: function () {
+                    return this.gainNode.gain.value || 0;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Effect.prototype.load = function (path) {
+                var _this = this;
+                global.fs.readFile(path, function (err, data) {
+                    _this.source = _this.destination.context.createBufferSource();
+                    _this.destination.context.decodeAudioData(data, function (buffer) {
+                        _this.source.buffer = buffer;
+                    }, function () {
+                    });
+                    _this.source.connect(_this.gainNode);
+                });
+            };
+
+            Effect.prototype.play = function () {
+                if (this.source)
+                    this.source.start(0);
+            };
+
+            Effect.prototype.volume = function (gain) {
+                if (this.gainNode)
+                    this.gainNode.gain.value = gain;
+            };
+            return Effect;
+        })();
+        Sound.Effect = Effect;
+    })(HG.Sound || (HG.Sound = {}));
+    var Sound = HG.Sound;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-09 15:07:32
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-09 16:15:10
+*/
+/// <reference path="../EventDispatcher.ts" />
+var HG;
+(function (HG) {
+    (function (Sound) {
+        var Mixer = (function () {
+            function Mixer() {
+            }
+            Object.defineProperty(Mixer.prototype, "gain", {
+                get: function () {
+                    return this.gainNode.gain.value || 0;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Mixer.prototype.volume = function (gain) {
+                if (this.gainNode)
+                    this.gainNode.gain.value = gain;
+            };
+
+            Mixer.prototype.addChannel = function (ch) {
+                this.channels.push(ch);
+            };
+            return Mixer;
+        })();
+        Sound.Mixer = Mixer;
+    })(HG.Sound || (HG.Sound = {}));
+    var Sound = HG.Sound;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
 * @Date:   2013-11-07 16:30:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 22:00:48
+* @Last Modified time: 2013-11-09 00:08:31
 */
 var HG;
 (function (HG) {
@@ -2214,7 +2319,7 @@ var HG;
                 if (HG.Utils.hasGL() === false)
                     this.dispatch('error', new Error("Runtime or Graphiscard doesn't support GL"));
                 if (!global.moduled) {
-                    var loader = new HG.ModuleLoader();
+                    var loader = new HG.Utils.ModuleLoader();
                 }
                 if (!global.linqd) {
                     HG.LINQ.initialize();
@@ -2239,7 +2344,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 15:08:05
+* @Last Modified time: 2013-11-09 00:23:58
 */
 var HG;
 (function (HG) {
@@ -2250,28 +2355,40 @@ var HG;
                 this.lastSecond = 0;
                 this.currentFrames = 0;
                 this.highestFPS = 0;
-                this.frameTime = 0;
+                this._frameTime = 0;
                 this.fps = 0;
                 this.lastFrameTime = new Date().getTime();
             }
-            FPSCounter.prototype.getFPS = function () {
-                return this.fps;
-            };
+            Object.defineProperty(FPSCounter.prototype, "FPS", {
+                get: function () {
+                    return this.fps;
+                },
+                enumerable: true,
+                configurable: true
+            });
 
-            FPSCounter.prototype.getMaxFPS = function () {
-                return this.highestFPS;
-            };
+            Object.defineProperty(FPSCounter.prototype, "maxFPS", {
+                get: function () {
+                    return this.highestFPS;
+                },
+                enumerable: true,
+                configurable: true
+            });
 
-            FPSCounter.prototype.getFrameTime = function () {
-                return this.frameTime;
-            };
+            Object.defineProperty(FPSCounter.prototype, "frameTime", {
+                get: function () {
+                    return this._frameTime;
+                },
+                enumerable: true,
+                configurable: true
+            });
 
             FPSCounter.prototype.frame = function (delta) {
                 var Now = new Date();
                 var Diff = new Date(Now.getTime() - this.lastFrameTime);
 
                 //FrameTime
-                this.frameTime = Diff.getTime();
+                this._frameTime = Diff.getTime();
                 this.lastFrameTime = Now.getTime();
 
                 //FPS
@@ -2365,18 +2482,58 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 15:08:10
+* @Last Modified time: 2013-11-09 00:08:13
+*/
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var ModuleLoader = (function (_super) {
+            __extends(ModuleLoader, _super);
+            function ModuleLoader() {
+                _super.call(this);
+                this.modules = ['fs', 'http', 'socket.io', 'socket.io-client'];
+                this.modules.forEach(function (m) {
+                    console.log("[ModuleLoader] Required " + m);
+                    global[m] = require(m);
+                });
+                global.moduled = true;
+            }
+            return ModuleLoader;
+        })(HG.EventDispatcher);
+        Utils.ModuleLoader = ModuleLoader;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-09 11:38:57
 */
 var HG;
 (function (HG) {
     var Settings = (function () {
         function Settings() {
         }
-        Settings.fov = 110;
-        Settings.viewDistance = 5000;
-        Settings.shadowMapSize = 2048;
-        Settings.antialiasing = true;
         Settings.debug = true;
+
+        Settings.Graphics = {
+            fov: 110,
+            viewDistance: 5000,
+            shadowMapSize: 2048,
+            useStaticFramerate: true,
+            staticFramerate: 120,
+            antialiasing: true,
+            resolution: new THREE.Vector2(1280, 720)
+        };
+
+        Settings.Sound = {
+            masterVolume: 1.0,
+            effectsVolume: 0.8,
+            musicVolume: 0.7
+        };
+
         Settings.keys = {
             forward: [HG.KeyMap.W, HG.KeyMap.Top],
             backward: [HG.KeyMap.S, HG.KeyMap.Bottom],
@@ -2478,7 +2635,7 @@ game.on('load', function () {
 
     // game.camera.addAbility(new HG.Abilities.MovingAbility());
     // scene.add(game.camera, "camera1");
-    var playerLight = new HG.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.viewDistance / 10));
+    var playerLight = new HG.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.Graphics.viewDistance / 10));
     var playerLightMove = new HG.Abilities.MovingAbility();
     playerLight.addAbility(playerLightMove);
     playerLight.offset(0, 150, 0);
@@ -2525,7 +2682,7 @@ game.on('load', function () {
         level.entities.forEach(function (e) {
             scene.add(e);
         });
-        var cam = new HG.Entities.ChasingCameraEntity(player, HG.Settings.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.viewDistance);
+        var cam = new HG.Entities.ChasingCameraEntity(player, HG.Settings.Graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
         level.applyCameraOffset(cam);
         game.camera = cam;
     });
@@ -2578,6 +2735,11 @@ game.on('load', function () {
 
 game.on('start', function () {
     document.getElementById('build').innerText = "HorribleGame build " + pkg.build;
+    if (HG.Settings.debug === true) {
+        HG.Utils.profile(function () {
+            game.render(scene);
+        });
+    }
     window.onresize = function () {
         return game.onResize();
     };
@@ -2587,16 +2749,28 @@ game.on('start', function () {
     window.onkeyup = function (a) {
         return game.onKeyUp(a);
     };
-    var render = function () {
-        game.render(scene);
-        requestAnimationFrame(render);
+    window.onmousemove = function (a) {
+        return game.onMouseMove(a);
     };
-    if (HG.Settings.debug === true) {
-        HG.Utils.profile(function () {
+    window.onmousedown = function (a) {
+        return game.onMouseDown(a);
+    };
+    window.onmouseup = function (a) {
+        return game.onMouseUp(a);
+    };
+    if (HG.Settings.Graphics.useStaticFramerate === true) {
+        var render = function () {
             game.render(scene);
-        });
+        };
+        setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
+        render();
+    } else {
+        var render = function () {
+            game.render(scene);
+            requestAnimationFrame(render);
+        };
+        render();
     }
-    render();
 });
 
 game.on('keydown', function (a) {
@@ -2604,6 +2778,10 @@ game.on('keydown', function (a) {
     if ("keyboard" + a.keyCode === HG.Settings.keys.devConsole) {
         HG.Utils.openDevConsole();
     }
+});
+
+game.controls.bind("mouseMove", function (x, y) {
+    game.title("x: ", x, ", y: ", y);
 });
 
 game.controls.bind(HG.Settings.keys.refresh, function (delta) {
@@ -2626,9 +2804,9 @@ game.on("render", function (delta) {
     scene.forNamed(function (e) {
         return e.frame(delta);
     });
-    document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.getFPS();
+    document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.FPS;
     document.getElementById("verts").innerText = "Vertices: " + game.renderer.info.render.vertices;
-    document.getElementById("frametime").innerText = "Frametime: " + game.fpsCounter.getFrameTime() + "ms";
+    document.getElementById("frametime").innerText = "Frametime: " + game.fpsCounter.frameTime + "ms";
 });
 
 window.onload = function () {
