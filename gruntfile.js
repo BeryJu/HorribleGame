@@ -22,14 +22,13 @@ module.exports = function(grunt) {
 			}
 		},
 		shell: {
-			app: {
+			hg: {
 				command: "rm tscommand.tmp.txt ; cd dist/ ; zip -r dist.nw . ; mv dist.nw ../bin ; cp ../bin/dist.nw /srvroot/documentRoot/stuff/HorribleGame/"
 			}
 		}
 	});
 	grunt.loadNpmTasks("grunt-ts");
 	grunt.loadNpmTasks('grunt-shell');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.registerTask('default', ['ts']);
 	grunt.registerTask('publish', ['ts', 'shell']);
 	// if (!fs) fs = require('fs');

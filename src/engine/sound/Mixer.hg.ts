@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 16:15:10
+* @Last Modified time: 2013-11-10 20:10:09
 */
 /// <reference path="../EventDispatcher.ts" />
 module HG {
@@ -12,7 +12,7 @@ module HG {
 
 		export class Mixer {
 
-			channels: HG.Sound.Channel[];
+			channels: {} = {};
 			gainNode: GainNode;
 			context: AudioContext;
 
@@ -21,7 +21,7 @@ module HG {
 			}
 
 			constructor() {
-
+				this.context = new AudioContext();
 			}
 
 			volume(gain: number): void {
@@ -30,7 +30,8 @@ module HG {
 			}
 
 			addChannel(ch: HG.Sound.Channel): void {
-				this.channels.push(ch);
+				ch.rootContext = this.context;
+				this.channels[ch.name] = ch;
 			}
 
 		}

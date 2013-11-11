@@ -113,7 +113,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 11:47:56
+* @Last Modified time: 2013-11-11 13:27:41
 */
 ///<reference path="EventDispatcher.ts" />
 var __extends = this.__extends || function (d, b) {
@@ -146,6 +146,17 @@ var HG;
                 "mouseMove"
             ];
             new HG.Utils.Bootstrapper().bootstrap();
+
+            this.soundMixer = new HG.Sound.Mixer();
+            this.soundMixer.volume(HG.Settings.Sound.masterVolume);
+            for (var c in HG.Settings.Sound.channels) {
+                var ch = new HG.Sound.Channel(c.replace("Volume", ""));
+                ch.volume(HG.Settings.Sound.channels[c]);
+                this.soundMixer.addChannel(ch);
+            }
+
+            HG.Utils.setFullScreenMode(HG.Settings.Graphics.fullscreen);
+
             this.camera = new HG.Entities.CameraEntity(HG.Settings.Graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
             this.renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.Graphics.antialiasing });
             this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -2174,25 +2185,91 @@ var HG;
 })(HG || (HG = {}));
 /*
 * @Author: BeryJu
+* @Date:   2013-11-10 13:59:37
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-10 20:54:20
+*/
+var HG;
+(function (HG) {
+    (function (Sound) {
+        var BufferLoader = (function () {
+            function BufferLoader(context) {
+                this.context = context;
+            }
+            BufferLoader.prototype.loadBuffer = function (url, onload) {
+                var _this = this;
+                // Load buffer asynchronously
+                var request = new XMLHttpRequest();
+                request.open("GET", url, true);
+                request.responseType = "arraybuffer";
+
+                request.onload = function () {
+                    // Asynchronously decode the audio file data in request.response
+                    _this.context.decodeAudioData(request.response, function (buffer) {
+                        if (!buffer) {
+                            alert('error decoding file data: ' + url);
+                            return;
+                        }
+                        onload(buffer);
+                    }, function (error) {
+                        console.error('decodeAudioData error', error);
+                    });
+                };
+
+                request.onerror = function () {
+                    alert('BufferLoader: XHR error');
+                };
+
+                request.send();
+            };
+
+            BufferLoader.prototype.load = function (urls, cb) {
+                var _this = this;
+                urls.forEach(function (url) {
+                    _this.loadBuffer(url, cb);
+                });
+            };
+            return BufferLoader;
+        })();
+        Sound.BufferLoader = BufferLoader;
+    })(HG.Sound || (HG.Sound = {}));
+    var Sound = HG.Sound;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 16:15:12
+* @Last Modified time: 2013-11-11 13:28:28
 */
 /// <reference path="../EventDispatcher.ts" />
 var HG;
 (function (HG) {
     (function (Sound) {
-        var Channel = (function () {
-            function Channel(mx) {
-                this.rootContext = mx.context;
+        var Channel = (function (_super) {
+            __extends(Channel, _super);
+            function Channel(name) {
+                _super.call(this);
+                this.eventsAvailable = ['volumeChange'];
+                this.name = name;
             }
+            Object.defineProperty(Channel.prototype, "gain", {
+                get: function () {
+                    return this.gainNode.gain.value || 0;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             Channel.prototype.volume = function (gain) {
-                if (this.gainNode)
+                if (this.gainNode) {
                     this.gainNode.gain.value = gain;
+                    this.dispatch("volumeChange", gain);
+                }
             };
             return Channel;
-        })();
+        })(HG.EventDispatcher);
         Sound.Channel = Channel;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
@@ -2202,7 +2279,7 @@ var HG;
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 16:15:25
+* @Last Modified time: 2013-11-11 13:33:15
 */
 /// <reference path="../EventDispatcher.ts" />
 var HG;
@@ -2211,8 +2288,10 @@ var HG;
         var Effect = (function () {
             function Effect(ch) {
                 this.destination = ch;
-                this.gainNode = this.destination.context.createGain();
-                this.gainNode.connect(this.destination.context.destination);
+                this.destination.on('volumeChange', this.volume);
+                this.rootContext = this.destination.rootContext;
+                this.gainNode = this.rootContext.createGain();
+                this.gainNode.connect(this.rootContext.destination);
             }
             Object.defineProperty(Effect.prototype, "gain", {
                 get: function () {
@@ -2222,21 +2301,28 @@ var HG;
                 configurable: true
             });
 
-            Effect.prototype.load = function (path) {
+            Effect.prototype.fromFile = function (path) {
                 var _this = this;
-                global.fs.readFile(path, function (err, data) {
-                    _this.source = _this.destination.context.createBufferSource();
-                    _this.destination.context.decodeAudioData(data, function (buffer) {
-                        _this.source.buffer = buffer;
-                    }, function () {
-                    });
-                    _this.source.connect(_this.gainNode);
+                var loader = new HG.Sound.BufferLoader(this.rootContext);
+                loader.load([path], function (data) {
+                    _this.load(data);
                 });
+            };
+
+            Effect.prototype.load = function (buffer) {
+                this.source = this.rootContext.createBufferSource();
+                this.source.buffer = buffer;
+                this.source.connect(this.gainNode);
             };
 
             Effect.prototype.play = function () {
                 if (this.source)
                     this.source.start(0);
+            };
+
+            Effect.prototype.stop = function () {
+                if (this.source)
+                    this.source.stop(0);
             };
 
             Effect.prototype.volume = function (gain) {
@@ -2254,7 +2340,7 @@ var HG;
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 16:15:10
+* @Last Modified time: 2013-11-10 20:10:09
 */
 /// <reference path="../EventDispatcher.ts" />
 var HG;
@@ -2262,6 +2348,8 @@ var HG;
     (function (Sound) {
         var Mixer = (function () {
             function Mixer() {
+                this.channels = {};
+                this.context = new AudioContext();
             }
             Object.defineProperty(Mixer.prototype, "gain", {
                 get: function () {
@@ -2277,7 +2365,8 @@ var HG;
             };
 
             Mixer.prototype.addChannel = function (ch) {
-                this.channels.push(ch);
+                ch.rootContext = this.context;
+                this.channels[ch.name] = ch;
             };
             return Mixer;
         })();
@@ -2290,7 +2379,7 @@ var HG;
 * @Date:   2013-11-07 16:30:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 00:08:31
+* @Last Modified time: 2013-11-10 21:55:24
 */
 var HG;
 (function (HG) {
@@ -2312,18 +2401,29 @@ var HG;
                 this.on('error');
             }
             Bootstrapper.prototype.bootstrap = function () {
+                //Physics
                 Physijs.scripts = {
                     ammo: "ammo.js",
                     worker: "lib/physijs_worker.js"
                 };
+
+                if (!HG.Settings) {
+                    HG.Settings = HG.loadSettings("assets/settings/defaultSettings.json");
+                }
+
                 if (HG.Utils.hasGL() === false)
                     this.dispatch('error', new Error("Runtime or Graphiscard doesn't support GL"));
+
                 if (!global.moduled) {
                     var loader = new HG.Utils.ModuleLoader();
                 }
+
                 if (!global.linqd) {
                     HG.LINQ.initialize();
                 }
+
+                //Audio
+                window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
             };
 
             Bootstrapper.prototype.error = function (error) {
@@ -2332,6 +2432,7 @@ var HG;
                     args[_i] = arguments[_i + 1];
                 }
                 console.warn(error);
+                console.trace();
             };
             return Bootstrapper;
         })(HG.EventDispatcher);
@@ -2509,47 +2610,56 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 11:38:57
+* @Last Modified time: 2013-11-11 13:05:31
 */
 var HG;
 (function (HG) {
-    var Settings = (function () {
-        function Settings() {
+    var SettingsStructure = (function () {
+        function SettingsStructure() {
+            this.debug = true;
         }
-        Settings.debug = true;
-
-        Settings.Graphics = {
-            fov: 110,
-            viewDistance: 5000,
-            shadowMapSize: 2048,
-            useStaticFramerate: true,
-            staticFramerate: 120,
-            antialiasing: true,
-            resolution: new THREE.Vector2(1280, 720)
-        };
-
-        Settings.Sound = {
-            masterVolume: 1.0,
-            effectsVolume: 0.8,
-            musicVolume: 0.7
-        };
-
-        Settings.keys = {
-            forward: [HG.KeyMap.W, HG.KeyMap.Top],
-            backward: [HG.KeyMap.S, HG.KeyMap.Bottom],
-            left: [HG.KeyMap.A, HG.KeyMap.Left],
-            right: [HG.KeyMap.D, HG.KeyMap.Right],
-            pause: HG.KeyMap.Esc,
-            lower: HG.KeyMap.Shift,
-            jump: HG.KeyMap.Space,
-            devConsole: HG.KeyMap.F12,
-            refresh: HG.KeyMap.F5,
-            fullscreen: HG.KeyMap.F11
-        };
-        return Settings;
+        return SettingsStructure;
     })();
-    HG.Settings = Settings;
-    ;
+    HG.SettingsStructure = SettingsStructure;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-11 12:15:19
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-11 12:57:09
+*/
+/// <reference path="SettingsStructure.hg.ts" />
+var HG;
+(function (HG) {
+    HG.Settings;
+
+    function loadSettings(path, fallback) {
+        var raw = global.fs.readFileSync(path);
+        try  {
+            console.log("[Settings] Loaded Settings from JSON.");
+            return JSON.parse(raw);
+        } catch (e) {
+            console.log("[Settings] Failed to load settings, used fallback.");
+            return fallback || new HG.SettingsStructure();
+        }
+        return new HG.SettingsStructure();
+    }
+    HG.loadSettings = loadSettings;
+
+    function saveSettings(path, settings, pretty) {
+        if (typeof pretty === "undefined") { pretty = false; }
+        var parsed;
+        if (pretty === true) {
+            parsed = JSON.stringify(settings, null, "\t");
+        } else {
+            parsed = JSON.stringify(settings);
+        }
+        global.fs.writeFile(path, parsed, function () {
+        });
+        console.debug("[Settings] Saved settings.");
+    }
+    HG.saveSettings = saveSettings;
 })(HG || (HG = {}));
 /*
 * @Author: BeryJu
@@ -2624,8 +2734,57 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 14:36:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-11 13:06:06
+*/
+var GameSettings = (function (_super) {
+    __extends(GameSettings, _super);
+    function GameSettings() {
+        _super.apply(this, arguments);
+        this.debug = true;
+        //gfx options
+        this.Graphics = {
+            fullscreen: false,
+            fov: 110,
+            viewDistance: 5000,
+            shadowMapSize: 2048,
+            useStaticFramerate: true,
+            staticFramerate: 120,
+            antialiasing: true,
+            resolution: new THREE.Vector2(1280, 720)
+        };
+        //sfx options
+        this.Sound = {
+            masterVolume: 1.0,
+            channels: {
+                effectsEnvVolume: 0.7,
+                effectsSelfVolume: 0.8,
+                musicVolume: 0.7
+            }
+        };
+        this.Keys = {
+            forward: [HG.KeyMap.W, HG.KeyMap.Top],
+            backward: [HG.KeyMap.S, HG.KeyMap.Bottom],
+            left: [HG.KeyMap.A, HG.KeyMap.Left],
+            right: [HG.KeyMap.D, HG.KeyMap.Right],
+            pause: [HG.KeyMap.Esc],
+            lower: [HG.KeyMap.Shift],
+            jump: [HG.KeyMap.Space],
+            devConsole: [HG.KeyMap.F12],
+            refresh: [HG.KeyMap.F5],
+            fullscreen: [HG.KeyMap.F11]
+        };
+    }
+    return GameSettings;
+})(HG.SettingsStructure);
+/// <reference path="GameSettings.ts" />
 var pkg = require("./package.json");
 console.log("[HorribleGame] Build " + pkg.build);
+HG.Settings = HG.loadSettings("settings.json", new GameSettings());
 var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 
 // game.loadShader('assets/shaders/heightmap.js')
@@ -2696,37 +2855,37 @@ game.on('load', function () {
         scene.add(axes);
     }
 
-    game.controls.bind(HG.Settings.keys.left, function (delta) {
+    game.controls.bind(HG.Settings.Keys.left, function (delta) {
         playerLightMove.turnLeft(3.125 * delta);
         playerMove.turnLeft(3.125 * delta);
         // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
     });
 
-    game.controls.bind(HG.Settings.keys.right, function (delta) {
+    game.controls.bind(HG.Settings.Keys.right, function (delta) {
         playerLightMove.turnRight(3.125 * delta);
         playerMove.turnRight(3.125 * delta);
         // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
     });
 
-    game.controls.bind(HG.Settings.keys.forward, function (delta) {
+    game.controls.bind(HG.Settings.Keys.forward, function (delta) {
         playerLightMove.moveForward(3.125 * delta);
         playerMove.moveForward(3.125 * delta);
         animationAbility.running = true;
     });
 
-    game.controls.bind(HG.Settings.keys.backward, function (delta) {
+    game.controls.bind(HG.Settings.Keys.backward, function (delta) {
         playerLightMove.moveBackward(3.125 * delta);
         playerMove.moveBackward(3.125 * delta);
         animationAbility.running = true;
     });
 
-    game.controls.bind(HG.Settings.keys.lower, function (delta) {
+    game.controls.bind(HG.Settings.Keys.lower, function (delta) {
         playerLightMove.lower(3.125 * delta);
         playerMove.lower(3.125 * delta);
         animationAbility.running = true;
     });
 
-    game.controls.bind(HG.Settings.keys.jump, function (delta) {
+    game.controls.bind(HG.Settings.Keys.jump, function (delta) {
         playerLightMove.jump();
         playerMove.jump();
         animationAbility.running = true;
@@ -2775,7 +2934,7 @@ game.on('start', function () {
 
 game.on('keydown', function (a) {
     a = a;
-    if ("keyboard" + a.keyCode === HG.Settings.keys.devConsole) {
+    if (["keyboard" + a.keyCode] === HG.Settings.Keys.devConsole) {
         HG.Utils.openDevConsole();
     }
 });
@@ -2784,11 +2943,11 @@ game.controls.bind("mouseMove", function (x, y) {
     game.title("x: ", x, ", y: ", y);
 });
 
-game.controls.bind(HG.Settings.keys.refresh, function (delta) {
+game.controls.bind(HG.Settings.Keys.refresh, function (delta) {
     HG.Utils.reload();
 });
 
-game.controls.bind(HG.Settings.keys.fullscreen, function (delta) {
+game.controls.bind(HG.Settings.Keys.fullscreen, function (delta) {
     HG.Utils.toggleFullScreenMode();
 });
 

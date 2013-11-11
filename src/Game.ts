@@ -1,5 +1,7 @@
+/// <reference path="GameSettings.ts" />
 var pkg = require("./package.json");
 console.log("[HorribleGame] Build "+pkg.build);
+HG.Settings = HG.loadSettings("settings.json", new GameSettings());
 var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 // game.loadShader('assets/shaders/heightmap.js')
 var scene = new HG.Scenes.BaseScene();
@@ -70,37 +72,37 @@ game.on('load', function() {
 		scene.add(axes);
 	}
 
-	game.controls.bind(HG.Settings.keys.left, (delta: number) => {
+	game.controls.bind(HG.Settings.Keys.left, (delta: number) => {
 		playerLightMove.turnLeft(3.125 * delta);
 		playerMove.turnLeft(3.125 * delta);
 		// if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
 	});
 
-	game.controls.bind(HG.Settings.keys.right, (delta: number) => {
+	game.controls.bind(HG.Settings.Keys.right, (delta: number) => {
 		playerLightMove.turnRight(3.125 * delta);
 		playerMove.turnRight(3.125 * delta);
 		// if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
 	});
 
-	game.controls.bind(HG.Settings.keys.forward, (delta: number) => {
+	game.controls.bind(HG.Settings.Keys.forward, (delta: number) => {
 		playerLightMove.moveForward(3.125 * delta);
 		playerMove.moveForward(3.125 * delta);
 		animationAbility.running = true;
 	});
 
-	game.controls.bind(HG.Settings.keys.backward, (delta: number) => {
+	game.controls.bind(HG.Settings.Keys.backward, (delta: number) => {
 		playerLightMove.moveBackward(3.125 * delta);
 		playerMove.moveBackward(3.125 * delta);
 		animationAbility.running = true;
 	});
 
-	game.controls.bind(HG.Settings.keys.lower, (delta: number) => {
+	game.controls.bind(HG.Settings.Keys.lower, (delta: number) => {
 		playerLightMove.lower(3.125 * delta);
 		playerMove.lower(3.125 * delta);
 		animationAbility.running = true;
 	});
 
-	game.controls.bind(HG.Settings.keys.jump, (delta: number) => {
+	game.controls.bind(HG.Settings.Keys.jump, (delta: number) => {
 		playerLightMove.jump();
 		playerMove.jump();
 		animationAbility.running = true;
@@ -134,7 +136,7 @@ game.on('start', () => {
 
 game.on('keydown', (a: any) => {
 	a = <KeyboardEvent> a;
-	if ("keyboard"+a.keyCode === HG.Settings.keys.devConsole) {
+	if (["keyboard"+a.keyCode] === HG.Settings.Keys.devConsole) {
 		HG.Utils.openDevConsole();
 	}
 });
@@ -143,11 +145,11 @@ game.controls.bind("mouseMove", (x: number, y: number) => {
 	game.title("x: ", x, ", y: ", y);
 });
 
-game.controls.bind(HG.Settings.keys.refresh, (delta: number) => {
+game.controls.bind(HG.Settings.Keys.refresh, (delta: number) => {
 	HG.Utils.reload();
 });
 
-game.controls.bind(HG.Settings.keys.fullscreen, (delta: number) => {
+game.controls.bind(HG.Settings.Keys.fullscreen, (delta: number) => {
 	HG.Utils.toggleFullScreenMode();
 });
 

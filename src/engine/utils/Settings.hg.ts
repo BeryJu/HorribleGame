@@ -1,47 +1,36 @@
 /* 
 * @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
+* @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 11:38:57
+* @Last Modified time: 2013-11-11 12:57:09
 */
+/// <reference path="SettingsStructure.hg.ts" />
 module HG {
 
-	export class Settings {
+	export var Settings: HG.SettingsStructure;
 
-		static debug = true;
+	export function loadSettings(path: string, fallback?: HG.SettingsStructure): HG.SettingsStructure {
+		var raw = global.fs.readFileSync(path);
+		try {
+			console.log("[Settings] Loaded Settings from JSON.");
+			return <HG.SettingsStructure> JSON.parse(raw);
+		} catch (e) {
+			console.log("[Settings] Failed to load settings, used fallback.");
+			return fallback || new HG.SettingsStructure();
+		}
+		return new HG.SettingsStructure();
+	}
 
-		//gfx options
-		static Graphics = {
-			fov: 110,
-			viewDistance: 5000,
-			shadowMapSize: 2048,
-			useStaticFramerate: true,
-			staticFramerate: 120,
-			antialiasing: true,
-			resolution: new THREE.Vector2(1280, 720)
-		};
-
-		//sfx options
-		static Sound = {
-			masterVolume: 1.0,
-			effectsVolume: 0.8,
-			musicVolume: 0.7
-		};
-
-		static keys = {
-			forward: [KeyMap.W, KeyMap.Top],
-			backward: [KeyMap.S, KeyMap.Bottom],
-			left: [KeyMap.A, KeyMap.Left],
-			right: [KeyMap.D, KeyMap.Right],
-			pause: KeyMap.Esc,
-			lower: KeyMap.Shift,
-			jump: KeyMap.Space,
-			devConsole: KeyMap.F12,
-			refresh: KeyMap.F5,
-			fullscreen: KeyMap.F11
-		};
-		
-	};
+	export function saveSettings(path: string, settings: HG.SettingsStructure, pretty: boolean = false): void {
+		var parsed;
+		if (pretty === true) {
+			parsed = JSON.stringify(settings, null , "\t");
+		} else {
+			parsed = JSON.stringify(settings);
+		}
+		global.fs.writeFile(path, parsed, () => {});
+		console.debug("[Settings] Saved settings.");
+	}
 
 }

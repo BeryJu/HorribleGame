@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 11:47:56
+* @Last Modified time: 2013-11-11 13:27:41
 */
 ///<reference path="EventDispatcher.ts" />
 
@@ -15,6 +15,7 @@ module HG {
 		renderer: THREE.WebGLRenderer;
 		camera: HG.Entities.CameraEntity;
 		isRunning: boolean = false;
+		soundMixer: HG.Sound.Mixer;
 		controls: HG.InputHandler = new HG.InputHandler();
 		fpsCounter: HG.Utils.FPSCounter = new HG.Utils.FPSCounter();
 		shaders: HG.Shader[] = [];
@@ -25,6 +26,17 @@ module HG {
 		constructor(container: HTMLElement = document.body) {
 			super();
 			new HG.Utils.Bootstrapper().bootstrap();
+
+			this.soundMixer = new HG.Sound.Mixer();
+			this.soundMixer.volume(HG.Settings.Sound.masterVolume);
+			for (var c in HG.Settings.Sound.channels) {
+				var ch = new HG.Sound.Channel(c.replace("Volume", ""));
+				ch.volume(HG.Settings.Sound.channels[c]);
+				this.soundMixer.addChannel(ch);
+			}
+
+			HG.Utils.setFullScreenMode(HG.Settings.Graphics.fullscreen);
+
 			this.camera = new HG.Entities.CameraEntity(HG.Settings.Graphics.fov,
 				window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
 			this.renderer = new THREE.WebGLRenderer({antialias: HG.Settings.Graphics.antialiasing});

@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 16:15:25
+* @Last Modified time: 2013-11-11 13:33:15
 */
 /// <reference path="../EventDispatcher.ts" />
 module HG {
@@ -16,6 +16,7 @@ module HG {
 			gainNode: GainNode;
 			destination: HG.Sound.Channel;
 			source: AudioBufferSourceNode;
+			rootContext: AudioContext;
 
 			get gain(): number {
 				return this.gainNode.gain.value || 0;
@@ -23,18 +24,23 @@ module HG {
 
 			constructor(ch: HG.Sound.Channel) {
 				this.destination = ch;
-				this.gainNode = this.destination.context.createGain();
-				this.gainNode.connect(this.destination.context.destination);
+				this.destination.on('volumeChange', this.volume);
+				this.rootContext = this.destination.rootContext
+				this.gainNode = this.rootContext.createGain();
+				this.gainNode.connect(this.rootContext.destination);
 			}
 
-			load(path: string): void {
-				global.fs.readFile(path, (err, data) => {
-					this.source = this.destination.context.createBufferSource();
-					this.destination.context.decodeAudioData(data, (buffer) => {
-						this.source.buffer = buffer;
-					}, () => {});
-					this.source.connect(this.gainNode);
+			fromFile(path: string): void {
+				var loader = new HG.Sound.BufferLoader(this.rootContext);
+				loader.load([path], (data) => {
+					this.load(data);
 				});
+			}
+
+			load(buffer: AudioBuffer): void {
+				this.source = this.rootContext.createBufferSource();
+				this.source.buffer = buffer;
+				this.source.connect(this.gainNode);
 			}
 
 			play(): void {
@@ -42,7 +48,12 @@ module HG {
 					this.source.start(0);
 			}
 
-			volume(gain: number): void {
+			stop(): void {
+				if (this.source)
+					this.source.stop(0);
+			}
+
+			private volume(gain: number): void {
 				if (this.gainNode)
 					this.gainNode.gain.value = gain;
 			}
