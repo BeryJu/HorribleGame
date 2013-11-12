@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 21:46:51
+* @Last Modified time: 2013-11-12 13:00:41
 */
 var HG;
 (function (HG) {
@@ -17,6 +17,16 @@ var HG;
             //there will be a warning
             this.eventsAvailable = [];
         }
+        EventDispatcher.prototype.resolve = function (raw) {
+            var result = "";
+            if (typeof raw === "number") {
+                result = raw.toString();
+            } else {
+                result = raw.toString().toLowerCase();
+            }
+            return result;
+        };
+
         EventDispatcher.prototype.on = function (name, callback) {
             var _this = this;
             if (Array.isArray(name) === true) {
@@ -25,46 +35,48 @@ var HG;
                 });
             } else {
                 var type = this['constructor']['name'];
+                var resolved = this.resolve(name);
 
-                if (typeof name !== "number") {
-                    name = name.toString().toLowerCase();
-                }
-
-                if (this.eventsAvailable.indexOf(name) === -1) {
+                if (this.eventsAvailable.indexOf(resolved) === -1) {
                     console.warn("[" + type + "] Event '" + name + "' not available, still added though");
                 } else {
                     console.log("[" + type + "] Added EventHandler for '" + name + "'");
                 }
 
-                if (!this.events[name]) {
-                    this.events[name] = [];
+                if (!this.events[resolved]) {
+                    this.events[resolved] = [];
                 }
 
                 if (!callback) {
-                    if (this[name] && typeof (this[name]) === 'function') {
-                        callback = this[name];
+                    if (this[resolved] && typeof (this[resolved]) === 'function') {
+                        callback = this[resolved];
+                    } else {
+                        throw new Error("Can't add empty event Handler");
                     }
                 }
 
                 //actually add the callback
-                this.events[name].push(callback);
+                this.events[resolved].push(callback);
             }
         };
 
-        EventDispatcher.prototype.get = function (name) {
+        EventDispatcher.prototype.inject = function (name, callback) {
             var _this = this;
             if (Array.isArray(name) === true) {
-                var events = {};
                 name.forEach(function (n) {
-                    events[n] = _this.get(n);
+                    _this.inject(n, callback);
                 });
-                return events;
             } else {
-                if (typeof name !== "number")
-                    name = name.toString().toLowerCase();
-                var events = {};
-                events[name] = this.events[name];
-                return events;
+                var type = this['constructor']['name'];
+                var resolved = this.resolve(name);
+
+                if (!this.events[resolved]) {
+                    this.events[resolved] = [];
+                }
+                console.log("[" + type + "] Injected EventHandler for '" + name + "'");
+
+                //actually add the callback
+                this.events[resolved].splice(0, 0, callback);
             }
         };
 
@@ -89,17 +101,16 @@ var HG;
                     _this.dispatch(n, args);
                 });
             } else {
-                if (typeof name !== "number")
-                    name = name.toString().toLowerCase();
-                if (!(name in this.eventsAvailable))
-                    this.eventsAvailable.push(name);
-                if (!this.events[name])
+                var resolved = this.resolve(name);
+                if (!(resolved in this.eventsAvailable))
+                    this.eventsAvailable.push(resolved);
+                if (!this.events[resolved])
                     return;
-                if (this.events[name].length === 0)
+                if (this.events[resolved].length === 0)
                     return;
                 var parameters = Array.prototype.splice.call(arguments, 1);
-                parameters.push(name);
-                this.events[name].forEach(function (event) {
+                parameters.push(resolved);
+                this.events[resolved].forEach(function (event) {
                     event.apply(_this, parameters);
                 });
             }
@@ -113,7 +124,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-11 13:27:41
+* @Last Modified time: 2013-11-12 20:46:46
 */
 ///<reference path="EventDispatcher.ts" />
 var __extends = this.__extends || function (d, b) {
@@ -156,12 +167,33 @@ var HG;
             }
 
             HG.Utils.setFullScreenMode(HG.Settings.Graphics.fullscreen);
+            HG.Utils.resize(HG.Settings.Graphics.resolution);
+
+            this.pluginHost = new HG.Plugins.PluginHost(this);
 
             this.camera = new HG.Entities.CameraEntity(HG.Settings.Graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
-            this.renderer = new THREE.WebGLRenderer({ antialias: HG.Settings.Graphics.antialiasing });
+            this.renderer = new THREE.WebGLRenderer({
+                antialias: HG.Settings.Graphics.antialiasing,
+                preserveDrawingBuffer: true
+            });
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             container.appendChild(this.renderer.domElement);
         }
+        BaseGame.prototype.screenshot = function (path, imageType) {
+            if (typeof imageType === "undefined") { imageType = "image/png"; }
+            var data = this.renderer.domElement.toDataURL(imageType);
+            console.debug(data);
+
+            //data:image/png;base64
+            var raw = new Buffer(data.replace("data:" + imageType + ";base64,", ""), 'base64');
+            global.fs.writeFile(path, raw);
+        };
+
+        BaseGame.prototype.scene = function (s) {
+            this.pluginHost.dispatch('sceneChange', s);
+            this.currentScene = s;
+        };
+
         BaseGame.prototype.title = function () {
             var args = [];
             for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -198,26 +230,31 @@ var HG;
 
         BaseGame.prototype.onKeyUp = function (e) {
             this.controls.onKeyUp(e);
+            this.currentScene.controls.onKeyUp(e);
             this.dispatch('keyUp', e);
         };
 
         BaseGame.prototype.onKeyDown = function (e) {
             this.controls.onKeyDown(e);
+            this.currentScene.controls.onKeyDown(e);
             this.dispatch('keyDown', e);
         };
 
         BaseGame.prototype.onMouseDown = function (e) {
             this.controls.onMouseDown(e);
+            this.currentScene.controls.onMouseDown(e);
             this.dispatch('mouseDown', e);
         };
 
         BaseGame.prototype.onMouseUp = function (e) {
             this.controls.onMouseUp(e);
+            this.currentScene.controls.onMouseUp(e);
             this.dispatch('mouseUp', e);
         };
 
         BaseGame.prototype.onMouseMove = function (e) {
             this.controls.onMouseMove(e);
+            this.currentScene.controls.onMouseMove(e);
             this.dispatch('mouseMove', e);
         };
 
@@ -227,14 +264,15 @@ var HG;
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         };
 
-        BaseGame.prototype.render = function (scene) {
+        BaseGame.prototype.render = function () {
             var delta = this.fpsCounter.frameTime / 10;
             this.dispatch('render', delta);
             this.camera.frame(delta);
             this.controls.frame(delta);
+            this.currentScene.controls.frame(delta);
             this.fpsCounter.frame(delta);
             scene.getInternal().simulate();
-            this.renderer.render(scene.getInternal(), this.camera.getInternal());
+            this.renderer.render(this.currentScene.getInternal(), this.camera.getInternal());
         };
         return BaseGame;
     })(HG.EventDispatcher);
@@ -265,6 +303,96 @@ var HG;
         return BaseServer;
     })(HG.EventDispatcher);
     HG.BaseServer = BaseServer;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-11 17:37:09
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-12 16:54:37
+*/
+/// <reference path="IPlugin.ts" />
+var HG;
+(function (HG) {
+    (function (Plugins) {
+        var PluginHost = (function (_super) {
+            __extends(PluginHost, _super);
+            function PluginHost(instance) {
+                _super.call(this);
+                this.eventsAvailable = ['load', 'sceneChange'];
+                this.plugins = [];
+                this.paths = [];
+                this.game = instance;
+            }
+            PluginHost.prototype.doReload = function () {
+                this.paths.forEach(function (path) {
+                    var resolved = global.require.resolve("./" + path);
+                    delete global.require.cache[resolved];
+                });
+            };
+
+            PluginHost.prototype.hook = function (instance, event, callback) {
+                try  {
+                    instance = instance;
+                    instance.inject(event, callback);
+                    console.log("[PluginHost] Injected into event " + event + " from " + instance['constructor']['name']);
+                } catch (e) {
+                    console.log("[PluginHost] Tried to inject into event " + event + " from " + instance['constructor']['name']);
+                }
+            };
+
+            PluginHost.prototype.load = function (path) {
+                var plugin = require("./" + path);
+                var env = {
+                    HG: HG,
+                    THREE: THREE,
+                    game: this.game,
+                    window: window,
+                    document: document
+                };
+                try  {
+                    var instance = new plugin(this, env);
+                    console.log("[PluginHost] Loaded " + instance.name);
+                    this.plugins.push(instance);
+                    this.paths.push(path);
+                } catch (e) {
+                    console.log("[PluginHost] Failed to load Plugin " + path + " because " + e);
+                }
+            };
+
+            PluginHost.prototype.frame = function (delta) {
+                this.plugins.forEach(function (plugin) {
+                    plugin.frame(delta);
+                });
+            };
+            return PluginHost;
+        })(HG.EventDispatcher);
+        Plugins.PluginHost = PluginHost;
+    })(HG.Plugins || (HG.Plugins = {}));
+    var Plugins = HG.Plugins;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-11 17:30:40
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-11 17:54:30
+*/
+/// <reference path="PluginHost.ts" />
+var HG;
+(function (HG) {
+    (function (Plugins) {
+        var IPlugin = (function () {
+            function IPlugin(host, env) {
+                this.name = "";
+            }
+            IPlugin.prototype.frame = function (delta) {
+            };
+            return IPlugin;
+        })();
+        Plugins.IPlugin = IPlugin;
+    })(HG.Plugins || (HG.Plugins = {}));
+    var Plugins = HG.Plugins;
 })(HG || (HG = {}));
 /*
 * @Author: BeryJu
@@ -929,7 +1057,7 @@ var HG;
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 23:43:43
+* @Last Modified time: 2013-11-12 17:07:46
 */
 /// <reference path="BaseEntity.hg.ts" />
 var HG;
@@ -942,11 +1070,21 @@ var HG;
                 this.eventsAvailable = ["loaded"];
             }
             ModelEntity.prototype.fromSTL = function (path) {
-                global.fs.readFile(path, function (err, data) {
-                    var sloader = new THREE.STLLoader();
-                    var a = sloader.parse(data);
-                    console.log(a);
+                var _this = this;
+                var loader = new THREE.STLLoader();
+                loader.addEventListener('load', function (event) {
+                    var geometry = event.content;
+                    var material = new THREE.MeshPhongMaterial({ ambient: 0xff5533, color: 0xff5533, specular: 0x111111, shininess: 200 });
+                    var real = new THREE.MeshFaceMaterial([material]);
+                    _this.load(geometry, real);
                 });
+                loader.load(path);
+                // global.fs.readFile(path, (err, data) => {
+                // 	var loader = new THREE.STLLoader();
+                // 	var parsed = loader.parse(data);
+                // 	var material = new THREE.MeshPhongMaterial( { ambient: 0xff5533, color: 0xff5533, specular: 0x111111, shininess: 200 } );
+                // 	this.load(parsed.content, material);
+                // });
             };
 
             ModelEntity.prototype.fromJS = function (path) {
@@ -954,12 +1092,12 @@ var HG;
                 global.fs.readFile(path, function (err, data) {
                     var loader = new THREE.JSONLoader();
                     var result = loader.parse(JSON.parse(data));
-                    _this.load(result.geometry, result.materials);
+                    var material = new THREE.MeshFaceMaterial(result.materials);
+                    _this.load(result.geometry, material);
                 });
             };
 
-            ModelEntity.prototype.load = function (geometry, materials) {
-                var material = new THREE.MeshFaceMaterial(materials);
+            ModelEntity.prototype.load = function (geometry, material) {
                 this.object = new THREE.Mesh(geometry, material);
                 this.dispatch('loaded', geometry, material);
             };
@@ -2084,7 +2222,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 19:40:14
+* @Last Modified time: 2013-11-11 13:58:05
 */
 var HG;
 (function (HG) {
@@ -2092,6 +2230,7 @@ var HG;
         var BaseScene = (function () {
             function BaseScene() {
                 this.scene = null;
+                this.controls = new HG.InputHandler();
                 this.scene = new Physijs.Scene();
                 this.entities = {
                     named: {},
@@ -2379,7 +2518,7 @@ var HG;
 * @Date:   2013-11-07 16:30:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-10 21:55:24
+* @Last Modified time: 2013-11-11 14:08:11
 */
 var HG;
 (function (HG) {
@@ -2401,6 +2540,14 @@ var HG;
                 this.on('error');
             }
             Bootstrapper.prototype.bootstrap = function () {
+                if (!global.moduled) {
+                    var loader = new HG.Utils.ModuleLoader();
+                }
+
+                if (!global.linqd) {
+                    HG.LINQ.initialize();
+                }
+
                 //Physics
                 Physijs.scripts = {
                     ammo: "ammo.js",
@@ -2413,14 +2560,6 @@ var HG;
 
                 if (HG.Utils.hasGL() === false)
                     this.dispatch('error', new Error("Runtime or Graphiscard doesn't support GL"));
-
-                if (!global.moduled) {
-                    var loader = new HG.Utils.ModuleLoader();
-                }
-
-                if (!global.linqd) {
-                    HG.LINQ.initialize();
-                }
 
                 //Audio
                 window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
@@ -2627,7 +2766,7 @@ var HG;
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-11 12:57:09
+* @Last Modified time: 2013-11-11 14:11:18
 */
 /// <reference path="SettingsStructure.hg.ts" />
 var HG;
@@ -2635,6 +2774,9 @@ var HG;
     HG.Settings;
 
     function loadSettings(path, fallback) {
+        if (!global.moduled) {
+            var loader = new HG.Utils.ModuleLoader();
+        }
         var raw = global.fs.readFileSync(path);
         try  {
             console.log("[Settings] Loaded Settings from JSON.");
@@ -2649,6 +2791,9 @@ var HG;
 
     function saveSettings(path, settings, pretty) {
         if (typeof pretty === "undefined") { pretty = false; }
+        if (!global.moduled) {
+            var loader = new HG.Utils.ModuleLoader();
+        }
         var parsed;
         if (pretty === true) {
             parsed = JSON.stringify(settings, null, "\t");
@@ -2666,7 +2811,7 @@ var HG;
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 16:39:48
+* @Last Modified time: 2013-11-11 20:07:02
 */
 var HG;
 (function (HG) {
@@ -2699,6 +2844,20 @@ var HG;
             return (window.WebGLRenderingContext) ? true : false;
         }
         Utils.hasGL = hasGL;
+
+        function resize(resolution) {
+            var whwnd = require('nw.gui').Window.get();
+            whwnd.width = resolution.x;
+            whwnd.height = resolution.y;
+        }
+        Utils.resize = resize;
+
+        function position(position) {
+            var whwnd = require('nw.gui').Window.get();
+            whwnd.x = position.x;
+            whwnd.y = position.y;
+        }
+        Utils.position = position;
 
         function setFullScreenMode(state) {
             var whwnd = require('nw.gui').Window.get();
@@ -2734,61 +2893,14 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-11 13:06:06
-*/
-var GameSettings = (function (_super) {
-    __extends(GameSettings, _super);
-    function GameSettings() {
-        _super.apply(this, arguments);
-        this.debug = true;
-        //gfx options
-        this.Graphics = {
-            fullscreen: false,
-            fov: 110,
-            viewDistance: 5000,
-            shadowMapSize: 2048,
-            useStaticFramerate: true,
-            staticFramerate: 120,
-            antialiasing: true,
-            resolution: new THREE.Vector2(1280, 720)
-        };
-        //sfx options
-        this.Sound = {
-            masterVolume: 1.0,
-            channels: {
-                effectsEnvVolume: 0.7,
-                effectsSelfVolume: 0.8,
-                musicVolume: 0.7
-            }
-        };
-        this.Keys = {
-            forward: [HG.KeyMap.W, HG.KeyMap.Top],
-            backward: [HG.KeyMap.S, HG.KeyMap.Bottom],
-            left: [HG.KeyMap.A, HG.KeyMap.Left],
-            right: [HG.KeyMap.D, HG.KeyMap.Right],
-            pause: [HG.KeyMap.Esc],
-            lower: [HG.KeyMap.Shift],
-            jump: [HG.KeyMap.Space],
-            devConsole: [HG.KeyMap.F12],
-            refresh: [HG.KeyMap.F5],
-            fullscreen: [HG.KeyMap.F11]
-        };
-    }
-    return GameSettings;
-})(HG.SettingsStructure);
-/// <reference path="GameSettings.ts" />
 var pkg = require("./package.json");
 console.log("[HorribleGame] Build " + pkg.build);
-HG.Settings = HG.loadSettings("settings.json", new GameSettings());
+HG.Settings = HG.loadSettings("settings.json", new HG.SettingsStructure());
 var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 
 // game.loadShader('assets/shaders/heightmap.js')
 var scene = new HG.Scenes.BaseScene();
+game.pluginHost.load("assets/plugins/test.js");
 game.on('load', function () {
     game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
@@ -2833,8 +2945,8 @@ game.on('load', function () {
         room.rotate(HG.Utils.degToRad(90), 0, 0);
         scene.add(room);
     });
+    room.fromSTL("assets/models/room01.stl");
 
-    // room.fromSTL("assets/models/room01.js");
     var levelStruct = new HG.LevelStructure();
     levelStruct.on(['loaded', 'created'], function (args) {
         var level = new HG.Level(args['level']);
@@ -2855,37 +2967,37 @@ game.on('load', function () {
         scene.add(axes);
     }
 
-    game.controls.bind(HG.Settings.Keys.left, function (delta) {
+    scene.controls.bind(HG.Settings.Keys.left, function (delta) {
         playerLightMove.turnLeft(3.125 * delta);
         playerMove.turnLeft(3.125 * delta);
         // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
     });
 
-    game.controls.bind(HG.Settings.Keys.right, function (delta) {
+    scene.controls.bind(HG.Settings.Keys.right, function (delta) {
         playerLightMove.turnRight(3.125 * delta);
         playerMove.turnRight(3.125 * delta);
         // if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
     });
 
-    game.controls.bind(HG.Settings.Keys.forward, function (delta) {
+    scene.controls.bind(HG.Settings.Keys.forward, function (delta) {
         playerLightMove.moveForward(3.125 * delta);
         playerMove.moveForward(3.125 * delta);
         animationAbility.running = true;
     });
 
-    game.controls.bind(HG.Settings.Keys.backward, function (delta) {
+    scene.controls.bind(HG.Settings.Keys.backward, function (delta) {
         playerLightMove.moveBackward(3.125 * delta);
         playerMove.moveBackward(3.125 * delta);
         animationAbility.running = true;
     });
 
-    game.controls.bind(HG.Settings.Keys.lower, function (delta) {
+    scene.controls.bind(HG.Settings.Keys.lower, function (delta) {
         playerLightMove.lower(3.125 * delta);
         playerMove.lower(3.125 * delta);
         animationAbility.running = true;
     });
 
-    game.controls.bind(HG.Settings.Keys.jump, function (delta) {
+    scene.controls.bind(HG.Settings.Keys.jump, function (delta) {
         playerLightMove.jump();
         playerMove.jump();
         animationAbility.running = true;
@@ -2894,9 +3006,10 @@ game.on('load', function () {
 
 game.on('start', function () {
     document.getElementById('build').innerText = "HorribleGame build " + pkg.build;
+    game.scene(scene);
     if (HG.Settings.debug === true) {
         HG.Utils.profile(function () {
-            game.render(scene);
+            game.render();
         });
     }
     window.onresize = function () {
@@ -2919,20 +3032,20 @@ game.on('start', function () {
     };
     if (HG.Settings.Graphics.useStaticFramerate === true) {
         var render = function () {
-            game.render(scene);
+            game.render();
         };
         setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
         render();
     } else {
         var render = function () {
-            game.render(scene);
+            game.render();
             requestAnimationFrame(render);
         };
         render();
     }
 });
 
-game.on('keydown', function (a) {
+game.on('keyDown', function (a) {
     a = a;
     if (["keyboard" + a.keyCode] === HG.Settings.Keys.devConsole) {
         HG.Utils.openDevConsole();

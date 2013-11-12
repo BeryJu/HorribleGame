@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 21:46:51
+* @Last Modified time: 2013-11-12 13:00:41
 */
 
 module HG {
@@ -18,62 +18,67 @@ module HG {
 		//there will be a warning
 		eventsAvailable: string[] = [];
 
+		resolve(raw: any): string {
+			var result = "";
+			if (typeof raw === "number") {
+				result = raw.toString();
+			} else {
+				result = raw.toString().toLowerCase();
+			}
+			return result;
+		}
+
 		on(name: string[], callback?: (...args) => any): void;
 		on(name: string, callback?: (...args) => any): void;
 		on(name: number[], callback?: (...args) => any): void;
 		on(name: number, callback?: (...args) => any): void;
 		on(name: any, callback?: (...args) => any): void {
-			//if name is array, iterate over all of them
-			//and add them all
 			if (Array.isArray(name) === true) {
 				name.forEach((n) => {
 					this.on(n, callback);
 				});
 			} else {
 				var type = this['constructor']['name'];
-
-				//if not number, lowercase and stringify
-				if (typeof name !== "number") {
-					name = name.toString().toLowerCase();
-				}
+				var resolved = this.resolve(name);
 				//if not in .eventsAvailable, warn; else just log
-				if (this.eventsAvailable.indexOf(name) === -1) {
+				if (this.eventsAvailable.indexOf(resolved) === -1) {
 					console.warn("["+type+"] Event '"+name+"' not available, still added though");
 				} else {
 					console.log("["+type+"] Added EventHandler for '"+name+"'");
 				}
 				//if no events list for name, create one
-				if (!this.events[name]) {
-					this.events[name] = [];
+				if (!this.events[resolved]) {
+					this.events[resolved] = [];
 				}
 				//if no callback, check if function is on this class
 				//use this
 				if (!callback) {
-					if (this[name] && typeof(this[name]) === 'function') {
-						callback = this[name];
+					if (this[resolved] && typeof(this[resolved]) === 'function') {
+						callback = this[resolved];
+					} else {
+						throw new Error("Can't add empty event Handler");
 					}
 				}
 				//actually add the callback
-				this.events[name].push(callback);
+				this.events[resolved].push(callback);
 			}
 		}
 
-		get(name: string[]): {};
-		get(name: string): {};
-		get(name: number[]): {};
-		get(name: number): {};
-		get(name: any): {} {
+		inject(name: any, callback: (...args) => any): void {
 			if (Array.isArray(name) === true) {
-				var events = {};
 				name.forEach((n) => {
-					events[n] = this.get(n);
+					this.inject(n, callback);
 				});
-				return events;
 			} else {
-				if (typeof name !== "number") name = name.toString().toLowerCase();
-				var events = {};
-				events[name] = this.events[name];
-				return events;
+				var type = this['constructor']['name'];
+				var resolved = this.resolve(name);
+				//if no events list for name, create one
+				if (!this.events[resolved]) {
+					this.events[resolved] = [];
+				}
+				console.log("["+type+"] Injected EventHandler for '"+name+"'");
+				//actually add the callback
+				this.events[resolved].splice(0, 0, callback);
 			}
 		}
 
@@ -94,13 +99,13 @@ module HG {
 					this.dispatch(n, args);
 				});
 			} else {
-				if (typeof name !== "number") name = name.toString().toLowerCase();
-				if (!(name in this.eventsAvailable)) this.eventsAvailable.push(name);
-				if (!this.events[name]) return;
-				if (this.events[name].length === 0) return;
+				var resolved = this.resolve(name);
+				if (!(resolved in this.eventsAvailable)) this.eventsAvailable.push(resolved);
+				if (!this.events[resolved]) return;
+				if (this.events[resolved].length === 0) return;
 				var parameters = Array.prototype.splice.call(arguments, 1);
-				parameters.push(name);
-				this.events[name].forEach((event) => {
+				parameters.push(resolved);
+				this.events[resolved].forEach((event) => {
 					event.apply(this, parameters);
 				});
 			}

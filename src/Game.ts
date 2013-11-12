@@ -1,10 +1,10 @@
-/// <reference path="GameSettings.ts" />
 var pkg = require("./package.json");
 console.log("[HorribleGame] Build "+pkg.build);
-HG.Settings = HG.loadSettings("settings.json", new GameSettings());
+HG.Settings = HG.loadSettings("settings.json", new HG.SettingsStructure());
 var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 // game.loadShader('assets/shaders/heightmap.js')
 var scene = new HG.Scenes.BaseScene();
+game.pluginHost.load("assets/plugins/test.js");
 game.on('load', function() {
 
 	game.renderer.setClearColor(new THREE.Color(0x000000), .5);
@@ -49,7 +49,7 @@ game.on('load', function() {
 		room.rotate(HG.Utils.degToRad(90), 0, 0);
 		scene.add(room);
 	});
-	// room.fromSTL("assets/models/room01.js");
+	room.fromSTL("assets/models/room01.stl");
 
 
 	var levelStruct = new HG.LevelStructure();
@@ -59,7 +59,7 @@ game.on('load', function() {
 			scene.add(e);
 		});
 		var cam = new HG.Entities.ChasingCameraEntity(player, HG.Settings.Graphics.fov,
-					window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
+				window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
 		level.applyCameraOffset(cam);
 		game.camera = cam;
 	});
@@ -72,50 +72,49 @@ game.on('load', function() {
 		scene.add(axes);
 	}
 
-	game.controls.bind(HG.Settings.Keys.left, (delta: number) => {
+	scene.controls.bind(HG.Settings.Keys.left, (delta: number) => {
 		playerLightMove.turnLeft(3.125 * delta);
 		playerMove.turnLeft(3.125 * delta);
 		// if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
 	});
 
-	game.controls.bind(HG.Settings.Keys.right, (delta: number) => {
+	scene.controls.bind(HG.Settings.Keys.right, (delta: number) => {
 		playerLightMove.turnRight(3.125 * delta);
 		playerMove.turnRight(3.125 * delta);
 		// if (a instanceof HG.Abilities.AnimationAbility) a.running = true;
 	});
 
-	game.controls.bind(HG.Settings.Keys.forward, (delta: number) => {
+	scene.controls.bind(HG.Settings.Keys.forward, (delta: number) => {
 		playerLightMove.moveForward(3.125 * delta);
 		playerMove.moveForward(3.125 * delta);
 		animationAbility.running = true;
 	});
 
-	game.controls.bind(HG.Settings.Keys.backward, (delta: number) => {
+	scene.controls.bind(HG.Settings.Keys.backward, (delta: number) => {
 		playerLightMove.moveBackward(3.125 * delta);
 		playerMove.moveBackward(3.125 * delta);
 		animationAbility.running = true;
 	});
 
-	game.controls.bind(HG.Settings.Keys.lower, (delta: number) => {
+	scene.controls.bind(HG.Settings.Keys.lower, (delta: number) => {
 		playerLightMove.lower(3.125 * delta);
 		playerMove.lower(3.125 * delta);
 		animationAbility.running = true;
 	});
 
-	game.controls.bind(HG.Settings.Keys.jump, (delta: number) => {
+	scene.controls.bind(HG.Settings.Keys.jump, (delta: number) => {
 		playerLightMove.jump();
 		playerMove.jump();
 		animationAbility.running = true;
 	});
-
-
 });
 
 game.on('start', () => {
 	document.getElementById('build').innerText = "HorribleGame build "+pkg.build; 
+	game.scene(scene);
 	if (HG.Settings.debug === true) {
 		HG.Utils.profile(() => {
-			game.render(scene);
+			game.render();
 		});
 	}
 	window.onresize = () => game.onResize();
@@ -125,16 +124,16 @@ game.on('start', () => {
 	window.onmousedown = (a: any) => game.onMouseDown(a);
 	window.onmouseup = (a: any) => game.onMouseUp(a);
 	if (HG.Settings.Graphics.useStaticFramerate === true) {
-		var render = () => { game.render(scene); };
+		var render = () => { game.render(); };
 		setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
 		render();
 	} else {
-		var render = () => { game.render(scene); requestAnimationFrame(render); };
+		var render = () => { game.render(); requestAnimationFrame(render); };
 		render();
 	}
 });
 
-game.on('keydown', (a: any) => {
+game.on('keyDown', (a: any) => {
 	a = <KeyboardEvent> a;
 	if (["keyboard"+a.keyCode] === HG.Settings.Keys.devConsole) {
 		HG.Utils.openDevConsole();

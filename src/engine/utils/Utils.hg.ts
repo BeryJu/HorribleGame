@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 16:39:48
+* @Last Modified time: 2013-11-11 20:07:02
 */
 module HG {
 	export module Utils {
@@ -29,6 +29,18 @@ module HG {
 
 		export function hasGL(): boolean {
 			return (window.WebGLRenderingContext) ? true : false;
+		}
+
+		export function resize(resolution: THREE.Vector2): void {
+			var whwnd = require('nw.gui').Window.get();
+			whwnd.width = resolution.x;
+			whwnd.height = resolution.y;
+		}
+
+		export function position(position: THREE.Vector2): void {
+			var whwnd = require('nw.gui').Window.get();
+			whwnd.x = position.x;
+			whwnd.y = position.y;
 		}
 
 		export function setFullScreenMode(state: boolean): void {

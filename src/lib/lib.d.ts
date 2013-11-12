@@ -5554,6 +5554,7 @@ interface HTMLElement extends Element, ElementCSSInlineStyle, MSEventAttachmentT
     ondragleave: (ev: DragEvent) => any;
     addEventListener(type: "dragleave", listener: (ev: DragEvent) => any, useCapture?: boolean): void;
     className: string;
+    toDataURL: (type: string) => string;
     onfocusin: (ev: FocusEvent) => any;
     addEventListener(type: "focusin", listener: (ev: FocusEvent) => any, useCapture?: boolean): void;
     onseeked: (ev: Event) => any;

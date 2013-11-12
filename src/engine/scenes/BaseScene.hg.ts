@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 19:40:14
+* @Last Modified time: 2013-11-11 13:58:05
 */
 
 module HG {
@@ -13,12 +13,14 @@ module HG {
 		export class BaseScene {
 
 			scene: Physijs.Scene = null;
+			controls: HG.InputHandler;
 			entities: {
 				named: {};
 				unnamed: BaseEntity[];
 			};
 
 			constructor() {
+				this.controls = new HG.InputHandler();
 				this.scene = new Physijs.Scene();
 				this.entities = {
 					named: {},

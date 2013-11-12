@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 16:30:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-10 21:55:24
+* @Last Modified time: 2013-11-11 14:08:11
 */
 module HG {
 
@@ -26,6 +26,14 @@ module HG {
 			}
 
 			bootstrap(): void {
+				//Module loader
+				if (!global.moduled) {
+					var loader = new HG.Utils.ModuleLoader();
+				}
+				//Linq
+				if (!global.linqd) {
+					HG.LINQ.initialize();
+				}
 				//Physics
 				Physijs.scripts = {
 					ammo: "ammo.js",
@@ -38,14 +46,6 @@ module HG {
 				//GL detection
 				if (HG.Utils.hasGL() === false) this.dispatch('error', 
 					new Error("Runtime or Graphiscard doesn't support GL"));
-				//Module loader
-				if (!global.moduled) {
-					var loader = new HG.Utils.ModuleLoader();
-				}
-				//Linq
-				if (!global.linqd) {
-					HG.LINQ.initialize();
-				}
 				//Audio
 				window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
 			}

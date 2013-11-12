@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-11 13:27:41
+* @Last Modified time: 2013-11-12 20:46:46
 */
 ///<reference path="EventDispatcher.ts" />
 
@@ -16,6 +16,8 @@ module HG {
 		camera: HG.Entities.CameraEntity;
 		isRunning: boolean = false;
 		soundMixer: HG.Sound.Mixer;
+		currentScene: HG.Scenes.BaseScene;
+		pluginHost: HG.Plugins.PluginHost;
 		controls: HG.InputHandler = new HG.InputHandler();
 		fpsCounter: HG.Utils.FPSCounter = new HG.Utils.FPSCounter();
 		shaders: HG.Shader[] = [];
@@ -36,12 +38,33 @@ module HG {
 			}
 
 			HG.Utils.setFullScreenMode(HG.Settings.Graphics.fullscreen);
+			HG.Utils.resize(HG.Settings.Graphics.resolution);
 
-			this.camera = new HG.Entities.CameraEntity(HG.Settings.Graphics.fov,
-				window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
-			this.renderer = new THREE.WebGLRenderer({antialias: HG.Settings.Graphics.antialiasing});
+			this.pluginHost = new HG.Plugins.PluginHost(this);
+
+			this.camera = new HG.Entities.CameraEntity(
+				HG.Settings.Graphics.fov,
+				window.innerWidth / window.innerHeight, 0.1, 
+				HG.Settings.Graphics.viewDistance);
+			this.renderer = new THREE.WebGLRenderer({
+				antialias: HG.Settings.Graphics.antialiasing,
+				preserveDrawingBuffer: true
+			});
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 			container.appendChild(this.renderer.domElement);
+		}
+
+		screenshot(path: string, imageType: string = "image/png"): void {
+			var data = this.renderer.domElement.toDataURL(imageType);
+			console.debug(data);
+			//data:image/png;base64
+			var raw = new Buffer(data.replace("data:"+imageType+";base64,", ""), 'base64');
+			global.fs.writeFile(path, raw);
+		}
+
+		scene(s: HG.Scenes.BaseScene): void {
+			this.pluginHost.dispatch('sceneChange', s);
+			this.currentScene = s;
 		}
 
 		title(...args): void {
@@ -76,26 +99,31 @@ module HG {
 
 		onKeyUp(e: KeyboardEvent): void {
 			this.controls.onKeyUp(e);
+			this.currentScene.controls.onKeyUp(e);
 			this.dispatch('keyUp', e);
 		}
 
 		onKeyDown(e: KeyboardEvent): void {
 			this.controls.onKeyDown(e);
+			this.currentScene.controls.onKeyDown(e);
 			this.dispatch('keyDown', e);
 		}
 
 		onMouseDown(e: MouseEvent): void {
 			this.controls.onMouseDown(e);
+			this.currentScene.controls.onMouseDown(e);
 			this.dispatch('mouseDown', e);
 		}
 
 		onMouseUp(e: MouseEvent): void {
 			this.controls.onMouseUp(e);
+			this.currentScene.controls.onMouseUp(e);
 			this.dispatch('mouseUp', e);
 		}
 
 		onMouseMove(e: MouseEvent): void {
 			this.controls.onMouseMove(e);
+			this.currentScene.controls.onMouseMove(e);
 			this.dispatch('mouseMove', e);
 		}
 
@@ -105,14 +133,15 @@ module HG {
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}
 
-		render(scene: HG.Scenes.BaseScene): void {
+		render(): void {
 			var delta = this.fpsCounter.frameTime / 10;
 			this.dispatch('render', delta);
 			this.camera.frame(delta);
 			this.controls.frame(delta);
+			this.currentScene.controls.frame(delta);
 			this.fpsCounter.frame(delta);
 			scene.getInternal().simulate();
-			this.renderer.render(scene.getInternal(), 
+			this.renderer.render(this.currentScene.getInternal(), 
 				<THREE.PerspectiveCamera> this.camera.getInternal());
 		}
 

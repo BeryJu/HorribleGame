@@ -3394,15 +3394,15 @@ declare module THREE {
 		createModel(json: any, callback: (geometry: Geometry, materials: Material[]) => void , texturePath?: string): void;
 	}
 
-	export class STLLoader extends Loader {
+	export class STLLoader extends EventDispatcher {
 		constructor(showStatus?: boolean);
 		/**
 		 * @param url
 		 * @param callback. This function will be called with the loaded model as an instance of geometry when the load is completed.
 		 * @param texturePath If not specified, textures will be assumed to be in the same folder as the Javascript model file.
 		 */
-		load(url: string, callback: (geometry: Geometry, materials: Material[]) => void , texturePath?: string): void;
-		parse(json: string, texturePath?: any): any;
+		load(url: string): void;
+		parse(raw: ArrayBuffer): any;
 		loadAjaxJSON(context: JSONLoader, url: string, callback: (geometry: Geometry, materials: Material[]) => void , texturePath?: string, callbackProgress?: (progress: Progress) => void ): void;
 		createModel(json: any, callback: (geometry: Geometry, materials: Material[]) => void , texturePath?: string): void;
 	}
