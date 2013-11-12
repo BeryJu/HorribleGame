@@ -724,7 +724,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 15:08:25
+* @Last Modified time: 2013-11-12 22:12:48
 */
 /// <reference path="BaseAbility.hg.ts" />
 var HG;
@@ -755,11 +755,11 @@ var HG;
             };
 
             MovingAbility.prototype.turnLeft = function (step) {
-                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), HG.Utils.degToRad(step));
+                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), step.toRadian());
             };
 
             MovingAbility.prototype.turnRight = function (step) {
-                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), HG.Utils.degToRad(-step));
+                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), -step.toRadian());
             };
 
             MovingAbility.prototype.moveForward = function (step) {
@@ -2090,7 +2090,7 @@ var HG;
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 17:06:12
+* @Last Modified time: 2013-11-12 22:08:59
 */
 var HG;
 (function (HG) {
@@ -2108,7 +2108,6 @@ var HG;
                     if (query(e) === true)
                         result.push(e);
                 });
-                console.log(result);
                 return result;
             };
 
@@ -2124,16 +2123,18 @@ var HG;
                 return result;
             };
 
+            ArrayProvider.prototype.registerFunction = function (key, fn) {
+                Array.prototype[key] = function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    args.splice(0, 0, this);
+                    return fn.apply(this, args);
+                };
+            };
+
             ArrayProvider.prototype.provide = function () {
-                var scope = this;
                 for (var k in this) {
                     if (k !== "provide") {
-                        var fn = scope[k];
-                        Array.prototype[k] = function () {
-                            var args = Array.prototype.slice.call(arguments);
-                            args.splice(0, 0, this);
-                            return fn.apply(this, args);
-                        };
+                        this.registerFunction(k, this[k]);
                     }
                 }
             };
@@ -2148,7 +2149,7 @@ var HG;
 * @Date:   2013-11-07 13:15:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 21:45:43
+* @Last Modified time: 2013-11-12 21:55:44
 */
 var HG;
 (function (HG) {
@@ -2161,8 +2162,6 @@ var HG;
                     console.log("[LINQ] Provided " + m);
                 }
             }
-
-            global.linqd = true;
         }
         LINQ.initialize = initialize;
     })(HG.LINQ || (HG.LINQ = {}));
@@ -2174,7 +2173,50 @@ var HG;
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 17:06:08
+* @Last Modified time: 2013-11-12 22:12:45
+*/
+var HG;
+(function (HG) {
+    (function (LINQ) {
+        var NumberProvider = (function () {
+            function NumberProvider() {
+            }
+            NumberProvider.prototype.toRadian = function (nmb) {
+                return nmb * (Math.PI / 180);
+            };
+
+            NumberProvider.prototype.toDegrees = function (nmb) {
+                return nmb * (180 / Math.PI);
+            };
+
+            NumberProvider.prototype.registerFunction = function (key, fn) {
+                Number.prototype[key] = function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    args.splice(0, 0, this);
+                    return fn.apply(this, args);
+                };
+            };
+
+            NumberProvider.prototype.provide = function () {
+                for (var k in this) {
+                    if (k !== "provide") {
+                        this.registerFunction(k, this[k]);
+                    }
+                }
+            };
+            return NumberProvider;
+        })();
+        LINQ.NumberProvider = NumberProvider;
+    })(HG.LINQ || (HG.LINQ = {}));
+    var LINQ = HG.LINQ;
+})(HG || (HG = {}));
+/// <reference path="IProvider.hg.ts" />
+/*
+* @Author: BeryJu
+* @Date:   2013-11-07 13:03:40
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-12 22:15:54
 */
 var HG;
 (function (HG) {
@@ -2195,21 +2237,20 @@ var HG;
                 return context.replace(new RegExp(find, 'g'), replace);
             };
 
-            StringProvider.prototype.provide = function () {
-                var scope = this;
-                String.prototype['replaceAll'] = function (find, replace) {
-                    return scope.replaceAll(this, find, replace);
+            StringProvider.prototype.registerFunction = function (key, fn) {
+                String.prototype[key] = function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    args.splice(0, 0, this);
+                    return fn.apply(this, args);
                 };
-                // for (var k in this) {
-                // 	if (k !== "provide") {
-                // 		var fn = scope[k];
-                // 		String.prototype[k] = function() {
-                // 			var args = Array.prototype.slice.call(arguments);
-                // 			args.splice(0, 0, this);
-                // 			return fn.apply(this, args);
-                // 		}
-                // 	}
-                // }
+            };
+
+            StringProvider.prototype.provide = function () {
+                for (var k in this) {
+                    if (k !== "provide") {
+                        this.registerFunction(k, this[k]);
+                    }
+                }
             };
             return StringProvider;
         })();
@@ -2518,7 +2559,7 @@ var HG;
 * @Date:   2013-11-07 16:30:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-11 14:08:11
+* @Last Modified time: 2013-11-12 21:55:37
 */
 var HG;
 (function (HG) {
@@ -2540,13 +2581,11 @@ var HG;
                 this.on('error');
             }
             Bootstrapper.prototype.bootstrap = function () {
-                if (!global.moduled) {
-                    var loader = new HG.Utils.ModuleLoader();
-                }
+                //Module loader
+                var loader = new HG.Utils.ModuleLoader();
 
-                if (!global.linqd) {
-                    HG.LINQ.initialize();
-                }
+                //Linq
+                HG.LINQ.initialize();
 
                 //Physics
                 Physijs.scripts = {
@@ -2722,7 +2761,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 00:08:13
+* @Last Modified time: 2013-11-12 21:55:41
 */
 var HG;
 (function (HG) {
@@ -2736,7 +2775,6 @@ var HG;
                     console.log("[ModuleLoader] Required " + m);
                     global[m] = require(m);
                 });
-                global.moduled = true;
             }
             return ModuleLoader;
         })(HG.EventDispatcher);
@@ -2811,7 +2849,7 @@ var HG;
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-11 20:07:02
+* @Last Modified time: 2013-11-12 22:11:27
 */
 var HG;
 (function (HG) {
@@ -2834,11 +2872,6 @@ var HG;
             console.profileEnd();
         }
         Utils.profile = profile;
-
-        function degToRad(deg) {
-            return deg * Math.PI / 180;
-        }
-        Utils.degToRad = degToRad;
 
         function hasGL() {
             return (window.WebGLRenderingContext) ? true : false;
@@ -2942,7 +2975,7 @@ game.on('load', function () {
     room.on('loaded', function () {
         room.scale(5, 5, 5);
         room.position(0, 0, 0);
-        room.rotate(HG.Utils.degToRad(90), 0, 0);
+        room.rotate((90).toRadian(), 0, 0);
         scene.add(room);
     });
     room.fromSTL("assets/models/room01.stl");

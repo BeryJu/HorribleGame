@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-06 15:08:25
+* @Last Modified time: 2013-11-12 22:12:48
 */
 /// <reference path="BaseAbility.hg.ts" />
 
@@ -27,12 +27,12 @@ module HG {
 
 			turnLeft(step: number): void {
 				this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), 
-					HG.Utils.degToRad(step));
+					step.toRadian());
 			}
 
 			turnRight(step: number): void {
 				this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), 
-					HG.Utils.degToRad(-step));
+					-step.toRadian());
 			}
 
 			moveForward(step: number): void {

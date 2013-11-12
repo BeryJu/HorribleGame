@@ -4,7 +4,7 @@
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 17:06:12
+* @Last Modified time: 2013-11-12 22:08:59
 */
 module HG {
 
@@ -21,7 +21,6 @@ module HG {
 				context.forEach((e) => {
 					if (query(e) === true) result.push(e);
 				});
-				console.log(result);
 				return result;
 			}
 
@@ -37,16 +36,18 @@ module HG {
 				return result;
 			}
 
+			registerFunction(key: string, fn: (...args) => any): void {
+				Array.prototype[key] = function() {
+					var args = Array.prototype.slice.call(arguments);
+					args.splice(0, 0, this);
+					return fn.apply(this, args);
+				};
+			}
+
 			provide(): void {
-				var scope = this;
 				for (var k in this) {
 					if (k !== "provide") {
-						var fn = scope[k];
-						Array.prototype[k] = function() {
-							var args = Array.prototype.slice.call(arguments);
-							args.splice(0, 0, this);
-							return fn.apply(this, args);
-						}
+						this.registerFunction(k, this[k]);
 					}
 				}
 			}

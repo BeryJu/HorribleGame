@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 16:30:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-11 14:08:11
+* @Last Modified time: 2013-11-12 21:55:37
 */
 module HG {
 
@@ -27,13 +27,9 @@ module HG {
 
 			bootstrap(): void {
 				//Module loader
-				if (!global.moduled) {
-					var loader = new HG.Utils.ModuleLoader();
-				}
+				var loader = new HG.Utils.ModuleLoader();
 				//Linq
-				if (!global.linqd) {
-					HG.LINQ.initialize();
-				}
+				HG.LINQ.initialize();
 				//Physics
 				Physijs.scripts = {
 					ammo: "ammo.js",

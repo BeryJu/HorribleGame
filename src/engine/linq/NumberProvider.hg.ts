@@ -4,25 +4,24 @@
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-12 22:15:54
+* @Last Modified time: 2013-11-12 22:12:45
 */
 module HG {
 
 	export module LINQ {
 
-		export class StringProvider implements IProvider {
+		export class NumberProvider implements IProvider {
 
-			f(context: string, ...args): string {
-				return "";
+			toRadian(nmb: number): number {
+				return nmb * (Math.PI / 180);
 			}
 
-			replaceAll(context: string, find: string, replace: string): string {
-				find.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-				return context.replace(new RegExp(find, 'g'), replace);
+			toDegrees(nmb: number): number {
+				return nmb * (180 / Math.PI);
 			}
 
 			registerFunction(key: string, fn: (...args) => any): void {
-				String.prototype[key] = function() {
+				Number.prototype[key] = function() {
 					var args = Array.prototype.slice.call(arguments);
 					args.splice(0, 0, this);
 					return fn.apply(this, args);

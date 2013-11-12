@@ -46,7 +46,7 @@ game.on('load', function() {
 	room.on('loaded', () => {
 		room.scale(5, 5, 5);
 		room.position(0, 0, 0);
-		room.rotate(HG.Utils.degToRad(90), 0, 0);
+		room.rotate((90).toRadian(), 0, 0);
 		scene.add(room);
 	});
 	room.fromSTL("assets/models/room01.stl");

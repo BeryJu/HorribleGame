@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-11 20:07:02
+* @Last Modified time: 2013-11-12 22:11:27
 */
 module HG {
 	export module Utils {
@@ -21,10 +21,6 @@ module HG {
 			console.profile("HG Profile");
 			fn();
 			console.profileEnd();
-		}
-
-		export function degToRad(deg: number): number {
-			return deg * Math.PI / 180;
 		}
 
 		export function hasGL(): boolean {

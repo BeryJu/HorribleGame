@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 13:15:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-08 21:45:43
+* @Last Modified time: 2013-11-12 21:55:44
 */
 module HG {
 
@@ -18,8 +18,6 @@ module HG {
 					console.log("[LINQ] Provided "+m);
 				}
 			}
-
-			global.linqd = true;
 
 		}
 

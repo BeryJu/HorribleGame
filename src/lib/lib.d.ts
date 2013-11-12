@@ -151,6 +151,8 @@ declare var Boolean: {
 }
 
 interface Number {
+    toRadian(): number;
+    toDegrees(): number;
     toString(radix?: number): string;
     toFixed(fractionDigits?: number): string;
     toExponential(fractionDigits?: number): string;
