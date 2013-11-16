@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-12 20:46:46
+* @Last Modified time: 2013-11-16 14:19:37
 */
 ///<reference path="EventDispatcher.ts" />
 
@@ -67,7 +67,7 @@ module HG {
 			this.currentScene = s;
 		}
 
-		title(...args): void {
+		title(...args: string[]): void {
 			document.title = args.join("");
 		}
 
@@ -136,11 +136,12 @@ module HG {
 		render(): void {
 			var delta = this.fpsCounter.frameTime / 10;
 			this.dispatch('render', delta);
+			this.currentScene.forNamed((e) => e.frame(delta));
+			this.currentScene.controls.frame(delta);
 			this.camera.frame(delta);
 			this.controls.frame(delta);
-			this.currentScene.controls.frame(delta);
 			this.fpsCounter.frame(delta);
-			scene.getInternal().simulate();
+			this.currentScene.getInternal().simulate();
 			this.renderer.render(this.currentScene.getInternal(), 
 				<THREE.PerspectiveCamera> this.camera.getInternal());
 		}

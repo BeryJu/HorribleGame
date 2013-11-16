@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-12 13:00:41
+* @Last Modified time: 2013-11-16 14:19:29
 */
 
 module HG {
@@ -13,13 +13,14 @@ module HG {
 		//holds all event callbacks like
 		//{ name: [cb1, cb2 ] }
 		private events: {} = {};
+		private globalEvents: any[] = [];
 		//holds events available to subscribe to
 		//if subscribed to an event not in there,
 		//there will be a warning
 		eventsAvailable: string[] = [];
 
 		resolve(raw: any): string {
-			var result = "";
+			var result: string;
 			if (typeof raw === "number") {
 				result = raw.toString();
 			} else {
@@ -28,11 +29,15 @@ module HG {
 			return result;
 		}
 
-		on(name: string[], callback?: (...args) => any): void;
-		on(name: string, callback?: (...args) => any): void;
-		on(name: number[], callback?: (...args) => any): void;
-		on(name: number, callback?: (...args) => any): void;
-		on(name: any, callback?: (...args) => any): void {
+		onAll(callback: (...args: any[]) => any): any {
+			this.globalEvents.push(callback);
+		}
+
+		on(name: string[], callback?: (...args: any[]) => any): any;
+		on(name: string, callback?: (...args: any[]) => any): any;
+		on(name: number[], callback?: (...args: any[]) => any): any;
+		on(name: number, callback?: (...args: any[]) => any): any;
+		on(name: any, callback?: (...args: any[]) => any): any {
 			if (Array.isArray(name) === true) {
 				name.forEach((n) => {
 					this.on(n, callback);
@@ -61,10 +66,11 @@ module HG {
 				}
 				//actually add the callback
 				this.events[resolved].push(callback);
+				return this;
 			}
 		}
 
-		inject(name: any, callback: (...args) => any): void {
+		inject(name: any, callback: (...args: any[]) => any): any {
 			if (Array.isArray(name) === true) {
 				name.forEach((n) => {
 					this.inject(n, callback);
@@ -79,25 +85,25 @@ module HG {
 				console.log("["+type+"] Injected EventHandler for '"+name+"'");
 				//actually add the callback
 				this.events[resolved].splice(0, 0, callback);
+				return this;
 			}
 		}
 
-		clear(name: string): void {
+		clear(name: string): any {
 			if (typeof name !== "number") name = name.toString().toLowerCase();
 			if (!this.events[name]) return;
 			if (this.events[name].length === 0) return;
 			this.events[name] = [];
+			return this;
 		}
 
-		dispatch(name: string[], ...args): void;
-		dispatch(name: string, ...args): void;
-		dispatch(name: number[], ...args): void;
-		dispatch(name: number, ...args): void;
-		dispatch(name: any, ...args): void {
+		dispatch(name: string[], ...args: any[]): any;
+		dispatch(name: string, ...args: any[]): any;
+		dispatch(name: number[], ...args: any[]): any;
+		dispatch(name: number, ...args: any[]): any;
+		dispatch(name: any, ...args: any[]): any {
 			if (Array.isArray(name) === true) {
-				name.forEach((n) => {
-					this.dispatch(n, args);
-				});
+				name.forEach((n) => this.dispatch(n, args));
 			} else {
 				var resolved = this.resolve(name);
 				if (!(resolved in this.eventsAvailable)) this.eventsAvailable.push(resolved);
@@ -108,6 +114,10 @@ module HG {
 				this.events[resolved].forEach((event) => {
 					event.apply(this, parameters);
 				});
+				this.globalEvents.forEach((event) => {
+					event.apply(this, parameters);
+				});
+				return this;
 			}
 		}
 

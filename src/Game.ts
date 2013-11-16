@@ -1,10 +1,9 @@
 var pkg = require("./package.json");
-console.log("[HorribleGame] Build "+pkg.build);
 HG.Settings = HG.loadSettings("settings.json", new HG.SettingsStructure());
 var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 // game.loadShader('assets/shaders/heightmap.js')
 var scene = new HG.Scenes.BaseScene();
-game.pluginHost.load("assets/plugins/test.js");
+game.pluginHost.loadDirectory("assets/plugins/");
 game.on('load', function() {
 
 	game.renderer.setClearColor(new THREE.Color(0x000000), .5);
@@ -16,9 +15,14 @@ game.on('load', function() {
 		new THREE.PointLight(0xffffff, 3, HG.Settings.Graphics.viewDistance / 10));
 	var playerLightMove = new HG.Abilities.MovingAbility();
 	playerLight.addAbility(playerLightMove);
-	playerLight.offset(0, 150, 0);
+	playerLight.offset(0, 150, 0)
+				.position(0, 0, 0);
 	// playerLight.rotate(0, HG.Utils.degToRad(90), 0);
 	scene.add(playerLight, "playerLight");
+
+
+	// var particles = new HG.Entities.ParticleEntity("assets/textures/particle.png");
+	// scene.add(particles, "particles");
 
 	// //create a skybox for demo purposes
 	// var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/",
@@ -34,19 +38,18 @@ game.on('load', function() {
 	var animationAbility = new HG.Abilities.AnimationAbility();
 	player.addAbility(animationAbility);
 	player.on('loaded', () => {
-		player.scale(10, 10, 10);
-		player.offset(0, 0, 50);
+		player.scale(10, 10, 10)
+				.offset(0, 0, 50);
 		// player.rotate(0, HG.Utils.degToRad(90), 0);
-		scene.forNamed((e) => e.position(0, 0, 0));
 		scene.add(player, "player");
 	});
 	player.fromJS("assets/models/android.js");
 
 	var room = new HG.Entities.ModelEntity();
 	room.on('loaded', () => {
-		room.scale(5, 5, 5);
-		room.position(0, 0, 0);
-		room.rotate((90).toRadian(), 0, 0);
+		room.scale(5, 5, 5)
+			.offset(0, 0, 50)
+			.rotate((90).toRadian(), 0, 0);
 		scene.add(room);
 	});
 	room.fromSTL("assets/models/room01.stl");
@@ -138,10 +141,6 @@ game.on('keyDown', (a: any) => {
 	if (["keyboard"+a.keyCode] === HG.Settings.Keys.devConsole) {
 		HG.Utils.openDevConsole();
 	}
-});
-
-game.controls.bind("mouseMove", (x: number, y: number) => {
-	game.title("x: ", x, ", y: ", y);
 });
 
 game.controls.bind(HG.Settings.Keys.refresh, (delta: number) => {

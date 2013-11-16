@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-09 12:02:56
+* @Last Modified time: 2013-11-16 01:01:22
 */
 module HG {
 
@@ -22,8 +22,8 @@ module HG {
 		constructor() {
 			super();
 			this.lastMouse = new THREE.Vector2();
-			for (var k in KeyMap) {
-				this.eventsAvailable.push(KeyMap[k]);
+			for (var k in HG.Utils.KeyMap) {
+				this.eventsAvailable.push(HG.Utils.KeyMap[k]);
 			}
 		}
 

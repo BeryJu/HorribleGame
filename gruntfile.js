@@ -1,22 +1,41 @@
-var mainFile = "src/*.ts";
-var outFile = "dist/game.js";
-var pkgFile = "dist/package.json";
-var libDefinitionDir = "src/lib/*";
-var mainDir = "src/engine/*.ts";
-var contentDir = "src/content/*.ts";
-var extensionsDir = "src/engine/**/*.hg.ts";
+var paths = [
+	"src/lib/*.d.ts",
+	"src/engine/*.ts",
+	"src/engine/**/*.ts",
+	"src/engine/**/**/*.ts"
+];
+
+var gameFiles = [
+	"src/lib/*.d.ts",
+	"dist/lib/hg.d.ts",
+	"src/*.ts"
+];
+var outHG = "dist/lib/hg.js"
+var outGame = "dist/game.js"
 
 var fs = require('fs');
 module.exports = function(grunt) {
 	grunt.initConfig({
 		ts: {
 			hg: {
-				src: [libDefinitionDir, mainDir, extensionsDir, contentDir, mainFile],
-				out: outFile,
+				src: paths,
+				out: outHG,
 				options: {
 					target: 'es5',
 					comments: true,
 					sourcemap: true,
+					declaration: true,
+					fullSourceMapPath: true
+				}
+			},
+			game: {
+				src: gameFiles,
+				out: outGame,
+				options: {
+					target: 'es5',
+					comments: true,
+					sourcemap: true,
+					declaration: true,
 					fullSourceMapPath: true
 				}
 			}
@@ -30,11 +49,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-ts");
 	grunt.loadNpmTasks('grunt-shell');
 	grunt.registerTask('default', ['ts']);
+	grunt.registerTask('game', ['ts:game']);
+	grunt.registerTask('hg', ['ts:hg']);
 	grunt.registerTask('publish', ['ts', 'shell']);
-	// if (!fs) fs = require('fs');
-	// var pkg = require("./"+pkgFile);
-	// if (!pkg.build) pkg.build = 0;
-	// pkg.build ++;
-	// fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, "\t"));
-	// console.log("HorribleGame build"+pkg.build);
 };

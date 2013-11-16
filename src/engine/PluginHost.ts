@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-12 16:54:37
+* @Last Modified time: 2013-11-16 14:19:02
 */
 /// <reference path="IPlugin.ts" />
 module HG {
@@ -29,20 +29,17 @@ module HG {
 				});
 			}
 
-			hook(instance: any, event: any, callback: (...args) => any): void {
+			hook(instance: any, event: any, callback: (...args: any[]) => any): void {
 				try {
-					instance = <HG.EventDispatcher> instance;
+					var instance = <HG.EventDispatcher> instance;
 					instance.inject(event, callback);
-					console.log("[PluginHost] Injected into event "+event+
-						" from "+instance['constructor']['name']);
 				} catch (e) {
 					console.log("[PluginHost] Tried to inject into event "+event+
 						" from "+instance['constructor']['name']);
 				}
 			}
 
-			load(path: string) {
-				var plugin = <HG.Plugins.IPlugin> require("./"+path);
+			loadDirectory(path: string): void {
 				var env = {
 					HG: HG,
 					THREE: THREE,
@@ -50,6 +47,26 @@ module HG {
 					window: window,
 					document: document
 				};
+				var files = global.fs.readdirSync(path);
+				if (files.length === 0) {
+					console.log("[PluginHost] 0 Plugins found, skipping");
+				} else {
+					console.log("[PluginHost] "+files.length+" Plugins found");
+					files.forEach((file) => {
+						this.load(path+"/"+file, env);
+					});
+				}
+			}
+
+			load(path: string, env?: {}): void {
+				var plugin = <HG.Plugins.IPlugin> require("./"+path);
+				env = {
+					HG: HG,
+					THREE: THREE,
+					game: this.game,
+					window: window,
+					document: document
+				} || env;
 				try {
 					var instance = new plugin(this, env);
 					console.log("[PluginHost] Loaded "+instance.name);
