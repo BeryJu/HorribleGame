@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 14:19:02
+* @Last Modified time: 2013-11-16 17:38:45
 */
 /// <reference path="IPlugin.ts" />
 module HG {
@@ -39,42 +39,25 @@ module HG {
 				}
 			}
 
-			loadDirectory(path: string): void {
-				var env = {
-					HG: HG,
-					THREE: THREE,
-					game: this.game,
-					window: window,
-					document: document
-				};
-				var files = global.fs.readdirSync(path);
-				if (files.length === 0) {
-					console.log("[PluginHost] 0 Plugins found, skipping");
-				} else {
-					console.log("[PluginHost] "+files.length+" Plugins found");
-					files.forEach((file) => {
-						this.load(path+"/"+file, env);
-					});
-				}
-			}
-
-			load(path: string, env?: {}): void {
-				var plugin = <HG.Plugins.IPlugin> require("./"+path);
-				env = {
-					HG: HG,
-					THREE: THREE,
-					game: this.game,
-					window: window,
-					document: document
-				} || env;
-				try {
-					var instance = new plugin(this, env);
-					console.log("[PluginHost] Loaded "+instance.name);
-					this.plugins.push(instance);
-					this.paths.push(path);
-				} catch (e) {
-					console.log("[PluginHost] Failed to load Plugin "+path+" because "+e);
-				}
+			load(path: string[], env?: {}): void {
+				path.forEach((file) => {
+					var plugin = <HG.Plugins.IPlugin> require("./"+file);
+					env = {
+						HG: HG,
+						THREE: THREE,
+						game: this.game,
+						window: window,
+						document: document
+					} || env;
+					try {
+						var instance = new plugin(this, env);
+						console.log("[PluginHost] Loaded "+instance.name);
+						this.plugins.push(instance);
+						this.paths.push(file);
+					} catch (e) {
+						console.log("[PluginHost] Failed to load Plugin "+file+" because "+e);
+					}
+				});
 			}
 
 			frame(delta: number) {

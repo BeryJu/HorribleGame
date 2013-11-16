@@ -3,15 +3,18 @@
 * @Date:   2013-11-16 14:04:33
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 14:13:15
+* @Last Modified time: 2013-11-16 14:38:09
 */
 module HG {
 
 	export module Loaders {
 
-		export module Filetypes {
+		export module Generic {
 
-			export class STL extends EventDispatcher implements HG.Loaders.IFiletype {
+			export interface Model {
+
+				geometry: THREE.Geometry;
+				material: THREE.MeshFaceMaterial;
 
 			}
 

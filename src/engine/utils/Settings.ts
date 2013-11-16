@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-15 18:37:39
+* @Last Modified time: 2013-11-16 17:26:09
 */
 /// <reference path="SettingsStructure.ts" />
 module HG {
@@ -11,7 +11,6 @@ module HG {
 	export var Settings: HG.SettingsStructure;
 
 	export function loadSettings(path: string, fallback?: HG.SettingsStructure): HG.SettingsStructure {
-		var loader = new HG.Utils.ModuleLoader();
 		var raw = global.fs.readFileSync(path);
 		try {
 			console.log("[Settings] Loaded Settings from JSON.");
@@ -24,7 +23,6 @@ module HG {
 	}
 
 	export function saveSettings(path: string, settings: HG.SettingsStructure, pretty: boolean = false): void {
-		var loader = new HG.Utils.ModuleLoader();
 		var parsed;
 		if (pretty === true) {
 			parsed = JSON.stringify(settings, null , "\t");

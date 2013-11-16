@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-14 16:47:36
+* @Last Modified time: 2013-11-16 17:33:03
 */
 /// <reference path="BaseAbility.ts" />
 
@@ -32,9 +32,7 @@ module HG {
 			}
 
 			checkCompatibility(entity: BaseEntity): boolean {
-				var mesh = (entity instanceof HG.Entities.MeshEntity);
-				var model = (entity instanceof HG.Entities.ModelEntity);
-				return mesh || model;
+				return (entity instanceof HG.Entities.MeshEntity);
 			}
 
 			fromJS(path: string): void {

@@ -324,7 +324,7 @@ var HG;
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 14:19:02
+* @Last Modified time: 2013-11-16 17:38:45
 */
 /// <reference path="IPlugin.ts" />
 var HG;
@@ -355,43 +355,26 @@ var HG;
                 }
             };
 
-            PluginHost.prototype.loadDirectory = function (path) {
-                var _this = this;
-                var env = {
-                    HG: HG,
-                    THREE: THREE,
-                    game: this.game,
-                    window: window,
-                    document: document
-                };
-                var files = global.fs.readdirSync(path);
-                if (files.length === 0) {
-                    console.log("[PluginHost] 0 Plugins found, skipping");
-                } else {
-                    console.log("[PluginHost] " + files.length + " Plugins found");
-                    files.forEach(function (file) {
-                        _this.load(path + "/" + file, env);
-                    });
-                }
-            };
-
             PluginHost.prototype.load = function (path, env) {
-                var plugin = require("./" + path);
-                env = {
-                    HG: HG,
-                    THREE: THREE,
-                    game: this.game,
-                    window: window,
-                    document: document
-                } || env;
-                try  {
-                    var instance = new plugin(this, env);
-                    console.log("[PluginHost] Loaded " + instance.name);
-                    this.plugins.push(instance);
-                    this.paths.push(path);
-                } catch (e) {
-                    console.log("[PluginHost] Failed to load Plugin " + path + " because " + e);
-                }
+                var _this = this;
+                path.forEach(function (file) {
+                    var plugin = require("./" + file);
+                    env = {
+                        HG: HG,
+                        THREE: THREE,
+                        game: _this.game,
+                        window: window,
+                        document: document
+                    } || env;
+                    try  {
+                        var instance = new plugin(_this, env);
+                        console.log("[PluginHost] Loaded " + instance.name);
+                        _this.plugins.push(instance);
+                        _this.paths.push(file);
+                    } catch (e) {
+                        console.log("[PluginHost] Failed to load Plugin " + file + " because " + e);
+                    }
+                });
             };
 
             PluginHost.prototype.frame = function (delta) {
@@ -605,7 +588,7 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-14 16:47:36
+* @Last Modified time: 2013-11-16 17:33:03
 */
 /// <reference path="BaseAbility.ts" />
 var HG;
@@ -635,9 +618,7 @@ var HG;
             };
 
             AnimationAbility.prototype.checkCompatibility = function (entity) {
-                var mesh = (entity instanceof HG.Entities.MeshEntity);
-                var model = (entity instanceof HG.Entities.ModelEntity);
-                return mesh || model;
+                return (entity instanceof HG.Entities.MeshEntity);
             };
 
             AnimationAbility.prototype.fromJS = function (path) {
@@ -1015,66 +996,6 @@ var HG;
             return MeshEntity;
         })(HG.BaseEntity);
         Entities.MeshEntity = MeshEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 11:29:27
-*/
-/// <reference path="BaseEntity.ts" />
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var ModelEntity = (function (_super) {
-            __extends(ModelEntity, _super);
-            function ModelEntity() {
-                _super.apply(this, arguments);
-                this.eventsAvailable = ["loaded"];
-            }
-            ModelEntity.prototype.fromSTL = function (path) {
-                var _this = this;
-                var loader = new THREE.STLLoader();
-                loader.addEventListener('load', function (event) {
-                    var geometry = event.content;
-                    var material = new THREE.MeshPhongMaterial({
-                        ambient: 0xff5533,
-                        color: 0xff5533,
-                        specular: 0x111111,
-                        shininess: 200
-                    });
-                    var real = new THREE.MeshFaceMaterial([material]);
-                    _this.load(geometry, real);
-                });
-                loader.load(path);
-                // global.fs.readFile(path, (err, data) => {
-                // 	var loader = new THREE.STLLoader();
-                // 	var parsed = loader.parse(data);
-                // 	var material = new THREE.MeshPhongMaterial( { ambient: 0xff5533, color: 0xff5533, specular: 0x111111, shininess: 200 } );
-                // 	this.load(parsed.content, material);
-                // });
-            };
-
-            ModelEntity.prototype.fromJS = function (path) {
-                var _this = this;
-                global.fs.readFile(path, function (err, data) {
-                    var loader = new THREE.JSONLoader();
-                    var result = loader.parse(JSON.parse(data));
-                    var material = new THREE.MeshFaceMaterial(result.materials);
-                    _this.load(result.geometry, material);
-                });
-            };
-
-            ModelEntity.prototype.load = function (geometry, material) {
-                this.object = new THREE.Mesh(geometry, material);
-                this.dispatch('loaded', geometry, material);
-            };
-            return ModelEntity;
-        })(HG.BaseEntity);
-        Entities.ModelEntity = ModelEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
@@ -2264,19 +2185,74 @@ var HG;
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 14:03:49
+* @Last Modified time: 2013-11-16 17:31:39
+*/
+var HG;
+(function (HG) {
+    var Loader = (function (_super) {
+        __extends(Loader, _super);
+        function Loader(baseDirectory) {
+            _super.call(this);
+            this.baseDirectory = "";
+            this.baseDirectory = baseDirectory;
+            // var map = HG.Loaders.Model;
+            // for (var k in map) {
+            // 	this['from'+k] = (path: string) => {
+            // 		var loader = new HG.Loaders.Model[k](path);
+            // 		loader.on('loaded', (model) => {
+            // 			this.object = new THREE.Mesh(model.geometry, model.material);
+            // 			this.dispatch('loaded', model.geometry, model.material);
+            // 		});
+            // 	}
+            // }
+        }
+        Loader.prototype.directory = function (directory) {
+            var _this = this;
+            var path = global.path.join(this.baseDirectory, directory);
+            var files = global.fs.readdirSync(path);
+            files.forEach(function (file) {
+                file = global.path.join(_this.baseDirectory, directory, file);
+            });
+            return files;
+        };
+        return Loader;
+    })(HG.EventDispatcher);
+    HG.Loader = Loader;
+})(HG || (HG = {}));
+/*
+* @Author: BeryJu
+* @Date:   2013-11-16 14:04:33
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-11-16 17:34:26
 */
 var HG;
 (function (HG) {
     (function (Loaders) {
-        var Loader = (function (_super) {
-            __extends(Loader, _super);
-            function Loader() {
-                _super.apply(this, arguments);
-            }
-            return Loader;
-        })(HG.EventDispatcher);
-        Loaders.Loader = Loader;
+        (function (Model) {
+            var JSON = (function (_super) {
+                __extends(JSON, _super);
+                function JSON() {
+                    _super.apply(this, arguments);
+                }
+                JSON.prototype.load = function (path, material) {
+                    var _this = this;
+                    global.fs.readFile(path, function (err, data) {
+                        var loader = new THREE.JSONLoader();
+                        var result = loader.parse(global.JSON.parse(data));
+                        var material = new THREE.MeshFaceMaterial(result.materials);
+                        var model = {
+                            geometry: result.geometry,
+                            material: material
+                        };
+                        _this.dispatch("loaded", model);
+                    });
+                };
+                return JSON;
+            })(HG.EventDispatcher);
+            Model.JSON = JSON;
+        })(Loaders.Model || (Loaders.Model = {}));
+        var Model = Loaders.Model;
     })(HG.Loaders || (HG.Loaders = {}));
     var Loaders = HG.Loaders;
 })(HG || (HG = {}));
@@ -2285,22 +2261,42 @@ var HG;
 * @Date:   2013-11-16 14:04:33
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 14:13:15
+* @Last Modified time: 2013-11-16 17:06:45
 */
 var HG;
 (function (HG) {
     (function (Loaders) {
-        (function (Filetypes) {
+        (function (Model) {
             var STL = (function (_super) {
                 __extends(STL, _super);
                 function STL() {
                     _super.apply(this, arguments);
                 }
+                STL.prototype.load = function (path, material) {
+                    var _this = this;
+                    var loader = new THREE.STLLoader();
+                    loader.addEventListener('load', function (event) {
+                        var geometry = event.content;
+                        var phong = new THREE.MeshPhongMaterial({
+                            ambient: 0xff5533,
+                            color: 0xff5533,
+                            specular: 0x111111,
+                            shininess: 200
+                        });
+                        material = material || new THREE.MeshFaceMaterial([phong]);
+                        var model = {
+                            geometry: geometry,
+                            material: material
+                        };
+                        _this.dispatch("loaded", model);
+                    });
+                    loader.load(path);
+                };
                 return STL;
             })(HG.EventDispatcher);
-            Filetypes.STL = STL;
-        })(Loaders.Filetypes || (Loaders.Filetypes = {}));
-        var Filetypes = Loaders.Filetypes;
+            Model.STL = STL;
+        })(Loaders.Model || (Loaders.Model = {}));
+        var Model = Loaders.Model;
     })(HG.Loaders || (HG.Loaders = {}));
     var Loaders = HG.Loaders;
 })(HG || (HG = {}));
@@ -2835,16 +2831,18 @@ var HG;
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-12 21:55:41
+* @Last Modified time: 2013-11-16 17:26:47
 */
 var HG;
 (function (HG) {
     (function (Utils) {
         var ModuleLoader = (function (_super) {
             __extends(ModuleLoader, _super);
-            function ModuleLoader() {
+            function ModuleLoader(additional) {
+                if (typeof additional === "undefined") { additional = []; }
                 _super.call(this);
-                this.modules = ['fs', 'http', 'socket.io', 'socket.io-client'];
+                this.modules = ['fs', 'path', 'http', 'socket.io', 'socket.io-client'];
+                this.modules.concat(additional);
                 this.modules.forEach(function (m) {
                     console.log("[ModuleLoader] Required " + m);
                     global[m] = require(m);
@@ -2878,7 +2876,7 @@ var HG;
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-15 18:37:39
+* @Last Modified time: 2013-11-16 17:26:09
 */
 /// <reference path="SettingsStructure.ts" />
 var HG;
@@ -2886,7 +2884,6 @@ var HG;
     HG.Settings;
 
     function loadSettings(path, fallback) {
-        var loader = new HG.Utils.ModuleLoader();
         var raw = global.fs.readFileSync(path);
         try  {
             console.log("[Settings] Loaded Settings from JSON.");
@@ -2901,7 +2898,6 @@ var HG;
 
     function saveSettings(path, settings, pretty) {
         if (typeof pretty === "undefined") { pretty = false; }
-        var loader = new HG.Utils.ModuleLoader();
         var parsed;
         if (pretty === true) {
             parsed = JSON.stringify(settings, null, "\t");
@@ -2919,7 +2915,7 @@ var HG;
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-12 22:11:27
+* @Last Modified time: 2013-11-16 14:30:11
 */
 var HG;
 (function (HG) {
@@ -2988,6 +2984,16 @@ var HG;
             require('nw.gui').Window.get().showDevTools();
         }
         Utils.openDevConsole = openDevConsole;
+
+        function openDevConsoleExternal() {
+            var whwnd = require('nw.gui').Window.get();
+            whwnd.showDevTools('', true);
+            whwnd.on("devtools-opened", function (url) {
+                console.log(url);
+                require("openurl").open(url.toString());
+            });
+        }
+        Utils.openDevConsoleExternal = openDevConsoleExternal;
 
         function isNode() {
             return (process) ? true : false;

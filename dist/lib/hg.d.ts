@@ -62,8 +62,7 @@ declare module HG.Plugins {
         constructor(instance: HG.BaseGame);
         public doReload(): void;
         public hook(instance: any, event: any, callback: (...args: any[]) => any): void;
-        public loadDirectory(path: string): void;
-        public load(path: string, env?: {}): void;
+        public load(path: string[], env?: {}): void;
         public frame(delta: number): void;
     }
 }
@@ -213,15 +212,6 @@ declare module HG.Entities {
     }
 }
 declare module HG.Entities {
-    class ModelEntity extends HG.BaseEntity {
-        public object: THREE.Mesh;
-        public eventsAvailable: string[];
-        public fromSTL(path: string): void;
-        public fromJS(path: string): void;
-        public load(geometry: THREE.Geometry, material: THREE.MeshFaceMaterial): void;
-    }
-}
-declare module HG.Entities {
     class ParticleEntity extends HG.BaseEntity {
         public count: number;
         public size: number;
@@ -336,14 +326,30 @@ declare module HG.LINQ {
 }
 declare module HG.Loaders {
     interface IFiletype {
+        load(path: string): any;
     }
 }
-declare module HG.Loaders {
+declare module HG {
     class Loader extends HG.EventDispatcher {
+        public baseDirectory: string;
+        constructor(baseDirectory: string);
+        public directory(directory: string): string[];
     }
 }
-declare module HG.Loaders.Filetypes {
+declare module HG.Loaders.Generic {
+    interface Model {
+        geometry: THREE.Geometry;
+        material: THREE.MeshFaceMaterial;
+    }
+}
+declare module HG.Loaders.Model {
+    class JSON extends HG.EventDispatcher implements Loaders.IFiletype {
+        public load(path: string, material?: THREE.MeshFaceMaterial): void;
+    }
+}
+declare module HG.Loaders.Model {
     class STL extends HG.EventDispatcher implements Loaders.IFiletype {
+        public load(path: string, material?: THREE.MeshFaceMaterial): void;
     }
 }
 declare module HG.Scenes {
@@ -468,7 +474,7 @@ declare module HG.Utils {
 declare module HG.Utils {
     class ModuleLoader extends HG.EventDispatcher {
         public modules: string[];
-        constructor();
+        constructor(additional?: string[]);
     }
 }
 declare module HG {
@@ -521,5 +527,6 @@ declare module HG.Utils {
     function reload(): void;
     function toggleFullScreenMode(): void;
     function openDevConsole(): void;
+    function openDevConsoleExternal(): void;
     function isNode(): boolean;
 }

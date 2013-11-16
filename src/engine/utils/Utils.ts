@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-12 22:11:27
+* @Last Modified time: 2013-11-16 14:30:11
 */
 module HG {
 	export module Utils {
@@ -60,6 +60,15 @@ module HG {
 
 		export function openDevConsole(): void {
 			require('nw.gui').Window.get().showDevTools();
+		}
+
+		export function openDevConsoleExternal(): void {
+			var whwnd = require('nw.gui').Window.get();
+			whwnd.showDevTools('', true);
+			whwnd.on("devtools-opened", function(url) {
+				console.log(url);
+				require("openurl").open(url.toString());
+			});
 		}
 
 		export function isNode(): boolean {

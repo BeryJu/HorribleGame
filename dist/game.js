@@ -1,10 +1,12 @@
 var pkg = require("./package.json");
+var moduleLoader = new HG.Utils.ModuleLoader();
 HG.Settings = HG.loadSettings("settings.json", new HG.SettingsStructure());
 var game = new HG.BaseGame(document.getElementById("gameWrapper"));
 
 // game.loadShader('assets/shaders/heightmap.js')
 var scene = new HG.Scenes.BaseScene();
-game.pluginHost.loadDirectory("assets/plugins/");
+var loader = new HG.Loader("assets/");
+game.pluginHost.load(loader.directory("plugins"));
 game.on('load', function () {
     game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
@@ -27,7 +29,7 @@ game.on('load', function () {
     // skyBox.addAbility(new HG.Abilities.MovingAbility());
     // //add it to the scene
     // scene.add(skyBox, "skyBox");
-    var player = new HG.Entities.ModelEntity();
+    var player = new HG.Entities.MeshEntity();
     var playerMove = new HG.Abilities.MovingAbility();
     player.addAbility(playerMove);
     var animationAbility = new HG.Abilities.AnimationAbility();
@@ -38,14 +40,14 @@ game.on('load', function () {
         // player.rotate(0, HG.Utils.degToRad(90), 0);
         scene.add(player, "player");
     });
-    player.fromJS("assets/models/android.js");
+    player.load(loader.fromJS("assets/models/android.js"));
 
-    var room = new HG.Entities.ModelEntity();
+    var room = new HG.Entities.MeshEntity();
     room.on('loaded', function () {
         room.scale(5, 5, 5).offset(0, 0, 50).rotate((90).toRadian(), 0, 0);
         scene.add(room);
     });
-    room.fromSTL("assets/models/room01.stl");
+    room.load(loader.fromSTL("assets/models/room1.stl"));
 
     var levelStruct = new HG.LevelStructure();
     levelStruct.on(['loaded', 'created'], function (args) {
