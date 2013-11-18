@@ -210,12 +210,12 @@ declare module HG.Entities {
     }
 }
 declare module HG.Entities {
-    class MeshEntity extends HG.BaseEntity {
+    class MeshEntity extends HG.BaseEntity implements HG.Resource.ILoadable {
         public abilities: HG.BaseAbility[];
         public object: THREE.Mesh;
         public positionOffset: THREE.Vector3;
         constructor(geo?: THREE.Geometry, mat?: THREE.MeshBasicMaterial);
-        public from(data: HG.Loaders.LoadData): void;
+        public load(data: HG.Resource.LoadData): void;
     }
 }
 declare module HG.Entities {
@@ -331,32 +331,37 @@ declare module HG.LINQ {
         public provide(): void;
     }
 }
-declare module HG.Loaders {
+declare module HG.Resource {
     interface IFiletype {
         load(path: string): any;
     }
 }
-declare module HG.Loaders {
+declare module HG.Resource {
+    interface ILoadable {
+        load(data: Resource.LoadData): void;
+    }
+}
+declare module HG.Resource {
     interface LoadData {
-        loader: HG.Loader;
+        loader: HG.ResourceLoader;
         doStuff: () => boolean;
     }
 }
 declare module HG {
-    class Loader extends HG.EventDispatcher {
+    class ResourceLoader extends HG.EventDispatcher {
         public baseDirectory: string;
         constructor(baseDirectory: string);
-        public model(path: string): HG.Loaders.LoadData;
+        public model(path: string): HG.Resource.LoadData;
         public directory(directory: string): string[];
     }
 }
-declare module HG.Loaders.Model {
-    class JS extends HG.EventDispatcher implements Loaders.IFiletype {
+declare module HG.Resource.Model {
+    class JS extends HG.EventDispatcher implements Resource.IFiletype {
         public load(path: string): void;
     }
 }
-declare module HG.Loaders.Model {
-    class STL extends HG.EventDispatcher implements Loaders.IFiletype {
+declare module HG.Resource.Model {
+    class STL extends HG.EventDispatcher implements Resource.IFiletype {
         public load(path: string, material?: THREE.MeshFaceMaterial): void;
     }
 }

@@ -1,10 +1,8 @@
 var pkg = require("./package.json");
 HG.horrible();
 var game = new HG.BaseGame(document.getElementById("gameWrapper"), "settings.json");
-
-// game.loadShader('assets/shaders/heightmap.js')
 var scene = new HG.Scenes.BaseScene();
-var loader = new HG.Loader("assets/");
+var loader = new HG.ResourceLoader("assets/");
 game.pluginHost.load(loader.directory("plugins"));
 game.on('load', function () {
     game.renderer.setClearColor(new THREE.Color(0x000000), .5);

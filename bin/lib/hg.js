@@ -1,21 +1,9 @@
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 21:00:43
-*/
 var HG;
 (function (HG) {
     var EventDispatcher = (function () {
         function EventDispatcher() {
-            //holds all event callbacks like
-            //{ name: [cb1, cb2 ] }
             this.events = {};
             this.globalEvents = [];
-            //holds events available to subscribe to
-            //if subscribed to an event not in there,
-            //there will be a warning
             this.eventsAvailable = [];
         }
         EventDispatcher.prototype.resolve = function (raw) {
@@ -60,7 +48,6 @@ var HG;
                     }
                 }
 
-                //actually add the callback
                 this.events[resolved].push(callback);
                 return this;
             }
@@ -81,7 +68,6 @@ var HG;
                 }
                 console.log("[" + type + "] Injected EventHandler for '" + name + "'");
 
-                //actually add the callback
                 this.events[resolved].splice(0, 0, callback);
                 return this;
             }
@@ -131,14 +117,6 @@ var HG;
     })();
     HG.EventDispatcher = EventDispatcher;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:53:25
-*/
-///<reference path="EventDispatcher.ts" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -199,7 +177,6 @@ var HG;
             var data = this.renderer.domElement.toDataURL(imageType);
             console.debug(data);
 
-            //data:image/png;base64
             var raw = new Buffer(data.replace("data:" + imageType + ";base64,", ""), 'base64');
             global.fs.writeFile(path, raw);
         };
@@ -296,14 +273,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.BaseGame = BaseGame;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:29
-*/
-///<reference path="EventDispatcher" />
 var HG;
 (function (HG) {
     var BaseServer = (function (_super) {
@@ -322,13 +291,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.BaseServer = BaseServer;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-18 21:20:56
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 21:24:54
-*/
 var HG;
 (function (HG) {
     HG._warn;
@@ -372,14 +334,6 @@ var HG;
     }
     HG.horrible = horrible;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-11 17:37:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:34
-*/
-/// <reference path="IPlugin.ts" />
 var HG;
 (function (HG) {
     (function (Plugins) {
@@ -441,14 +395,6 @@ var HG;
     })(HG.Plugins || (HG.Plugins = {}));
     var Plugins = HG.Plugins;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-11 17:30:40
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:31
-*/
-/// <reference path="PluginHost.ts" />
 var HG;
 (function (HG) {
     (function (Plugins) {
@@ -464,13 +410,6 @@ var HG;
     })(HG.Plugins || (HG.Plugins = {}));
     var Plugins = HG.Plugins;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:31
-*/
 var HG;
 (function (HG) {
     var InputHandler = (function (_super) {
@@ -541,13 +480,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.InputHandler = InputHandler;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:34
-*/
 var HG;
 (function (HG) {
     var Renderer = (function (_super) {
@@ -559,13 +491,6 @@ var HG;
     })(THREE.WebGLRenderer);
     HG.Renderer = Renderer;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:34
-*/
 var HG;
 (function (HG) {
     var ServerConnection = (function (_super) {
@@ -580,13 +505,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.ServerConnection = ServerConnection;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:34
-*/
 var HG;
 (function (HG) {
     var Shader = (function (_super) {
@@ -607,14 +525,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.Shader = Shader;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:37
-*/
-/// <reference path="../EventDispatcher.ts" />
 var HG;
 (function (HG) {
     var BaseAbility = (function (_super) {
@@ -636,14 +546,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.BaseAbility = BaseAbility;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:37
-*/
-/// <reference path="BaseAbility.ts" />
 var HG;
 (function (HG) {
     (function (Abilities) {
@@ -719,14 +621,6 @@ var HG;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:37
-*/
-/// <reference path="BaseAbility.ts" />
 var HG;
 (function (HG) {
     (function (Abilities) {
@@ -735,10 +629,6 @@ var HG;
             function MovingAbility() {
                 _super.apply(this, arguments);
                 this.jumpState = 0;
-                //0: normal
-                //1: rising
-                //2: max
-                //3: falling
                 this.oldY = 0;
                 this.maxY = 200;
             }
@@ -801,15 +691,6 @@ var HG;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:29
-*/
-/// <reference path="../EventDispatcher.ts" />
-/// <reference path="../abilities/BaseAbility.ts" />
 var HG;
 (function (HG) {
     var BaseEntity = (function (_super) {
@@ -875,14 +756,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.BaseEntity = BaseEntity;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:29
-*/
-/// <reference path="BaseEntity.ts" />
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -911,14 +784,6 @@ var HG;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:29
-*/
-/// <reference path="BaseEntity.ts" />
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -949,14 +814,6 @@ var HG;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:29
-*/
-/// <reference path="BaseEntity.ts" />
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -991,13 +848,6 @@ var HG;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:30
-*/
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -1026,14 +876,6 @@ var HG;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:30
-*/
-/// <reference path="../abilities/BaseAbility.ts" />
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -1046,9 +888,7 @@ var HG;
                 if (geo && mat)
                     this.object = new THREE.Mesh(geo, mat);
             }
-            MeshEntity.prototype.from = function (data) {
-                data.loader.on('loaded', function () {
-                });
+            MeshEntity.prototype.load = function (data) {
             };
             return MeshEntity;
         })(HG.BaseEntity);
@@ -1056,14 +896,6 @@ var HG;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:30
-*/
-/// <reference path="BaseEntity.ts" />
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -1108,14 +940,6 @@ var HG;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:30
-*/
-/// <reference path="BaseEntity.ts" />
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -1144,14 +968,6 @@ var HG;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:30
-*/
-/// <reference path="BaseEntity.ts" />
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -1166,13 +982,6 @@ var HG;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:36
-*/
 var HG;
 (function (HG) {
     (function (Utils) {
@@ -1185,7 +994,6 @@ var HG;
 
                 var n0, n1, n2;
 
-                // Skew the input space to determine which simplex cell we're in
                 var s = (x + y) * F2;
                 var xs = x + s;
                 var ys = y + s;
@@ -1198,8 +1006,6 @@ var HG;
                 var x0 = x - X0;
                 var y0 = y - Y0;
 
-                // For the 2D case, the simplex shape is an equilateral triangle.
-                // Determine which simplex we are in.
                 var i1, j1;
                 if (x0 > y0) {
                     i1 = 1;
@@ -1209,19 +1015,14 @@ var HG;
                     j1 = 1;
                 }
 
-                // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
-                // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
-                // c = (3-sqrt(3))/6
                 var x1 = x0 - i1 + G2;
                 var y1 = y0 - j1 + G2;
                 var x2 = x0 - 1.0 + 2.0 * G2;
                 var y2 = y0 - 1.0 + 2.0 * G2;
 
-                // Wrap the integer indices at 256, to avoid indexing Noise.perm[] out of bounds
                 var ii = i % 256;
                 var jj = j % 256;
 
-                // Calculate the contribution from the three corners
                 var t0 = 0.5 - x0 * x0 - y0 * y0;
                 if (t0 < 0.0)
                     n0 = 0.0;
@@ -1246,19 +1047,15 @@ else {
                     n2 = t2 * t2 * Noise.grad2(Noise.perm[ii + 1 + Noise.perm[jj + 1]], x2, y2);
                 }
 
-                // Add contributions from each corner to get the final noise value.
-                // The result is scaled to return values in the interval [-1,1].
                 return 40.0 * (n0 + n1 + n2);
             };
 
             Noise.Generate3 = function (x, y, z) {
-                // Simple skewing factors for the 3D case
                 var F3 = 0.333333333;
                 var G3 = 0.166666667;
 
                 var n0, n1, n2, n3;
 
-                // Skew the input space to determine which simplex cell we're in
                 var s = (x + y + z) * F3;
                 var xs = x + s;
                 var ys = y + s;
@@ -1275,8 +1072,6 @@ else {
                 var y0 = y - Y0;
                 var z0 = z - Z0;
 
-                // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
-                // Determine which simplex we are in.
                 var i1, j1, k1;
                 var i2, j2, k2;
 
@@ -1328,10 +1123,6 @@ else {
                     }
                 }
 
-                // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in (x,y,z),
-                // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and
-                // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where
-                // c = 1/6.
                 var x1 = x0 - i1 + G3;
                 var y1 = y0 - j1 + G3;
                 var z1 = z0 - k1 + G3;
@@ -1342,12 +1133,10 @@ else {
                 var y3 = y0 - 1.0 + 3.0 * G3;
                 var z3 = z0 - 1.0 + 3.0 * G3;
 
-                // Wrap the integer indices at 256, to avoid indexing Noise.perm[] out of bounds
                 var ii = Noise.Mod(i, 256);
                 var jj = Noise.Mod(j, 256);
                 var kk = Noise.Mod(k, 256);
 
-                // Calculate the contribution from the four corners
                 var t0 = 0.6 - x0 * x0 - y0 * y0 - z0 * z0;
                 if (t0 < 0.0)
                     n0 = 0.0;
@@ -1380,8 +1169,6 @@ else {
                     n3 = t3 * t3 * Noise.grad3(Noise.perm[ii + 1 + Noise.perm[jj + 1 + Noise.perm[kk + 1]]], x3, y3, z3);
                 }
 
-                // Add contributions from each corner to get the final noise value.
-                // The result is scaled to stay just inside [-1,1]
                 return 32.0 * (n0 + n1 + n2 + n3);
             };
 
@@ -1939,14 +1726,6 @@ else {
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:07
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:31
-*/
-/// <reference path="../utils/Noise.ts" />
 var HG;
 (function (HG) {
     (function (CONSTANTS) {
@@ -1997,14 +1776,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.LevelStructure = LevelStructure;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:31
-*/
-/// <reference path="LevelStructure.ts" />
 var HG;
 (function (HG) {
     var Level = (function (_super) {
@@ -2017,18 +1788,6 @@ var HG;
                 rotation: new THREE.Vector3()
             };
 
-            // Todo redo this
-            // var g = new THREE.CubeGeometry(
-            // 	HG.CONSTANTS.BLOCK_SIZE,
-            // 	HG.CONSTANTS.BLOCK_SIZE,
-            // 	HG.CONSTANTS.BLOCK_SIZE
-            // );
-            // var m =  new THREE.MeshPhongMaterial({color: 0x000000});
-            // lvl.entities.forEach((e) => {
-            // 	m.color = new THREE.Color(e.color);
-            // 	var en = new HG.Entities.MeshEntity(g, m);
-            // 	en.position(e.position.x, e.position.y, e.position.z);
-            // });
             this.camera.position = new THREE.Vector3(lvl.camera.position.x, lvl.camera.position.y, lvl.camera.position.z);
             this.camera.rotation = new THREE.Vector3(lvl.camera.rotation.x, lvl.camera.rotation.y, lvl.camera.rotation.z);
         }
@@ -2045,13 +1804,6 @@ var HG;
     })(HG.EventDispatcher);
     HG.Level = Level;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:31
-*/
 var HG;
 (function (HG) {
     var LevelStructureEntity = (function () {
@@ -2063,14 +1815,6 @@ var HG;
     })();
     HG.LevelStructureEntity = LevelStructureEntity;
 })(HG || (HG = {}));
-/// <reference path="IProvider.ts" />
-/*
-* @Author: BeryJu
-* @Date:   2013-11-07 13:03:40
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:32
-*/
 var HG;
 (function (HG) {
     (function (LINQ) {
@@ -2123,13 +1867,6 @@ var HG;
     })(HG.LINQ || (HG.LINQ = {}));
     var LINQ = HG.LINQ;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-07 13:15:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:32
-*/
 var HG;
 (function (HG) {
     (function (LINQ) {
@@ -2146,14 +1883,6 @@ var HG;
     })(HG.LINQ || (HG.LINQ = {}));
     var LINQ = HG.LINQ;
 })(HG || (HG = {}));
-/// <reference path="IProvider.ts" />
-/*
-* @Author: BeryJu
-* @Date:   2013-11-07 13:03:40
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:32
-*/
 var HG;
 (function (HG) {
     (function (LINQ) {
@@ -2189,14 +1918,6 @@ var HG;
     })(HG.LINQ || (HG.LINQ = {}));
     var LINQ = HG.LINQ;
 })(HG || (HG = {}));
-/// <reference path="IProvider.ts" />
-/*
-* @Author: BeryJu
-* @Date:   2013-11-07 13:03:40
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:33
-*/
 var HG;
 (function (HG) {
     (function (LINQ) {
@@ -2237,32 +1958,25 @@ var HG;
     })(HG.LINQ || (HG.LINQ = {}));
     var LINQ = HG.LINQ;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-16 14:03:19
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:33
-*/
 var HG;
 (function (HG) {
-    var Loader = (function (_super) {
-        __extends(Loader, _super);
-        function Loader(baseDirectory) {
+    var ResourceLoader = (function (_super) {
+        __extends(ResourceLoader, _super);
+        function ResourceLoader(baseDirectory) {
             _super.call(this);
             this.baseDirectory = "";
             this.baseDirectory = baseDirectory;
         }
-        Loader.prototype.model = function (path) {
+        ResourceLoader.prototype.model = function (path) {
             path.replaceAll("/", global.path.sep);
-            var jsLoader = new HG.Loaders.Model.JS();
+            var jsLoader = new HG.Resource.Model.JS();
             jsLoader.on("loaded");
             return { loader: this, doStuff: function () {
                     return true;
                 } };
         };
 
-        Loader.prototype.directory = function (directory) {
+        ResourceLoader.prototype.directory = function (directory) {
             var _this = this;
             var path = global.path.join(this.baseDirectory, directory);
             var files = global.fs.readdirSync(path);
@@ -2272,20 +1986,13 @@ var HG;
             });
             return realFiles;
         };
-        return Loader;
+        return ResourceLoader;
     })(HG.EventDispatcher);
-    HG.Loader = Loader;
+    HG.ResourceLoader = ResourceLoader;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-16 14:04:33
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:33
-*/
 var HG;
 (function (HG) {
-    (function (Loaders) {
+    (function (Resource) {
         (function (Model) {
             var JS = (function (_super) {
                 __extends(JS, _super);
@@ -2308,21 +2015,14 @@ var HG;
                 return JS;
             })(HG.EventDispatcher);
             Model.JS = JS;
-        })(Loaders.Model || (Loaders.Model = {}));
-        var Model = Loaders.Model;
-    })(HG.Loaders || (HG.Loaders = {}));
-    var Loaders = HG.Loaders;
+        })(Resource.Model || (Resource.Model = {}));
+        var Model = Resource.Model;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-16 14:04:33
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:33
-*/
 var HG;
 (function (HG) {
-    (function (Loaders) {
+    (function (Resource) {
         (function (Model) {
             var STL = (function (_super) {
                 __extends(STL, _super);
@@ -2352,18 +2052,11 @@ var HG;
                 return STL;
             })(HG.EventDispatcher);
             Model.STL = STL;
-        })(Loaders.Model || (Loaders.Model = {}));
-        var Model = Loaders.Model;
-    })(HG.Loaders || (HG.Loaders = {}));
-    var Loaders = HG.Loaders;
+        })(Resource.Model || (Resource.Model = {}));
+        var Model = Resource.Model;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:34
-*/
 var HG;
 (function (HG) {
     (function (Scenes) {
@@ -2462,13 +2155,6 @@ var HG;
     })(HG.Scenes || (HG.Scenes = {}));
     var Scenes = HG.Scenes;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-10 13:59:37
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:34
-*/
 var HG;
 (function (HG) {
     (function (Sound) {
@@ -2478,13 +2164,11 @@ var HG;
             }
             BufferLoader.prototype.loadBuffer = function (url, onload) {
                 var _this = this;
-                // Load buffer asynchronously
                 var request = new XMLHttpRequest();
                 request.open("GET", url, true);
                 request.responseType = "arraybuffer";
 
                 request.onload = function () {
-                    // Asynchronously decode the audio file data in request.response
                     _this.context.decodeAudioData(request.response, function (buffer) {
                         if (!buffer) {
                             alert('error decoding file data: ' + url);
@@ -2515,14 +2199,6 @@ var HG;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-09 15:07:32
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:35
-*/
-/// <reference path="../EventDispatcher.ts" />
 var HG;
 (function (HG) {
     (function (Sound) {
@@ -2553,14 +2229,6 @@ var HG;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-09 15:07:32
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:35
-*/
-/// <reference path="../EventDispatcher.ts" />
 var HG;
 (function (HG) {
     (function (Sound) {
@@ -2614,14 +2282,6 @@ var HG;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-09 15:07:32
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:35
-*/
-/// <reference path="../EventDispatcher.ts" />
 var HG;
 (function (HG) {
     (function (Sound) {
@@ -2653,13 +2313,6 @@ var HG;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-07 16:30:32
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 21:21:48
-*/
 var HG;
 (function (HG) {
     (function (Utils) {
@@ -2676,10 +2329,8 @@ var HG;
                 this.on('error');
             }
             Bootstrapper.prototype.bootstrap = function () {
-                //Linq
                 HG.LINQ.initialize();
 
-                //Physics
                 Physijs.scripts = {
                     ammo: "ammo.js",
                     worker: "lib/physijs_worker.js"
@@ -2688,7 +2339,6 @@ var HG;
                 if (HG.Utils.hasGL() === false)
                     this.dispatch('error', new Error("Runtime or Graphiscard doesn't support GL"));
 
-                //Audio
                 window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
             };
 
@@ -2706,13 +2356,6 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:35
-*/
 var HG;
 (function (HG) {
     (function (Utils) {
@@ -2754,11 +2397,9 @@ var HG;
                 var Now = new Date();
                 var Diff = new Date(Now.getTime() - this.lastFrameTime);
 
-                //FrameTime
                 this._frameTime = Diff.getTime();
                 this.lastFrameTime = Now.getTime();
 
-                //FPS
                 var FPSDiff = new Date(Now.getTime() - this.lastSecond);
                 if (FPSDiff.getSeconds() > 0) {
                     this.fps = this.currentFrames;
@@ -2775,13 +2416,6 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:36
-*/
 var HG;
 (function (HG) {
     (function (Utils) {
@@ -2806,13 +2440,6 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:36
-*/
 var HG;
 (function (HG) {
     (function (Utils) {
@@ -2875,13 +2502,6 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:36
-*/
 var HG;
 (function (HG) {
     (function (Utils) {
@@ -2903,13 +2523,6 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:08
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:37
-*/
 var HG;
 (function (HG) {
     var SettingsStructure = (function () {
@@ -2920,14 +2533,6 @@ var HG;
     })();
     HG.SettingsStructure = SettingsStructure;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-11 12:15:19
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:36
-*/
-/// <reference path="SettingsStructure.ts" />
 var HG;
 (function (HG) {
     HG.Settings;
@@ -2959,13 +2564,6 @@ var HG;
     }
     HG.saveSettings = saveSettings;
 })(HG || (HG = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-11-06 14:36:09
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:37
-*/
 var HG;
 (function (HG) {
     (function (Utils) {

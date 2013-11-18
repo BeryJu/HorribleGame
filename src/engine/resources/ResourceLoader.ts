@@ -3,11 +3,11 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:33
+* @Last Modified time: 2013-11-18 21:49:58
 */
 module HG {
 
-	export class Loader extends EventDispatcher {
+	export class ResourceLoader extends EventDispatcher {
 
 		baseDirectory: string = "";
 
@@ -16,9 +16,9 @@ module HG {
 			this.baseDirectory = baseDirectory;
 		}
 
-		model(path: string): HG.Loaders.LoadData {
+		model(path: string): HG.Resource.LoadData {
 			path.replaceAll("/", global.path.sep);
-			var jsLoader = new HG.Loaders.Model.JS();
+			var jsLoader = new HG.Resource.Model.JS();
 			jsLoader.on("loaded")
 			return { loader: this, doStuff: function() { return true; } };
 		}
