@@ -114,6 +114,7 @@ interface String {
     localeCompare(that: string): number;
     match(regexp: string): string[];
     match(regexp: RegExp): string[];
+    replaceAll(search: string, replace: string): string;
     replace(searchValue: string, replaceValue: string): string;
     replace(searchValue: string, replaceValue: (substring: string, ...args: any[]) => string): string;
     replace(searchValue: RegExp, replaceValue: string): string;
@@ -7380,7 +7381,7 @@ declare var CSSKeyframesRule: {
     new (): CSSKeyframesRule;
 }
 
-interface Window extends WindowBase64, IDBEnvironment, WindowConsole {
+interface Window extends WindowBase64, IDBEnvironment, Window  {
     onmspointerdown: (ev: any) => any;
     addEventListener(type: "mspointerdown", listener: (ev: any) => any, useCapture?: boolean): void;
     animationStartTime: number;

@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 17:26:09
+* @Last Modified time: 2013-11-18 20:13:36
 */
 /// <reference path="SettingsStructure.ts" />
 module HG {

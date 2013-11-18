@@ -1,0 +1,7 @@
+HorribleGame:
+	☐ Finish physijs					@file (src/lib/physijs.d.ts)
+	✔ Fix LINQ							@file (src/engine/linq/LINQ.ts) @done (13-11-16 19:10)
+	☐ Redo Map Loader					@file (src/engine/level/Level.ts)
+	☐ Finish the Model/Audio Loader		@file (src/engine/loaders/Loader.ts)
+	☐ Create some unit test				@file (tests/)
+	☐ Finish Node-nullbrowser

@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 17:31:39
+* @Last Modified time: 2013-11-18 20:13:33
 */
 module HG {
 
@@ -14,25 +14,23 @@ module HG {
 		constructor(baseDirectory: string) {
 			super();
 			this.baseDirectory = baseDirectory;
-			// var map = HG.Loaders.Model;
-			// for (var k in map) {
-			// 	this['from'+k] = (path: string) => {
-			// 		var loader = new HG.Loaders.Model[k](path);
-			// 		loader.on('loaded', (model) => {
-			// 			this.object = new THREE.Mesh(model.geometry, model.material);
-			// 			this.dispatch('loaded', model.geometry, model.material);
-			// 		});
-			// 	}
-			// }
+		}
+
+		model(path: string): HG.Loaders.LoadData {
+			path.replaceAll("/", global.path.sep);
+			var jsLoader = new HG.Loaders.Model.JS();
+			jsLoader.on("loaded")
+			return { loader: this, doStuff: function() { return true; } };
 		}
 
 		directory(directory: string): string[] {
 			var path = global.path.join(this.baseDirectory, directory);
 			var files = global.fs.readdirSync(path);
+			var realFiles: string[] = [];
 			files.forEach((file) => {
-				file = global.path.join(this.baseDirectory, directory, file);
+				realFiles.push(global.path.join(this.baseDirectory, directory, file));
 			});
-			return files;
+			return realFiles;
 		}
 
 	}

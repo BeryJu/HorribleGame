@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 17:38:45
+* @Last Modified time: 2013-11-18 20:13:34
 */
 /// <reference path="IPlugin.ts" />
 module HG {
@@ -41,7 +41,6 @@ module HG {
 
 			load(path: string[], env?: {}): void {
 				path.forEach((file) => {
-					var plugin = <HG.Plugins.IPlugin> require("./"+file);
 					env = {
 						HG: HG,
 						THREE: THREE,
@@ -50,6 +49,7 @@ module HG {
 						document: document
 					} || env;
 					try {
+						var plugin = <HG.Plugins.IPlugin> require("./"+file);
 						var instance = new plugin(this, env);
 						console.log("[PluginHost] Loaded "+instance.name);
 						this.plugins.push(instance);

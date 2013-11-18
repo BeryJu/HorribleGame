@@ -3,13 +3,13 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 14:19:37
+* @Last Modified time: 2013-11-18 20:53:25
 */
 ///<reference path="EventDispatcher.ts" />
 
 module HG {
 
-	export class BaseGame extends EventDispatcher {
+	export class BaseGame extends HG.EventDispatcher {
 
 		socketClient: SocketManager;
 		renderer: THREE.WebGLRenderer;
@@ -25,9 +25,12 @@ module HG {
 			"start", "keyup", "keydown", "resize", "render",
 			"mouseDown", "mouseUp", "mouseMove"];
 
-		constructor(container: HTMLElement = document.body) {
+		constructor(container: HTMLElement = document.body,
+					settings: string = "") {
 			super();
 			new HG.Utils.Bootstrapper().bootstrap();
+			var moduleLoader = new HG.Utils.ModuleLoader();
+			HG.Settings = HG.loadSettings(settings, new HG.SettingsStructure());
 
 			this.soundMixer = new HG.Sound.Mixer();
 			this.soundMixer.volume(HG.Settings.Sound.masterVolume);

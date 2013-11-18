@@ -1,0 +1,1734 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"scri",
+				"scriptElement"
+			],
+			[
+				"mod",
+				"modules"
+			],
+			[
+				"Mesh",
+				"MeshFaceMaterial"
+			],
+			[
+				"game",
+				"gameFiles"
+			],
+			[
+				"get",
+				"getRandomInt"
+			],
+			[
+				"for",
+				"for	for (…) {…}"
+			],
+			[
+				"callbac",
+				"callback"
+			],
+			[
+				"cit",
+				"cityEntity"
+			],
+			[
+				"E",
+				"ENVIRONMENT_IS_WEB"
+			],
+			[
+				"EM",
+				"ENVIRONMENT_IS_NODE"
+			],
+			[
+				"image",
+				"imageType"
+			],
+			[
+				"mater",
+				"material"
+			],
+			[
+				"reso",
+				"resolve"
+			],
+			[
+				"res",
+				"resolved"
+			],
+			[
+				"Plug",
+				"PluginHost"
+			],
+			[
+				"plu",
+				"plugins"
+			],
+			[
+				"Base",
+				"BaseScene"
+			],
+			[
+				"Settings",
+				"SettingsStructure"
+			],
+			[
+				"vol",
+				"volumeChange"
+			],
+			[
+				"con",
+				"context"
+			],
+			[
+				"ga",
+				"gain"
+			],
+			[
+				"gain",
+				"gainNode"
+			],
+			[
+				"onMou",
+				"onmousedown"
+			],
+			[
+				"inn",
+				"innerHeight"
+			],
+			[
+				"cons",
+				"constructor"
+			],
+			[
+				"lg",
+				"log	Print a log Statement"
+			],
+			[
+				"Mes",
+				"MeshEntity"
+			],
+			[
+				"arg",
+				"arguments"
+			],
+			[
+				"T",
+				"ToggleMenuCommand"
+			],
+			[
+				"replae",
+				"replaceAll"
+			],
+			[
+				"err",
+				"error	Error"
+			],
+			[
+				"pro",
+				"prototype"
+			],
+			[
+				"co",
+				"context"
+			],
+			[
+				"pla",
+				"playerMove"
+			],
+			[
+				"Mos",
+				"MouseEvent"
+			],
+			[
+				"pos",
+				"position"
+			],
+			[
+				"lo",
+				"localStorage"
+			],
+			[
+				"lan",
+				"languages"
+			],
+			[
+				"pr",
+				"profile"
+			],
+			[
+				"lang",
+				"language"
+			],
+			[
+				"curre",
+				"currentProfile"
+			],
+			[
+				"load",
+				"loader"
+			],
+			[
+				"str",
+				"stringify"
+			],
+			[
+				"las",
+				"last_user"
+			],
+			[
+				"last",
+				"lastProfile"
+			],
+			[
+				"call",
+				"callee"
+			],
+			[
+				"o",
+				"oldConsole"
+			],
+			[
+				"cal",
+				"callback"
+			],
+			[
+				"nam",
+				"nameIndices"
+			],
+			[
+				"name",
+				"nameTag"
+			],
+			[
+				"old",
+				"oldPosition"
+			],
+			[
+				"Hg",
+				"HeightMapEntity"
+			],
+			[
+				"mou",
+				"mouseY"
+			],
+			[
+				"mouse",
+				"mouseX"
+			],
+			[
+				"repl",
+				"replaceAll"
+			],
+			[
+				"mo",
+				"morphTargets"
+			],
+			[
+				"opt",
+				"options_page"
+			],
+			[
+				"time",
+				"timeSpent"
+			],
+			[
+				"doc",
+				"document"
+			],
+			[
+				"req",
+				"request"
+			],
+			[
+				"update",
+				"updateExtension"
+			],
+			[
+				"us",
+				"userName"
+			],
+			[
+				"var",
+				"var_dump"
+			],
+			[
+				"ac",
+				"active"
+			],
+			[
+				"st",
+				"storage"
+			],
+			[
+				"bst-cdn",
+				"bst-cdn:js	bst-cdn-js"
+			],
+			[
+				"render",
+				"renderParams"
+			],
+			[
+				"user",
+				"username"
+			],
+			[
+				"bst-input",
+				"bst-input:text	bst-input-text"
+			],
+			[
+				"bst-col",
+				"bst-col:5	bst-col-5"
+			],
+			[
+				"style",
+				"stylesheet"
+			],
+			[
+				"mov",
+				"movingAbility"
+			],
+			[
+				"text",
+				"textMesh"
+			],
+			[
+				"sky",
+				"skyBox"
+			],
+			[
+				"ad",
+				"addAbility"
+			],
+			[
+				"A",
+				"AnimationAbility"
+			],
+			[
+				"Moving",
+				"MovingAbility"
+			],
+			[
+				"an",
+				"animationAbility"
+			],
+			[
+				"ep",
+				"expclasss	Export Class with Super"
+			],
+			[
+				"root",
+				"rootEntity"
+			],
+			[
+				"roo",
+				"rootEntity"
+			],
+			[
+				"log",
+				"log	Print a log Statement"
+			],
+			[
+				"event",
+				"eventsAvailable"
+			],
+			[
+				"even",
+				"eventsAvailable"
+			],
+			[
+				"q",
+				"query"
+			],
+			[
+				"An",
+				"AnimatedEntity"
+			],
+			[
+				"Pl",
+				"PlayerLight"
+			],
+			[
+				"re",
+				"responseText"
+			],
+			[
+				"ge",
+				"geometry"
+			],
+			[
+				"on",
+				"onReadyStateChange"
+			],
+			[
+				"JS",
+				"JSONString"
+			],
+			[
+				"En",
+				"EntityLevel"
+			],
+			[
+				"B",
+				"BLOCK_SIZE"
+			],
+			[
+				"scoe",
+				"scores"
+			],
+			[
+				"star",
+				"startMsg"
+			],
+			[
+				"out",
+				"outLibFile"
+			],
+			[
+				"lib",
+				"libSourceDir"
+			],
+			[
+				"main",
+				"mainFile"
+			],
+			[
+				"ex",
+				"extensionsDir"
+			],
+			[
+				"backgr",
+				"background-image"
+			],
+			[
+				"marg",
+				"margin-left"
+			],
+			[
+				"back",
+				"background-size"
+			],
+			[
+				"socke",
+				"socketClient"
+			],
+			[
+				"soc",
+				"socketServer"
+			],
+			[
+				"_",
+				"_POST"
+			],
+			[
+				"ar",
+				"argsJSON  (variable)"
+			],
+			[
+				"nod",
+				"nodeExecutable"
+			],
+			[
+				"par",
+				"parseDate"
+			],
+			[
+				"font-fa",
+				"font-family:   (property)"
+			],
+			[
+				"margin",
+				"margin-top"
+			],
+			[
+				"exp",
+				"expclass	Class"
+			],
+			[
+				"Siz",
+				"SIZE_Y"
+			],
+			[
+				"Szie",
+				"SIZE_X"
+			],
+			[
+				"ob",
+				"object"
+			],
+			[
+				"max",
+				"maxY"
+			],
+			[
+				"Pla",
+				"PlayerLight"
+			],
+			[
+				"Mov",
+				"MovingEntity"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "bin/game/Game.ts",
+			"settings":
+			{
+				"buffer_size": 5930,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "gruntfile.js",
+			"settings":
+			{
+				"buffer_size": 1099,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "Packages/User/Build System/Grunt.sublime-build",
+	"command_palette":
+	{
+		"height": 236.0,
+		"selected_items":
+		[
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"indn",
+				"Indentation: Convert to Tabs"
+			],
+			[
+				"html",
+				"Set Syntax: HTML"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"ts",
+				"Set Syntax: TypeScript"
+			],
+			[
+				"plain",
+				"Set Syntax: Plain Text"
+			],
+			[
+				"refre",
+				"Project: Refresh Folders"
+			],
+			[
+				"reffres",
+				"Project: Refresh Folders"
+			],
+			[
+				"refresh",
+				"Project: Refresh Folders"
+			],
+			[
+				"settings",
+				"Preferences: Settings - User"
+			],
+			[
+				"rem",
+				"Package Control: Remove Package"
+			],
+			[
+				"innd",
+				"Indentation: Convert to Tabs"
+			],
+			[
+				"diff",
+				"Modific: Show diff"
+			],
+			[
+				"MODIFIC",
+				"Modific: Show diff"
+			],
+			[
+				"instl",
+				"Package Control: Install Package"
+			],
+			[
+				"repl",
+				"SublimeREPL: Shell"
+			],
+			[
+				"markdown",
+				"Markdown Preview: Github Flavored Markdown: Preview in Browser"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"remov",
+				"Package Control: Remove Package"
+			],
+			[
+				"bin",
+				"Preferences: Key Bindings - Default"
+			],
+			[
+				"toggle men",
+				"View: Toggle Menu"
+			],
+			[
+				"menu",
+				"View: Toggle Menu"
+			],
+			[
+				"we",
+				"Word Wrap: Toggle"
+			],
+			[
+				"delte",
+				"File: Delete"
+			],
+			[
+				"indnre",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"type",
+				"Set Syntax: TypeScript"
+			],
+			[
+				"js",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"java",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"trimmer",
+				"Trimmer: Trim trailing whitespace."
+			],
+			[
+				"trim",
+				"Trimmer: Trim trailing whitespace."
+			],
+			[
+				"typesc",
+				"Set Syntax: TypeScript"
+			],
+			[
+				"c#",
+				"Set Syntax: C#"
+			],
+			[
+				"mark",
+				"Set Syntax: Markdown"
+			],
+			[
+				"json",
+				"Set Syntax: JSON"
+			],
+			[
+				"jac",
+				"Set Syntax: JavaScript"
+			],
+			[
+				"javasc",
+				"Set Syntax: JavaScriptNext"
+			],
+			[
+				"j",
+				"Set Syntax: Jade"
+			],
+			[
+				"ssjs",
+				"Set Syntax: JavaScript (Rails)"
+			],
+			[
+				"reindn",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"inden",
+				"Indentation: Convert to Tabs"
+			],
+			[
+				"jade",
+				"Set Syntax: Jade"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"ngin",
+				"Set Syntax: nginx"
+			],
+			[
+				"ngi",
+				"Set Syntax: nginx"
+			],
+			[
+				"ng",
+				"Set Syntax: nginx"
+			],
+			[
+				"upgra",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"inn",
+				"Indentation: Convert to Tabs"
+			],
+			[
+				"bash",
+				"Set Syntax: Shell Script (Bash)"
+			],
+			[
+				"typescipt",
+				"Set Syntax: TypeScript"
+			],
+			[
+				"grunt",
+				"Grunt"
+			],
+			[
+				"word",
+				"Word Wrap: Toggle"
+			],
+			[
+				"typescript",
+				"TypeScript: Compile File"
+			],
+			[
+				"super",
+				"SuperNavigator: Super Navigate"
+			],
+			[
+				"package",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"intsal",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 562.0
+	},
+	"console":
+	{
+		"height": 459.0,
+		"history":
+		[
+			"rename",
+			"cmd",
+			"view",
+			"application",
+			"appliction",
+			"run_command",
+			"window",
+			"window.run_command(\"toggle_menu\")",
+			"view.run_command(\"toggle_menu\")",
+			"view.run_command(\"\")",
+			"view.run_command",
+			"true",
+			"toggle_menu",
+			"view",
+			"view.runCommand",
+			"view.run",
+			"view",
+			"copy",
+			"urllib",
+			"urllib.quote",
+			"urllib",
+			"import urllib2",
+			"import urllib",
+			"view.run_command('SendToPastebin')  ",
+			"import urllib.request,os; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); open(os.path.join(ipp, pf), 'wb').write(urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ','%20')).read())",
+			"import urllib2,os; pf='Package Control.sublime-package'; ipp = sublime.installed_packages_path(); os.makedirs( ipp ) if not os.path.exists(ipp) else None; urllib2.install_opener( urllib2.build_opener( urllib2.ProxyHandler( ))); open( os.path.join( ipp, pf), 'wb' ).write( urllib2.urlopen( 'http://sublime.wbond.net/' +pf.replace( ' ','%20' )).read()); print( 'Please restart Sublime Text to finish installation')"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/J/projects/HorribleGame/src/engine/PluginHost.ts",
+		"/J/projects/HorribleGame/gruntfile.js",
+		"/J/projects/HorribleGame/src/Game.ts",
+		"/J/projects/HorribleGame/bin/index.html",
+		"/J/projects/HorribleGame/bin/game.js",
+		"/J/projects/HorribleGame/bin/assets/fonts/droidSans.typeface.js",
+		"/J/projects/HorribleGame/dist/index.html",
+		"/J/projects/HorribleGame/dist/lib/three.js",
+		"/J/projects/HorribleGame-wiki/Home.md",
+		"/C/Users/BeryJu/Desktop/start.bat",
+		"/C/Program Files/Sublime Text 3/sublime.py",
+		"/J/projects/HorribleGame/HG.todo",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/PlainTasks.sublime-settings",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/PlainTasks/PlainTasks (Windows).sublime-settings",
+		"/J/projects/HorribleGame/testAll.js",
+		"/J/projects/HorribleGame/tests/expTest.js",
+		"/J/projects/HorribleGame/tests/testAll.js",
+		"/J/projects/node-browserenv/src/BrowserEnv.ts",
+		"/J/projects/node-browserenv/package.json",
+		"/J/projects/node-browserenv/gruntfile.js",
+		"/J/projects/node-browserenv/build/browserenv.js",
+		"/J/projects/node-browserenv/browserenv.js",
+		"/J/projects/HorribleGame/src/engine/loaders/Loader.ts",
+		"/J/projects/HorribleGame/src/engine/entities/BaseEntity.ts",
+		"/J/projects/HorribleGame/src/engine/abilities/AnimationAbility.ts",
+		"/J/projects/HorribleGame-wiki/Plugins.md",
+		"/J/projects/HorribleGame/src/engine/loaders/LoadData.ts",
+		"/J/.gitignore",
+		"/J/backup.sh",
+		"/J/.bashrc",
+		"/J/projects/backup/schedule.js",
+		"/J/projects/backup/backup.sh",
+		"/D/Games/Steam/SteamApps/common/inMomentum/110400_install.vdf",
+		"/J/archey.py",
+		"/J/www.conf",
+		"/J/projects/HorribleGame/package.json",
+		"/J/documentRoot/stuff/iei.html",
+		"/C/Users/BeryJu/SteamLibrary/SteamApps/common/dota 2 beta/bin/gameinfo.txt",
+		"/D/Downloads/Scroll++ 0.0.2 - Release-Build/install.bat",
+		"/C/Users/BeryJu/AppData/Local/Temp/Rar$DRa0.553/Readme.txt",
+		"/J/projects/HorribleGame/src/engine/entities/MeshEntity.ts",
+		"/J/projects/HorribleGame/src/engine/loaders/generic/Model.ts",
+		"/J/projects/HorribleGame/src/engine/loaders/models/JS.ts",
+		"/J/projects/HorribleGame/src/engine/utils/Settings.ts",
+		"/D/Games/Steam/SteamApps/common/dota 2 beta/dota/cfg/autoexec.cfg",
+		"/D/Games/Game Dev Tycoon/readme.txt",
+		"/J/projects/HorribleGame/src/lib/lib.d.ts",
+		"/J/projects/HorribleGame/tscommand.tmp.txt",
+		"/J/projects/HorribleGame/src/engine/linq/StringProvider.ts",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/PlainTasks/messages/Tutorial.todo",
+		"/C/Users/BeryJu/.codeintel/config",
+		"/C/Users/BeryJu/.ssh/id_rsa.pub",
+		"/C/Users/BeryJu/.ssh/id_rsa.ppk",
+		"/J/projects/HorribleGame/src/engine/utils/ModuleLoader.ts",
+		"/J/projects/HorribleGame/dist/src/engine/entities/ModelEntity.ts",
+		"/J/projects/HorribleGame/src/engine/loaders/models/JSON.ts",
+		"/J/projects/HorribleGame/src/engine/entities/ModelEntity.ts",
+		"/J/projects/HorribleGame/src/engine/utils/Utils.ts",
+		"/J/projects/HorribleGame/src/engine/loaders/models/STL.ts",
+		"/J/projects/HorribleGame/src/engine/loaders/filetypes/JSON.ts",
+		"/J/projects/HorribleGame/src/engine/loaders/filetypes/STL.ts",
+		"/J/projects/HorribleGame/src/engine/loaders/IFiletype.ts",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/BeryJu/AppData/Local/Temp/Rar$DRa0.176/Default.sublime-commands",
+		"/J/projects/HorribleGame/dist/package.json",
+		"/J/projects/HorribleGame/src/engine/BaseGame.ts",
+		"/J/projects/HorribleGame/src/engine/EventDispatcher.ts",
+		"/J/projects/HorribleGame/src/engine/linq/NumberProvider.ts",
+		"/J/projects/HorribleGame/src/engine/linq/ArrayProvider.ts",
+		"/J/projects/HorribleGame/src/engine/utils/Bootstrapper.ts",
+		"/J/projects/HorribleGame/dist/lib/hg.d.ts",
+		"/J/projects/HorribleGame/dist/menu.js",
+		"/J/projects/HorribleGame/src/engine/utils/KeyMap.ts",
+		"/D/Games/Steam/SteamApps/common/Bioshock/Builds/Release/enbseries.ini",
+		"/C/Users/BeryJu/AppData/Roaming/Bioshock/User.ini",
+		"/D/Games/Steam/SteamApps/common/Bioshock/Builds/Release/Version.ini",
+		"/C/Users/BeryJu/AppData/Local/Temp/Rar$DRa0.679/effect.txt",
+		"/D/Games/Steam/SteamApps/common/Bioshock/Builds/Release/Engine.U",
+		"/D/Games/Steam/SteamApps/common/Bioshock/Builds/Release/DefUser.ini",
+		"/D/Games/Steam/SteamApps/common/Bioshock/Builds/Release/Startup.ini",
+		"/C/Users/BeryJu/Documents/Bioshock/SaveGames/9_28_2013_16_40_4.bsb",
+		"/C/Users/BeryJu/LightTable/package.json",
+		"/J/projects/HorribleGame/dist/assets/plugins/test.js",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Binaries/Win32/IMGame.exe.response",
+		"/J/projects/HorribleGame/dist/assets/models/room01.stl",
+		"/J/projects/HorribleGame/src/engine/entities/ParticleEntity.ts",
+		"/J/projects/JS Speed tests/array.foreach.js",
+		"/J/projects/HorribleGame/dist/assets/shaders/heightmap.js",
+		"/J/projects/HorribleGame/src/engine/InputHandler.ts",
+		"/J/projects/HorribleGame/src/engine/KeyMap.ts",
+		"/J/projects/HorribleGame/src/engine/entities/SkyBoxEntity.ts",
+		"/J/projects/HorribleGame/dist/lib/ParticleEngine.js",
+		"/D/Downloads/NodeOgreFMODPart2/demo.js",
+		"/D/Downloads/NodeOgreFMODPart2/graphics.js",
+		"/C/Users/BeryJu/AppData/Local/Google/Chrome/User Data/Default/User StyleSheets/Custom.css",
+		"/J/projects/HorribleGame/dist/game.d.ts",
+		"/J/projects/HorribleGame/dist/game.js",
+		"/C/Users/BeryJu/SteamLibrary/SteamApps/common/dota 2 beta/dota/cfg/autoexec.cfg",
+		"/J/projects/HorribleGame/dist/lib/ProcedualCity.js",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Engine/Config/BaseInput.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/IMGame/Config/IMConfig.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/IMGame/Config/IMEditor.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/IMGame/Config/IMCheckpoints.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/IMGame/Config/IMCompat.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/IMGame/Config/IMEditorUserSettings.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/IMGame/Config/IMMenuSettings.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/IMGame/Config/DefaultInput.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/IMGame/Config/IMInput.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Engine/Config/BaseGame.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Engine/Config/BaseEditorKeyBindings.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Engine/Config/BaseCompat.ini",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Binaries/Win32/APEX_Framework_Legacy_x86.dll.pdb",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Binaries/Win32/UserCode/DO_NOT_DELETE.TXT",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Binaries/Win32/GfxExportErrors.txt",
+		"/D/Games/Steam/SteamApps/common/inMomentum/Binaries/Win32/config/config.vdf",
+		"/J/projects/HorribleGame/src/engine/filesystem/NodeFilesystem.ts",
+		"/J/projects/HorribleGame/src/engine/filesystem/IFilesystem.ts",
+		"/J/projects/HorribleGame/dist/lib/ammo.js",
+		"/J/projects/HorribleGame/src/engine/utils/Bootstrapper.hg.ts",
+		"/J/projects/HorribleGame/src/engine/filesystem/Filesystem.ts",
+		"/J/projects/HorribleGame/src/engine/filesystem/AjaxFilesystem.ts",
+		"/J/projects/HorribleGame/src/engine/IPlugin.ts",
+		"/J/projects/HorribleGame/dist/settings.json",
+		"/J/projects/HorribleGame/src/engine/abilities/AudioAbility.ts",
+		"/J/projects/HorribleGame/src/engine/abilities/MovingAbility.ts",
+		"/J/projects/HorribleGame/src/engine/entities/CameraEntity.ts",
+		"/J/projects/HorribleGame/src/engine/entities/ChasingCameraEntity.ts"
+	],
+	"find":
+	{
+		"height": 43.0
+	},
+	"find_in_files":
+	{
+		"height": 125.0,
+		"where_history":
+		[
+			"J:\\projects\\HorribleGame",
+			"J:\\projects\\HorribleGame\\src\\engine",
+			"J:\\projects\\Codeivate Chrome\\src",
+			"J:\\projects\\HorribleGame\\src\\engine",
+			"<open folders>\\src",
+			"<open folders>/src",
+			"<open folders>",
+			"C:\\Users\\BeryJu\\AppData\\Roaming\\Sublime Text 3\\Packages\\JavaScript & NodeJS Snippets",
+			"J:\\projects\\HorribleGame\\src\\engine",
+			"L:\\dev\\projects\\HorribleGame\\src\\engine",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"dist/",
+			"typescript",
+			"  ",
+			"\n  ",
+			"  ",
+			"hg",
+			"outHG",
+			"addAbility",
+			"'\">",
+			"href=\"'",
+			"/*",
+			"2",
+			"ModelEntity",
+			"JS",
+			"STL",
+			"phong",
+			"Phong",
+			"real",
+			"});\n",
+			"win",
+			"			    ",
+			"...args",
+			"into",
+			"room",
+			"new Date(ne",
+			"new Date(",
+			"1",
+			": void",
+			"KeyMap",
+			"currentScene",
+			"				  ",
+			"particles",
+			"				  ",
+			"THREE.ImageUtils.loadTexture ",
+			"THREE.ImageUtils.load",
+			"green",
+			"theme",
+			".hg.ts",
+			"Array",
+			"toRadias",
+			"HG.Utils.degToRad(",
+			"degToRad",
+			"scope",
+			"ArrayProvider",
+			"_keyStr",
+			"_utf8_encode",
+			"window",
+			"0",
+			"});",
+			"https://github.com/BeryJu/Port-Monitor-Chrome",
+			"JavaScript",
+			"type",
+			"splice",
+			"resolution",
+			"width",
+			"game.controls",
+			"			if (this.currentScene) {",
+			"currentScene.on",
+			"AudioBufferSourceNode ",
+			"HG.KeyMap",
+			"number",
+			"static ",
+			"static",
+			"HG.Settings.keys",
+			",",
+			"HG",
+			"number",
+			"110",
+			"static ",
+			"static",
+			"Static",
+			"static",
+			"Settings",
+			"KeyMap",
+			"GameSettings",
+			"AudioBufferSourceNode",
+			"Buffer",
+			"loader",
+			"Rename",
+			"							  ",
+			"						  ",
+			"					  ",
+			"				   ",
+			"			  ",
+			"Loader",
+			"loader",
+			"bind",
+			"INFO",
+			"AdvancedNewFile",
+			"AdvancedNewFileCommand",
+			"    ",
+			"AdvancedNewFile",
+			"this.destination.rootContext",
+			"context",
+			"masteContext",
+			"SourceNode ",
+			"AudioBuffer",
+			"AudioBuffer ",
+			"AudioBuffer",
+			"Buffer",
+			"apply",
+			"game",
+			"= ",
+			"static ",
+			"static",
+			"Static",
+			"static",
+			",",
+			"get",
+			"If ",
+			"If",
+			", callback: (...args) => any",
+			"orange",
+			"MeshLambertMaterial ",
+			"libSourceDir",
+			",",
+			", ",
+			"THREE.Scene",
+			"generateUUID",
+			"MeshPhongMaterial ",
+			"get_settings",
+			"settings",
+			"    ",
+			"google",
+			"googleplus",
+			"twitter",
+			"void",
+			"args"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"...args: any[]",
+			".ts",
+			"Basee",
+			"source.ts",
+			"BaseEntity",
+			"\\\""
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "bin/game/Game.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5930,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								237,
+								237
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "gruntfile.js",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 1099,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								48,
+								47
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 35.0
+	},
+	"input":
+	{
+		"height": 51.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": false,
+	"output.exec":
+	{
+		"height": 210.0
+	},
+	"output.haskell_sublime_load":
+	{
+		"height": 210.0
+	},
+	"project": "HG.sublime-project",
+	"replace":
+	{
+		"height": 66.0
+	},
+	"save_all_on_build": false,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"thre",
+				"HorribleGame\\dist\\lib\\three.js"
+			],
+			[
+				"loader",
+				"HorribleGame\\src\\engine\\loaders\\Loader.ts"
+			],
+			[
+				"base",
+				"HorribleGame\\src\\engine\\entities\\BaseEntity.ts"
+			],
+			[
+				"home",
+				"HorribleGame-wiki\\Home.md"
+			],
+			[
+				"js",
+				"src\\engine\\loaders\\models\\JS.ts"
+			],
+			[
+				"lib.dts",
+				"src\\lib\\lib.d.ts"
+			],
+			[
+				"string",
+				"src\\engine\\linq\\StringProvider.ts"
+			],
+			[
+				"mesh",
+				"src\\engine\\entities\\MeshEntity.ts"
+			],
+			[
+				"ani",
+				"src\\engine\\abilities\\AnimationAbility.ts"
+			],
+			[
+				"mes",
+				"src\\engine\\entities\\MeshEntity.ts"
+			],
+			[
+				"model",
+				"dist\\src\\engine\\entities\\ModelEntity.ts"
+			],
+			[
+				"json",
+				"src\\engine\\loaders\\models\\JSON.ts"
+			],
+			[
+				"plug",
+				"src\\engine\\PluginHost.ts"
+			],
+			[
+				"mo",
+				"src\\engine\\utils\\ModuleLoader.ts"
+			],
+			[
+				"sett",
+				"src\\engine\\utils\\Settings.ts"
+			],
+			[
+				"mode",
+				"src\\engine\\utils\\ModuleLoader.ts"
+			],
+			[
+				"mod",
+				"src\\engine\\entities\\ModelEntity.ts"
+			],
+			[
+				"uti",
+				"src\\engine\\utils\\Utils.ts"
+			],
+			[
+				"pack",
+				"package.json"
+			],
+			[
+				"pakc",
+				"dist\\package.json"
+			],
+			[
+				"even",
+				"src\\engine\\EventDispatcher.ts"
+			],
+			[
+				"bas",
+				"src\\engine\\BaseGame.ts"
+			],
+			[
+				"grunt",
+				"gruntfile.js"
+			],
+			[
+				"key",
+				"src\\engine\\utils\\KeyMap.ts"
+			],
+			[
+				"game",
+				"src\\engine\\BaseGame.ts"
+			],
+			[
+				"pli",
+				"src\\engine\\PluginHost.ts"
+			],
+			[
+				"stl",
+				"dist\\assets\\models\\room01.stl"
+			],
+			[
+				"inp",
+				"src\\engine\\InputHandler.ts"
+			],
+			[
+				"sky",
+				"src\\engine\\entities\\SkyBoxEntity.ts"
+			],
+			[
+				"part",
+				"dist\\lib\\ParticleEngine.js"
+			],
+			[
+				"three",
+				"dist\\lib\\three.js"
+			],
+			[
+				"boot",
+				"src\\engine\\utils\\Bootstrapper.ts"
+			],
+			[
+				"game.ts",
+				"src\\Game.ts"
+			],
+			[
+				"inde",
+				"dist\\index.html"
+			],
+			[
+				"game.js",
+				"dist\\game.js"
+			],
+			[
+				"nodefi",
+				"src\\engine\\filesystem\\NodeFilesystem.ts"
+			],
+			[
+				"ammo",
+				"dist\\lib\\ammo.js"
+			],
+			[
+				"if",
+				"src\\engine\\filesystem\\IFilesystem.ts"
+			],
+			[
+				"lib.d",
+				"src\\lib\\lib.d.ts"
+			],
+			[
+				"ip",
+				"src\\engine\\IPlugin.ts"
+			],
+			[
+				"file",
+				"src\\engine\\filesystem\\IFilesystem.ts"
+			],
+			[
+				"gr",
+				"gruntfile.js"
+			],
+			[
+				"gam",
+				"dist\\game.js"
+			],
+			[
+				"test",
+				"dist\\assets\\plugins\\test.js"
+			],
+			[
+				"settings",
+				"dist\\settings.json"
+			],
+			[
+				"lib",
+				"src\\lib\\lib.d.ts"
+			],
+			[
+				"mov",
+				"src\\engine\\abilities\\MovingAbility.hg.ts"
+			],
+			[
+				"ut",
+				"src\\engine\\utils\\Utils.hg.ts"
+			],
+			[
+				"linq",
+				"src\\engine\\linq\\ArrayProvider.hg.ts"
+			],
+			[
+				"thr",
+				"src\\lib\\three.d.ts"
+			],
+			[
+				"tr",
+				"dist\\lib\\three.js"
+			],
+			[
+				"pl",
+				"src\\engine\\PluginHost.ts"
+			],
+			[
+				"stll",
+				"dist\\lib\\STLLoader.js"
+			],
+			[
+				"ke",
+				"src\\engine\\KeyMap.ts"
+			],
+			[
+				"tu",
+				"src\\engine\\utils\\Utils.hg.ts"
+			],
+			[
+				"arra",
+				"src\\engine\\linq\\ArrayProvider.hg.ts"
+			],
+			[
+				"eve",
+				"src\\engine\\EventDispatcher.ts"
+			],
+			[
+				"ga",
+				"src\\Game.ts"
+			],
+			[
+				"ev",
+				"src\\engine\\EventDispatcher.ts"
+			],
+			[
+				"waa",
+				"src\\lib\\waa.d.ts"
+			],
+			[
+				"settings.",
+				"src\\engine\\SettingsLoader.ts"
+			],
+			[
+				"gam.ts",
+				"src\\Game.ts"
+			],
+			[
+				"setitngs",
+				"J:\\projects\\HorribleGame\\src\\engine\\utils\\Settings.hg.ts"
+			],
+			[
+				"evne",
+				"src\\engine\\EventDispatcher.ts"
+			],
+			[
+				"node",
+				"src\\lib\\node.d.ts"
+			],
+			[
+				"bu",
+				"src\\engine\\sound\\BufferLoader.hg.ts"
+			],
+			[
+				"evn",
+				"src\\engine\\EventDispatcher.ts"
+			],
+			[
+				"me",
+				"src\\engine\\entities\\ModelEntity.hg.ts"
+			],
+			[
+				"in",
+				"src\\engine\\InputHandler.ts"
+			],
+			[
+				"camer",
+				"src\\engine\\entities\\CameraEntity.hg.ts"
+			],
+			[
+				"ba",
+				"src\\engine\\BaseGame.ts"
+			],
+			[
+				"chas",
+				"src\\engine\\entities\\ChasingCameraEntity.hg.ts"
+			],
+			[
+				"fps",
+				"src\\engine\\utils\\FPSCounter.hg.ts"
+			],
+			[
+				"f",
+				"src\\engine\\utils\\FPSCounter.hg.ts"
+			],
+			[
+				"moedl",
+				"src\\engine\\entities\\ModelEntity.hg.ts"
+			],
+			[
+				"event",
+				"src\\engine\\EventDispatcher.ts"
+			],
+			[
+				"basee",
+				"src\\engine\\entities\\BaseEntity.hg.ts"
+			],
+			[
+				"an",
+				"src\\engine\\abilities\\AnimationAbility.hg.ts"
+			],
+			[
+				"hys",
+				"src\\lib\\d.ts\\physijs.d.ts"
+			],
+			[
+				"th",
+				"src\\lib\\d.ts\\three.d.ts"
+			],
+			[
+				"phy",
+				"src\\lib\\js\\physi.js"
+			],
+			[
+				"ph",
+				"src\\lib\\d.ts\\physijs.d.ts"
+			],
+			[
+				"index",
+				"dist\\index.html"
+			],
+			[
+				"arr",
+				"src\\engine\\linq\\ArrayProvider.hg.ts"
+			],
+			[
+				"stri",
+				"src\\engine\\linq\\StringProvider.hg.ts"
+			],
+			[
+				"str",
+				"src\\engine\\linq\\StringFormatter.hg.ts"
+			],
+			[
+				"lin",
+				"src\\engine\\linq\\LINQ.hg.ts"
+			],
+			[
+				"level",
+				"src\\engine\\level\\Level.hg.ts"
+			],
+			[
+				"gam.js",
+				"dist\\game.js"
+			],
+			[
+				"cha",
+				"src\\engine\\entities\\ChasingCameraEntity.hg.ts"
+			],
+			[
+				"g",
+				"src\\Game.ts"
+			],
+			[
+				"gma",
+				"dist\\game.js"
+			],
+			[
+				"nb",
+				"src\\engine\\entities\\BaseEntity.hg.ts"
+			],
+			[
+				"meh",
+				"src\\engine\\entities\\MeshEntity.hg.ts"
+			],
+			[
+				"basea",
+				"src\\engine\\abilities\\BaseAbility.hg.ts"
+			],
+			[
+				"bae",
+				"src\\engine\\entities\\BaseEntity.hg.ts"
+			],
+			[
+				"color",
+				"src\\engine\\utils\\ColorTransition.hg.ts"
+			],
+			[
+				"gamt",
+				"src\\Game.ts"
+			],
+			[
+				"map",
+				"src\\engine\\utils\\Map.hg.ts"
+			],
+			[
+				"aud",
+				"src\\engine\\abilities\\AudioAbility.hg.ts"
+			],
+			[
+				"module",
+				"src\\engine\\ModuleLoader.ts"
+			],
+			[
+				"opt",
+				"bin\\options\\options.js"
+			],
+			[
+				"ma",
+				"bin\\manifest.json"
+			],
+			[
+				"op",
+				"bin\\options\\options.js"
+			],
+			[
+				"chro",
+				"src\\lib\\chrome.d.ts"
+			],
+			[
+				"man",
+				"bin\\manifest.json"
+			],
+			[
+				"e",
+				"bin\\extension.js"
+			],
+			[
+				"chrome",
+				"src\\lib\\chrome.d.ts"
+			],
+			[
+				"ex",
+				"src\\extension\\Extension.ts"
+			],
+			[
+				"opo",
+				"bin\\popup\\popup.js"
+			],
+			[
+				"pop",
+				"bin\\popup\\index.html"
+			],
+			[
+				"exte",
+				"src\\extension\\Extension.ts"
+			],
+			[
+				"lan",
+				"src\\extension\\Language.ts"
+			],
+			[
+				"us",
+				"src\\extension\\User.ts"
+			],
+			[
+				"exten",
+				"src\\extension\\Extension.ts"
+			],
+			[
+				"au",
+				"src\\engine\\abilities\\AudioAbility.hg.ts"
+			],
+			[
+				"moe",
+				"src\\engine\\entities\\ModelEntity.hg.ts"
+			],
+			[
+				"the",
+				"src\\lib\\three.js"
+			],
+			[
+				"thee",
+				"src\\lib\\three.js"
+			],
+			[
+				"",
+				"src\\engine\\entities\\ModelEntity.hg.ts"
+			],
+			[
+				"a",
+				"src\\engine\\abilities\\AnimationAbility.hg.ts"
+			],
+			[
+				"opti",
+				"bin\\options\\options.js"
+			],
+			[
+				"mai",
+				"bin\\main.js"
+			],
+			[
+				"use",
+				"src\\extension\\User.ts"
+			],
+			[
+				"lang",
+				"src\\extension\\Language.ts"
+			],
+			[
+				"levl",
+				"src\\engine\\LevelStructure.ts"
+			],
+			[
+				"utils",
+				"src\\engine\\utils\\Utils.hg.ts"
+			],
+			[
+				"package",
+				"dist\\package.json"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 290.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

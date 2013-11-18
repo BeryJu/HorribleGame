@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 16:30:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-16 14:19:03
+* @Last Modified time: 2013-11-18 21:21:48
 */
 module HG {
 
@@ -18,10 +18,7 @@ module HG {
 				process.on('uncaughtException', (err) => {
 					this.dispatch('error', err.message);
 				});
-				// window.addEventListener('error', (e) => {
-				// 	this.dispatch('error', (<ErrorEvent> e).message);
-				// 	e.preventDefault();
-				// });
+
 				this.on('error');
 			}
 
@@ -33,10 +30,6 @@ module HG {
 					ammo: "ammo.js",
 					worker: "lib/physijs_worker.js"
 				};
-				//Settings
-				if (!HG.Settings) {
-					HG.Settings = HG.loadSettings("assets/settings/defaultSettings.json");
-				}
 				//GL detection
 				if (HG.Utils.hasGL() === false) this.dispatch('error', 
 					new Error("Runtime or Graphiscard doesn't support GL"));

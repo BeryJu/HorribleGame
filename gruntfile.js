@@ -1,27 +1,33 @@
-var paths = [
+var sourcePaths = [
 	"src/lib/*.d.ts",
 	"src/engine/*.ts",
 	"src/engine/**/*.ts",
 	"src/engine/**/**/*.ts"
 ];
 
-var gameFiles = [
-	"src/lib/*.d.ts",
-	"dist/lib/hg.d.ts",
-	"src/*.ts"
+var testPaths = [
+	"tests/*.js",
+	"tests/**/*.js"
 ];
-var outHG = "dist/lib/hg.js"
-var outGame = "dist/game.js"
 
-var fs = require('fs');
+var gamePaths = [
+	"src/lib/*.d.ts",
+	"bin/lib/hg.d.ts",
+	"game/*.ts"
+];
+var outHG = "bin/lib/hg.js"
+var outGame = "bin/game.js"
+
+var fs = require("fs");
 module.exports = function(grunt) {
 	grunt.initConfig({
 		ts: {
 			hg: {
-				src: paths,
+				src: sourcePaths,
 				out: outHG,
 				options: {
-					target: 'es5',
+					target: "es5",
+					module: "commonjs",
 					comments: true,
 					sourcemap: true,
 					declaration: true,
@@ -29,27 +35,25 @@ module.exports = function(grunt) {
 				}
 			},
 			game: {
-				src: gameFiles,
+				src: gamePaths,
 				out: outGame,
 				options: {
-					target: 'es5',
+					target: "es5",
 					comments: true,
 					sourcemap: true,
-					declaration: true,
 					fullSourceMapPath: true
 				}
 			}
 		},
-		shell: {
-			hg: {
-				command: "rm tscommand.tmp.txt ; cd dist/ ; zip -r dist.nw . ; mv dist.nw ../bin ; cp ../bin/dist.nw /srvroot/documentRoot/stuff/HorribleGame/"
-			}
+		nodeunit: {
+			hg: testPaths
 		}
 	});
 	grunt.loadNpmTasks("grunt-ts");
-	grunt.loadNpmTasks('grunt-shell');
-	grunt.registerTask('default', ['ts']);
-	grunt.registerTask('game', ['ts:game']);
-	grunt.registerTask('hg', ['ts:hg']);
-	grunt.registerTask('publish', ['ts', 'shell']);
+	grunt.loadNpmTasks("grunt-contrib-nodeunit");
+	grunt.registerTask("default", ["ts"]);
+	grunt.registerTask("game", ["ts:game"]);
+	grunt.registerTask("hg", ["ts:hg"]);
+	grunt.registerTask("test", ["nodeunit"]);
+	grunt.registerTask("all", ["ts", "nodeunit"]);
 };
