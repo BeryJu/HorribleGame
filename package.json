@@ -4,8 +4,12 @@
 	"description": "A Horrible Game",
 	"devDependencies": {
 		"grunt": "latest",
-		"grunt-contrib-uglify": "~0.2.4",
+		"grunt-contrib-uglify": "latest",
 		"grunt-ts": "latest",
-		"grunt-contrib-nodeunit": "~0.2.2"
+		"grunt-contrib-nodeunit": "latest"
+	},
+	"repository": {
+		"type" : "git",
+		"url" : "https://bitbucket.org/BeryJu/horriblegame.git"
 	}
 }

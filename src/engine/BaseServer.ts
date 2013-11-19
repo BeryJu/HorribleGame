@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:29
+* @Last Modified time: 2013-11-19 13:36:54
 */
 ///<reference path="EventDispatcher" />
 
@@ -19,7 +19,7 @@ module HG {
 			this.socketServer.set("log level", 1);
 			this.socketServer.sockets.on('connection', (socket) => {
 				socket.on('my other event', (data) => {
-					console.log(data);
+					HG.log(data);
 				});
 			});
 		}

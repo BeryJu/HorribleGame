@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:53:25
+* @Last Modified time: 2013-11-19 13:36:54
 */
 ///<reference path="EventDispatcher.ts" />
 
@@ -28,7 +28,6 @@ module HG {
 		constructor(container: HTMLElement = document.body,
 					settings: string = "") {
 			super();
-			new HG.Utils.Bootstrapper().bootstrap();
 			var moduleLoader = new HG.Utils.ModuleLoader();
 			HG.Settings = HG.loadSettings(settings, new HG.SettingsStructure());
 
@@ -81,15 +80,15 @@ module HG {
 		}
 
 		load(): void {
-			console.log('[BaseGame] Loading assets');
+			HG.log('[BaseGame] Loading assets');
 			this.dispatch('load');
-			console.log('[BaseGame] Loaded assets');
+			HG.log('[BaseGame] Loaded assets');
 		}
 
 		connect(serverHost: string): void {
 			this.socketClient = global['socket.io-client'].connect(serverHost);
 			this.socketClient.on('news', (data) => {
-				console.log(data);
+				HG.log(data);
 			});
 			this.dispatch("connected", serverHost);
 		}

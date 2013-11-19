@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:29
+* @Last Modified time: 2013-11-19 13:36:54
 */
 /// <reference path="BaseEntity.ts" />
 
@@ -31,7 +31,7 @@ module HG {
 			frame(delta: number): void {
 				var cameraOffset = this.positionOffset.clone().applyMatrix4(
 					this.target.object.matrixWorld );
-				console.log(typeof cameraOffset);
+				HG.log(typeof cameraOffset);
 				this.object.position.x = cameraOffset.x;
 				this.object.position.y = cameraOffset.y;
 				this.object.position.z = cameraOffset.z;

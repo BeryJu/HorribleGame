@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 13:15:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:32
+* @Last Modified time: 2013-11-19 13:36:53
 */
 module HG {
 
@@ -15,7 +15,7 @@ module HG {
 				if (m.toString() !== "initialize") {
 					var provider = <HG.LINQ.IProvider> new HG.LINQ[m]();
 					provider.provide();
-					console.log("[LINQ] Provided "+m);
+					HG.log("[LINQ] Provided "+m);
 				}
 			}
 

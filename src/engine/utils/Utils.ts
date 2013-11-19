@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:37
+* @Last Modified time: 2013-11-19 13:36:53
 */
 module HG {
 	export module Utils {
@@ -24,7 +24,10 @@ module HG {
 		}
 
 		export function hasGL(): boolean {
-			return (window.WebGLRenderingContext) ? true : false;
+			var wnd = (typeof window !== "undefined") ? true : false;
+			if (wnd === false) return false;
+			var gl = (window['WebGLRenderingContext']) ? true : false;
+			return wnd && gl;
 		}
 
 		export function resize(resolution: THREE.Vector2): void {
@@ -66,7 +69,7 @@ module HG {
 			var whwnd = require('nw.gui').Window.get();
 			whwnd.showDevTools('', true);
 			whwnd.on("devtools-opened", function(url) {
-				console.log(url);
+				HG.log(url);
 				require("openurl").open(url.toString());
 			});
 		}

@@ -3,7 +3,7 @@
 * @Date:   2013-11-10 13:59:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:34
+* @Last Modified time: 2013-11-19 13:37:34
 */
 module HG {
 	
@@ -35,7 +35,7 @@ module HG {
 							onload(buffer);
 						},
 						(error) => {
-							console.error('decodeAudioData error', error);
+							HG.error('decodeAudioData error', error);
 						}
 					);
 				};

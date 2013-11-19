@@ -48,11 +48,16 @@ module.exports = function(grunt) {
 			hg: testPaths
 		}
 	});
+	
 	grunt.loadNpmTasks("grunt-ts");
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
-	grunt.registerTask("default", ["ts"]);
+
 	grunt.registerTask("game", ["ts:game"]);
 	grunt.registerTask("hg", ["ts:hg"]);
+
+	grunt.registerTask("build", ["ts"]);
 	grunt.registerTask("test", ["nodeunit"]);
+
+	grunt.registerTask("default", ["ts:hg", "nodeunit"]);
 	grunt.registerTask("all", ["ts", "nodeunit"]);
 };

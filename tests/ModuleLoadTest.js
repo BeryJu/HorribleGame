@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 19:57:17
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:26:16
+* @Last Modified time: 2013-11-19 13:39:14
 */
 var vm = require("vm");
 var fs = require("fs");
@@ -15,7 +15,10 @@ exports.moduleLoadTest = function(test) {
 		vm.runInThisContext(data, path);
 	}
 	execute("bin/lib/three.js");
-	execute("bin/lib/hg.js");
+	var HG = require("../bin/lib/hg.js")({
+		silent: true
+	});
+
 	test.ok((THREE) ? true : false, "THREE defined");
 	test.ok((HG) ? true : false, "HG defined");
 	test.done();

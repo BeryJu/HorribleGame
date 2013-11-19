@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:34
+* @Last Modified time: 2013-11-19 13:36:53
 */
 /// <reference path="IPlugin.ts" />
 module HG {
@@ -34,7 +34,7 @@ module HG {
 					var instance = <HG.EventDispatcher> instance;
 					instance.inject(event, callback);
 				} catch (e) {
-					console.log("[PluginHost] Tried to inject into event "+event+
+					HG.log("[PluginHost] Tried to inject into event "+event+
 						" from "+instance['constructor']['name']);
 				}
 			}
@@ -51,11 +51,11 @@ module HG {
 					try {
 						var plugin = <HG.Plugins.IPlugin> require("./"+file);
 						var instance = new plugin(this, env);
-						console.log("[PluginHost] Loaded "+instance.name);
+						HG.log("[PluginHost] Loaded "+instance.name);
 						this.plugins.push(instance);
 						this.paths.push(file);
 					} catch (e) {
-						console.log("[PluginHost] Failed to load Plugin "+file+" because "+e);
+						HG.log("[PluginHost] Failed to load Plugin "+file+" because "+e);
 					}
 				});
 			}

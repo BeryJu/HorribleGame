@@ -54,9 +54,11 @@ declare module HG {
     }
 }
 declare module HG {
-    var _warn: (message?: any, ...optionalParams: any[]) => void;
-    var _error: (message?: any, ...optionalParams: any[]) => void;
-    var _log: (message?: any, ...optionalParams: any[]) => void;
+    function warn(...args: any[]): void;
+    function error(...args: any[]): void;
+    function log(...args: any[]): void;
+    var __START: number;
+    var __SILENT: boolean;
     function horrible(): void;
 }
 declare module HG.Plugins {
@@ -429,14 +431,6 @@ declare module HG.Sound {
         constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
-    }
-}
-declare module HG.Utils {
-    class Bootstrapper extends HG.EventDispatcher {
-        public eventsAvailable: string[];
-        constructor();
-        public bootstrap(): void;
-        public error(error: string, ...args: any[]): void;
     }
 }
 declare module HG.Utils {

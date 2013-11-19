@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 21:00:43
+* @Last Modified time: 2013-11-19 13:37:21
 */
 
 module HG {
@@ -47,9 +47,9 @@ module HG {
 				var resolved = this.resolve(name);
 				//if not in .eventsAvailable, warn; else just log
 				if (this.eventsAvailable.indexOf(resolved) === -1) {
-					console.warn("["+type+"] Event '"+name+"' not available, still added though");
+					HG.warn("["+type+"] Event '"+name+"' not available, still added though");
 				} else {
-					console.log("["+type+"] Added EventHandler for '"+name+"'");
+					HG.log("["+type+"] Added EventHandler for '"+name+"'");
 				}
 				//if no events list for name, create one
 				if (!this.events[resolved]) {
@@ -82,7 +82,7 @@ module HG {
 				if (!this.events[resolved]) {
 					this.events[resolved] = [];
 				}
-				console.log("["+type+"] Injected EventHandler for '"+name+"'");
+				HG.log("["+type+"] Injected EventHandler for '"+name+"'");
 				//actually add the callback
 				this.events[resolved].splice(0, 0, callback);
 				return this;

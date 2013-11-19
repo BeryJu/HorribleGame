@@ -31,9 +31,9 @@ var HG;
                 var resolved = this.resolve(name);
 
                 if (this.eventsAvailable.indexOf(resolved) === -1) {
-                    console.warn("[" + type + "] Event '" + name + "' not available, still added though");
+                    HG.warn("[" + type + "] Event '" + name + "' not available, still added though");
                 } else {
-                    console.log("[" + type + "] Added EventHandler for '" + name + "'");
+                    HG.log("[" + type + "] Added EventHandler for '" + name + "'");
                 }
 
                 if (!this.events[resolved]) {
@@ -66,7 +66,7 @@ var HG;
                 if (!this.events[resolved]) {
                     this.events[resolved] = [];
                 }
-                console.log("[" + type + "] Injected EventHandler for '" + name + "'");
+                HG.log("[" + type + "] Injected EventHandler for '" + name + "'");
 
                 this.events[resolved].splice(0, 0, callback);
                 return this;
@@ -147,7 +147,6 @@ var HG;
                 "mouseUp",
                 "mouseMove"
             ];
-            new HG.Utils.Bootstrapper().bootstrap();
             var moduleLoader = new HG.Utils.ModuleLoader();
             HG.Settings = HG.loadSettings(settings, new HG.SettingsStructure());
 
@@ -201,15 +200,15 @@ var HG;
         };
 
         BaseGame.prototype.load = function () {
-            console.log('[BaseGame] Loading assets');
+            HG.log('[BaseGame] Loading assets');
             this.dispatch('load');
-            console.log('[BaseGame] Loaded assets');
+            HG.log('[BaseGame] Loaded assets');
         };
 
         BaseGame.prototype.connect = function (serverHost) {
             this.socketClient = global['socket.io-client'].connect(serverHost);
             this.socketClient.on('news', function (data) {
-                console.log(data);
+                HG.log(data);
             });
             this.dispatch("connected", serverHost);
         };
@@ -283,7 +282,7 @@ var HG;
             this.socketServer.set("log level", 1);
             this.socketServer.sockets.on('connection', function (socket) {
                 socket.on('my other event', function (data) {
-                    console.log(data);
+                    HG.log(data);
                 });
             });
         }
@@ -293,47 +292,73 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    HG._warn;
-    HG._error;
-    HG._log;
+    function warn() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
+        if (!HG.__SILENT && HG.__SILENT !== true) {
+            args.splice(0, 0, "[" + (new Date().getTime() - HG.__START) + "]");
+            console.warn.apply(console, args);
+        }
+    }
+    HG.warn = warn;
+
+    function error() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
+        if (!HG.__SILENT && HG.__SILENT !== true) {
+            args.splice(0, 0, "[" + (new Date().getTime() - HG.__START) + "]");
+            console.error.apply(console, args);
+        }
+    }
+    HG.error = error;
+
+    function log() {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            args[_i] = arguments[_i + 0];
+        }
+        if (!HG.__SILENT && HG.__SILENT !== true) {
+            args.splice(0, 0, "[" + (new Date().getTime() - HG.__START) + "]");
+            console.log.apply(console, args);
+        }
+    }
+    HG.log = log;
+
+    HG.__START = 0;
+    HG.__SILENT = false;
 
     function horrible() {
-        HG._warn = console.warn;
-        HG._error = console.error;
-        HG._log = console.log;
+        this.__START = new Date().getTime();
+        process.on('uncaughtException', function (err) {
+            HG.warn(err);
+            console.trace();
+        });
 
-        console.log = function () {
-            var msg = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                msg[_i] = arguments[_i + 0];
-            }
-            if (!HG["SILENT"] && HG["SILENT"] !== true) {
-                HG._log.apply(console, msg);
-            }
-        };
+        HG.LINQ.initialize();
 
-        console.warn = function () {
-            var msg = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                msg[_i] = arguments[_i + 0];
-            }
-            if (!HG["SILENT"] && HG["SILENT"] !== true) {
-                HG._warn.apply(console, msg);
-            }
-        };
+        if (HG.Utils.hasGL() === false)
+            HG.warn(new Error("Runtime or Graphiscard doesn't support GL"));
 
-        console.error = function () {
-            var msg = [];
-            for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                msg[_i] = arguments[_i + 0];
-            }
-            if (!HG["SILENT"] && HG["SILENT"] !== true) {
-                HG._error.apply(console, msg);
-            }
-        };
+        if (typeof window !== "undefined") {
+            window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
+        }
     }
     HG.horrible = horrible;
 })(HG || (HG = {}));
+
+if (typeof module !== "undefined") {
+    module.exports = function (args) {
+        if (typeof args === "undefined") { args = { silent: false }; }
+        HG.__SILENT = args.silent;
+        HG.horrible();
+
+        return HG;
+    };
+}
 var HG;
 (function (HG) {
     (function (Plugins) {
@@ -358,7 +383,7 @@ var HG;
                     var instance = instance;
                     instance.inject(event, callback);
                 } catch (e) {
-                    console.log("[PluginHost] Tried to inject into event " + event + " from " + instance['constructor']['name']);
+                    HG.log("[PluginHost] Tried to inject into event " + event + " from " + instance['constructor']['name']);
                 }
             };
 
@@ -375,11 +400,11 @@ var HG;
                     try  {
                         var plugin = require("./" + file);
                         var instance = new plugin(_this, env);
-                        console.log("[PluginHost] Loaded " + instance.name);
+                        HG.log("[PluginHost] Loaded " + instance.name);
                         _this.plugins.push(instance);
                         _this.paths.push(file);
                     } catch (e) {
-                        console.log("[PluginHost] Failed to load Plugin " + file + " because " + e);
+                        HG.log("[PluginHost] Failed to load Plugin " + file + " because " + e);
                     }
                 });
             };
@@ -835,7 +860,7 @@ var HG;
 
             FirstPersonCameraEntity.prototype.frame = function (delta) {
                 var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
-                console.log(typeof cameraOffset);
+                HG.log(typeof cameraOffset);
                 this.object.position.x = cameraOffset.x;
                 this.object.position.y = cameraOffset.y;
                 this.object.position.z = cameraOffset.z;
@@ -1875,7 +1900,7 @@ var HG;
                 if (m.toString() !== "initialize") {
                     var provider = new HG.LINQ[m]();
                     provider.provide();
-                    console.log("[LINQ] Provided " + m);
+                    HG.log("[LINQ] Provided " + m);
                 }
             }
         }
@@ -2176,7 +2201,7 @@ var HG;
                         }
                         onload(buffer);
                     }, function (error) {
-                        console.error('decodeAudioData error', error);
+                        HG.error('decodeAudioData error', error);
                     });
                 };
 
@@ -2312,49 +2337,6 @@ var HG;
         Sound.Mixer = Mixer;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Utils) {
-        var Bootstrapper = (function (_super) {
-            __extends(Bootstrapper, _super);
-            function Bootstrapper() {
-                var _this = this;
-                _super.call(this);
-                this.eventsAvailable = ['error'];
-                process.on('uncaughtException', function (err) {
-                    _this.dispatch('error', err.message);
-                });
-
-                this.on('error');
-            }
-            Bootstrapper.prototype.bootstrap = function () {
-                HG.LINQ.initialize();
-
-                Physijs.scripts = {
-                    ammo: "ammo.js",
-                    worker: "lib/physijs_worker.js"
-                };
-
-                if (HG.Utils.hasGL() === false)
-                    this.dispatch('error', new Error("Runtime or Graphiscard doesn't support GL"));
-
-                window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
-            };
-
-            Bootstrapper.prototype.error = function (error) {
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                    args[_i] = arguments[_i + 1];
-                }
-                console.warn(error);
-                console.trace();
-            };
-            return Bootstrapper;
-        })(HG.EventDispatcher);
-        Utils.Bootstrapper = Bootstrapper;
-    })(HG.Utils || (HG.Utils = {}));
-    var Utils = HG.Utils;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -2513,7 +2495,7 @@ var HG;
                 this.modules = ['fs', 'path', 'http', 'socket.io', 'socket.io-client'];
                 this.modules.concat(additional);
                 this.modules.forEach(function (m) {
-                    console.log("[ModuleLoader] Required " + m);
+                    HG.log("[ModuleLoader] Required " + m);
                     global[m] = require(m);
                 });
             }
@@ -2540,10 +2522,10 @@ var HG;
     function loadSettings(path, fallback) {
         var raw = global.fs.readFileSync(path);
         try  {
-            console.log("[Settings] Loaded Settings from JSON.");
+            HG.log("[Settings] Loaded Settings from JSON.");
             return JSON.parse(raw);
         } catch (e) {
-            console.log("[Settings] Failed to load settings, used fallback.");
+            HG.log("[Settings] Failed to load settings, used fallback.");
             return fallback || new HG.SettingsStructure();
         }
         return new HG.SettingsStructure();
@@ -2587,7 +2569,11 @@ var HG;
         Utils.profile = profile;
 
         function hasGL() {
-            return (window.WebGLRenderingContext) ? true : false;
+            var wnd = (typeof window !== "undefined") ? true : false;
+            if (wnd === false)
+                return false;
+            var gl = (window['WebGLRenderingContext']) ? true : false;
+            return wnd && gl;
         }
         Utils.hasGL = hasGL;
 
@@ -2636,7 +2622,7 @@ var HG;
             var whwnd = require('nw.gui').Window.get();
             whwnd.showDevTools('', true);
             whwnd.on("devtools-opened", function (url) {
-                console.log(url);
+                HG.log(url);
                 require("openurl").open(url.toString());
             });
         }
