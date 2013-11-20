@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:35
+* @Last Modified time: 2013-11-19 15:31:51
 */
 /// <reference path="../EventDispatcher.ts" />
 module HG {
@@ -18,6 +18,11 @@ module HG {
 
 			get gain(): number {
 				return this.gainNode.gain.value || 0;
+			}
+
+			channel(name: string): HG.Sound.Channel {
+				if (name in this.channels) return this.channels[name];
+				return null;
 			}
 
 			constructor() {

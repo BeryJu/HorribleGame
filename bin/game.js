@@ -1,9 +1,10 @@
-var pkg = require("./package.json");
 HG.horrible();
 var game = new HG.BaseGame(document.getElementById("gameWrapper"), "settings.json");
-var scene = new HG.Scenes.BaseScene();
+var scene = new HG.BaseScene();
 var loader = new HG.ResourceLoader("assets/");
-game.pluginHost.load(loader.directory("plugins"));
+
+// var srv = new HG.BaseServer(9898);
+// game.pluginHost.load(loader.directory("plugins"));
 game.on('load', function () {
     game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
@@ -33,22 +34,20 @@ game.on('load', function () {
     player.ability(animationAbility);
     player.on('loaded', function () {
         player.scale(10, 10, 10).offset(0, 0, 50);
-
-        // player.rotate(0, HG.Utils.degToRad(90), 0);
         scene.add(player, "player");
     });
+    loader.fromJSModel("models/android.js", player);
 
-    // loader.fromJS("models/android.js"), (data: HG.Loaders.LoadData) => {
-    // 	player.load(data);
-    // });
-    // player.load(loader.fromJS("assets/models/android.js"));
+    var sound1 = new HG.Sound.Effect(game.soundMixer.channel('effectsEnv'));
+    loader.fromWAV("sounds/001.wav", sound1);
+
     var room = new HG.Entities.MeshEntity();
     room.on('loaded', function () {
         room.scale(5, 5, 5).offset(0, 0, 50).rotate((90).toRadian(), 0, 0);
         scene.add(room);
     });
+    loader.fromSTL("models/room01.stl", room);
 
-    // room.load(loader.fromSTL("assets/models/room1.stl"));
     var levelStruct = new HG.LevelStructure();
     levelStruct.on(['loaded', 'created'], function (args) {
         var level = new HG.Level(args['level']);
@@ -104,47 +103,12 @@ game.on('load', function () {
         playerMove.jump();
         animationAbility.running = true;
     });
+    game.start("http://localhost:9898");
 });
 
 game.on('start', function () {
-    document.getElementById('build').innerText = "HorribleGame build " + pkg.build;
     game.scene(scene);
-    if (HG.Settings.debug === true) {
-        HG.Utils.profile(function () {
-            game.render();
-        });
-    }
-    window.onresize = function () {
-        return game.onResize();
-    };
-    window.onkeydown = function (a) {
-        return game.onKeyDown(a);
-    };
-    window.onkeyup = function (a) {
-        return game.onKeyUp(a);
-    };
-    window.onmousemove = function (a) {
-        return game.onMouseMove(a);
-    };
-    window.onmousedown = function (a) {
-        return game.onMouseDown(a);
-    };
-    window.onmouseup = function (a) {
-        return game.onMouseUp(a);
-    };
-    if (HG.Settings.Graphics.useStaticFramerate === true) {
-        var render = function () {
-            game.render();
-        };
-        setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
-        render();
-    } else {
-        var render = function () {
-            game.render();
-            requestAnimationFrame(render);
-        };
-        render();
-    }
+    HG.Utils.bootstrap(game, window);
 });
 
 game.on('keyDown', function (a) {
@@ -182,10 +146,4 @@ game.on("render", function (delta) {
 window.onload = function () {
     return game.load();
 };
-
-var srv = new HG.BaseServer(9898);
-
-if (game.isRunning === false) {
-    game.start("http://localhost:9898");
-}
 //# sourceMappingURL=game.js.map

@@ -31,9 +31,9 @@ var HG;
                 var resolved = this.resolve(name);
 
                 if (this.eventsAvailable.indexOf(resolved) === -1) {
-                    HG.warn("[" + type + "] Event '" + name + "' not available, still added though");
+                    console.warn("[" + type + "] Event '" + name + "' not available, still added though");
                 } else {
-                    HG.log("[" + type + "] Added EventHandler for '" + name + "'");
+                    console.log("[" + type + "] Added EventHandler for '" + name + "'");
                 }
 
                 if (!this.events[resolved]) {
@@ -66,7 +66,7 @@ var HG;
                 if (!this.events[resolved]) {
                     this.events[resolved] = [];
                 }
-                HG.log("[" + type + "] Injected EventHandler for '" + name + "'");
+                console.log("[" + type + "] Injected EventHandler for '" + name + "'");
 
                 this.events[resolved].splice(0, 0, callback);
                 return this;
@@ -158,13 +158,10 @@ var HG;
                 this.soundMixer.addChannel(ch);
             }
 
-            HG.Utils.setFullScreenMode(HG.Settings.Graphics.fullscreen);
-            HG.Utils.resize(HG.Settings.Graphics.resolution);
-
             this.pluginHost = new HG.Plugins.PluginHost(this);
 
             this.camera = new HG.Entities.CameraEntity(HG.Settings.Graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
-            this.renderer = new THREE.WebGLRenderer({
+            this.renderer = new HG.Renderer({
                 antialias: HG.Settings.Graphics.antialiasing,
                 preserveDrawingBuffer: true
             });
@@ -200,17 +197,12 @@ var HG;
         };
 
         BaseGame.prototype.load = function () {
-            HG.log('[BaseGame] Loading assets');
+            console.time("HG.loadResources");
             this.dispatch('load');
-            HG.log('[BaseGame] Loaded assets');
+            console.timeEnd("HG.loadResources");
         };
 
         BaseGame.prototype.connect = function (serverHost) {
-            this.socketClient = global['socket.io-client'].connect(serverHost);
-            this.socketClient.on('news', function (data) {
-                HG.log(data);
-            });
-            this.dispatch("connected", serverHost);
         };
 
         BaseGame.prototype.start = function (serverHost) {
@@ -266,7 +258,7 @@ var HG;
             this.controls.frame(delta);
             this.fpsCounter.frame(delta);
             this.currentScene.getInternal().simulate();
-            this.renderer.render(this.currentScene.getInternal(), this.camera.getInternal());
+            this.renderer.draw(this.currentScene, this.camera);
         };
         return BaseGame;
     })(HG.EventDispatcher);
@@ -282,7 +274,7 @@ var HG;
             this.socketServer.set("log level", 1);
             this.socketServer.sockets.on('connection', function (socket) {
                 socket.on('my other event', function (data) {
-                    HG.log(data);
+                    console.log(data);
                 });
             });
         }
@@ -292,56 +284,15 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    function warn() {
-        var args = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            args[_i] = arguments[_i + 0];
-        }
-        if (!HG.__SILENT && HG.__SILENT !== true) {
-            args.splice(0, 0, "[" + (new Date().getTime() - HG.__START) + "]");
-            console.warn.apply(console, args);
-        }
-    }
-    HG.warn = warn;
-
-    function error() {
-        var args = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            args[_i] = arguments[_i + 0];
-        }
-        if (!HG.__SILENT && HG.__SILENT !== true) {
-            args.splice(0, 0, "[" + (new Date().getTime() - HG.__START) + "]");
-            console.error.apply(console, args);
-        }
-    }
-    HG.error = error;
-
-    function log() {
-        var args = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            args[_i] = arguments[_i + 0];
-        }
-        if (!HG.__SILENT && HG.__SILENT !== true) {
-            args.splice(0, 0, "[" + (new Date().getTime() - HG.__START) + "]");
-            console.log.apply(console, args);
-        }
-    }
-    HG.log = log;
-
     HG.__START = 0;
-    HG.__SILENT = false;
 
     function horrible() {
         this.__START = new Date().getTime();
-        process.on('uncaughtException', function (err) {
-            HG.warn(err);
-            console.trace();
-        });
 
         HG.LINQ.initialize();
 
         if (HG.Utils.hasGL() === false)
-            HG.warn(new Error("Runtime or Graphiscard doesn't support GL"));
+            console.warn(new Error("Runtime or Graphiscard doesn't support GL"));
 
         if (typeof window !== "undefined") {
             window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
@@ -351,9 +302,7 @@ var HG;
 })(HG || (HG = {}));
 
 if (typeof module !== "undefined") {
-    module.exports = function (args) {
-        if (typeof args === "undefined") { args = { silent: false }; }
-        HG.__SILENT = args.silent;
+    module.exports = function () {
         HG.horrible();
 
         return HG;
@@ -383,7 +332,7 @@ var HG;
                     var instance = instance;
                     instance.inject(event, callback);
                 } catch (e) {
-                    HG.log("[PluginHost] Tried to inject into event " + event + " from " + instance['constructor']['name']);
+                    console.log("[PluginHost] Tried to inject into event " + event + " from " + instance['constructor']['name']);
                 }
             };
 
@@ -400,11 +349,11 @@ var HG;
                     try  {
                         var plugin = require("./" + file);
                         var instance = new plugin(_this, env);
-                        HG.log("[PluginHost] Loaded " + instance.name);
+                        console.log("[PluginHost] Loaded " + instance.name + "Plugin");
                         _this.plugins.push(instance);
                         _this.paths.push(file);
                     } catch (e) {
-                        HG.log("[PluginHost] Failed to load Plugin " + file + " because " + e);
+                        console.log("[PluginHost] Failed to load Plugin " + file + " because " + e);
                     }
                 });
             };
@@ -511,7 +460,13 @@ var HG;
         __extends(Renderer, _super);
         function Renderer(params) {
             _super.call(this, params);
+            this.dirty = true;
         }
+        Renderer.prototype.draw = function (scene, camera) {
+            if (this.dirty === true) {
+                _super.prototype.render.call(this, scene.getInternal(), camera.getInternal());
+            }
+        };
         return Renderer;
     })(THREE.WebGLRenderer);
     HG.Renderer = Renderer;
@@ -593,21 +548,12 @@ var HG;
                 entity.on('loaded', function (g, m) {
                     g = g;
                     m = m;
-                    _this.load(g, m.materials);
+                    _this.load(g, m);
                 });
             };
 
             AnimationAbility.prototype.checkCompatibility = function (entity) {
                 return (entity instanceof HG.Entities.MeshEntity);
-            };
-
-            AnimationAbility.prototype.fromJS = function (path) {
-                var _this = this;
-                global.fs.readFile(path, function (err, data) {
-                    var loader = new THREE.JSONLoader();
-                    var result = loader.parse(JSON.parse(data));
-                    _this.load(result.geometry, result.materials);
-                });
             };
 
             AnimationAbility.prototype.load = function (geometry, materials) {
@@ -860,7 +806,7 @@ var HG;
 
             FirstPersonCameraEntity.prototype.frame = function (delta) {
                 var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
-                HG.log(typeof cameraOffset);
+                console.log(typeof cameraOffset);
                 this.object.position.x = cameraOffset.x;
                 this.object.position.y = cameraOffset.y;
                 this.object.position.z = cameraOffset.z;
@@ -908,12 +854,13 @@ var HG;
             __extends(MeshEntity, _super);
             function MeshEntity(geo, mat) {
                 _super.call(this);
-                this.abilities = [];
-                this.positionOffset = new THREE.Vector3();
+                this.eventsAvailable = ["loaded"];
                 if (geo && mat)
                     this.object = new THREE.Mesh(geo, mat);
             }
             MeshEntity.prototype.load = function (data) {
+                this.object = new THREE.Mesh(data["geometry"], data["material"]);
+                this.dispatch("loaded", data["geometry"], data["material"]);
             };
             return MeshEntity;
         })(HG.BaseEntity);
@@ -962,34 +909,6 @@ var HG;
             return ParticleEntity;
         })(HG.BaseEntity);
         Entities.ParticleEntity = ParticleEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Entities) {
-        var SkyBoxEntity = (function (_super) {
-            __extends(SkyBoxEntity, _super);
-            function SkyBoxEntity(directory, size, directions, suffix) {
-                if (typeof size === "undefined") { size = 5000; }
-                if (typeof directions === "undefined") { directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
-                if (typeof suffix === "undefined") { suffix = ".png"; }
-                _super.call(this);
-                var skyGeometry = new THREE.CubeGeometry(size, size, size);
-
-                var materialArray = [];
-                directions.forEach(function (d) {
-                    materialArray.push(new THREE.MeshBasicMaterial({
-                        map: THREE.ImageUtils.loadTexture(directory + d + suffix),
-                        side: THREE.BackSide
-                    }));
-                });
-                var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
-                this.object = new THREE.Mesh(skyGeometry, skyMaterial);
-            }
-            return SkyBoxEntity;
-        })(HG.BaseEntity);
-        Entities.SkyBoxEntity = SkyBoxEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
@@ -1900,7 +1819,7 @@ var HG;
                 if (m.toString() !== "initialize") {
                     var provider = new HG.LINQ[m]();
                     provider.provide();
-                    HG.log("[LINQ] Provided " + m);
+                    console.log("[LINQ] Provided " + m);
                 }
             }
         }
@@ -1989,16 +1908,41 @@ var HG;
         __extends(ResourceLoader, _super);
         function ResourceLoader(baseDirectory) {
             _super.call(this);
-            this.baseDirectory = "";
             this.baseDirectory = baseDirectory;
         }
-        ResourceLoader.prototype.model = function (path) {
-            path.replaceAll("/", global.path.sep);
+        ResourceLoader.prototype.fromJSModel = function (path, entitiy) {
+            path = global.path.join(this.baseDirectory, path);
             var jsLoader = new HG.Resource.Model.JS();
-            jsLoader.on("loaded");
-            return { loader: this, doStuff: function () {
-                    return true;
-                } };
+            jsLoader.on("loaded", function (model) {
+                entitiy.load(model);
+            });
+            jsLoader.load(path);
+        };
+
+        ResourceLoader.prototype.fromSTL = function (path, entitiy) {
+            path = global.path.join(this.baseDirectory, path);
+            var stlLoader = new HG.Resource.Model.STL();
+            stlLoader.on("loaded", function (model) {
+                entitiy.load(model);
+            });
+            stlLoader.load(path);
+        };
+
+        ResourceLoader.prototype.fromPNG = function (path, entitiy) {
+            path = global.path.join(this.baseDirectory, path);
+            var pngLoader = new HG.Resource.Texture.PNG();
+            pngLoader.on("loaded", function (image) {
+            });
+            pngLoader.load(path);
+        };
+
+        ResourceLoader.prototype.fromWAV = function (path, effect) {
+            path = global.path.join(this.baseDirectory, path);
+            var wavLoader = new HG.Resource.Sound.WAV();
+            wavLoader.on("loaded", function (data) {
+                effect.load(data);
+            });
+            wavLoader.load(path, effect.rootContext);
         };
 
         ResourceLoader.prototype.directory = function (directory) {
@@ -2023,15 +1967,14 @@ var HG;
                 __extends(JS, _super);
                 function JS() {
                     _super.apply(this, arguments);
+                    this.eventsAvailable = ["loaded"];
                 }
                 JS.prototype.load = function (path) {
                     var _this = this;
-                    global.fs.readFile(path, function (err, data) {
-                        var loader = new THREE.JSONLoader();
-                        var result = loader.parse(JSON.parse(data));
-                        var material = new THREE.MeshFaceMaterial(result.materials);
+                    var loader = new THREE.JSONLoader();
+                    loader.load(path, function (geometry, material) {
                         var model = {
-                            geometry: result.geometry,
+                            geometry: geometry,
                             material: material
                         };
                         _this.dispatch("loaded", model);
@@ -2053,19 +1996,17 @@ var HG;
                 __extends(STL, _super);
                 function STL() {
                     _super.apply(this, arguments);
+                    this.eventsAvailable = ["loaded"];
                 }
                 STL.prototype.load = function (path, material) {
                     var _this = this;
                     var loader = new THREE.STLLoader();
                     loader.addEventListener('load', function (event) {
                         var geometry = event.content;
-                        var phong = new THREE.MeshPhongMaterial({
-                            ambient: 0xff5533,
-                            color: 0xff5533,
-                            specular: 0x111111,
-                            shininess: 200
+
+                        var material = new THREE.MeshBasicMaterial({
+                            map: THREE.ImageUtils.loadTexture("assets/textures/skybox/xneg.png")
                         });
-                        material = material || new THREE.MeshFaceMaterial([phong]);
                         var model = {
                             geometry: geometry,
                             material: material
@@ -2084,145 +2025,158 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    (function (Scenes) {
-        var BaseScene = (function () {
-            function BaseScene() {
-                this.scene = null;
-                this.controls = new HG.InputHandler();
-                this.scene = new Physijs.Scene();
-                this.entities = {
-                    named: {},
-                    unnamed: []
+    (function (Resource) {
+        (function (Sound) {
+            var WAV = (function (_super) {
+                __extends(WAV, _super);
+                function WAV() {
+                    _super.apply(this, arguments);
+                    this.eventsAvailable = ["loaded"];
+                }
+                WAV.prototype.load = function (path, context) {
+                    var _this = this;
+                    var request = new XMLHttpRequest();
+                    request.open("GET", path, true);
+                    request.responseType = "arraybuffer";
+
+                    request.onload = function () {
+                        context.decodeAudioData(request.response, function (buffer) {
+                            _this.dispatch("loaded", buffer);
+                        }, function (error) {
+                            console.error('decodeAudioData error', error);
+                        });
+                    };
+
+                    request.send();
                 };
-            }
-            BaseScene.prototype.add = function (BaseEntity, nameTag) {
-                this.scene.add(BaseEntity.getInternal());
-                if (nameTag) {
-                    this.entities.named[nameTag.toLowerCase()] = BaseEntity;
-                } else {
-                    this.entities.unnamed.push(BaseEntity);
-                }
-            };
-
-            BaseScene.prototype.getAllNamed = function (type) {
-                if (typeof type === "undefined") { type = HG.BaseEntity; }
-                var es = [];
-                for (var k in this.entities.named) {
-                    var ne = this.entities.named[k];
-                    if (ne instanceof type)
-                        es.push(ne);
-                    ;
-                }
-                return es;
-            };
-
-            BaseScene.prototype.getAllUnnamed = function (type) {
-                if (typeof type === "undefined") { type = HG.BaseEntity; }
-                var es = [];
-                this.entities.unnamed.forEach(function (e) {
-                    if (e instanceof type)
-                        es.push(e);
-                });
-                return es;
-            };
-
-            BaseScene.prototype.getAll = function (type) {
-                if (typeof type === "undefined") { type = HG.BaseEntity; }
-                var es = [];
-                es.concat(this.getAllUnnamed(type));
-                es.concat(this.getAllNamed(type));
-                return es;
-            };
-
-            BaseScene.prototype.forNamed = function (callback, type) {
-                if (!type)
-                    type = HG.BaseEntity;
-                for (var k in this.entities.named) {
-                    var ne = this.entities.named[k];
-                    if (ne instanceof type)
-                        callback(ne, k);
-                }
-            };
-
-            BaseScene.prototype.forUnamed = function (callback, type) {
-                if (!type)
-                    type = HG.BaseEntity;
-                this.entities.unnamed.forEach(function (e) {
-                    if (e instanceof type)
-                        callback(e);
-                });
-            };
-
-            BaseScene.prototype.forAll = function (callback, type) {
-                if (typeof type === "undefined") { type = HG.BaseEntity; }
-                this.forNamed(callback, type);
-                this.forUnamed(callback, type);
-            };
-
-            BaseScene.prototype.getInternal = function () {
-                return this.scene;
-            };
-
-            BaseScene.prototype.get = function (nameTag, type) {
-                if (typeof type === "undefined") { type = HG.BaseEntity; }
-                var e = [];
-                for (var i = 0; i < nameTag.length; i++) {
-                    var ee = this.entities.named[nameTag[i].toLowerCase()];
-                    if (ee instanceof type) {
-                        e.push(ee);
-                    }
-                }
-                return e;
-            };
-            return BaseScene;
-        })();
-        Scenes.BaseScene = BaseScene;
-    })(HG.Scenes || (HG.Scenes = {}));
-    var Scenes = HG.Scenes;
+                return WAV;
+            })(HG.EventDispatcher);
+            Sound.WAV = WAV;
+        })(Resource.Sound || (Resource.Sound = {}));
+        var Sound = Resource.Sound;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    (function (Sound) {
-        var BufferLoader = (function () {
-            function BufferLoader(context) {
-                this.context = context;
-            }
-            BufferLoader.prototype.loadBuffer = function (url, onload) {
-                var _this = this;
-                var request = new XMLHttpRequest();
-                request.open("GET", url, true);
-                request.responseType = "arraybuffer";
-
-                request.onload = function () {
-                    _this.context.decodeAudioData(request.response, function (buffer) {
-                        if (!buffer) {
-                            alert('error decoding file data: ' + url);
-                            return;
-                        }
-                        onload(buffer);
-                    }, function (error) {
-                        HG.error('decodeAudioData error', error);
+    (function (Resource) {
+        (function (Texture) {
+            var PNG = (function (_super) {
+                __extends(PNG, _super);
+                function PNG() {
+                    _super.apply(this, arguments);
+                    this.eventsAvailable = ["loaded"];
+                }
+                PNG.prototype.load = function (path) {
+                    var _this = this;
+                    var loader = new THREE.ImageLoader();
+                    loader.addEventListener("load", function (image) {
+                        _this.dispatch("loaded", image);
                     });
+                    loader.load(path);
                 };
-
-                request.onerror = function () {
-                    alert('BufferLoader: XHR error');
-                };
-
-                request.send();
+                return PNG;
+            })(HG.EventDispatcher);
+            Texture.PNG = PNG;
+        })(Resource.Texture || (Resource.Texture = {}));
+        var Texture = Resource.Texture;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    var BaseScene = (function () {
+        function BaseScene() {
+            this.scene = null;
+            this.controls = new HG.InputHandler();
+            this.scene = new Physijs.Scene();
+            this.entities = {
+                named: {},
+                unnamed: []
             };
+        }
+        BaseScene.prototype.add = function (BaseEntity, nameTag) {
+            this.scene.add(BaseEntity.getInternal());
+            if (nameTag) {
+                this.entities.named[nameTag.toLowerCase()] = BaseEntity;
+            } else {
+                this.entities.unnamed.push(BaseEntity);
+            }
+        };
 
-            BufferLoader.prototype.load = function (urls, cb) {
-                var _this = this;
-                urls.forEach(function (url) {
-                    _this.loadBuffer(url, cb);
-                });
-            };
-            return BufferLoader;
-        })();
-        Sound.BufferLoader = BufferLoader;
-    })(HG.Sound || (HG.Sound = {}));
-    var Sound = HG.Sound;
+        BaseScene.prototype.getAllNamed = function (type) {
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
+            var es = [];
+            for (var k in this.entities.named) {
+                var ne = this.entities.named[k];
+                if (ne instanceof type)
+                    es.push(ne);
+                ;
+            }
+            return es;
+        };
+
+        BaseScene.prototype.getAllUnnamed = function (type) {
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
+            var es = [];
+            this.entities.unnamed.forEach(function (e) {
+                if (e instanceof type)
+                    es.push(e);
+            });
+            return es;
+        };
+
+        BaseScene.prototype.getAll = function (type) {
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
+            var es = [];
+            es.concat(this.getAllUnnamed(type));
+            es.concat(this.getAllNamed(type));
+            return es;
+        };
+
+        BaseScene.prototype.forNamed = function (callback, type) {
+            if (!type)
+                type = HG.BaseEntity;
+            for (var k in this.entities.named) {
+                var ne = this.entities.named[k];
+                if (ne instanceof type)
+                    callback(ne, k);
+            }
+        };
+
+        BaseScene.prototype.forUnamed = function (callback, type) {
+            if (!type)
+                type = HG.BaseEntity;
+            this.entities.unnamed.forEach(function (e) {
+                if (e instanceof type)
+                    callback(e);
+            });
+        };
+
+        BaseScene.prototype.forAll = function (callback, type) {
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
+            this.forNamed(callback, type);
+            this.forUnamed(callback, type);
+        };
+
+        BaseScene.prototype.getInternal = function () {
+            return this.scene;
+        };
+
+        BaseScene.prototype.get = function (nameTag, type) {
+            if (typeof type === "undefined") { type = HG.BaseEntity; }
+            var e = [];
+            for (var i = 0; i < nameTag.length; i++) {
+                var ee = this.entities.named[nameTag[i].toLowerCase()];
+                if (ee instanceof type) {
+                    e.push(ee);
+                }
+            }
+            return e;
+        };
+        return BaseScene;
+    })();
+    HG.BaseScene = BaseScene;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -2273,17 +2227,9 @@ var HG;
                 configurable: true
             });
 
-            Effect.prototype.fromFile = function (path) {
-                var _this = this;
-                var loader = new HG.Sound.BufferLoader(this.rootContext);
-                loader.load([path], function (data) {
-                    _this.load(data);
-                });
-            };
-
-            Effect.prototype.load = function (buffer) {
+            Effect.prototype.load = function (data) {
                 this.source = this.rootContext.createBufferSource();
-                this.source.buffer = buffer;
+                this.source.buffer = data;
                 this.source.connect(this.gainNode);
             };
 
@@ -2322,6 +2268,12 @@ var HG;
                 enumerable: true,
                 configurable: true
             });
+
+            Mixer.prototype.channel = function (name) {
+                if (name in this.channels)
+                    return this.channels[name];
+                return null;
+            };
 
             Mixer.prototype.volume = function (gain) {
                 if (this.gainNode)
@@ -2495,7 +2447,7 @@ var HG;
                 this.modules = ['fs', 'path', 'http', 'socket.io', 'socket.io-client'];
                 this.modules.concat(additional);
                 this.modules.forEach(function (m) {
-                    HG.log("[ModuleLoader] Required " + m);
+                    console.log("[ModuleLoader] Required " + m);
                     global[m] = require(m);
                 });
             }
@@ -2522,10 +2474,10 @@ var HG;
     function loadSettings(path, fallback) {
         var raw = global.fs.readFileSync(path);
         try  {
-            HG.log("[Settings] Loaded Settings from JSON.");
+            console.log("[Settings] Loaded Settings from JSON.");
             return JSON.parse(raw);
         } catch (e) {
-            HG.log("[Settings] Failed to load settings, used fallback.");
+            console.log("[Settings] Failed to load settings, used fallback.");
             return fallback || new HG.SettingsStructure();
         }
         return new HG.SettingsStructure();
@@ -2560,6 +2512,46 @@ var HG;
             return parseInt(componentToHex(r) + componentToHex(g) + componentToHex(b), 16);
         }
         Utils.rgbToHex = rgbToHex;
+
+        function bootstrap(gInstance, wnd) {
+            if (HG.Settings.debug === true) {
+                HG.Utils.profile(function () {
+                    gInstance.render();
+                });
+            }
+            wnd.onresize = function () {
+                return gInstance.onResize();
+            };
+            wnd.onkeydown = function (a) {
+                return gInstance.onKeyDown(a);
+            };
+            wnd.onkeyup = function (a) {
+                return gInstance.onKeyUp(a);
+            };
+            wnd.onmousemove = function (a) {
+                return gInstance.onMouseMove(a);
+            };
+            wnd.onmousedown = function (a) {
+                return gInstance.onMouseDown(a);
+            };
+            wnd.onmouseup = function (a) {
+                return gInstance.onMouseUp(a);
+            };
+            if (HG.Settings.Graphics.useStaticFramerate === true) {
+                var render = function () {
+                    gInstance.render();
+                };
+                setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
+                render();
+            } else {
+                var render = function () {
+                    gInstance.render();
+                    requestAnimationFrame(render);
+                };
+                render();
+            }
+        }
+        Utils.bootstrap = bootstrap;
 
         function profile(fn) {
             console.profile("HG Profile");
@@ -2622,7 +2614,7 @@ var HG;
             var whwnd = require('nw.gui').Window.get();
             whwnd.showDevTools('', true);
             whwnd.on("devtools-opened", function (url) {
-                HG.log(url);
+                console.log(url);
                 require("openurl").open(url.toString());
             });
         }

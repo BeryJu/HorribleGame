@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-19 13:36:54
+* @Last Modified time: 2013-11-20 17:31:18
 */
 ///<reference path="EventDispatcher.ts" />
 
@@ -11,12 +11,12 @@ module HG {
 
 	export class BaseGame extends HG.EventDispatcher {
 
-		socketClient: SocketManager;
-		renderer: THREE.WebGLRenderer;
+		// socketClient: SocketManager;
+		renderer: HG.Renderer;
 		camera: HG.Entities.CameraEntity;
 		isRunning: boolean = false;
 		soundMixer: HG.Sound.Mixer;
-		currentScene: HG.Scenes.BaseScene;
+		currentScene: HG.BaseScene;
 		pluginHost: HG.Plugins.PluginHost;
 		controls: HG.InputHandler = new HG.InputHandler();
 		fpsCounter: HG.Utils.FPSCounter = new HG.Utils.FPSCounter();
@@ -39,8 +39,8 @@ module HG {
 				this.soundMixer.addChannel(ch);
 			}
 
-			HG.Utils.setFullScreenMode(HG.Settings.Graphics.fullscreen);
-			HG.Utils.resize(HG.Settings.Graphics.resolution);
+			// HG.Utils.setFullScreenMode(HG.Settings.Graphics.fullscreen);
+			// HG.Utils.resize(HG.Settings.Graphics.resolution);
 
 			this.pluginHost = new HG.Plugins.PluginHost(this);
 
@@ -48,7 +48,7 @@ module HG {
 				HG.Settings.Graphics.fov,
 				window.innerWidth / window.innerHeight, 0.1, 
 				HG.Settings.Graphics.viewDistance);
-			this.renderer = new THREE.WebGLRenderer({
+			this.renderer = new HG.Renderer({
 				antialias: HG.Settings.Graphics.antialiasing,
 				preserveDrawingBuffer: true
 			});
@@ -64,7 +64,7 @@ module HG {
 			global.fs.writeFile(path, raw);
 		}
 
-		scene(s: HG.Scenes.BaseScene): void {
+		scene(s: HG.BaseScene): void {
 			this.pluginHost.dispatch('sceneChange', s);
 			this.currentScene = s;
 		}
@@ -80,17 +80,17 @@ module HG {
 		}
 
 		load(): void {
-			HG.log('[BaseGame] Loading assets');
+			console.time("HG.loadResources");
 			this.dispatch('load');
-			HG.log('[BaseGame] Loaded assets');
+			console.timeEnd("HG.loadResources");
 		}
 
 		connect(serverHost: string): void {
-			this.socketClient = global['socket.io-client'].connect(serverHost);
-			this.socketClient.on('news', (data) => {
-				HG.log(data);
-			});
-			this.dispatch("connected", serverHost);
+			// this.socketClient = global['socket.io-client'].connect(serverHost);
+			// this.socketClient.on('news', (data) => {
+			// 	console.log(data);
+			// });
+			// this.dispatch("connected", serverHost);
 		}
 
 		start(serverHost: string): void {
@@ -144,8 +144,7 @@ module HG {
 			this.controls.frame(delta);
 			this.fpsCounter.frame(delta);
 			this.currentScene.getInternal().simulate();
-			this.renderer.render(this.currentScene.getInternal(), 
-				<THREE.PerspectiveCamera> this.camera.getInternal());
+			this.renderer.draw(this.currentScene, this.camera);
 		}
 
 	}

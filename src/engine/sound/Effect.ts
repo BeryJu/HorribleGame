@@ -3,14 +3,14 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 20:13:35
+* @Last Modified time: 2013-11-19 15:32:03
 */
 /// <reference path="../EventDispatcher.ts" />
 module HG {
 
 	export module Sound {
 
-		export class Effect {
+		export class Effect implements HG.Resource.ILoadable {
 
 			name: string;
 			gainNode: GainNode;
@@ -30,16 +30,9 @@ module HG {
 				this.gainNode.connect(this.rootContext.destination);
 			}
 
-			fromFile(path: string): void {
-				var loader = new HG.Sound.BufferLoader(this.rootContext);
-				loader.load([path], (data) => {
-					this.load(data);
-				});
-			}
-
-			load(buffer: AudioBuffer): void {
+			load(data: AudioBuffer): void {
 				this.source = this.rootContext.createBufferSource();
-				this.source.buffer = buffer;
+				this.source.buffer = data;
 				this.source.connect(this.gainNode);
 			}
 

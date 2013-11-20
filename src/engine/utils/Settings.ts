@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-19 13:36:53
+* @Last Modified time: 2013-11-19 14:40:12
 */
 /// <reference path="SettingsStructure.ts" />
 module HG {
@@ -13,10 +13,10 @@ module HG {
 	export function loadSettings(path: string, fallback?: HG.SettingsStructure): HG.SettingsStructure {
 		var raw = global.fs.readFileSync(path);
 		try {
-			HG.log("[Settings] Loaded Settings from JSON.");
+			console.log("[Settings] Loaded Settings from JSON.");
 			return <HG.SettingsStructure> JSON.parse(raw);
 		} catch (e) {
-			HG.log("[Settings] Failed to load settings, used fallback.");
+			console.log("[Settings] Failed to load settings, used fallback.");
 			return fallback || new HG.SettingsStructure();
 		}
 		return new HG.SettingsStructure();

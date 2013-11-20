@@ -19,12 +19,11 @@ declare module HG {
 }
 declare module HG {
     class BaseGame extends HG.EventDispatcher {
-        public socketClient: SocketManager;
-        public renderer: THREE.WebGLRenderer;
+        public renderer: HG.Renderer;
         public camera: HG.Entities.CameraEntity;
         public isRunning: boolean;
         public soundMixer: HG.Sound.Mixer;
-        public currentScene: HG.Scenes.BaseScene;
+        public currentScene: HG.BaseScene;
         public pluginHost: HG.Plugins.PluginHost;
         public controls: HG.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
@@ -32,7 +31,7 @@ declare module HG {
         public eventsAvailable: string[];
         constructor(container?: HTMLElement, settings?: string);
         public screenshot(path: string, imageType?: string): void;
-        public scene(s: HG.Scenes.BaseScene): void;
+        public scene(s: HG.BaseScene): void;
         public title(...args: string[]): void;
         public loadShader(path): HG.Shader;
         public load(): void;
@@ -54,11 +53,7 @@ declare module HG {
     }
 }
 declare module HG {
-    function warn(...args: any[]): void;
-    function error(...args: any[]): void;
-    function log(...args: any[]): void;
     var __START: number;
-    var __SILENT: boolean;
     function horrible(): void;
 }
 declare module HG.Plugins {
@@ -105,7 +100,9 @@ declare module HG {
 }
 declare module HG {
     class Renderer extends THREE.WebGLRenderer {
+        public dirty: boolean;
         constructor(params: {});
+        public draw(scene: HG.BaseScene, camera: HG.Entities.CameraEntity): void;
     }
 }
 declare module HG {
@@ -142,7 +139,6 @@ declare module HG.Abilities {
         public eventsAvailable: string[];
         public setHost(entity: HG.BaseEntity): void;
         public checkCompatibility(entity: HG.BaseEntity): boolean;
-        public fromJS(path: string): void;
         public load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void;
         public frame(delta: number): void;
     }
@@ -213,11 +209,10 @@ declare module HG.Entities {
 }
 declare module HG.Entities {
     class MeshEntity extends HG.BaseEntity implements HG.Resource.ILoadable {
-        public abilities: HG.BaseAbility[];
         public object: THREE.Mesh;
-        public positionOffset: THREE.Vector3;
+        public eventsAvailable: string[];
         constructor(geo?: THREE.Geometry, mat?: THREE.MeshBasicMaterial);
-        public load(data: HG.Resource.LoadData): void;
+        public load(data: {}): void;
     }
 }
 declare module HG.Entities {
@@ -228,11 +223,6 @@ declare module HG.Entities {
         public map: string;
         constructor(map: string, count?: number, size?: number);
         public create(): void;
-    }
-}
-declare module HG.Entities {
-    class SkyBoxEntity extends HG.BaseEntity {
-        constructor(directory: string, size?: number, directions?: string[], suffix?: string);
     }
 }
 declare module HG.Entities {
@@ -335,39 +325,50 @@ declare module HG.LINQ {
 }
 declare module HG.Resource {
     interface IFiletype {
-        load(path: string): any;
+        load(path: string, ...args): any;
     }
 }
 declare module HG.Resource {
     interface ILoadable {
-        load(data: Resource.LoadData): void;
-    }
-}
-declare module HG.Resource {
-    interface LoadData {
-        loader: HG.ResourceLoader;
-        doStuff: () => boolean;
+        load(data: {}): void;
     }
 }
 declare module HG {
     class ResourceLoader extends HG.EventDispatcher {
         public baseDirectory: string;
         constructor(baseDirectory: string);
-        public model(path: string): HG.Resource.LoadData;
+        public fromJSModel(path: string, entitiy: HG.Entities.MeshEntity): void;
+        public fromSTL(path: string, entitiy: HG.Entities.MeshEntity): void;
+        public fromPNG(path: string, entitiy: HG.BaseEntity): void;
+        public fromWAV(path: string, effect: HG.Sound.Effect): void;
         public directory(directory: string): string[];
     }
 }
 declare module HG.Resource.Model {
     class JS extends HG.EventDispatcher implements Resource.IFiletype {
+        public eventsAvailable: string[];
         public load(path: string): void;
     }
 }
 declare module HG.Resource.Model {
     class STL extends HG.EventDispatcher implements Resource.IFiletype {
+        public eventsAvailable: string[];
         public load(path: string, material?: THREE.MeshFaceMaterial): void;
     }
 }
-declare module HG.Scenes {
+declare module HG.Resource.Sound {
+    class WAV extends HG.EventDispatcher implements Resource.IFiletype {
+        public eventsAvailable: string[];
+        public load(path: string, context: AudioContext): void;
+    }
+}
+declare module HG.Resource.Texture {
+    class PNG extends HG.EventDispatcher implements Resource.IFiletype {
+        public eventsAvailable: string[];
+        public load(path: string): void;
+    }
+}
+declare module HG {
     class BaseScene {
         public scene: Physijs.Scene;
         public controls: HG.InputHandler;
@@ -388,14 +389,6 @@ declare module HG.Scenes {
     }
 }
 declare module HG.Sound {
-    class BufferLoader {
-        public context: AudioContext;
-        constructor(context: AudioContext);
-        public loadBuffer(url: string, onload: (buffer: AudioBuffer) => void): void;
-        public load(urls: string[], cb: (buffers: AudioBuffer) => void): void;
-    }
-}
-declare module HG.Sound {
     class Channel extends HG.EventDispatcher {
         public name: string;
         public rootContext: AudioContext;
@@ -407,7 +400,7 @@ declare module HG.Sound {
     }
 }
 declare module HG.Sound {
-    class Effect {
+    class Effect implements HG.Resource.ILoadable {
         public name: string;
         public gainNode: GainNode;
         public destination: Sound.Channel;
@@ -415,8 +408,7 @@ declare module HG.Sound {
         public rootContext: AudioContext;
         public gain : number;
         constructor(ch: Sound.Channel);
-        public fromFile(path: string): void;
-        public load(buffer: AudioBuffer): void;
+        public load(data: AudioBuffer): void;
         public play(): void;
         public stop(): void;
         private volume(gain);
@@ -428,6 +420,7 @@ declare module HG.Sound {
         public gainNode: GainNode;
         public context: AudioContext;
         public gain : number;
+        public channel(name: string): Sound.Channel;
         constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
@@ -526,6 +519,7 @@ declare module HG {
 }
 declare module HG.Utils {
     function rgbToHex(r: number, g: number, b: number): number;
+    function bootstrap(gInstance: HG.BaseGame, wnd: Window): void;
     function profile(fn: () => any): void;
     function hasGL(): boolean;
     function resize(resolution: THREE.Vector2): void;

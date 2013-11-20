@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-19 13:36:53
+* @Last Modified time: 2013-11-20 13:58:53
 */
 module HG {
 	export module Utils {
@@ -15,6 +15,28 @@ module HG {
 				return hex.length == 1 ? "0" + hex : hex;
 			}
 			return parseInt(componentToHex(r) + componentToHex(g) + componentToHex(b), 16);
+		}
+
+		export function bootstrap(gInstance: HG.BaseGame, wnd: Window): void {
+			if (HG.Settings.debug === true) {
+				HG.Utils.profile(() => {
+					gInstance.render();
+				});
+			}
+			wnd.onresize = () => gInstance.onResize();
+			wnd.onkeydown = (a: any) => gInstance.onKeyDown(a);
+			wnd.onkeyup = (a: any) => gInstance.onKeyUp(a);
+			wnd.onmousemove = (a: any) => gInstance.onMouseMove(a);
+			wnd.onmousedown = (a: any) => gInstance.onMouseDown(a);
+			wnd.onmouseup = (a: any) => gInstance.onMouseUp(a);
+			if (HG.Settings.Graphics.useStaticFramerate === true) {
+				var render = () => { gInstance.render(); };
+				setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
+				render();
+			} else {
+				var render = () => { gInstance.render(); requestAnimationFrame(render); };
+				render();
+			}
 		}
 
 		export function profile(fn: () => any): void {
@@ -69,7 +91,7 @@ module HG {
 			var whwnd = require('nw.gui').Window.get();
 			whwnd.showDevTools('', true);
 			whwnd.on("devtools-opened", function(url) {
-				HG.log(url);
+				console.log(url);
 				require("openurl").open(url.toString());
 			});
 		}

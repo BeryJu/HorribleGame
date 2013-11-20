@@ -1,11 +1,10 @@
-var pkg = require("./package.json");
 HG.horrible();
 var game = new HG.BaseGame(document.getElementById("gameWrapper"), "settings.json");
-var scene = new HG.Scenes.BaseScene();
+var scene = new HG.BaseScene();
 var loader = new HG.ResourceLoader("assets/");
-game.pluginHost.load(loader.directory("plugins"));
+// var srv = new HG.BaseServer(9898);
+// game.pluginHost.load(loader.directory("plugins"));
 game.on('load', function() {
-
 	game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
 	// game.camera.ability(new HG.Abilities.MovingAbility());
@@ -40,13 +39,12 @@ game.on('load', function() {
 	player.on('loaded', () => {
 		player.scale(10, 10, 10)
 				.offset(0, 0, 50);
-		// player.rotate(0, HG.Utils.degToRad(90), 0);
 		scene.add(player, "player");
 	});
-	// loader.fromJS("models/android.js"), (data: HG.Loaders.LoadData) => {
-	// 	player.load(data);
-	// });
-	// player.load(loader.fromJS("assets/models/android.js"));
+	loader.fromJSModel("models/android.js", player);
+
+	var sound1 = new HG.Sound.Effect(game.soundMixer.channel('effectsEnv'));
+	loader.fromWAV("sounds/001.wav", sound1);
 
 	var room = new HG.Entities.MeshEntity();
 	room.on('loaded', () => {
@@ -55,8 +53,7 @@ game.on('load', function() {
 			.rotate((90).toRadian(), 0, 0);
 		scene.add(room);
 	});
-	// room.load(loader.fromSTL("assets/models/room1.stl"));
-
+	loader.fromSTL("models/room01.stl", room);
 
 	var levelStruct = new HG.LevelStructure();
 	levelStruct.on(['loaded', 'created'], (args: {}) => {
@@ -113,30 +110,12 @@ game.on('load', function() {
 		playerMove.jump();
 		animationAbility.running = true;
 	});
+	game.start("http://localhost:9898");
 });
 
 game.on('start', () => {
-	document.getElementById('build').innerText = "HorribleGame build "+pkg.build; 
 	game.scene(scene);
-	if (HG.Settings.debug === true) {
-		HG.Utils.profile(() => {
-			game.render();
-		});
-	}
-	window.onresize = () => game.onResize();
-	window.onkeydown = (a: any) => game.onKeyDown(a);
-	window.onkeyup = (a: any) => game.onKeyUp(a);
-	window.onmousemove = (a: any) => game.onMouseMove(a);
-	window.onmousedown = (a: any) => game.onMouseDown(a);
-	window.onmouseup = (a: any) => game.onMouseUp(a);
-	if (HG.Settings.Graphics.useStaticFramerate === true) {
-		var render = () => { game.render(); };
-		setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
-		render();
-	} else {
-		var render = () => { game.render(); requestAnimationFrame(render); };
-		render();
-	}
+	HG.Utils.bootstrap(game, window);
 });
 
 game.on('keyDown', (a: any) => {
@@ -173,8 +152,3 @@ game.on("render", (delta: number) => {
 
 window.onload = () => game.load();
 
-var srv = new HG.BaseServer(9898);
-
-if (game.isRunning === false) {
-	game.start("http://localhost:9898");
-}

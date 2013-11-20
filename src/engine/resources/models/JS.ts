@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:04:33
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-18 21:50:04
+* @Last Modified time: 2013-11-19 20:35:43
 */
 module HG {
 
@@ -13,13 +13,13 @@ module HG {
 
 			export class JS extends EventDispatcher implements HG.Resource.IFiletype {
 
+				eventsAvailable: string[] = ["loaded"];
+
 				load(path: string) {
-					global.fs.readFile(path, (err, data) => {
-						var loader = new THREE.JSONLoader();
-						var result = loader.parse(JSON.parse(data));
-						var material = new THREE.MeshFaceMaterial(result.materials);
+					var loader = new THREE.JSONLoader();
+					loader.load(path, (geometry, material) => {
 						var model = {
-							geometry: result.geometry,
+							geometry: geometry,
 							material: material
 						}
 						this.dispatch("loaded", model);

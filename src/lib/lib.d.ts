@@ -326,6 +326,7 @@ declare var RegExp: {
 interface Error {
     name: string;
     message: string;
+    stack: string;
 }
 declare var Error: {
     new (message?: string): Error;
@@ -7496,6 +7497,7 @@ interface Console {
     warn(message?: any, ...optionalParams: any[]): void;
     error(message?: any, ...optionalParams: any[]): void;
     log(message?: any, ...optionalParams: any[]): void;
+    trace(error?: Error): void;
     profileEnd(): void;
 }
 declare var Console: {

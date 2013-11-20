@@ -1,7 +1,14 @@
 HorribleGame:
-	☐ Finish physijs					@file (src/lib/physijs.d.ts)
-	✔ Fix LINQ							@file (src/engine/linq/LINQ.ts) @done (13-11-16 19:10)
-	☐ Redo Map Loader					@file (src/engine/level/Level.ts)
-	☐ Finish the Model/Audio Loader		@file (src/engine/loaders/Loader.ts)
-	☐ Create some unit test				@file (tests/)
-	☐ Finish Node-nullbrowser
+	☐ Find a good way to have Entity:Resource Loading without headace's
+	☐ Finish physijs.d.ts
+	☐ Find a solution for Loading Audio files without AJAX
+	☐ Create some unit tests
+	☐ Redo Map Loader
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+ ✔ Finish the Model/Audio Loader @done (13-11-20 15:08) @project(HorribleGame)
+ 		HG.Resource.ResourceLoader, IFiletype, etc
+ ✔ Finish Node-nullbrowser @done (13-11-20 15:08) @project(HorribleGame) =>
+ 		Not needed, unit tests run without window/document
+ ✔ Fix LINQ @done (13-11-16 19:10) @project(HorribleGame)
+ 		HG.LINQ, StringProvider, NumberProvider, ArrayProvider
