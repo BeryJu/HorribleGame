@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>bin/lib/STLLoader.js - HorribleGame</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title="HorribleGame"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.0.1</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: bin/lib/STLLoader.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+ * @author aleeper / http://adamleeper.com/
+ * @author mrdoob / http://mrdoob.com/
+ * @author gero3 / https://github.com/gero3
+ *
+ * Description: A THREE loader for STL ASCII files, as created by Solidworks and other CAD programs.
+ *
+ * Supports both binary and ASCII encoded files, with automatic detection of type.
+ *
+ * Limitations:
+ * 	Binary decoding ignores header. There doesn&#x27;t seem to be much of a use for it.
+ * 	There is perhaps some question as to how valid it is to always assume little-endian-ness.
+ * 	ASCII decoding assumes file is UTF-8. Seems to work for the examples...
+ *
+ * Usage:
+ * 	var loader = new THREE.STLLoader();
+ * 	loader.addEventListener( &#x27;load&#x27;, function ( event ) {
+ *
+ * 		var geometry = event.content;
+ * 		scene.add( new THREE.Mesh( geometry ) );
+ *
+ * 	} );
+ * 	loader.load( &#x27;./models/stl/slotted_disk.stl&#x27; );
+ */
+
+
+THREE.STLLoader = function () {};
+
+THREE.STLLoader.prototype = {
+
+	constructor: THREE.STLLoader
+
+};
+
+THREE.STLLoader.prototype.load = function (url, callback) {
+
+	var scope = this;
+
+	var xhr = new XMLHttpRequest();
+
+	function onloaded( event ) {
+
+		if ( event.target.status === 200 || event.target.status === 0 ) {
+
+				var geometry = scope.parse( event.target.response || event.target.responseText );
+
+				scope.dispatchEvent( { type: &#x27;load&#x27;, content: geometry } );
+
+				if ( callback ) callback( geometry );
+
+		} else {
+
+			scope.dispatchEvent( { type: &#x27;error&#x27;, message: &#x27;Couldn\&#x27;t load URL [&#x27; + url + &#x27;]&#x27;,
+				response: event.target.responseText } );
+
+		}
+
+	}
+
+	xhr.addEventListener( &#x27;load&#x27;, onloaded, false );
+
+	xhr.addEventListener( &#x27;progress&#x27;, function ( event ) {
+
+		scope.dispatchEvent( { type: &#x27;progress&#x27;, loaded: event.loaded, total: event.total } );
+
+	}, false );
+
+	xhr.addEventListener( &#x27;error&#x27;, function () {
+
+		scope.dispatchEvent( { type: &#x27;error&#x27;, message: &#x27;Couldn\&#x27;t load URL [&#x27; + url + &#x27;]&#x27; } );
+
+	}, false );
+
+	xhr.overrideMimeType(&#x27;text/plain; charset=x-user-defined&#x27;);
+	xhr.open( &#x27;GET&#x27;, url, true );
+	xhr.responseType = &quot;arraybuffer&quot;;
+	xhr.send( null );
+
+};
+
+THREE.STLLoader.prototype.parse = function (data) {
+
+
+	var isBinary = function () {
+
+		var expect, face_size, n_faces, reader;
+		reader = new DataView( binData );
+		face_size = (32 / 8 * 3) + ((32 / 8 * 3) * 3) + (16 / 8);
+		n_faces = reader.getUint32(80,true);
+		expect = 80 + (32 / 8) + (n_faces * face_size);
+		return expect === reader.byteLength;
+
+	};
+
+	var binData = this.ensureBinary( data );
+
+	return isBinary()
+		? this.parseBinary( binData )
+		: this.parseASCII( this.ensureString( data ) );
+
+};
+
+THREE.STLLoader.prototype.parseBinary = function (data) {
+
+	var face, geometry, n_faces, reader, length, normal, i, dataOffset, faceLength, start, vertexstart;
+
+	reader = new DataView( data );
+	n_faces = reader.getUint32(80,true);
+	geometry = new THREE.Geometry();
+	dataOffset = 84;
+	faceLength = 12 * 4 + 2;
+
+	for (face = 0; face &lt; n_faces; face++) {
+
+		start = dataOffset + face * faceLength;
+		normal = new THREE.Vector3(
+			reader.getFloat32(start,true),
+			reader.getFloat32(start + 4,true),
+			reader.getFloat32(start + 8,true)
+		);
+
+		for (i = 1; i &lt;= 3; i++) {
+
+			vertexstart = start + i * 12;
+			geometry.vertices.push(
+				new THREE.Vector3(
+					reader.getFloat32(vertexstart,true),
+					reader.getFloat32(vertexstart +4,true),
+					reader.getFloat32(vertexstart + 8,true)
+				)
+			);
+
+		}
+
+		length = geometry.vertices.length;
+		geometry.faces.push(new THREE.Face3(length - 3, length - 2, length - 1, normal));
+
+	}
+
+	geometry.computeCentroids();
+	geometry.computeBoundingSphere();
+
+	return geometry;
+
+};
+
+THREE.STLLoader.prototype.parseASCII = function (data) {
+
+	var geometry, length, normal, patternFace, patternNormal, patternVertex, result, text;
+	geometry = new THREE.Geometry();
+	patternFace = /facet([\s\S]*?)endfacet/g;
+
+	while (((result = patternFace.exec(data)) != null)) {
+
+		text = result[0];
+		patternNormal = /normal[\s]+([\-+]?[0-9]+\.?[0-9]*([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+/g;
+
+		while (((result = patternNormal.exec(text)) != null)) {
+
+			normal = new THREE.Vector3(parseFloat(result[1]), parseFloat(result[3]), parseFloat(result[5]));
+
+		}
+
+		patternVertex = /vertex[\s]+([\-+]?[0-9]+\.?[0-9]*([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+[\s]+([\-+]?[0-9]*\.?[0-9]+([eE][\-+]?[0-9]+)?)+/g;
+
+		while (((result = patternVertex.exec(text)) != null)) {
+
+			geometry.vertices.push(new THREE.Vector3(parseFloat(result[1]), parseFloat(result[3]), parseFloat(result[5])));
+
+		}
+
+		length = geometry.vertices.length;
+		geometry.faces.push(new THREE.Face3(length - 3, length - 2, length - 1, normal));
+
+	}
+
+	geometry.computeCentroids();
+	geometry.computeBoundingBox();
+	geometry.computeBoundingSphere();
+
+	return geometry;
+
+};
+
+THREE.STLLoader.prototype.ensureString = function (buf) {
+
+	if (typeof buf !== &quot;string&quot;){
+		var array_buffer = new Uint8Array(buf);
+		var str = &#x27;&#x27;;
+		for(var i = 0; i &lt; buf.byteLength; i++) {
+			str += String.fromCharCode(array_buffer[i]); // implicitly assumes little-endian
+		}
+		return str;
+	} else {
+		return buf;
+	}
+
+};
+
+THREE.STLLoader.prototype.ensureBinary = function (buf) {
+
+	if (typeof buf === &quot;string&quot;){
+		var array_buffer = new Uint8Array(buf.length);
+		for(var i = 0; i &lt; buf.length; i++) {
+			array_buffer[i] = buf.charCodeAt(i) &amp; 0xff; // implicitly assumes little-endian
+		}
+		return array_buffer.buffer || array_buffer;
+	} else {
+		return buf;
+	}
+
+};
+
+THREE.EventDispatcher.prototype.apply( THREE.STLLoader.prototype );
+
+if ( typeof DataView === &#x27;undefined&#x27;){
+
+	DataView = function(buffer, byteOffset, byteLength){
+
+		this.buffer = buffer;
+		this.byteOffset = byteOffset || 0;
+		this.byteLength = byteLength || buffer.byteLength || buffer.length;
+		this._isString = typeof buffer === &quot;string&quot;;
+
+	}
+
+	DataView.prototype = {
+
+		_getCharCodes:function(buffer,start,length){
+			start = start || 0;
+			length = length || buffer.length;
+			var end = start + length;
+			var codes = [];
+			for (var i = start; i &lt; end; i++) {
+				codes.push(buffer.charCodeAt(i) &amp; 0xff);
+			}
+			return codes;
+		},
+
+		_getBytes: function (length, byteOffset, littleEndian) {
+
+			var result;
+
+			// Handle the lack of endianness
+			if (littleEndian === undefined) {
+
+				littleEndian = this._littleEndian;
+
+			}
+
+			// Handle the lack of byteOffset
+			if (byteOffset === undefined) {
+
+				byteOffset = this.byteOffset;
+
+			} else {
+
+				byteOffset = this.byteOffset + byteOffset;
+
+			}
+
+			if (length === undefined) {
+
+				length = this.byteLength - byteOffset;
+
+			}
+
+			// Error Checking
+			if (typeof byteOffset !== &#x27;number&#x27;) {
+
+				throw new TypeError(&#x27;DataView byteOffset is not a number&#x27;);
+
+			}
+
+			if (length &lt; 0 || byteOffset + length &gt; this.byteLength) {
+
+				throw new Error(&#x27;DataView length or (byteOffset+length) value is out of bounds&#x27;);
+
+			}
+
+			if (this.isString){
+
+				result = this._getCharCodes(this.buffer, byteOffset, byteOffset + length);
+
+			} else {
+
+				result = this.buffer.slice(byteOffset, byteOffset + length);
+
+			}
+
+			if (!littleEndian &amp;&amp; length &gt; 1) {
+
+				if (!(result instanceof Array)) {
+
+					result = Array.prototype.slice.call(result);
+
+				}
+
+				result.reverse();
+			}
+
+			return result;
+
+		},
+
+		// Compatibility functions on a String Buffer
+
+		getFloat64: function (byteOffset, littleEndian) {
+
+			var b = this._getBytes(8, byteOffset, littleEndian),
+
+				sign = 1 - (2 * (b[7] &gt;&gt; 7)),
+				exponent = ((((b[7] &lt;&lt; 1) &amp; 0xff) &lt;&lt; 3) | (b[6] &gt;&gt; 4)) - ((1 &lt;&lt; 10) - 1),
+
+			// Binary operators such as | and &lt;&lt; operate on 32 bit values, using + and Math.pow(2) instead
+				mantissa = ((b[6] &amp; 0x0f) * Math.pow(2, 48)) + (b[5] * Math.pow(2, 40)) + (b[4] * Math.pow(2, 32)) +
+							(b[3] * Math.pow(2, 24)) + (b[2] * Math.pow(2, 16)) + (b[1] * Math.pow(2, 8)) + b[0];
+
+			if (exponent === 1024) {
+				if (mantissa !== 0) {
+					return NaN;
+				} else {
+					return sign * Infinity;
+				}
+			}
+
+			if (exponent === -1023) { // Denormalized
+				return sign * mantissa * Math.pow(2, -1022 - 52);
+			}
+
+			return sign * (1 + mantissa * Math.pow(2, -52)) * Math.pow(2, exponent);
+
+		},
+
+		getFloat32: function (byteOffset, littleEndian) {
+
+			var b = this._getBytes(4, byteOffset, littleEndian),
+
+				sign = 1 - (2 * (b[3] &gt;&gt; 7)),
+				exponent = (((b[3] &lt;&lt; 1) &amp; 0xff) | (b[2] &gt;&gt; 7)) - 127,
+				mantissa = ((b[2] &amp; 0x7f) &lt;&lt; 16) | (b[1] &lt;&lt; 8) | b[0];
+
+			if (exponent === 128) {
+				if (mantissa !== 0) {
+					return NaN;
+				} else {
+					return sign * Infinity;
+				}
+			}
+
+			if (exponent === -127) { // Denormalized
+				return sign * mantissa * Math.pow(2, -126 - 23);
+			}
+
+			return sign * (1 + mantissa * Math.pow(2, -23)) * Math.pow(2, exponent);
+		},
+
+		getInt32: function (byteOffset, littleEndian) {
+			var b = this._getBytes(4, byteOffset, littleEndian);
+			return (b[3] &lt;&lt; 24) | (b[2] &lt;&lt; 16) | (b[1] &lt;&lt; 8) | b[0];
+		},
+
+		getUint32: function (byteOffset, littleEndian) {
+			return this.getInt32(byteOffset, littleEndian) &gt;&gt;&gt; 0;
+		},
+
+		getInt16: function (byteOffset, littleEndian) {
+			return (this.getUint16(byteOffset, littleEndian) &lt;&lt; 16) &gt;&gt; 16;
+		},
+
+		getUint16: function (byteOffset, littleEndian) {
+			var b = this._getBytes(2, byteOffset, littleEndian);
+			return (b[1] &lt;&lt; 8) | b[0];
+		},
+
+		getInt8: function (byteOffset) {
+			return (this.getUint8(byteOffset) &lt;&lt; 24) &gt;&gt; 24;
+		},
+
+		getUint8: function (byteOffset) {
+			return this._getBytes(1, byteOffset)[0];
+		}
+
+	 };
+
+}
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

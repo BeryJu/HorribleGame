@@ -6,8 +6,8 @@ module.exports = function(host, env) {
 	this.host.hook(this.env.game, "keyDown", function(a) {
 		if (a.keyCode === 32) env.window.console.log("space!!!");
 	});
-	
-	// this.frame = function(detla) {
 
-	// };
+	this.host.hook(this.env.game, "postRender", function(a) {
+
+	});
 };

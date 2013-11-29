@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"Audi",
+				"AudioBuffer"
+			],
+			[
+				"Sett",
+				"Settings"
+			],
+			[
 				"__",
 				"__startTime"
 			],
@@ -487,40 +495,40 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "src/engine/HG.ts",
-			"settings":
-			{
-				"buffer_size": 1606,
-				"line_ending": "Windows"
-			}
-		}
 	],
 	"build_system": "Packages/User/Build System/Grunt.sublime-build",
 	"command_palette":
 	{
-		"height": 375.0,
+		"height": 61.0,
 		"selected_items":
 		[
 			[
-				"re",
+				"remove",
 				"Package Control: Remove Package"
 			],
 			[
-				"remove",
-				"Package Control: Remove Package"
+				"grunt",
+				"Grunt"
+			],
+			[
+				"g",
+				"Grunt"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
 			],
 			[
 				"indn",
 				"Indentation: Convert to Tabs"
 			],
 			[
-				"html",
-				"Set Syntax: HTML"
+				"re",
+				"Package Control: Remove Package"
 			],
 			[
-				"install",
-				"Package Control: Install Package"
+				"html",
+				"Set Syntax: HTML"
 			],
 			[
 				"ts",
@@ -703,10 +711,6 @@
 				"Set Syntax: TypeScript"
 			],
 			[
-				"grunt",
-				"Grunt"
-			],
-			[
 				"word",
 				"Word Wrap: Toggle"
 			],
@@ -731,7 +735,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 562.0
+		"width": 386.0
 	},
 	"console":
 	{
@@ -777,50 +781,83 @@
 	},
 	"file_history":
 	[
-		"/J/projects/HorribleGame/src/engine/BaseGame.ts",
+		"/J/projects/Editor.js/Gruntfile.js",
+		"/J/projects/WebAudio/js/main.js",
 		"/J/projects/HorribleGame/game/Game.ts",
-		"/J/projects/HorribleGame/src/engine/HG.ts",
-		"/J/projects/HorribleGame/src/engine/PluginHost.ts",
-		"/J/projects/HorribleGame/bin/lib/physi.js",
+		"/J/projects/HorribleGame/src/engine/BaseGame.ts",
+		"/J/projects/WebAudio/js/analyser.js",
+		"/J/projects/HorribleGame/history.txt",
+		"/J/projects/WebAudio/js/dialcontrol.js",
+		"/J/projects/WebAudio/js/dragging.js",
+		"/J/projects/WebAudio/css/main.css",
+		"/J/projects/WebAudio/archive/raven_file.egg",
+		"/J/projects/WebAudio/README.md",
+		"/C/Program Files (x86)/foobar2000/configuration/foo_ui_columns.dll.cfg",
+		"/J/documentRoot/i/chell/index.php",
+		"/J/www.conf",
+		"/J/projects/HorribleGame/src/engine/sound/Effect.ts",
+		"/J/projects/HorribleGame/src/engine/Renderer.ts",
+		"/J/projects/HorribleGame/src/engine/resources/ResourceLoader.ts",
+		"/J/projects/HorribleGame/src/engine/resources/models/STL.ts",
+		"/J/projects/HorribleGame/src/engine/scenes/BaseScene.ts",
+		"/J/projects/HorribleGame/src/engine/entities/MeshEntity.ts",
+		"/J/projects/HorribleGame/src/engine/entities/SkyBoxEntity.ts",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Scrap.sublime-snippet",
+		"/J/projects/HorribleGame/HG.todo",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/PlainTasks/Default (Windows).sublime-keymap",
+		"/J/projects/HorribleGame/src/engine/resources/textures/PNG.ts",
+		"/J/projects/HorribleGame/src/lib/three.d.ts",
+		"/J/projects/HorribleGame/bin/lib/three.js",
+		"/J/projects/HorribleGame/src/engine/resources/models/JS.ts",
+		"/J/projects/HorribleGame/src/engine/resource/textures/PNG.ts",
+		"/J/projects/HorribleGame/src/engine/utils/Utils.ts",
+		"/J/projects/HorribleGame/src/engine/abilities/AnimationAbility.ts",
+		"/J/projects/HorribleGame/srv.js",
+		"/J/projects/HorribleGame/bin/srv.js",
 		"/J/projects/HorribleGame/bin/index.html",
+		"/J/projects/HorribleGame/bin/settings.json",
+		"/J/projects/HorribleGame/src/engine/entities/FirstPersonCameraEntity.ts",
+		"/J/projects/HorribleGame/bin/lib/hg.js",
+		"/J/projects/HorribleGame/src/engine/HG.ts",
+		"/J/projects/HorribleGame/src/engine/resources/sound/WAV.ts",
+		"/J/projects/HorribleGame/src/lib/lib.d.ts",
+		"/J/projects/HorribleGame/src/engine/sound/Channel.ts",
+		"/J/projects/HorribleGame/bin/assets/models/room01.stl",
+		"/J/projects/HorribleGame/node_modules/grunt-contrib-nodeunit/tasks/nodeunit.js",
+		"/J/projects/HorribleGame/bin/assets/models/android.js",
+		"/J/projects/HorribleGame/models/room01.js",
+		"/J/projects/HorribleGame/src/engine/resources/ILoadable.ts",
+		"/J/projects/HorribleGame/src/engine/sound/Mixer.ts",
+		"/J/projects/HorribleGame/src/engine/resources/IFiletype.ts",
+		"/J/projects/HorribleGame/src/engine/entities/BaseEntity.ts",
+		"/J/projects/HorribleGame/src/lib/waa.d.ts",
+		"/J/projects/HorribleGame/src/engine/resources/sound/Sound.ts",
+		"/J/projects/HorribleGame/src/engine/sound/BufferLoader.ts",
+		"/J/projects/HorribleGame/src/engine/EventDispatcher.ts",
+		"/J/projects/HorribleGame/src/engine/utils/Settings.ts",
+		"/J/projects/HorribleGame/src/engine/utils/ModuleLoader.ts",
+		"/J/projects/HorribleGame/src/engine/PluginHost.ts",
+		"/J/projects/HorribleGame/src/engine/linq/LINQ.ts",
+		"/J/projects/HorribleGame/src/engine/BaseServer.ts",
+		"/J/projects/HorribleGame/bin/lib/physi.js",
 		"/J/projects/HorribleGame/gruntfile.js",
 		"/J/projects/HorribleGame/tests/ModuleLoadTest.js",
 		"/J/projects/HorribleGame/tests/EventDispatcherTest.js",
-		"/J/projects/HorribleGame/src/engine/sound/BufferLoader.ts",
-		"/J/projects/HorribleGame/src/engine/EventDispatcher.ts",
-		"/J/projects/HorribleGame/src/engine/BaseServer.ts",
-		"/J/projects/HorribleGame/src/engine/entities/FirstPersonCameraEntity.ts",
-		"/J/projects/HorribleGame/src/engine/linq/LINQ.ts",
-		"/J/projects/HorribleGame/src/engine/utils/ModuleLoader.ts",
-		"/J/projects/HorribleGame/src/engine/utils/Settings.ts",
-		"/J/projects/HorribleGame/src/engine/utils/Utils.ts",
-		"/J/projects/HorribleGame/node_modules/grunt-contrib-nodeunit/tasks/nodeunit.js",
-		"/J/projects/HorribleGame/bin/lib/hg.js",
 		"/J/projects/HorribleGame/package.json",
 		"/J/projects/HorribleGame/src/engine/utils/Bootstrapper.ts",
-		"/J/projects/HorribleGame/src/engine/resources/ResourceLoader.ts",
-		"/J/projects/HorribleGame/src/engine/entities/MeshEntity.ts",
-		"/J/projects/HorribleGame/src/engine/resources/models/STL.ts",
-		"/J/projects/HorribleGame/src/engine/resources/models/JS.ts",
 		"/J/projects/HorribleGame/src/engine/resources/LoadData.ts",
-		"/J/projects/HorribleGame/src/engine/resources/ILoadable.ts",
-		"/J/projects/HorribleGame/src/engine/resources/IFiletype.ts",
 		"/J/projects/HorribleGame/src/engine/ressources/Loader.ts",
 		"/J/projects/HorribleGame/src/engine/loaders/ILoadable.ts",
 		"/J/projects/HorribleGame/HG.sublime-project",
-		"/J/projects/HorribleGame/src/lib/lib.d.ts",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/TypeScript/Lambda.sublime-snippet",
 		"/J/projects/HorribleGame/node_modules/grunt-contrib-nodeunit/test/nodeunit_test.js",
 		"/J/projects/HorribleGame/tests/moduleLoadTest.js",
-		"/J/projects/HorribleGame/src/engine/abilities/AnimationAbility.ts",
 		"/J/projects/HorribleGame/src/engine/abilities/BaseAbility.ts",
 		"/J/projects/HorribleGame/src/engine/abilities/MovingAbility.ts",
-		"/J/projects/HorribleGame/src/engine/entities/BaseEntity.ts",
 		"/J/projects/HorribleGame/src/engine/entities/CameraEntity.ts",
 		"/J/projects/HorribleGame/src/engine/entities/ChasingCameraEntity.ts",
 		"/J/projects/HorribleGame/src/engine/entities/HeightMapEntity.ts",
 		"/J/projects/HorribleGame/src/engine/entities/ParticleEntity.ts",
-		"/J/projects/HorribleGame/src/engine/entities/SkyBoxEntity.ts",
 		"/J/projects/HorribleGame/src/engine/entities/VideoEntity.ts",
 		"/J/projects/HorribleGame/src/engine/InputHandler.ts",
 		"/J/projects/HorribleGame/src/engine/IPlugin.ts",
@@ -836,13 +873,8 @@
 		"/J/projects/HorribleGame/src/engine/loaders/Loader.ts",
 		"/J/projects/HorribleGame/src/engine/loaders/models/JS.ts",
 		"/J/projects/HorribleGame/src/engine/loaders/models/STL.ts",
-		"/J/projects/HorribleGame/src/engine/Renderer.ts",
-		"/J/projects/HorribleGame/src/engine/scenes/BaseScene.ts",
 		"/J/projects/HorribleGame/src/engine/ServerConnection.ts",
 		"/J/projects/HorribleGame/src/engine/Shader.ts",
-		"/J/projects/HorribleGame/src/engine/sound/Channel.ts",
-		"/J/projects/HorribleGame/src/engine/sound/Effect.ts",
-		"/J/projects/HorribleGame/src/engine/sound/Mixer.ts",
 		"/J/projects/HorribleGame/src/engine/utils/FPSCounter.ts",
 		"/J/projects/HorribleGame/src/engine/utils/KeyMap.ts",
 		"/J/projects/HorribleGame/src/engine/utils/Map.ts",
@@ -859,7 +891,6 @@
 		"/J/projects/HorribleGame-wiki/Home.md",
 		"/C/Users/BeryJu/Desktop/start.bat",
 		"/C/Program Files/Sublime Text 3/sublime.py",
-		"/J/projects/HorribleGame/HG.todo",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/PlainTasks.sublime-settings",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/PlainTasks/PlainTasks (Windows).sublime-settings",
@@ -877,34 +908,7 @@
 		"/J/projects/backup/schedule.js",
 		"/J/projects/backup/backup.sh",
 		"/D/Games/Steam/SteamApps/common/inMomentum/110400_install.vdf",
-		"/J/archey.py",
-		"/J/www.conf",
-		"/J/documentRoot/stuff/iei.html",
-		"/C/Users/BeryJu/SteamLibrary/SteamApps/common/dota 2 beta/bin/gameinfo.txt",
-		"/D/Downloads/Scroll++ 0.0.2 - Release-Build/install.bat",
-		"/C/Users/BeryJu/AppData/Local/Temp/Rar$DRa0.553/Readme.txt",
-		"/J/projects/HorribleGame/src/engine/loaders/generic/Model.ts",
-		"/D/Games/Steam/SteamApps/common/dota 2 beta/dota/cfg/autoexec.cfg",
-		"/D/Games/Game Dev Tycoon/readme.txt",
-		"/J/projects/HorribleGame/tscommand.tmp.txt",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/PlainTasks/messages/Tutorial.todo",
-		"/C/Users/BeryJu/.codeintel/config",
-		"/C/Users/BeryJu/.ssh/id_rsa.pub",
-		"/C/Users/BeryJu/.ssh/id_rsa.ppk",
-		"/J/projects/HorribleGame/dist/src/engine/entities/ModelEntity.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/models/JSON.ts",
-		"/J/projects/HorribleGame/src/engine/entities/ModelEntity.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/filetypes/JSON.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/filetypes/STL.ts",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
-		"/C/Users/BeryJu/AppData/Local/Temp/Rar$DRa0.176/Default.sublime-commands",
-		"/J/projects/HorribleGame/dist/package.json",
-		"/J/projects/HorribleGame/dist/lib/hg.d.ts",
-		"/J/projects/HorribleGame/dist/menu.js",
-		"/D/Games/Steam/SteamApps/common/Bioshock/Builds/Release/enbseries.ini",
-		"/C/Users/BeryJu/AppData/Roaming/Bioshock/User.ini",
-		"/D/Games/Steam/SteamApps/common/Bioshock/Builds/Release/Version.ini",
-		"/C/Users/BeryJu/AppData/Local/Temp/Rar$DRa0.679/effect.txt"
+		"/J/archey.py"
 	],
 	"find":
 	{
@@ -934,6 +938,29 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"hg",
+			"**/",
+			"outHG",
+			"ProximaNovaRgRegular",
+			"HG.Scenes.",
+			"rPath",
+			"\\",
+			"path = global.path.join(this.baseDirectory, path.replaceAll(\"/\", global.path.sep));",
+			"			var rPath = this.baseDirectory + path;",
+			"/**",
+			"game",
+			"window",
+			"global.fs",
+			" Console",
+			"inteface Console",
+			"BaseEntity",
+			"js",
+			"AudioBufferSourceNode",
+			"url",
+			"HG.error",
+			"{\n",
+			"HG.warn",
+			"HG.log",
 			"__startTime",
 			"message?: any, ...optionalParams: any[]",
 			"msg",
@@ -1038,30 +1065,7 @@
 			",",
 			"HG",
 			"number",
-			"110",
-			"static ",
-			"static",
-			"Static",
-			"static",
-			"Settings",
-			"KeyMap",
-			"GameSettings",
-			"AudioBufferSourceNode",
-			"Buffer",
-			"loader",
-			"Rename",
-			"							  ",
-			"						  ",
-			"					  ",
-			"				   ",
-			"			  ",
-			"Loader",
-			"loader",
-			"bind",
-			"INFO",
-			"AdvancedNewFile",
-			"AdvancedNewFileCommand",
-			"    "
+			"110"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1069,6 +1073,9 @@
 		"regex": false,
 		"replace_history":
 		[
+			"console.error",
+			"console.warn",
+			"console.log",
 			"HG.error",
 			"HG.warn",
 			"HG.log",
@@ -1090,37 +1097,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "src/engine/HG.ts",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1606,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								585,
-								585
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 75.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -1175,12 +1153,92 @@
 		"selected_items":
 		[
 			[
-				"plug",
-				"HorribleGame\\src\\engine\\PluginHost.ts"
+				"effect",
+				"HorribleGame\\src\\engine\\sound\\Effect.ts"
+			],
+			[
+				"game.ts",
+				"HorribleGame\\game\\Game.ts"
 			],
 			[
 				"base",
 				"HorribleGame\\src\\engine\\BaseGame.ts"
+			],
+			[
+				"basesce",
+				"HorribleGame\\src\\engine\\scenes\\BaseScene.ts"
+			],
+			[
+				"baseg",
+				"HorribleGame\\src\\engine\\BaseGame.ts"
+			],
+			[
+				"renderer",
+				"HorribleGame\\src\\engine\\Renderer.ts"
+			],
+			[
+				"hg",
+				"HorribleGame\\HG.todo"
+			],
+			[
+				"mesh",
+				"HorribleGame\\src\\engine\\entities\\MeshEntity.ts"
+			],
+			[
+				"stl",
+				"HorribleGame\\src\\engine\\resources\\models\\STL.ts"
+			],
+			[
+				"sky",
+				"HorribleGame\\src\\engine\\entities\\SkyBoxEntity.ts"
+			],
+			[
+				"loader.ts",
+				"HorribleGame\\src\\engine\\resources\\ResourceLoader.ts"
+			],
+			[
+				"three",
+				"HorribleGame\\src\\lib\\three.d.ts"
+			],
+			[
+				"js",
+				"HorribleGame\\src\\engine\\resources\\models\\JS.ts"
+			],
+			[
+				"gam.ts",
+				"HorribleGame\\game\\Game.ts"
+			],
+			[
+				"index",
+				"HorribleGame\\bin\\index.html"
+			],
+			[
+				"hg.ts",
+				"HorribleGame\\src\\engine\\HG.ts"
+			],
+			[
+				"lib.",
+				"HorribleGame\\src\\lib\\lib.d.ts"
+			],
+			[
+				"bas",
+				"HorribleGame\\src\\engine\\entities\\BaseEntity.ts"
+			],
+			[
+				"waa",
+				"HorribleGame\\src\\lib\\waa.d.ts"
+			],
+			[
+				"mixer",
+				"HorribleGame\\src\\engine\\sound\\Mixer.ts"
+			],
+			[
+				"lib",
+				"HorribleGame\\src\\lib\\lib.d.ts"
+			],
+			[
+				"plug",
+				"HorribleGame\\src\\engine\\PluginHost.ts"
 			],
 			[
 				"phy",
@@ -1191,28 +1249,12 @@
 				"HorribleGame\\bin\\lib\\hg.js"
 			],
 			[
-				"index",
-				"HorribleGame\\bin\\index.html"
-			],
-			[
 				"boot",
 				"HorribleGame\\src\\engine\\utils\\Bootstrapper.ts"
 			],
 			[
 				"loadable",
 				"HorribleGame\\src\\engine\\loaders\\ILoadable.ts"
-			],
-			[
-				"mesh",
-				"HorribleGame\\src\\engine\\entities\\MeshEntity.ts"
-			],
-			[
-				"game.ts",
-				"HorribleGame\\game\\Game.ts"
-			],
-			[
-				"lib",
-				"HorribleGame\\src\\lib\\lib.d.ts"
 			],
 			[
 				"settings",
@@ -1241,10 +1283,6 @@
 			[
 				"home",
 				"HorribleGame-wiki\\Home.md"
-			],
-			[
-				"js",
-				"src\\engine\\loaders\\models\\JS.ts"
 			],
 			[
 				"lib.dts",
@@ -1303,10 +1341,6 @@
 				"src\\engine\\EventDispatcher.ts"
 			],
 			[
-				"bas",
-				"src\\engine\\BaseGame.ts"
-			],
-			[
 				"key",
 				"src\\engine\\utils\\KeyMap.ts"
 			],
@@ -1319,24 +1353,12 @@
 				"src\\engine\\PluginHost.ts"
 			],
 			[
-				"stl",
-				"dist\\assets\\models\\room01.stl"
-			],
-			[
 				"inp",
 				"src\\engine\\InputHandler.ts"
 			],
 			[
-				"sky",
-				"src\\engine\\entities\\SkyBoxEntity.ts"
-			],
-			[
 				"part",
 				"dist\\lib\\ParticleEngine.js"
-			],
-			[
-				"three",
-				"dist\\lib\\three.js"
 			],
 			[
 				"inde",
@@ -1431,16 +1453,8 @@
 				"src\\engine\\EventDispatcher.ts"
 			],
 			[
-				"waa",
-				"src\\lib\\waa.d.ts"
-			],
-			[
 				"settings.",
 				"src\\engine\\SettingsLoader.ts"
-			],
-			[
-				"gam.ts",
-				"src\\Game.ts"
 			],
 			[
 				"setitngs",
@@ -1649,42 +1663,6 @@
 			[
 				"moe",
 				"src\\engine\\entities\\ModelEntity.hg.ts"
-			],
-			[
-				"the",
-				"src\\lib\\three.js"
-			],
-			[
-				"thee",
-				"src\\lib\\three.js"
-			],
-			[
-				"",
-				"src\\engine\\entities\\ModelEntity.hg.ts"
-			],
-			[
-				"a",
-				"src\\engine\\abilities\\AnimationAbility.hg.ts"
-			],
-			[
-				"opti",
-				"bin\\options\\options.js"
-			],
-			[
-				"mai",
-				"bin\\main.js"
-			],
-			[
-				"use",
-				"src\\extension\\User.ts"
-			],
-			[
-				"lang",
-				"src\\extension\\Language.ts"
-			],
-			[
-				"levl",
-				"src\\engine\\LevelStructure.ts"
 			]
 		],
 		"width": 0.0
@@ -1715,7 +1693,7 @@
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": true,
+	"side_bar_visible": false,
 	"side_bar_width": 290.0,
 	"status_bar_visible": true,
 	"template_settings":

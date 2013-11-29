@@ -1,6 +1,9 @@
 * {
 	margin: 0px;
 	font-family: sans-serif;
+	position: fixed; 
+	overflow-y: hidden;
+	width: 100%;
 }
 
 body {

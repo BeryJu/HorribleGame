@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 19:57:17
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-19 13:37:55
+* @Last Modified time: 2013-11-29 18:29:34
 */
 var vm = require("vm");
 var fs = require("fs");
@@ -14,12 +14,12 @@ exports.eventDispatcherTest = function(test) {
 		var data = fs.readFileSync(path);
 		vm.runInThisContext(data, path);
 	}
+	var _log = console.log;
+	console.log = function() {};
 	execute("bin/lib/three.js");
-	var HG = require("../bin/lib/hg.js")({
-		silent: true
-	});
-
-	var disp = new HG.EventDispatcher();
+	var HG = require("../bin/lib/hg.js").horrible();
+	console.log = _log;
+	var disp = new HG.Core.EventDispatcher();
 	disp.eventsAvailable = ["event1", "event2"];
 	disp.on("event1", function() {
 		test.ok(true);

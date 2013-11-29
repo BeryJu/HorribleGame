@@ -1,8 +1,13 @@
-var sourcePaths = [
-	"src/lib/*.d.ts",
+var hgPaths = [
 	"src/engine/*.ts",
 	"src/engine/**/*.ts",
 	"src/engine/**/**/*.ts"
+];
+
+var hgRef = "src/engine/HG.ref.ts";
+
+var libs = [
+	"src/lib/*.d.ts"
 ];
 
 var testPaths = [
@@ -11,19 +16,22 @@ var testPaths = [
 ];
 
 var gamePaths = [
-	"src/lib/*.d.ts",
 	"bin/lib/hg.d.ts",
 	"game/*.ts"
 ];
+
+var dist = "dist/app.nw";
 var outHG = "bin/lib/hg.js"
 var outGame = "bin/game.js"
 
 var fs = require("fs");
 module.exports = function(grunt) {
 	grunt.initConfig({
+		pkg: grunt.file.readJSON('package.json'),
 		ts: {
 			hg: {
-				src: sourcePaths,
+				src: libs.concat(hgPaths),
+				reference: hgRef,
 				out: outHG,
 				options: {
 					target: "es5",
@@ -34,7 +42,7 @@ module.exports = function(grunt) {
 				}
 			},
 			game: {
-				src: gamePaths,
+				src: libs.concat(gamePaths),
 				out: outGame,
 				options: {
 					target: "es5",
@@ -46,11 +54,27 @@ module.exports = function(grunt) {
 		},
 		nodeunit: {
 			hg: testPaths
+		},
+		compress: {
+			hg: {
+				options: {
+					archive: dist,
+					mode: 'zip'
+				},
+				files: [
+					{
+						cwd: 'bin/',
+						expand: true,
+						src: '**'
+					}
+				]
+			}
 		}
 	});
 	
 	grunt.loadNpmTasks("grunt-ts");
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
+	grunt.loadNpmTasks('grunt-contrib-compress');
 
 	grunt.registerTask("game", ["ts:game"]);
 	grunt.registerTask("hg", ["ts:hg"]);
@@ -59,5 +83,5 @@ module.exports = function(grunt) {
 	grunt.registerTask("test", ["nodeunit"]);
 
 	grunt.registerTask("default", ["ts:hg", "nodeunit"]);
-	grunt.registerTask("all", ["ts", "nodeunit"]);
+	grunt.registerTask("all", ["ts", "nodeunit", "compress"]);
 };

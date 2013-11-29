@@ -1,4 +1,10 @@
-declare module HG {
+/// <reference path="../../src/lib/lib.d.ts" />
+/// <reference path="../../src/lib/node.d.ts" />
+/// <reference path="../../src/lib/physijs.d.ts" />
+/// <reference path="../../src/lib/socket.io.d.ts" />
+/// <reference path="../../src/lib/three.d.ts" />
+/// <reference path="../../src/lib/waa.d.ts" />
+declare module HG.Core {
     class EventDispatcher {
         private events;
         private globalEvents;
@@ -17,310 +23,28 @@ declare module HG {
         public dispatch(name: number, ...args: any[]): any;
     }
 }
-declare module HG {
-    class BaseGame extends HG.EventDispatcher {
-        public renderer: HG.Renderer;
-        public camera: HG.Entities.CameraEntity;
-        public isRunning: boolean;
-        public soundMixer: HG.Sound.Mixer;
-        public currentScene: HG.BaseScene;
-        public pluginHost: HG.Plugins.PluginHost;
-        public controls: HG.InputHandler;
-        public fpsCounter: HG.Utils.FPSCounter;
-        public shaders: HG.Shader[];
+declare module HG.Core {
+    class PluginHost extends Core.EventDispatcher {
         public eventsAvailable: string[];
-        constructor(container?: HTMLElement, settings?: string);
-        public screenshot(path: string, imageType?: string): void;
-        public scene(s: HG.BaseScene): void;
-        public title(...args: string[]): void;
-        public loadShader(path): HG.Shader;
-        public load(): void;
-        public connect(serverHost: string): void;
-        public start(serverHost: string): void;
-        public onKeyUp(e: KeyboardEvent): void;
-        public onKeyDown(e: KeyboardEvent): void;
-        public onMouseDown(e: MouseEvent): void;
-        public onMouseUp(e: MouseEvent): void;
-        public onMouseMove(e: MouseEvent): void;
-        public onResize(): void;
-        public render(): void;
-    }
-}
-declare module HG {
-    class BaseServer extends HG.EventDispatcher {
-        public socketServer: SocketManager;
-        constructor(port: number);
-    }
-}
-declare module HG {
-    var __START: number;
-    function horrible(): void;
-}
-declare module HG.Plugins {
-    class PluginHost extends HG.EventDispatcher {
-        public eventsAvailable: string[];
-        public plugins: Plugins.IPlugin[];
+        public plugins: Core.IPlugin[];
         public paths: string[];
-        public game: HG.BaseGame;
-        constructor(instance: HG.BaseGame);
+        public game: Core.BaseGame;
+        constructor(instance: Core.BaseGame);
         public doReload(): void;
         public hook(instance: any, event: any, callback: (...args: any[]) => any): void;
         public load(path: string[], env?: {}): void;
-        public frame(delta: number): void;
     }
 }
-declare module HG.Plugins {
+declare module HG.Core {
     class IPlugin {
         public name: string;
-        constructor(host: Plugins.PluginHost, env: {});
+        constructor(host: Core.PluginHost, env: {});
         public frame(delta: number): void;
-    }
-}
-declare module HG {
-    class InputHandler extends HG.EventDispatcher {
-        private keyState;
-        private mouseState;
-        private lastMouse;
-        public eventsAvailable: string[];
-        public bind: {
-            (name: string[], callback?: (...args: any[]) => any): any;
-            (name: string, callback?: (...args: any[]) => any): any;
-            (name: number[], callback?: (...args: any[]) => any): any;
-            (name: number, callback?: (...args: any[]) => any): any;
-        };
-        public mousePosition : THREE.Vector2;
-        constructor();
-        public onMouseMove(e: MouseEvent): void;
-        public onMouseDown(e: MouseEvent): void;
-        public onMouseUp(e: MouseEvent): void;
-        public onKeyDown(e: KeyboardEvent): void;
-        public onKeyUp(e: KeyboardEvent): void;
-        public frame(delta: number): void;
-    }
-}
-declare module HG {
-    class Renderer extends THREE.WebGLRenderer {
-        public dirty: boolean;
-        constructor(params: {});
-        public draw(scene: HG.BaseScene, camera: HG.Entities.CameraEntity): void;
-    }
-}
-declare module HG {
-    class ServerConnection extends HG.EventDispatcher {
-        public socket: Socket;
-        constructor(host: string);
-    }
-}
-declare module HG {
-    class Shader extends HG.EventDispatcher {
-        public vertexShader: string;
-        public fragmentShader: string;
-        constructor(path?: string);
-        public load(raw: {}): void;
-    }
-}
-declare module HG {
-    class BaseAbility extends HG.EventDispatcher {
-        public hostEntity: HG.BaseEntity;
-        public setHost(entity: HG.BaseEntity): void;
-        public checkCompatibility(entity: HG.BaseEntity): boolean;
-        public frame(delta: number): void;
-    }
-}
-declare module HG.Abilities {
-    class AnimationAbility extends HG.BaseAbility {
-        public animOffset: number;
-        public running: boolean;
-        public duration: number;
-        public keyframes: number;
-        public interpolation: number;
-        public lastKeyframe: number;
-        public currentKeyframe: number;
-        public eventsAvailable: string[];
-        public setHost(entity: HG.BaseEntity): void;
-        public checkCompatibility(entity: HG.BaseEntity): boolean;
-        public load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void;
-        public frame(delta: number): void;
-    }
-}
-declare module HG.Abilities {
-    class MovingAbility extends HG.BaseAbility {
-        public moveLeft(step: number): void;
-        public moveRight(step: number): void;
-        public lower(step: number): void;
-        public turnLeft(step: number): void;
-        public turnRight(step: number): void;
-        public moveForward(step: number): void;
-        public moveBackward(step: number): void;
-        public jumpState: number;
-        public oldY: number;
-        public maxY: number;
-        public jump(): void;
-        public frame(delta: number): void;
-    }
-}
-declare module HG {
-    class BaseEntity extends HG.EventDispatcher {
-        public abilities: HG.BaseAbility[];
-        public object: THREE.Object3D;
-        public positionOffset: THREE.Vector3;
-        constructor(object?: THREE.Object3D);
-        public ability(a: HG.BaseAbility): boolean;
-        public forAbilities(callback: (a: HG.BaseAbility) => void): void;
-        public offset(x: number, y: number, z: number): BaseEntity;
-        public scale(x: number, y: number, z: number): BaseEntity;
-        public position(x: number, y: number, z: number): BaseEntity;
-        public rotate(x: number, y: number, z: number): BaseEntity;
-        public getInternal(): THREE.Object3D;
-        public frame(delta: number): void;
-    }
-}
-declare module HG.Entities {
-    class CameraEntity extends HG.BaseEntity {
-        public object: THREE.PerspectiveCamera;
-        constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
-        public setViewDistance(distance: number): void;
-        public resize(ratio: number): void;
-    }
-}
-declare module HG.Entities {
-    class ChasingCameraEntity extends Entities.CameraEntity {
-        public object: THREE.PerspectiveCamera;
-        public target: Entities.MeshEntity;
-        public lookAt: boolean;
-        constructor(target: Entities.MeshEntity, fov?: number, aspect?: number, zNear?: number, zFar?: number);
-        public frame(delta: number): void;
-    }
-}
-declare module HG.Entities {
-    class FirstPersonCameraEntity extends Entities.CameraEntity {
-        public object: THREE.PerspectiveCamera;
-        public target: Entities.MeshEntity;
-        public lookAt: boolean;
-        constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
-        public setViewDistance(d: number): void;
-        public frame(delta: number): void;
-    }
-}
-declare module HG.Entities {
-    class HeightMapEntity extends HG.BaseEntity {
-        constructor(directory: string, size?: number, directions?: string[], suffix?: string);
-    }
-}
-declare module HG.Entities {
-    class MeshEntity extends HG.BaseEntity implements HG.Resource.ILoadable {
-        public object: THREE.Mesh;
-        public eventsAvailable: string[];
-        constructor(geo?: THREE.Geometry, mat?: THREE.MeshBasicMaterial);
-        public load(data: {}): void;
-    }
-}
-declare module HG.Entities {
-    class ParticleEntity extends HG.BaseEntity {
-        public count: number;
-        public size: number;
-        public color: number;
-        public map: string;
-        constructor(map: string, count?: number, size?: number);
-        public create(): void;
-    }
-}
-declare module HG.Entities {
-    class VideoEntity extends HG.BaseEntity {
-        constructor(url?: string);
-    }
-}
-declare module HG.Utils {
-    class Noise {
-        static perm: number[];
-        static Generate2(x: number, y: number): number;
-        static Generate3(x: number, y: number, z: number): number;
-        static Mod(x: number, m: number): number;
-        static grad1(hash: number, x: number): number;
-        static grad2(hash: number, x: number, y: number): number;
-        static grad3(hash: number, x: number, y: number, z: number): number;
-        static grad4(hash: number, x: number, y: number, z: number, t: number): number;
-    }
-}
-declare module HG {
-    module CONSTANTS {
-        var SIZE_X: number;
-        var SIZE_Y: number;
-        var BLOCK_SIZE: number;
-    }
-    class LevelStructure extends HG.EventDispatcher {
-        public entities: HG.LevelStructureEntity[];
-        public camera: {
-            position: {
-                x: number;
-                y: number;
-                z: number;
-            };
-            rotation: {
-                x: number;
-                y: number;
-                z: number;
-            };
-        };
-        public eventsAvailable: string[];
-        public fromJS(path: string): void;
-        public create(): void;
-    }
-}
-declare module HG {
-    class Level extends HG.EventDispatcher {
-        public entities: HG.BaseEntity[];
-        public camera: {
-            position: THREE.Vector3;
-            rotation: THREE.Vector3;
-        };
-        constructor(lvl: HG.LevelStructure);
-        public applyCamera(camera: HG.Entities.CameraEntity): void;
-        public applyCameraOffset(camera: HG.Entities.CameraEntity): void;
-    }
-}
-declare module HG {
-    class LevelStructureEntity {
-        public position: {
-            x: number;
-            y: number;
-            z: number;
-        };
-        public color: number;
     }
 }
 declare module HG.LINQ {
     interface IProvider {
         provide(): void;
-    }
-}
-declare module HG.LINQ {
-    class ArrayProvider implements LINQ.IProvider {
-        public each(context: any[], fn: (e: any) => any): void;
-        public where(context: any[], query: (e: any) => boolean): any[];
-        public order(context: any[], order: (a: any, b: any) => any): any[];
-        public select(context: any[], selector: (e: any) => any): any[];
-        public registerFunction(key: string, fn: (...args: any[]) => any): void;
-        public provide(): void;
-    }
-}
-declare module HG.LINQ {
-    function initialize(): void;
-}
-declare module HG.LINQ {
-    class NumberProvider implements LINQ.IProvider {
-        public toRadian(nmb: number): number;
-        public toDegrees(nmb: number): number;
-        public registerFunction(key: string, fn: (...args: any[]) => any): void;
-        public provide(): void;
-    }
-}
-declare module HG.LINQ {
-    class StringProvider implements LINQ.IProvider {
-        public f(context: string, ...args: any[]): string;
-        public replaceAll(context: string, find: string, replace: string): string;
-        public registerFunction(key: string, fn: (...args: any[]) => any): void;
-        public provide(): void;
     }
 }
 declare module HG.Resource {
@@ -333,97 +57,39 @@ declare module HG.Resource {
         load(data: {}): void;
     }
 }
-declare module HG {
-    class ResourceLoader extends HG.EventDispatcher {
-        public baseDirectory: string;
-        constructor(baseDirectory: string);
-        public fromJSModel(path: string, entitiy: HG.Entities.MeshEntity): void;
-        public fromSTL(path: string, entitiy: HG.Entities.MeshEntity): void;
-        public fromPNG(path: string, entitiy: HG.BaseEntity): void;
-        public fromWAV(path: string, effect: HG.Sound.Effect): void;
-        public directory(directory: string): string[];
-    }
-}
-declare module HG.Resource.Model {
-    class JS extends HG.EventDispatcher implements Resource.IFiletype {
-        public eventsAvailable: string[];
-        public load(path: string): void;
-    }
-}
-declare module HG.Resource.Model {
-    class STL extends HG.EventDispatcher implements Resource.IFiletype {
-        public eventsAvailable: string[];
-        public load(path: string, material?: THREE.MeshFaceMaterial): void;
-    }
-}
-declare module HG.Resource.Sound {
-    class WAV extends HG.EventDispatcher implements Resource.IFiletype {
-        public eventsAvailable: string[];
-        public load(path: string, context: AudioContext): void;
-    }
-}
-declare module HG.Resource.Texture {
-    class PNG extends HG.EventDispatcher implements Resource.IFiletype {
-        public eventsAvailable: string[];
-        public load(path: string): void;
-    }
-}
-declare module HG {
-    class BaseScene {
-        public scene: Physijs.Scene;
-        public controls: HG.InputHandler;
-        public entities: {
-            named: {};
-            unnamed: HG.BaseEntity[];
+declare module HG.Utils {
+    class ISettings {
+        public debug: boolean;
+        public Graphics: {
+            fullscreen: boolean;
+            fov: number;
+            viewDistance: number;
+            shadowMapSize: number;
+            useStaticFramerate: boolean;
+            staticFramerate: number;
+            antialiasing: boolean;
+            resolution: THREE.Vector2;
         };
-        constructor();
-        public add(BaseEntity: HG.BaseEntity, nameTag?: string): void;
-        public getAllNamed(type?: any): any[];
-        public getAllUnnamed(type?: any): any[];
-        public getAll(type?: any): any[];
-        public forNamed(callback: (e: any, k: string) => any, type?: any): void;
-        public forUnamed(callback: (e: any) => any, type?: any): void;
-        public forAll(callback: (e: any) => any, type?: any): void;
-        public getInternal(): Physijs.Scene;
-        public get(nameTag: string[], type?: any): any[];
-    }
-}
-declare module HG.Sound {
-    class Channel extends HG.EventDispatcher {
-        public name: string;
-        public rootContext: AudioContext;
-        public gainNode: GainNode;
-        public eventsAvailable: string[];
-        public gain : number;
-        constructor(name: string);
-        public volume(gain: number): void;
-    }
-}
-declare module HG.Sound {
-    class Effect implements HG.Resource.ILoadable {
-        public name: string;
-        public gainNode: GainNode;
-        public destination: Sound.Channel;
-        public source: AudioBufferSourceNode;
-        public rootContext: AudioContext;
-        public gain : number;
-        constructor(ch: Sound.Channel);
-        public load(data: AudioBuffer): void;
-        public play(): void;
-        public stop(): void;
-        private volume(gain);
-    }
-}
-declare module HG.Sound {
-    class Mixer {
-        public channels: {};
-        public gainNode: GainNode;
-        public context: AudioContext;
-        public gain : number;
-        public channel(name: string): Sound.Channel;
-        constructor();
-        public volume(gain: number): void;
-        public addChannel(ch: Sound.Channel): void;
+        public Sound: {
+            masterVolume: number;
+            channels: {
+                effectsEnvVolume: number;
+                effectsSelfVolume: number;
+                musicVolume: number;
+            };
+        };
+        public Keys: {
+            forward: string[];
+            backward: string[];
+            left: string[];
+            right: string[];
+            pause: string[];
+            lower: string[];
+            jump: string[];
+            devConsole: string[];
+            refresh: string[];
+            fullscreen: string[];
+        };
     }
 }
 declare module HG.Utils {
@@ -472,54 +138,31 @@ declare module HG.Utils {
     }
 }
 declare module HG.Utils {
-    class ModuleLoader extends HG.EventDispatcher {
+    class ModuleLoader extends HG.Core.EventDispatcher {
         public modules: string[];
         constructor(additional?: string[]);
     }
 }
-declare module HG {
-    class SettingsStructure {
-        public debug: boolean;
-        public Graphics: {
-            fullscreen: boolean;
-            fov: number;
-            viewDistance: number;
-            shadowMapSize: number;
-            useStaticFramerate: boolean;
-            staticFramerate: number;
-            antialiasing: boolean;
-            resolution: THREE.Vector2;
-        };
-        public Sound: {
-            masterVolume: number;
-            channels: {
-                effectsEnvVolume: number;
-                effectsSelfVolume: number;
-                musicVolume: number;
-            };
-        };
-        public Keys: {
-            forward: string[];
-            backward: string[];
-            left: string[];
-            right: string[];
-            pause: string[];
-            lower: string[];
-            jump: string[];
-            devConsole: string[];
-            refresh: string[];
-            fullscreen: string[];
-        };
+declare module HG.Utils {
+    class Noise {
+        static perm: number[];
+        static Generate2(x: number, y: number): number;
+        static Generate3(x: number, y: number, z: number): number;
+        static Mod(x: number, m: number): number;
+        static grad1(hash: number, x: number): number;
+        static grad2(hash: number, x: number, y: number): number;
+        static grad3(hash: number, x: number, y: number, z: number): number;
+        static grad4(hash: number, x: number, y: number, z: number, t: number): number;
     }
 }
 declare module HG {
-    var Settings: SettingsStructure;
-    function loadSettings(path: string, fallback?: SettingsStructure): SettingsStructure;
-    function saveSettings(path: string, settings: SettingsStructure, pretty?: boolean): void;
+    var Settings: Utils.ISettings;
+    function loadSettings(path: string, fallback?: Utils.ISettings): Utils.ISettings;
+    function saveSettings(path: string, settings: Utils.ISettings, pretty?: boolean): void;
 }
 declare module HG.Utils {
     function rgbToHex(r: number, g: number, b: number): number;
-    function bootstrap(gInstance: HG.BaseGame, wnd: Window): void;
+    function bootstrap(gInstance: HG.Core.BaseGame, wnd: Window): void;
     function profile(fn: () => any): void;
     function hasGL(): boolean;
     function resize(resolution: THREE.Vector2): void;
@@ -530,4 +173,315 @@ declare module HG.Utils {
     function openDevConsole(): void;
     function openDevConsoleExternal(): void;
     function isNode(): boolean;
+}
+declare module HG.Entities {
+    class BaseEntity extends HG.Core.EventDispatcher {
+        public abilities: HG.Abilities.BaseAbility[];
+        public object: THREE.Object3D;
+        public positionOffset: THREE.Vector3;
+        constructor(object?: THREE.Object3D);
+        public ability(a: HG.Abilities.BaseAbility): boolean;
+        public forAbilities(callback: (a: HG.Abilities.BaseAbility) => void): void;
+        public offset(x: number, y: number, z: number): BaseEntity;
+        public scale(x: number, y: number, z: number): BaseEntity;
+        public position(x: number, y: number, z: number): BaseEntity;
+        public rotate(x: number, y: number, z: number): BaseEntity;
+        public getInternal(): THREE.Object3D;
+        public frame(delta: number): void;
+    }
+}
+declare module HG.Abilities {
+    class BaseAbility extends HG.Core.EventDispatcher {
+        public hostEntity: HG.Entities.BaseEntity;
+        public setHost(entity: HG.Entities.BaseEntity): void;
+        public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
+        public frame(delta: number): void;
+    }
+}
+declare module HG.Scenes {
+    class BaseScene {
+        public scene: Physijs.Scene;
+        public controls: HG.Core.InputHandler;
+        public entities: {
+            named: {};
+            unnamed: HG.Entities.BaseEntity[];
+        };
+        constructor();
+        public add(entity: HG.Entities.BaseEntity, nameTag?: string): void;
+        public getAllNamed(type?: any): any[];
+        public getAllUnnamed(type?: any): any[];
+        public getAll(type?: any): any[];
+        public forNamed(callback: (e: any, k: string) => any, type?: any): void;
+        public forUnamed(callback: (e: any) => any, type?: any): void;
+        public forAll(callback: (e: any) => any, type?: any): void;
+        public getInternal(): Physijs.Scene;
+        public get(nameTag: string[], type?: any): any[];
+    }
+}
+declare module HG {
+    var __START: number;
+    function horrible(): any;
+}
+declare module HG.Abilities {
+    class AnimationAbility extends Abilities.BaseAbility {
+        public animOffset: number;
+        public running: boolean;
+        public duration: number;
+        public keyframes: number;
+        public interpolation: number;
+        public lastKeyframe: number;
+        public currentKeyframe: number;
+        public eventsAvailable: string[];
+        public setHost(entity: HG.Entities.BaseEntity): void;
+        public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
+        public load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void;
+        public frame(delta: number): void;
+    }
+}
+declare module HG.Abilities {
+    class MovingAbility extends Abilities.BaseAbility {
+        public jumpState: number;
+        public oldY: number;
+        public maxY: number;
+        public moveLeft(step: number): void;
+        public moveRight(step: number): void;
+        public lower(step: number): void;
+        public turnLeft(step: number): void;
+        public turnRight(step: number): void;
+        public moveForward(step: number): void;
+        public moveBackward(step: number): void;
+        public jump(): void;
+        public frame(delta: number): void;
+    }
+}
+declare module HG.Core {
+    class BaseGame extends Core.EventDispatcher {
+        public renderer: THREE.WebGLRenderer;
+        public camera: HG.Entities.CameraEntity;
+        public isRunning: boolean;
+        public soundMixer: HG.Sound.Mixer;
+        public currentScene: HG.Scenes.BaseScene;
+        public pluginHost: Core.PluginHost;
+        public controls: Core.InputHandler;
+        public fpsCounter: HG.Utils.FPSCounter;
+        public shaders: Core.Shader[];
+        public eventsAvailable: string[];
+        constructor(container: HTMLElement, settingsPath: string);
+        public screenshot(path: string, imageType?: string): void;
+        public scene(s: HG.Scenes.BaseScene): void;
+        public title(...args: string[]): void;
+        public loadShader(path): Core.Shader;
+        public load(): void;
+        public connect(serverHost: string): void;
+        public start(serverHost: string): void;
+        public onKeyUp(e: KeyboardEvent): void;
+        public onKeyDown(e: KeyboardEvent): void;
+        public onMouseDown(e: MouseEvent): void;
+        public onMouseUp(e: MouseEvent): void;
+        public onMouseMove(e: MouseEvent): void;
+        public onResize(): void;
+        public render(): void;
+    }
+}
+declare module HG.Core {
+    class BaseServer extends Core.EventDispatcher {
+        public socketServer: SocketManager;
+        constructor(port: number);
+    }
+}
+declare module HG.Core {
+    class InputHandler extends Core.EventDispatcher {
+        private keyState;
+        private mouseState;
+        private lastMouse;
+        public eventsAvailable: string[];
+        public bind: {
+            (name: string[], callback?: (...args: any[]) => any): any;
+            (name: string, callback?: (...args: any[]) => any): any;
+            (name: number[], callback?: (...args: any[]) => any): any;
+            (name: number, callback?: (...args: any[]) => any): any;
+        };
+        public mousePosition : THREE.Vector2;
+        constructor();
+        public onMouseMove(e: MouseEvent): void;
+        public onMouseDown(e: MouseEvent): void;
+        public onMouseUp(e: MouseEvent): void;
+        public onKeyDown(e: KeyboardEvent): void;
+        public onKeyUp(e: KeyboardEvent): void;
+        public frame(delta: number): void;
+    }
+}
+declare module HG {
+    class ServerConnection extends HG.Core.EventDispatcher {
+        public socket: Socket;
+        constructor(host: string);
+    }
+}
+declare module HG.Core {
+    class Shader extends Core.EventDispatcher {
+        public vertexShader: string;
+        public fragmentShader: string;
+        constructor(path?: string);
+        public load(raw: {}): void;
+    }
+}
+declare module HG.Entities {
+    class CameraEntity extends Entities.BaseEntity {
+        public object: THREE.PerspectiveCamera;
+        constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
+        public setViewDistance(distance: number): void;
+        public resize(ratio: number): void;
+    }
+}
+declare module HG.Entities {
+    class ChasingCameraEntity extends Entities.CameraEntity {
+        public object: THREE.PerspectiveCamera;
+        public target: Entities.MeshEntity;
+        public lookAt: boolean;
+        constructor(target: Entities.MeshEntity, fov?: number, aspect?: number, zNear?: number, zFar?: number);
+        public frame(delta: number): void;
+    }
+}
+declare module HG.Entities {
+    class FirstPersonCameraEntity extends Entities.CameraEntity {
+        public object: THREE.PerspectiveCamera;
+        public target: Entities.MeshEntity;
+        public lookAt: boolean;
+        constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
+        public setViewDistance(d: number): void;
+        public frame(delta: number): void;
+    }
+}
+declare module HG.Entities {
+    class HeightMapEntity extends Entities.BaseEntity {
+        constructor(directory: string, size?: number, directions?: string[], suffix?: string);
+    }
+}
+declare module HG.Entities {
+    class MeshEntity extends Entities.BaseEntity implements HG.Resource.ILoadable {
+        public object: THREE.Mesh;
+        public eventsAvailable: string[];
+        constructor(geo?: THREE.Geometry, mat?: THREE.MeshBasicMaterial);
+        public load(data: {}): void;
+    }
+}
+declare module HG.Entities {
+    class ParticleEntity extends Entities.BaseEntity {
+        public count: number;
+        public size: number;
+        public color: number;
+        public map: string;
+        constructor(map: string, count?: number, size?: number);
+        public create(): void;
+    }
+}
+declare module HG.Entities {
+    class VideoEntity extends Entities.BaseEntity {
+        constructor(url?: string);
+    }
+}
+declare module HG.LINQ {
+    class ArrayProvider implements LINQ.IProvider {
+        public each(context: any[], fn: (e: any) => any): void;
+        public where(context: any[], query: (e: any) => boolean): any[];
+        public order(context: any[], order: (a: any, b: any) => any): any[];
+        public select(context: any[], selector: (e: any) => any): any[];
+        public registerFunction(key: string, fn: (...args: any[]) => any): void;
+        public provide(): void;
+    }
+}
+declare module HG.LINQ {
+    function initialize(): void;
+}
+declare module HG.LINQ {
+    class NumberProvider implements LINQ.IProvider {
+        public toRadian(nmb: number): number;
+        public toDegrees(nmb: number): number;
+        public registerFunction(key: string, fn: (...args: any[]) => any): void;
+        public provide(): void;
+    }
+}
+declare module HG.LINQ {
+    class StringProvider implements LINQ.IProvider {
+        public f(context: string, ...args: any[]): string;
+        public replaceAll(context: string, find: string, replace: string): string;
+        public registerFunction(key: string, fn: (...args: any[]) => any): void;
+        public provide(): void;
+    }
+}
+declare module HG.Resource.Model {
+    class JS extends HG.Core.EventDispatcher implements Resource.IFiletype {
+        public eventsAvailable: string[];
+        public load(path: string): void;
+    }
+}
+declare module HG.Resource.Model {
+    class STL extends HG.Core.EventDispatcher implements Resource.IFiletype {
+        public eventsAvailable: string[];
+        public load(path: string, material?: THREE.MeshFaceMaterial): void;
+    }
+}
+declare module HG.Resource {
+    class ResourceLoader extends HG.Core.EventDispatcher {
+        public baseDirectory: string;
+        constructor(baseDirectory: string);
+        public resolvePath(path: string): string;
+        public fromJSModel(path: string, entitiy: HG.Entities.MeshEntity): void;
+        public fromSTL(path: string, entitiy: HG.Entities.MeshEntity): void;
+        public fromPNG(path: string, entitiy: HG.Entities.BaseEntity): void;
+        public fromWAV(path: string, effect: HG.Sound.Effect): void;
+        public directory(directory: string): string[];
+    }
+}
+declare module HG.Resource.Sound {
+    class WAV extends HG.Core.EventDispatcher implements Resource.IFiletype {
+        public eventsAvailable: string[];
+        public load(path: string, context: AudioContext): void;
+    }
+}
+declare module HG.Resource.Texture {
+    class PNG extends HG.Core.EventDispatcher implements Resource.IFiletype {
+        public eventsAvailable: string[];
+        public load(path: string): void;
+    }
+}
+declare module HG.Sound {
+    class Channel extends HG.Core.EventDispatcher {
+        public name: string;
+        public rootContext: AudioContext;
+        public gainNode: GainNode;
+        public eventsAvailable: string[];
+        public gain : number;
+        constructor(name: string);
+        public volume(gain: number): void;
+    }
+}
+declare module HG.Sound {
+    class Effect implements HG.Resource.ILoadable {
+        public name: string;
+        public gainNode: GainNode;
+        public destination: Sound.Channel;
+        public source: AudioBufferSourceNode;
+        public buffer: AudioBuffer;
+        public rootContext: AudioContext;
+        public gain : number;
+        constructor(ch: Sound.Channel);
+        public load(data: AudioBuffer): void;
+        public recreate(): void;
+        public play(): void;
+        public stop(): void;
+        private volume(gain);
+    }
+}
+declare module HG.Sound {
+    class Mixer {
+        public channels: {};
+        public gainNode: GainNode;
+        public context: AudioContext;
+        public gain : number;
+        public channel(name: string): Sound.Channel;
+        constructor();
+        public volume(gain: number): void;
+        public addChannel(ch: Sound.Channel): void;
+    }
 }

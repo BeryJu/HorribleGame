@@ -1,14 +1,17 @@
 HorribleGame:
+	☐ Port the complete thing to a Server:Client Model without having to use nw
 	☐ Find a good way to have Entity:Resource Loading without headace's
 	☐ Finish physijs.d.ts
 	☐ Find a solution for Loading Audio files without AJAX
 	☐ Create some unit tests
-	☐ Redo Map Loader
+	☐ Redo Map Loader (temporarily removed)
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
- ✔ Finish the Model/Audio Loader @done (13-11-20 15:08) @project(HorribleGame)
- 		HG.Resource.ResourceLoader, IFiletype, etc
- ✔ Finish Node-nullbrowser @done (13-11-20 15:08) @project(HorribleGame) =>
- 		Not needed, unit tests run without window/document
- ✔ Fix LINQ @done (13-11-16 19:10) @project(HorribleGame)
- 		HG.LINQ, StringProvider, NumberProvider, ArrayProvider
+	✔ Refactor, capital Folders and better module usage @done (13-11-29 19:19) @project(HorribleGame)
+		Done.
+	✔ Finish the Model/Audio Loader @done (13-11-22 15:51) @project(HorribleGame)
+		HG.Resource.ResourceLoader, IFiletype, etc
+	✔ Finish Node-nullbrowser @done (13-11-20 15:08) @project(HorribleGame)
+		Not needed, unit tests run without window/document
+	✔ Fix LINQ @done (13-11-16 19:10) @project(HorribleGame)
+		HG.LINQ, StringProvider, NumberProvider, ArrayProvider
