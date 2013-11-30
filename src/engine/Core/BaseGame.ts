@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 20:58:54
+* @Last Modified time: 2013-11-30 02:03:14
 */
 
 module HG.Core {
@@ -27,7 +27,6 @@ module HG.Core {
 
 		constructor(container: HTMLElement, settingsPath: string) {
 			super();
-			var moduleLoader = new HG.Utils.ModuleLoader();
 			HG.Settings = HG.loadSettings(settingsPath);
 
 			this.soundMixer = new HG.Sound.Mixer();
@@ -69,7 +68,7 @@ module HG.Core {
 			console.debug(data);
 			//data:image/png;base64
 			var raw = new Buffer(data.replace("data:"+imageType+";base64,", ""), 'base64');
-			global.fs.writeFile(path, raw);
+			HG.Modules.fs.writeFile(path, raw);
 		}
 
 		load(): void {

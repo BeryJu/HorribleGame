@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:53:18
+* @Last Modified time: 2013-11-30 02:03:12
 */
 
 module HG {
@@ -11,7 +11,7 @@ module HG {
 	export var Settings: HG.Utils.ISettings;
 
 	export function loadSettings(path: string, fallback?: HG.Utils.ISettings): HG.Utils.ISettings {
-		var raw = global.fs.readFileSync(path);
+		var raw = HG.Modules.fs.readFileSync(path);
 		fallback = fallback || new HG.Utils.ISettings();
 		try {
 			console.log("[Settings] Loaded Settings from JSON.");
@@ -30,7 +30,7 @@ module HG {
 		} else {
 			parsed = JSON.stringify(settings);
 		}
-		global.fs.writeFile(path, parsed, () => {});
+		HG.Modules.fs.writeFile(path, parsed, () => {});
 		console.debug("[Settings] Saved settings.");
 	}
 

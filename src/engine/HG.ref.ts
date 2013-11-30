@@ -1,7 +1,9 @@
 /// EventDispatcher, main class of a lot
 /// <reference path="Core/EventDispatcher.ts" />
+/// Modules, like fs or path
+/// <reference path="Utils/Modules.ts" />
 
-/// All Interfaces, starting with I
+/// All Interfaces (I*.ts)
 /// <reference path="Core/IPlugin.ts" />
 /// <reference path="LINQ/IProvider.ts" />
 /// <reference path="Resources/IFiletype.ts" />
@@ -12,7 +14,6 @@
 /// <reference path="Utils/FPSCounter.ts" />
 /// <reference path="Utils/KeyMap.ts" />
 /// <reference path="Utils/Map.ts" />
-/// <reference path="Utils/ModuleLoader.ts" />
 /// <reference path="Utils/Noise.ts" />
 /// <reference path="Utils/Settings.ts" />
 /// <reference path="Utils/Utils.ts" />

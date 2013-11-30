@@ -3,8 +3,9 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 20:19:17
+* @Last Modified time: 2013-11-30 01:58:46
 */
+
 module HG.Utils {
 
 	export var KeyMap = {

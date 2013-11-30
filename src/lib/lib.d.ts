@@ -1,14 +1,14 @@
 /* *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved. 
+Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
 this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0  
- 
+License at http://www.apache.org/licenses/LICENSE-2.0
+
 THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE, 
-MERCHANTABLITY OR NON-INFRINGEMENT. 
- 
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
 See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
@@ -97,12 +97,11 @@ declare var Function: {
     prototype: Function;
 }
 
-// interface IArguments {
-//     [index: number]: any;
-//     length: number;
-//     callee: Function;
-//     splice: Function;
-// }
+interface IArguments {
+    [index: number]: any;
+    length: number;
+    callee: Function;
+}
 
 interface String {
     toString(): string;
@@ -114,7 +113,6 @@ interface String {
     localeCompare(that: string): number;
     match(regexp: string): string[];
     match(regexp: RegExp): string[];
-    replaceAll(search: string, replace: string): string;
     replace(searchValue: string, replaceValue: string): string;
     replace(searchValue: string, replaceValue: (substring: string, ...args: any[]) => string): string;
     replace(searchValue: RegExp, replaceValue: string): string;
@@ -326,7 +324,6 @@ declare var RegExp: {
 interface Error {
     name: string;
     message: string;
-    stack: string;
 }
 declare var Error: {
     new (message?: string): Error;
@@ -804,7 +801,7 @@ interface Date {
 
 
 /////////////////////////////
-/// IE9 DOM APIs 
+/// IE9 DOM APIs
 /////////////////////////////
 
 interface PositionOptions {
@@ -1276,7 +1273,6 @@ interface Element extends Node, NodeSelector, ElementTraversal {
     setAttributeNS(namespaceURI: string, qualifiedName: string, value: string): void;
     getAttributeNode(name: string): Attr;
     fireEvent(eventName: string, eventObj?: any): boolean;
-    bind(): any;
     getElementsByTagName(name: string): NodeList;
     getElementsByTagName(name: "a"): NodeListOf<HTMLAnchorElement>;
     getElementsByTagName(name: "abbr"): NodeListOf<HTMLElement>;
@@ -5558,7 +5554,6 @@ interface HTMLElement extends Element, ElementCSSInlineStyle, MSEventAttachmentT
     ondragleave: (ev: DragEvent) => any;
     addEventListener(type: "dragleave", listener: (ev: DragEvent) => any, useCapture?: boolean): void;
     className: string;
-    toDataURL: (type: string) => string;
     onfocusin: (ev: FocusEvent) => any;
     addEventListener(type: "focusin", listener: (ev: FocusEvent) => any, useCapture?: boolean): void;
     onseeked: (ev: Event) => any;
@@ -6388,7 +6383,7 @@ declare function setInterval(handler: any, timeout?: any, ...args: any[]): numbe
 
 
 /////////////////////////////
-/// IE10 DOM APIs 
+/// IE10 DOM APIs
 /////////////////////////////
 
 
@@ -6473,7 +6468,6 @@ interface ErrorEvent extends Event {
     filename: string;
     lineno: number;
     message: string;
-    error: Error;
     initErrorEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, messageArg: string, filenameArg: string, linenoArg: number): void;
 }
 declare var ErrorEvent: {
@@ -7382,7 +7376,7 @@ declare var CSSKeyframesRule: {
     new (): CSSKeyframesRule;
 }
 
-interface Window extends WindowBase64, IDBEnvironment, Window  {
+interface Window extends WindowBase64, IDBEnvironment, WindowConsole {
     onmspointerdown: (ev: any) => any;
     addEventListener(type: "mspointerdown", listener: (ev: any) => any, useCapture?: boolean): void;
     animationStartTime: number;
@@ -7497,7 +7491,6 @@ interface Console {
     warn(message?: any, ...optionalParams: any[]): void;
     error(message?: any, ...optionalParams: any[]): void;
     log(message?: any, ...optionalParams: any[]): void;
-    trace(error?: Error): void;
     profileEnd(): void;
 }
 declare var Console: {
@@ -7901,7 +7894,6 @@ declare var MSBlobBuilder: {
 }
 
 interface HTMLElement {
-    remove: () => any;
     onmscontentzoom: (ev: any) => any;
     addEventListener(type: "mscontentzoom", listener: (ev: any) => any, useCapture?: boolean): void;
     oncuechange: (ev: Event) => any;
@@ -8246,7 +8238,7 @@ declare var indexedDB: IDBFactory;
 declare var console: Console;
 
 /////////////////////////////
-/// IE11 APIs 
+/// IE11 APIs
 /////////////////////////////
 
 
@@ -8397,7 +8389,6 @@ interface Window {
     addEventListener(type: "devicemotion", listener: (ev: DeviceMotionEvent) => any, useCapture?: boolean): void;
     devicePixelRatio: number;
     msCrypto: Crypto;
-    WebGLRenderingContext: any;
     ondeviceorientation: (ev: DeviceOrientationEvent) => any;
     addEventListener(type: "deviceorientation", listener: (ev: DeviceOrientationEvent) => any, useCapture?: boolean): void;
     onmspointerenter: (ev: any) => any;
@@ -9162,7 +9153,7 @@ declare function addEventListener(type: "mspointerleave", listener: (ev: any) =>
 
 
 /////////////////////////////
-/// WorkerGlobalScope APIs 
+/// WorkerGlobalScope APIs
 /////////////////////////////
 // TODO: These are only available in a Web Worker - should be in a separate lib file
 declare function importScripts(...urls: string[]): void;

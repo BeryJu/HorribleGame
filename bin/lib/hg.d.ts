@@ -30,6 +30,12 @@ declare module HG.Core {
         public dispatch(name: number, ...args: any[]): any;
     }
 }
+declare module HG.Modules {
+    var fs;
+    var path;
+    var http;
+    var ui;
+}
 declare module HG.Core {
     class PluginHost extends Core.EventDispatcher {
         public events: string[];
@@ -106,7 +112,7 @@ declare module HG.Utils {
         private currentFrames;
         private highestFPS;
         private _frameTime;
-        private fps;
+        private _fps;
         constructor();
         public FPS : number;
         public maxFPS : number;
@@ -142,12 +148,6 @@ declare module HG.Utils {
         public clearX(x: number): boolean;
         public clearY(x: number, y: number): boolean;
         public clearZ(x: number, y: number, z: number): boolean;
-    }
-}
-declare module HG.Utils {
-    class ModuleLoader extends HG.Core.EventDispatcher {
-        public modules: string[];
-        constructor(additional?: string[]);
     }
 }
 declare module HG.Utils {

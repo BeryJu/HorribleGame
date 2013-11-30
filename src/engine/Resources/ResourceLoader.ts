@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 00:57:38
+* @Last Modified time: 2013-11-30 02:06:24
 */
 
 module HG.Resource {
@@ -18,8 +18,8 @@ module HG.Resource {
 		}
 
 		resolvePath(path: string): string {
-			var absPath = global.path.join(this.baseDirectory, path);
-			if (global.fs.existsSync(absPath) === true) {
+			var absPath = HG.Modules.path.join(this.baseDirectory, path);
+			if (HG.Modules.fs.existsSync(absPath) === true) {
 				return absPath;
 			} else {
 				return "";
@@ -27,8 +27,8 @@ module HG.Resource {
 		}
 
 		private load(relPath: string, target: HG.Resource.ILoadable, namespace: any): void {
-			var absPath = global.path.join(this.baseDirectory, relPath);
-			var extension = global.path.extname(absPath).toUpperCase().replace(".", "");
+			var absPath = HG.Modules.path.join(this.baseDirectory, relPath);
+			var extension = HG.Modules.path.extname(absPath).toUpperCase().replace(".", "");
 			for (var k in namespace) {
 				if (extension.toUpperCase() === k) {
 					var loader = new namespace[k]();
@@ -39,7 +39,7 @@ module HG.Resource {
 					return;
 				}
 			}
-			throw new Error("No Loader for Filetype '"+global.path.extname(absPath)+"' available.");
+			throw new Error("No Loader for Filetype '"+HG.Modules.path.extname(absPath)+"' available.");
 		}
 
 		model(path: string, entitiy: HG.Entities.MeshEntity): void {
@@ -55,11 +55,11 @@ module HG.Resource {
 		}
 
 		directory(directory: string): string[] {
-			var path = global.path.join(this.baseDirectory, directory);
-			var files = global.fs.readdirSync(path);
+			var path = HG.Modules.path.join(this.baseDirectory, directory);
+			var files = HG.Modules.fs.readdirSync(path);
 			var realFiles: string[] = [];
 			files.forEach((file) => {
-				realFiles.push(global.path.join(this.baseDirectory, directory, file));
+				realFiles.push(HG.Modules.path.join(this.baseDirectory, directory, file));
 			});
 			return realFiles;
 		}

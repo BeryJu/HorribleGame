@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:48:02
+* @Last Modified time: 2013-11-30 01:58:03
 */
 
 module HG.Utils {
@@ -16,14 +16,14 @@ module HG.Utils {
 		private highestFPS: number = 0;
 
 		private _frameTime: number = 0;
-		private fps: number = 0;
+		private _fps: number = 0;
 
 		constructor() {
 			this.lastFrameTime = new Date().getTime();
 		}
 
 		get FPS(): number {
-			return this.fps;
+			return this._fps;
 		}
 
 		get maxFPS(): number {
@@ -43,9 +43,9 @@ module HG.Utils {
 			//FPS
 			var FPSDiff = new Date(Now.getTime() - this.lastSecond);
 			if (FPSDiff.getSeconds() > 0) {
-				this.fps = this.currentFrames;
-				if (this.fps > this.highestFPS)
-					this.highestFPS = this.fps;
+				this._fps = this.currentFrames;
+				if (this._fps > this.highestFPS)
+					this.highestFPS = this._fps;
 				this.currentFrames = 0;
 				this.lastSecond = Now.getTime();
 			}

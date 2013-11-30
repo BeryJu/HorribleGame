@@ -122,6 +122,16 @@ var HG;
     })(HG.Core || (HG.Core = {}));
     var Core = HG.Core;
 })(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Modules) {
+        Modules.fs = require('fs');
+        Modules.path = require('path');
+        Modules.http = require('http');
+        Modules.ui = require('nw.gui');
+    })(HG.Modules || (HG.Modules = {}));
+    var Modules = HG.Modules;
+})(HG || (HG = {}));
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -221,12 +231,12 @@ var HG;
                 this.currentFrames = 0;
                 this.highestFPS = 0;
                 this._frameTime = 0;
-                this.fps = 0;
+                this._fps = 0;
                 this.lastFrameTime = new Date().getTime();
             }
             Object.defineProperty(FPSCounter.prototype, "FPS", {
                 get: function () {
-                    return this.fps;
+                    return this._fps;
                 },
                 enumerable: true,
                 configurable: true
@@ -257,9 +267,9 @@ var HG;
 
                 var FPSDiff = new Date(Now.getTime() - this.lastSecond);
                 if (FPSDiff.getSeconds() > 0) {
-                    this.fps = this.currentFrames;
-                    if (this.fps > this.highestFPS)
-                        this.highestFPS = this.fps;
+                    this._fps = this.currentFrames;
+                    if (this._fps > this.highestFPS)
+                        this.highestFPS = this._fps;
                     this.currentFrames = 0;
                     this.lastSecond = Now.getTime();
                 }
@@ -354,27 +364,6 @@ var HG;
             return Map;
         })();
         Utils.Map = Map;
-    })(HG.Utils || (HG.Utils = {}));
-    var Utils = HG.Utils;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Utils) {
-        var ModuleLoader = (function (_super) {
-            __extends(ModuleLoader, _super);
-            function ModuleLoader(additional) {
-                if (typeof additional === "undefined") { additional = []; }
-                _super.call(this);
-                this.modules = ['fs', 'path', 'http', 'socket.io', 'socket.io-client'];
-                this.modules.concat(additional);
-                this.modules.forEach(function (m) {
-                    console.log("[ModuleLoader] Required " + m);
-                    global[m] = require(m);
-                });
-            }
-            return ModuleLoader;
-        })(HG.Core.EventDispatcher);
-        Utils.ModuleLoader = ModuleLoader;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
@@ -1127,7 +1116,7 @@ var HG;
     HG.Settings;
 
     function loadSettings(path, fallback) {
-        var raw = global.fs.readFileSync(path);
+        var raw = HG.Modules.fs.readFileSync(path);
         fallback = fallback || new HG.Utils.ISettings();
         try  {
             console.log("[Settings] Loaded Settings from JSON.");
@@ -1148,7 +1137,7 @@ var HG;
         } else {
             parsed = JSON.stringify(settings);
         }
-        global.fs.writeFile(path, parsed, function () {
+        HG.Modules.fs.writeFile(path, parsed, function () {
         });
         console.debug("[Settings] Saved settings.");
     }
@@ -1226,21 +1215,21 @@ var HG;
         Utils.hasGL = hasGL;
 
         function resize(resolution) {
-            var whwnd = require('nw.gui').Window.get();
+            var whwnd = HG.Modules.ui.Window.get();
             whwnd.width = resolution.x;
             whwnd.height = resolution.y;
         }
         Utils.resize = resize;
 
         function position(position) {
-            var whwnd = require('nw.gui').Window.get();
+            var whwnd = HG.Modules.ui.Window.get();
             whwnd.x = position.x;
             whwnd.y = position.y;
         }
         Utils.position = position;
 
         function setFullScreenMode(state) {
-            var whwnd = require('nw.gui').Window.get();
+            var whwnd = HG.Modules.ui.Window.get();
             if (state === true) {
                 whwnd.enterFullscreen();
             } else {
@@ -1250,24 +1239,24 @@ var HG;
         Utils.setFullScreenMode = setFullScreenMode;
 
         function reload() {
-            var whwnd = require('nw.gui').Window.get();
+            var whwnd = HG.Modules.ui.Window.get();
             whwnd.reloadIgnoringCache();
         }
         Utils.reload = reload;
 
         function toggleFullScreenMode() {
-            var whwnd = require('nw.gui').Window.get();
+            var whwnd = HG.Modules.ui.Window.get();
             whwnd.toggleFullscreen();
         }
         Utils.toggleFullScreenMode = toggleFullScreenMode;
 
         function openDevConsole() {
-            require('nw.gui').Window.get().showDevTools();
+            HG.Modules.ui.Window.get().showDevTools();
         }
         Utils.openDevConsole = openDevConsole;
 
         function openDevConsoleExternal() {
-            var whwnd = require('nw.gui').Window.get();
+            var whwnd = HG.Modules.ui.Window.get();
             whwnd.showDevTools('', true);
             whwnd.on("devtools-opened", function (url) {
                 console.log(url);
@@ -1482,6 +1471,9 @@ var HG;
 
     function horrible() {
         HG.__START = new Date().getTime();
+        ['socket.io', 'socket.io-client'].forEach(function (module) {
+            HG.Modules[module] = require(module);
+        });
 
         HG.LINQ.initialize();
 
@@ -1662,7 +1654,6 @@ var HG;
                     "preRender",
                     "postRender"
                 ];
-                var moduleLoader = new HG.Utils.ModuleLoader();
                 HG.Settings = HG.loadSettings(settingsPath);
 
                 this.soundMixer = new HG.Sound.Mixer();
@@ -1702,7 +1693,7 @@ var HG;
                 console.debug(data);
 
                 var raw = new Buffer(data.replace("data:" + imageType + ";base64,", ""), 'base64');
-                global.fs.writeFile(path, raw);
+                HG.Modules.fs.writeFile(path, raw);
             };
 
             BaseGame.prototype.load = function () {
@@ -2325,8 +2316,8 @@ var HG;
                 this.baseDirectory = baseDirectory;
             }
             ResourceLoader.prototype.resolvePath = function (path) {
-                var absPath = global.path.join(this.baseDirectory, path);
-                if (global.fs.existsSync(absPath) === true) {
+                var absPath = HG.Modules.path.join(this.baseDirectory, path);
+                if (HG.Modules.fs.existsSync(absPath) === true) {
                     return absPath;
                 } else {
                     return "";
@@ -2334,8 +2325,8 @@ var HG;
             };
 
             ResourceLoader.prototype.load = function (relPath, target, namespace) {
-                var absPath = global.path.join(this.baseDirectory, relPath);
-                var extension = global.path.extname(absPath).toUpperCase().replace(".", "");
+                var absPath = HG.Modules.path.join(this.baseDirectory, relPath);
+                var extension = HG.Modules.path.extname(absPath).toUpperCase().replace(".", "");
                 for (var k in namespace) {
                     if (extension.toUpperCase() === k) {
                         var loader = new namespace[k]();
@@ -2346,7 +2337,7 @@ var HG;
                         return;
                     }
                 }
-                throw new Error("No Loader for Filetype '" + global.path.extname(absPath) + "' available.");
+                throw new Error("No Loader for Filetype '" + HG.Modules.path.extname(absPath) + "' available.");
             };
 
             ResourceLoader.prototype.model = function (path, entitiy) {
@@ -2363,11 +2354,11 @@ var HG;
 
             ResourceLoader.prototype.directory = function (directory) {
                 var _this = this;
-                var path = global.path.join(this.baseDirectory, directory);
-                var files = global.fs.readdirSync(path);
+                var path = HG.Modules.path.join(this.baseDirectory, directory);
+                var files = HG.Modules.fs.readdirSync(path);
                 var realFiles = [];
                 files.forEach(function (file) {
-                    realFiles.push(global.path.join(_this.baseDirectory, directory, file));
+                    realFiles.push(HG.Modules.path.join(_this.baseDirectory, directory, file));
                 });
                 return realFiles;
             };
