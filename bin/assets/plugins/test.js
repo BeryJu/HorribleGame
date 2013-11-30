@@ -3,11 +3,11 @@ module.exports = function(host, env) {
 	this.env = env;
 	this.host = host;
 
-	this.host.hook(this.env.game, "keyDown", function(a) {
+	this.env.game.on("keyDown", function(a) {
 		if (a.keyCode === 32) env.window.console.log("space!!!");
 	});
 
-	this.host.hook(this.env.game, "postRender", function(a) {
+	this.env.game.on("postRender", function(a) {
 
 	});
 };

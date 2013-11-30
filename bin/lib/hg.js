@@ -7,6 +7,8 @@ var HG;
                 this.globalEvents = [];
                 this.events = [];
                 this.bind = this.on;
+                this.addEventListener = this.on;
+                this.emit = this.dispatch;
                 this.events = events || [];
             }
             EventDispatcher.prototype.resolve = function (raw) {
@@ -155,15 +157,6 @@ var HG;
                     var resolved = global.require.resolve("./" + path);
                     delete global.require.cache[resolved];
                 });
-            };
-
-            PluginHost.prototype.hook = function (instance, event, callback) {
-                try  {
-                    var instance = instance;
-                    instance.inject(event, callback);
-                } catch (e) {
-                    console.log("[PluginHost] Tried to inject into event " + event + " from " + instance['constructor']['name']);
-                }
             };
 
             PluginHost.prototype.load = function (path, env) {
@@ -1213,62 +1206,6 @@ var HG;
             return wnd && gl;
         }
         Utils.hasGL = hasGL;
-
-        function resize(resolution) {
-            var whwnd = HG.Modules.ui.Window.get();
-            whwnd.width = resolution.x;
-            whwnd.height = resolution.y;
-        }
-        Utils.resize = resize;
-
-        function position(position) {
-            var whwnd = HG.Modules.ui.Window.get();
-            whwnd.x = position.x;
-            whwnd.y = position.y;
-        }
-        Utils.position = position;
-
-        function setFullScreenMode(state) {
-            var whwnd = HG.Modules.ui.Window.get();
-            if (state === true) {
-                whwnd.enterFullscreen();
-            } else {
-                whwnd.leaveFullscreen();
-            }
-        }
-        Utils.setFullScreenMode = setFullScreenMode;
-
-        function reload() {
-            var whwnd = HG.Modules.ui.Window.get();
-            whwnd.reloadIgnoringCache();
-        }
-        Utils.reload = reload;
-
-        function toggleFullScreenMode() {
-            var whwnd = HG.Modules.ui.Window.get();
-            whwnd.toggleFullscreen();
-        }
-        Utils.toggleFullScreenMode = toggleFullScreenMode;
-
-        function openDevConsole() {
-            HG.Modules.ui.Window.get().showDevTools();
-        }
-        Utils.openDevConsole = openDevConsole;
-
-        function openDevConsoleExternal() {
-            var whwnd = HG.Modules.ui.Window.get();
-            whwnd.showDevTools('', true);
-            whwnd.on("devtools-opened", function (url) {
-                console.log(url);
-                require("openurl").open(url.toString());
-            });
-        }
-        Utils.openDevConsoleExternal = openDevConsoleExternal;
-
-        function isNode() {
-            return (process) ? true : false;
-        }
-        Utils.isNode = isNode;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
@@ -1702,9 +1639,40 @@ var HG;
                 console.timeEnd("HG.loadResources");
             };
 
-            BaseGame.prototype.connect = function (serverHost) {
+            BaseGame.prototype.resize = function (resolution) {
+                var whwnd = HG.Modules.ui.Window.get();
+                whwnd.width = resolution.x;
+                whwnd.height = resolution.y;
             };
 
+            BaseGame.prototype.position = function (position) {
+                var whwnd = HG.Modules.ui.Window.get();
+                whwnd.x = position.x;
+                whwnd.y = position.y;
+            };
+
+            BaseGame.prototype.setFullScreenMode = function (state) {
+                var whwnd = HG.Modules.ui.Window.get();
+                if (state === true) {
+                    whwnd.enterFullscreen();
+                } else {
+                    whwnd.leaveFullscreen();
+                }
+            };
+
+            BaseGame.prototype.reload = function () {
+                var whwnd = HG.Modules.ui.Window.get();
+                whwnd.reloadIgnoringCache();
+            };
+
+            BaseGame.prototype.toggleFullScreenMode = function () {
+                var whwnd = HG.Modules.ui.Window.get();
+                whwnd.toggleFullscreen();
+            };
+
+            BaseGame.prototype.openDevConsole = function () {
+                HG.Modules.ui.Window.get().showDevTools();
+            };
             BaseGame.prototype.start = function () {
                 this.dispatch('start');
                 this._running = true;

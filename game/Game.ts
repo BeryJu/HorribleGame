@@ -103,11 +103,11 @@ game.on('start', () => {
 });
 
 game.controls.keyboard.bind(HG.Settings.Keys.refresh, (delta: number) => {
-	HG.Utils.reload();
+	game.reload();
 });
 
 game.controls.keyboard.bind(HG.Settings.Keys.fullscreen, (delta: number) => {
-	HG.Utils.toggleFullScreenMode();
+	game.toggleFullScreenMode();
 });
 
 game.on(['start', 'resize'], () => {

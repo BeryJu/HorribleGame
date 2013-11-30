@@ -97,11 +97,11 @@ game.on('start', function () {
 });
 
 game.controls.keyboard.bind(HG.Settings.Keys.refresh, function (delta) {
-    HG.Utils.reload();
+    game.reload();
 });
 
 game.controls.keyboard.bind(HG.Settings.Keys.fullscreen, function (delta) {
-    HG.Utils.toggleFullScreenMode();
+    game.toggleFullScreenMode();
 });
 
 game.on(['start', 'resize'], function () {

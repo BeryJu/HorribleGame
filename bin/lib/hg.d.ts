@@ -22,12 +22,24 @@ declare module HG.Core {
             (name: number[], callback?: (...args: any[]) => any): any;
             (name: number, callback?: (...args: any[]) => any): any;
         };
+        public addEventListener: {
+            (name: string[], callback?: (...args: any[]) => any): any;
+            (name: string, callback?: (...args: any[]) => any): any;
+            (name: number[], callback?: (...args: any[]) => any): any;
+            (name: number, callback?: (...args: any[]) => any): any;
+        };
         public inject(name: any, callback: (...args: any[]) => any): any;
         public clear(name: string): any;
         public dispatch(name: string[], ...args: any[]): any;
         public dispatch(name: string, ...args: any[]): any;
         public dispatch(name: number[], ...args: any[]): any;
         public dispatch(name: number, ...args: any[]): any;
+        public emit: {
+            (name: string[], ...args: any[]): any;
+            (name: string, ...args: any[]): any;
+            (name: number[], ...args: any[]): any;
+            (name: number, ...args: any[]): any;
+        };
     }
 }
 declare module HG.Modules {
@@ -44,7 +56,6 @@ declare module HG.Core {
         public game: Core.BaseGame;
         constructor(instance: Core.BaseGame);
         public doReload(): void;
-        public hook(instance: any, event: any, callback: (...args: any[]) => any): void;
         public load(path: string[], env?: {}): void;
     }
 }
@@ -172,14 +183,6 @@ declare module HG.Utils {
     function bootstrap(gInstance: HG.Core.BaseGame, wnd: Window): void;
     function profile(fn: () => any): void;
     function hasGL(): boolean;
-    function resize(resolution: THREE.Vector2): void;
-    function position(position: THREE.Vector2): void;
-    function setFullScreenMode(state: boolean): void;
-    function reload(): void;
-    function toggleFullScreenMode(): void;
-    function openDevConsole(): void;
-    function openDevConsoleExternal(): void;
-    function isNode(): boolean;
 }
 declare module HG.Entities {
     class BaseEntity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
@@ -279,7 +282,12 @@ declare module HG.Core {
         public scene(scene: HG.Scenes.BaseScene): void;
         public screenshot(path: string, imageType?: string): void;
         public load(): void;
-        public connect(serverHost: string): void;
+        public resize(resolution: THREE.Vector2): void;
+        public position(position: THREE.Vector2): void;
+        public setFullScreenMode(state: boolean): void;
+        public reload(): void;
+        public toggleFullScreenMode(): void;
+        public openDevConsole(): void;
         public start(): void;
         public onKeyUp(e: KeyboardEvent): void;
         public onKeyDown(e: KeyboardEvent): void;

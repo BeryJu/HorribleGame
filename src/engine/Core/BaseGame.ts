@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 02:03:14
+* @Last Modified time: 2013-11-30 02:36:20
 */
 
 module HG.Core {
@@ -77,14 +77,40 @@ module HG.Core {
 			console.timeEnd("HG.loadResources");
 		}
 
-		connect(serverHost: string): void {
-			// this.socketClient = global['socket.io-client'].connect(serverHost);
-			// this.socketClient.on('news', (data) => {
-			// 	console.log(data);
-			// });
-			// this.dispatch("connected", serverHost);
+		resize(resolution: THREE.Vector2): void {
+			var whwnd = HG.Modules.ui.Window.get();
+			whwnd.width = resolution.x;
+			whwnd.height = resolution.y;
 		}
 
+		position(position: THREE.Vector2): void {
+			var whwnd = HG.Modules.ui.Window.get();
+			whwnd.x = position.x;
+			whwnd.y = position.y;
+		}
+
+		setFullScreenMode(state: boolean): void {
+			var whwnd = HG.Modules.ui.Window.get();
+			if (state === true) {
+				whwnd.enterFullscreen();
+			} else {
+				whwnd.leaveFullscreen();
+			}
+		}
+
+		reload(): void {
+			var whwnd = HG.Modules.ui.Window.get();
+			whwnd.reloadIgnoringCache();
+		}
+
+		toggleFullScreenMode(): void {
+			var whwnd = HG.Modules.ui.Window.get();
+			whwnd.toggleFullscreen();
+		}
+
+		openDevConsole(): void {
+			HG.Modules.ui.Window.get().showDevTools();
+		}
 		start(): void {
 			this.dispatch('start');
 			this._running = true;

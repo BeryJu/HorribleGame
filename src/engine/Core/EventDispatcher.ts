@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 20:58:42
+* @Last Modified time: 2013-11-30 02:27:02
 */
 
 module HG.Core {
@@ -75,6 +75,7 @@ module HG.Core {
 		}
 
 		bind = this.on;
+		addEventListener = this.on;
 
 		inject(name: any, callback: (...args: any[]) => any): any {
 			if (Array.isArray(name) === true) {
@@ -126,6 +127,8 @@ module HG.Core {
 				return this;
 			}
 		}
+
+		emit = this.dispatch;
 
 	}
 

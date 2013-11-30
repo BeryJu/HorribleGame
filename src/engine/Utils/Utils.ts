@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 02:07:54
+* @Last Modified time: 2013-11-30 02:36:03
 */
 
 module HG.Utils {
@@ -51,54 +51,6 @@ module HG.Utils {
 		if (wnd === false) return false;
 		var gl = (window['WebGLRenderingContext']) ? true : false;
 		return wnd && gl;
-	}
-
-	export function resize(resolution: THREE.Vector2): void {
-		var whwnd = HG.Modules.ui.Window.get();
-		whwnd.width = resolution.x;
-		whwnd.height = resolution.y;
-	}
-
-	export function position(position: THREE.Vector2): void {
-		var whwnd = HG.Modules.ui.Window.get();
-		whwnd.x = position.x;
-		whwnd.y = position.y;
-	}
-
-	export function setFullScreenMode(state: boolean): void {
-		var whwnd = HG.Modules.ui.Window.get();
-		if (state === true) {
-			whwnd.enterFullscreen();
-		} else {
-			whwnd.leaveFullscreen();
-		}
-	}
-
-	export function reload(): void {
-		var whwnd = HG.Modules.ui.Window.get();
-		whwnd.reloadIgnoringCache();
-	}
-
-	export function toggleFullScreenMode(): void {
-		var whwnd = HG.Modules.ui.Window.get();
-		whwnd.toggleFullscreen();
-	}
-
-	export function openDevConsole(): void {
-		HG.Modules.ui.Window.get().showDevTools();
-	}
-
-	export function openDevConsoleExternal(): void {
-		var whwnd = HG.Modules.ui.Window.get();
-		whwnd.showDevTools('', true);
-		whwnd.on("devtools-opened", function (url) {
-			console.log(url);
-			require("openurl").open(url.toString());
-		});
-	}
-
-	export function isNode(): boolean {
-		return (process) ? true : false;
 	}
 
 }
