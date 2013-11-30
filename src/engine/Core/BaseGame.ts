@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 02:36:20
+* @Last Modified time: 2013-11-30 19:07:01
 */
 
 module HG.Core {
@@ -66,7 +66,7 @@ module HG.Core {
 		screenshot(path: string, imageType: string = "image/png"): void {
 			var data = this.renderer.domElement.toDataURL(imageType);
 			console.debug(data);
-			//data:image/png;base64
+			// data:image/png;base64
 			var raw = new Buffer(data.replace("data:"+imageType+";base64,", ""), 'base64');
 			HG.Modules.fs.writeFile(path, raw);
 		}

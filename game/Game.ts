@@ -16,13 +16,13 @@ game.on('load', () => {
 	// var particles = new HG.Entities.ParticleEntity("assets/textures/particle.png");
 	// scene.add(particles, "particles");
 
-	// //create a skybox for demo purposes
-	// var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/",
-	// 			HG.Settings.viewDistance * 1.75);
-	// //add moving ability so it's fixed to the camera
-	// skyBox.ability(new HG.Abilities.MovingAbility());
-	// //add it to the scene
-	// scene.add(skyBox, "skyBox");
+	// create a skybox for demo purposes
+	// var skyBox = new HG.Entities.SkyBoxEntity(HG.Settings.viewDistance * 2);
+	// loader.directory("textures/skybox").forEach((tex) => {
+	// 	skyBox
+	// });
+	// add it to the scene
+	// mainScene.add(skyBox, "skyBox");
 
 	var player = new HG.Entities.MeshEntity();
 

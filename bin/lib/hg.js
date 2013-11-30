@@ -21,15 +21,16 @@ var HG;
                 return result;
             };
 
-            EventDispatcher.prototype.onAll = function (callback) {
-                this.globalEvents.push(callback);
+            EventDispatcher.prototype.onAll = function (eventHandler) {
+                this.globalEvents.push(eventHandler);
+                return this;
             };
 
-            EventDispatcher.prototype.on = function (name, callback) {
+            EventDispatcher.prototype.on = function (name, eventHandler) {
                 var _this = this;
                 if (Array.isArray(name) === true) {
                     name.forEach(function (n) {
-                        _this.on(n, callback);
+                        _this.on(n, eventHandler);
                     });
                 } else {
                     var type = this['constructor']['name'];
@@ -38,31 +39,31 @@ var HG;
                     if (this.events.indexOf(resolved) === -1) {
                         console.warn("[" + type + "] Event '" + name + "' not available, still added though");
                     } else {
-                        console.log("[" + type + "] Added EventHandler for '" + name + "'");
+                        HG.log("[" + type + "] Added EventHandler for '" + name + "'");
                     }
 
                     if (!this._events[resolved]) {
                         this._events[resolved] = [];
                     }
 
-                    if (!callback) {
+                    if (!eventHandler) {
                         if (this[resolved] && typeof (this[resolved]) === 'function') {
-                            callback = this[resolved];
+                            eventHandler = this[resolved];
                         } else {
                             throw new Error("Can't add empty event Handler");
                         }
                     }
 
-                    this._events[resolved].push(callback);
+                    this._events[resolved].push(eventHandler);
                     return this;
                 }
             };
 
-            EventDispatcher.prototype.inject = function (name, callback) {
+            EventDispatcher.prototype.inject = function (name, eventHandler) {
                 var _this = this;
                 if (Array.isArray(name) === true) {
                     name.forEach(function (n) {
-                        _this.inject(n, callback);
+                        _this.inject(n, eventHandler);
                     });
                 } else {
                     var type = this['constructor']['name'];
@@ -71,9 +72,9 @@ var HG;
                     if (!this._events[resolved]) {
                         this._events[resolved] = [];
                     }
-                    console.log("[" + type + "] Injected EventHandler for '" + name + "'");
+                    HG.log("[" + type + "] Injected EventHandler for '" + name + "'");
 
-                    this._events[resolved].splice(0, 0, callback);
+                    this._events[resolved].splice(0, 0, eventHandler);
                     return this;
                 }
             };
@@ -130,7 +131,11 @@ var HG;
         Modules.fs = require('fs');
         Modules.path = require('path');
         Modules.http = require('http');
-        Modules.ui = require('nw.gui');
+        Modules.ui;
+        Modules.socketio = {
+            server: require('socket.io'),
+            client: require('socket.io-client')
+        };
     })(HG.Modules || (HG.Modules = {}));
     var Modules = HG.Modules;
 })(HG || (HG = {}));
@@ -172,11 +177,11 @@ var HG;
                     try  {
                         var plugin = require("./" + file);
                         var instance = new plugin(_this, env);
-                        console.log("[PluginHost] Loaded " + instance.name + "Plugin");
+                        HG.log("[PluginHost] Loaded " + instance.name + "Plugin");
                         _this.plugins.push(instance);
                         _this.paths.push(file);
                     } catch (e) {
-                        console.log("[PluginHost] Failed to load Plugin " + file + " because " + e);
+                        HG.log("[PluginHost] Failed to load Plugin " + file + " because " + e);
                     }
                 });
             };
@@ -402,25 +407,25 @@ var HG;
                 var jj = j % 256;
 
                 var t0 = 0.5 - x0 * x0 - y0 * y0;
-                if (t0 < 0.0)
+                if (t0 < 0.0) {
                     n0 = 0.0;
-else {
+                } else {
                     t0 *= t0;
                     n0 = t0 * t0 * Noise.grad2(Noise.perm[ii + Noise.perm[jj]], x0, y0);
                 }
 
                 var t1 = 0.5 - x1 * x1 - y1 * y1;
-                if (t1 < 0.0)
+                if (t1 < 0.0) {
                     n1 = 0.0;
-else {
+                } else {
                     t1 *= t1;
                     n1 = t1 * t1 * Noise.grad2(Noise.perm[ii + i1 + Noise.perm[jj + j1]], x1, y1);
                 }
 
                 var t2 = 0.5 - x2 * x2 - y2 * y2;
-                if (t2 < 0.0)
+                if (t2 < 0.0) {
                     n2 = 0.0;
-else {
+                } else {
                     t2 *= t2;
                     n2 = t2 * t2 * Noise.grad2(Noise.perm[ii + 1 + Noise.perm[jj + 1]], x2, y2);
                 }
@@ -1112,10 +1117,10 @@ var HG;
         var raw = HG.Modules.fs.readFileSync(path);
         fallback = fallback || new HG.Utils.ISettings();
         try  {
-            console.log("[Settings] Loaded Settings from JSON.");
+            HG.log("[Settings] Loaded Settings from JSON.");
             return JSON.parse(raw);
         } catch (e) {
-            console.log("[Settings] Failed to load settings, used fallback.");
+            HG.log("[Settings] Failed to load settings, used fallback.");
             return fallback || new HG.Utils.ISettings();
         }
         return new HG.Utils.ISettings();
@@ -1404,18 +1409,37 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    HG.__START = 0;
+    HG.__start = 0;
+    HG.__gl = false;
+    HG.__options = {
+        silent: false
+    };
 
-    function horrible() {
-        HG.__START = new Date().getTime();
-        ['socket.io', 'socket.io-client'].forEach(function (module) {
-            HG.Modules[module] = require(module);
-        });
+    function log() {
+        var data = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            data[_i] = arguments[_i + 0];
+        }
+        var time = (new Date().getTime() - HG.__start).toString();
+        var output = "[" + time + "] " + data.join("");
+        if (HG.__options.silent === false) {
+            console.log(output);
+        }
+        return output;
+    }
+    HG.log = log;
+
+    function horrible(options) {
+        HG.__start = new Date().getTime();
+        HG.__options = options;
+        try  {
+            HG.Modules.ui = require('nw.gui');
+        } catch (e) {
+        }
 
         HG.LINQ.initialize();
 
-        if (HG.Utils.hasGL() === false)
-            console.warn(new Error("Runtime or Graphiscard doesn't support GL"));
+        HG.__gl = HG.Utils.hasGL();
 
         if (typeof window !== "undefined") {
             window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
@@ -1742,11 +1766,11 @@ var HG;
             __extends(BaseServer, _super);
             function BaseServer(port) {
                 _super.call(this);
-                this.socketServer = global['socket.io'].listen(port);
+                this.socketServer = HG.Modules.socketio.server.listen(port);
                 this.socketServer.set("log level", 1);
                 this.socketServer.sockets.on('connection', function (socket) {
                     socket.on('my other event', function (data) {
-                        console.log(data);
+                        HG.log(data);
                     });
                 });
             }
@@ -1767,7 +1791,7 @@ var HG;
                 this.keyboard = new HG.Core.EventDispatcher();
                 this._mouse = new THREE.Vector2();
                 for (var k in HG.Utils.KeyMap) {
-                    this.keyboard.events.push(HG.Utils.KeyMap[k]);
+                    this.keyboard.events.push(HG.Utils.KeyMap[k.toString()]);
                 }
             }
             Object.defineProperty(InputHandler.prototype, "mousePosition", {
@@ -1943,7 +1967,7 @@ var HG;
 
             FirstPersonCameraEntity.prototype.frame = function (delta) {
                 var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
-                console.log(typeof cameraOffset);
+                HG.log(typeof cameraOffset);
                 this.object.position.x = cameraOffset.x;
                 this.object.position.y = cameraOffset.y;
                 this.object.position.z = cameraOffset.z;
@@ -2095,10 +2119,11 @@ var HG;
             };
 
             ArrayProvider.prototype.registerFunction = function (key, fn) {
+                var _this = this;
                 Array.prototype[key] = function () {
                     var args = Array.prototype.slice.call(arguments);
-                    args.splice(0, 0, this);
-                    return fn.apply(this, args);
+                    args.splice(0, 0, _this);
+                    return fn.apply(_this, args);
                 };
             };
 
@@ -2123,7 +2148,7 @@ var HG;
                 if (m.toString() !== "initialize") {
                     var provider = new HG.LINQ[m]();
                     provider.provide();
-                    console.log("[LINQ] Provided " + m);
+                    HG.log("[LINQ] Provided " + m);
                 }
             }
         }
@@ -2146,10 +2171,11 @@ var HG;
             };
 
             NumberProvider.prototype.registerFunction = function (key, fn) {
+                var _this = this;
                 Number.prototype[key] = function () {
                     var args = Array.prototype.slice.call(arguments);
-                    args.splice(0, 0, this);
-                    return fn.apply(this, args);
+                    args.splice(0, 0, _this);
+                    return fn.apply(_this, args);
                 };
             };
 
@@ -2180,16 +2206,26 @@ var HG;
                 return "";
             };
 
+            StringProvider.prototype.lengthen = function (context, length, filler) {
+                filler = filler || "";
+                var appendix = "";
+                for (var i = 0; i < length - context.length; i++) {
+                    appendix += filler;
+                }
+                return (context + appendix).toString();
+            };
+
             StringProvider.prototype.replaceAll = function (context, find, replace) {
                 find.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
                 return context.replace(new RegExp(find, 'g'), replace);
             };
 
             StringProvider.prototype.registerFunction = function (key, fn) {
+                var _this = this;
                 String.prototype[key] = function () {
                     var args = Array.prototype.slice.call(arguments);
-                    args.splice(0, 0, this);
-                    return fn.apply(this, args);
+                    args.splice(0, 0, _this);
+                    return fn.apply(_this, args);
                 };
             };
 
@@ -2398,8 +2434,7 @@ var HG;
         var Channel = (function (_super) {
             __extends(Channel, _super);
             function Channel(name) {
-                _super.call(this);
-                this.events = ['volumeChange'];
+                _super.call(this, ['volumeChange']);
                 this.name = name;
             }
             Object.defineProperty(Channel.prototype, "gain", {

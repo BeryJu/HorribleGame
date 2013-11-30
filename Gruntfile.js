@@ -4,6 +4,13 @@ var hgPaths = [
 	"src/engine/**/**/*.ts"
 ];
 
+var sourceRules = [
+	// Replaces '//a' with '// a'
+	{ match: new RegExp('//([a-bA-Z]{1})'), replace: "// $&" },
+	// Replaces '){' with ') {'
+	{ match: new RegExp('\\)\{'), replace: ") {" }
+];
+
 var hgRef = "src/engine/HG.ref.ts";
 
 var libs = [
@@ -28,6 +35,16 @@ var fs = require("fs");
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		format: {
+			hg: {
+				src: hgPaths,
+				rules: sourceRules
+			},
+			game: {
+				src: gamePaths,
+				rules: sourceRules
+			}
+		},
 		ts: {
 			hg: {
 				src: libs.concat(hgPaths),
@@ -73,15 +90,16 @@ module.exports = function(grunt) {
 	});
 
 	grunt.loadNpmTasks("grunt-ts");
+	grunt.loadNpmTasks('grunt-format');
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
 	grunt.loadNpmTasks('grunt-contrib-compress');
 
-	grunt.registerTask("game", ["ts:game"]);
-	grunt.registerTask("hg", ["ts:hg"]);
+	grunt.registerTask("game", ["format", "ts:game"]);
+	grunt.registerTask("hg", ["format:hg", "ts:hg"]);
 
-	grunt.registerTask("build", ["ts"]);
+	grunt.registerTask("build", ["format", "ts"]);
 	grunt.registerTask("test", ["nodeunit"]);
 
-	grunt.registerTask("default", ["ts:hg", "nodeunit"]);
-	grunt.registerTask("all", ["ts", "nodeunit", "compress"]);
+	grunt.registerTask("default", ["format", "ts:hg", "nodeunit"]);
+	grunt.registerTask("all", ["format", "ts", "nodeunit", "compress"]);
 };

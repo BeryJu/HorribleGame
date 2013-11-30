@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 20:58:52
+* @Last Modified time: 2013-11-30 13:27:57
 */
 
 module HG.Core {
@@ -25,7 +25,7 @@ module HG.Core {
 			this.keyboard = new HG.Core.EventDispatcher();
 			this._mouse = new THREE.Vector2();
 			for (var k in HG.Utils.KeyMap) {
-				this.keyboard.events.push(HG.Utils.KeyMap[k]);
+				this.keyboard.events.push(HG.Utils.KeyMap[k.toString()]);
 			}
 		}
 

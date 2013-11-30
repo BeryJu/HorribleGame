@@ -4,6 +4,7 @@
 /// <reference path="../../src/lib/socket.io.d.ts" />
 /// <reference path="../../src/lib/three.d.ts" />
 /// <reference path="../../src/lib/waa.d.ts" />
+/// <reference path="../../src/lib/LINQ.d.ts" />
 declare module HG.Core {
     class EventDispatcher {
         private _events;
@@ -11,34 +12,34 @@ declare module HG.Core {
         public events: string[];
         constructor(events?: string[]);
         public resolve(raw: any): string;
-        public onAll(callback: (...args: any[]) => any): any;
-        public on(name: string[], callback?: (...args: any[]) => any): any;
-        public on(name: string, callback?: (...args: any[]) => any): any;
-        public on(name: number[], callback?: (...args: any[]) => any): any;
-        public on(name: number, callback?: (...args: any[]) => any): any;
+        public onAll(eventHandler: (...args: any[]) => any): EventDispatcher;
+        public on(name: string[], eventHandler?: (...args: any[]) => any): EventDispatcher;
+        public on(name: string, eventHandler?: (...args: any[]) => any): EventDispatcher;
+        public on(name: number[], eventHandler?: (...args: any[]) => any): EventDispatcher;
+        public on(name: number, eventHandler?: (...args: any[]) => any): EventDispatcher;
         public bind: {
-            (name: string[], callback?: (...args: any[]) => any): any;
-            (name: string, callback?: (...args: any[]) => any): any;
-            (name: number[], callback?: (...args: any[]) => any): any;
-            (name: number, callback?: (...args: any[]) => any): any;
+            (name: string[], eventHandler?: (...args: any[]) => any): EventDispatcher;
+            (name: string, eventHandler?: (...args: any[]) => any): EventDispatcher;
+            (name: number[], eventHandler?: (...args: any[]) => any): EventDispatcher;
+            (name: number, eventHandler?: (...args: any[]) => any): EventDispatcher;
         };
         public addEventListener: {
-            (name: string[], callback?: (...args: any[]) => any): any;
-            (name: string, callback?: (...args: any[]) => any): any;
-            (name: number[], callback?: (...args: any[]) => any): any;
-            (name: number, callback?: (...args: any[]) => any): any;
+            (name: string[], eventHandler?: (...args: any[]) => any): EventDispatcher;
+            (name: string, eventHandler?: (...args: any[]) => any): EventDispatcher;
+            (name: number[], eventHandler?: (...args: any[]) => any): EventDispatcher;
+            (name: number, eventHandler?: (...args: any[]) => any): EventDispatcher;
         };
-        public inject(name: any, callback: (...args: any[]) => any): any;
-        public clear(name: string): any;
-        public dispatch(name: string[], ...args: any[]): any;
-        public dispatch(name: string, ...args: any[]): any;
-        public dispatch(name: number[], ...args: any[]): any;
-        public dispatch(name: number, ...args: any[]): any;
+        public inject(name: any, eventHandler: (...args: any[]) => any): EventDispatcher;
+        public clear(name: string): EventDispatcher;
+        public dispatch(name: string[], ...args: any[]): EventDispatcher;
+        public dispatch(name: string, ...args: any[]): EventDispatcher;
+        public dispatch(name: number[], ...args: any[]): EventDispatcher;
+        public dispatch(name: number, ...args: any[]): EventDispatcher;
         public emit: {
-            (name: string[], ...args: any[]): any;
-            (name: string, ...args: any[]): any;
-            (name: number[], ...args: any[]): any;
-            (name: number, ...args: any[]): any;
+            (name: string[], ...args: any[]): EventDispatcher;
+            (name: string, ...args: any[]): EventDispatcher;
+            (name: number[], ...args: any[]): EventDispatcher;
+            (name: number, ...args: any[]): EventDispatcher;
         };
     }
 }
@@ -47,6 +48,10 @@ declare module HG.Modules {
     var path;
     var http;
     var ui;
+    var socketio: {
+        server: any;
+        client: any;
+    };
 }
 declare module HG.Core {
     class PluginHost extends Core.EventDispatcher {
@@ -230,8 +235,16 @@ declare module HG.Scenes {
     }
 }
 declare module HG {
-    var __START: number;
-    function horrible(): any;
+    var __start: number;
+    var __gl: boolean;
+    var __options: Utils.IOptions;
+    module Utils {
+        interface IOptions {
+            silent: boolean;
+        }
+    }
+    function log(...data: any[]): string;
+    function horrible(options: Utils.IOptions): any;
 }
 declare module HG.Abilities {
     class AnimationAbility extends Abilities.BaseAbility {
@@ -414,6 +427,7 @@ declare module HG.LINQ {
 declare module HG.LINQ {
     class StringProvider implements LINQ.IProvider {
         public f(context: string, ...args: any[]): string;
+        public lengthen(context: string, length: number, filler?: string): string;
         public replaceAll(context: string, find: string, replace: string): string;
         public registerFunction(key: string, fn: (...args: any[]) => any): void;
         public provide(): void;
@@ -460,7 +474,6 @@ declare module HG.Sound {
         public name: string;
         public rootContext: AudioContext;
         public gainNode: GainNode;
-        public events: string[];
         public gain : number;
         constructor(name: string);
         public volume(gain: number): void;

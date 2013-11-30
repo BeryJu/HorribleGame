@@ -1,0 +1,1 @@
+"/srvroot/projects/HorribleGame/src/engine/HG.ref.ts" --sourcemap --declaration --removeComments --target ES5 --module commonjs --out bin/lib/hg.js

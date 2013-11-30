@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:44:42
+* @Last Modified time: 2013-11-30 12:11:50
 */
 
 module HG.Utils {
@@ -78,22 +78,25 @@ module HG.Utils {
 
 			// Calculate the contribution from the three corners
 			var t0 = 0.5 - x0*x0-y0*y0;
-			if(t0 < 0.0) n0 = 0.0;
-			else {
+			if (t0 < 0.0) {
+				n0 = 0.0;
+			} else {
 				t0 *= t0;
 				n0 = t0 * t0 * Noise.grad2(Noise.perm[ii+Noise.perm[jj]], x0, y0);
 			}
 
 			var t1 = 0.5 - x1*x1-y1*y1;
-			if(t1 < 0.0) n1 = 0.0;
-			else {
+			if (t1 < 0.0) {
+				n1 = 0.0;
+			} else {
 				t1 *= t1;
 				n1 = t1 * t1 * Noise.grad2(Noise.perm[ii+i1+Noise.perm[jj+j1]], x1, y1);
 			}
 
 			var t2 = 0.5 - x2*x2-y2*y2;
-			if(t2 < 0.0) n2 = 0.0;
-			else {
+			if (t2 < 0.0) {
+				n2 = 0.0;
+			} else {
 				t2 *= t2;
 				n2 = t2 * t2 * Noise.grad2(Noise.perm[ii+1+Noise.perm[jj+1]], x2, y2);
 			}

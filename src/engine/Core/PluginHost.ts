@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 02:29:32
+* @Last Modified time: 2013-11-30 21:56:59
 */
 
 module HG.Core {
@@ -39,11 +39,11 @@ module HG.Core {
 				try {
 					var plugin = <HG.Core.IPlugin> require("./"+file);
 					var instance = new plugin(this, env);
-					console.log("[PluginHost] Loaded "+instance.name+"Plugin");
+					HG.log("[PluginHost] Loaded "+instance.name+"Plugin");
 					this.plugins.push(instance);
 					this.paths.push(file);
 				} catch (e) {
-					console.log("[PluginHost] Failed to load Plugin "+file+" because "+e);
+					HG.log("[PluginHost] Failed to load Plugin "+file+" because "+e);
 				}
 			});
 		}

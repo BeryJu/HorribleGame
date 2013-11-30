@@ -25,7 +25,7 @@
 
 /// All the rest
 /// This is auto generated
-//grunt-start
+// grunt-start
 /// <reference path="../lib/lib.d.ts" />
 /// <reference path="../lib/node.d.ts" />
 /// <reference path="../lib/physijs.d.ts" />
@@ -66,4 +66,7 @@
 /// <reference path="Sound/Channel.ts" />
 /// <reference path="Sound/Effect.ts" />
 /// <reference path="Sound/Mixer.ts" />
+// grunt-end
+//grunt-start
+/// <reference path="../lib/LINQ.d.ts" />
 //grunt-end

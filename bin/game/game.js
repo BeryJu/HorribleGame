@@ -3,8 +3,6 @@ var game = new HG.Core.BaseGame(document.getElementById("gameWrapper"), "setting
 var mainScene = new HG.Scenes.BaseScene();
 var loader = new HG.Resource.ResourceLoader("assets/");
 
-// var srv = new HG.BaseServer(9898);
-// game.pluginHost.load(loader.directory("plugins"));
 game.on('load', function () {
     game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
@@ -12,15 +10,6 @@ game.on('load', function () {
     playerLight.offset(0, 150, 0).position(0, 0, 0);
     mainScene.add(playerLight, "playerLight");
 
-    // var particles = new HG.Entities.ParticleEntity("assets/textures/particle.png");
-    // scene.add(particles, "particles");
-    // //create a skybox for demo purposes
-    // var skyBox = new HG.Entities.SkyBoxEntity("app://hg/assets/textures/skybox/",
-    // 			HG.Settings.viewDistance * 1.75);
-    // //add moving ability so it's fixed to the camera
-    // skyBox.ability(new HG.Abilities.MovingAbility());
-    // //add it to the scene
-    // scene.add(skyBox, "skyBox");
     var player = new HG.Entities.MeshEntity();
 
     var playerMove = new HG.Abilities.MovingAbility();

@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 01:58:03
+* @Last Modified time: 2013-11-30 19:06:56
 */
 
 module HG.Utils {
@@ -37,10 +37,10 @@ module HG.Utils {
 		frame(delta: number): void {
 			var Now = new Date();
 			var Diff = new Date(Now.getTime() - this.lastFrameTime);
-			//FrameTime
+			// FrameTime
 			this._frameTime = Diff.getTime();
 			this.lastFrameTime = Now.getTime();
-			//FPS
+			// FPS
 			var FPSDiff = new Date(Now.getTime() - this.lastSecond);
 			if (FPSDiff.getSeconds() > 0) {
 				this._fps = this.currentFrames;
