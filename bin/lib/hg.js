@@ -37,7 +37,7 @@ var HG;
                     var resolved = this.resolve(name);
 
                     if (this.events.indexOf(resolved) === -1) {
-                        console.warn("[" + type + "] Event '" + name + "' not available, still added though");
+                        HG.log("[" + type + "] Event '" + name + "' not available, still added though");
                     } else {
                         HG.log("[" + type + "] Added EventHandler for '" + name + "'");
                     }
@@ -1415,6 +1415,20 @@ var HG;
         silent: false
     };
 
+    function warn() {
+        var data = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            data[_i] = arguments[_i + 0];
+        }
+        var time = (new Date().getTime() - HG.__start).toString();
+        var output = "[" + time + "] " + data.join("");
+        if (HG.__options.silent === false) {
+            console.warn(output);
+        }
+        return output;
+    }
+    HG.warn = warn;
+
     function log() {
         var data = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -1431,7 +1445,8 @@ var HG;
 
     function horrible(options) {
         HG.__start = new Date().getTime();
-        HG.__options = options;
+        if (options)
+            HG.__options = options;
         try  {
             HG.Modules.ui = require('nw.gui');
         } catch (e) {

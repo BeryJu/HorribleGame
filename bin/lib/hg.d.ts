@@ -243,8 +243,9 @@ declare module HG {
             silent: boolean;
         }
     }
+    function warn(...data: any[]): string;
     function log(...data: any[]): string;
-    function horrible(options: Utils.IOptions): any;
+    function horrible(options?: Utils.IOptions): any;
 }
 declare module HG.Abilities {
     class AnimationAbility extends Abilities.BaseAbility {

@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 21:20:56
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 22:23:28
+* @Last Modified time: 2013-11-30 22:28:32
 */
 
 module HG {
@@ -22,6 +22,15 @@ module HG {
 
 	}
 
+	export function warn(...data: any[]): string {
+		var time = (new Date().getTime() - HG.__start).toString();//.lengthen(6);
+		var output = "["+time+"] "+data.join("");
+		if (HG.__options.silent === false) {
+			console.warn(output);
+		}
+		return output;
+	}
+
 	export function log(...data: any[]): string {
 		var time = (new Date().getTime() - HG.__start).toString();//.lengthen(6);
 		var output = "["+time+"] "+data.join("");
@@ -31,9 +40,9 @@ module HG {
 		return output;
 	}
 
-	export function horrible(options: HG.Utils.IOptions): any {
+	export function horrible(options?: HG.Utils.IOptions): any {
 		HG.__start = new Date().getTime();
-		HG.__options = options;
+		if (options) HG.__options = options;
 		try {
 			HG.Modules.ui = require('nw.gui');
 		} catch (e) {}

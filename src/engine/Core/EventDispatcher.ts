@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 21:56:59
+* @Last Modified time: 2013-11-30 22:26:56
 */
 
 module HG.Core {
@@ -52,7 +52,7 @@ module HG.Core {
 				var resolved = this.resolve(name);
 				// if not in .events, warn; else just log
 				if (this.events.indexOf(resolved) === -1) {
-					console.warn("["+type+"] Event '"+name+"' not available, still added though");
+					HG.log("["+type+"] Event '"+name+"' not available, still added though");
 				} else {
 					HG.log("["+type+"] Added EventHandler for '"+name+"'");
 				}
