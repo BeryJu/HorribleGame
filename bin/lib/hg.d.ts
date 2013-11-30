@@ -6,15 +6,22 @@
 /// <reference path="../../src/lib/waa.d.ts" />
 declare module HG.Core {
     class EventDispatcher {
-        private events;
+        private _events;
         private globalEvents;
-        public eventsAvailable: string[];
+        public events: string[];
+        constructor(events?: string[]);
         public resolve(raw: any): string;
         public onAll(callback: (...args: any[]) => any): any;
         public on(name: string[], callback?: (...args: any[]) => any): any;
         public on(name: string, callback?: (...args: any[]) => any): any;
         public on(name: number[], callback?: (...args: any[]) => any): any;
         public on(name: number, callback?: (...args: any[]) => any): any;
+        public bind: {
+            (name: string[], callback?: (...args: any[]) => any): any;
+            (name: string, callback?: (...args: any[]) => any): any;
+            (name: number[], callback?: (...args: any[]) => any): any;
+            (name: number, callback?: (...args: any[]) => any): any;
+        };
         public inject(name: any, callback: (...args: any[]) => any): any;
         public clear(name: string): any;
         public dispatch(name: string[], ...args: any[]): any;
@@ -25,7 +32,7 @@ declare module HG.Core {
 }
 declare module HG.Core {
     class PluginHost extends Core.EventDispatcher {
-        public eventsAvailable: string[];
+        public events: string[];
         public plugins: Core.IPlugin[];
         public paths: string[];
         public game: Core.BaseGame;
@@ -79,16 +86,16 @@ declare module HG.Utils {
             };
         };
         public Keys: {
-            forward: string[];
-            backward: string[];
-            left: string[];
-            right: string[];
-            pause: string[];
-            lower: string[];
-            jump: string[];
-            devConsole: string[];
-            refresh: string[];
-            fullscreen: string[];
+            forward: number[];
+            backward: number[];
+            left: number[];
+            right: number[];
+            pause: number[];
+            lower: number[];
+            jump: number[];
+            devConsole: number[];
+            refresh: number[];
+            fullscreen: number[];
         };
     }
 }
@@ -109,22 +116,22 @@ declare module HG.Utils {
 }
 declare module HG.Utils {
     var KeyMap: {
-        D: string;
-        A: string;
-        S: string;
-        W: string;
-        Q: string;
-        E: string;
-        Left: string;
-        Right: string;
-        Top: string;
-        Shift: string;
-        Bottom: string;
-        Space: string;
-        Esc: string;
-        F5: string;
-        F11: string;
-        F12: string;
+        D: number;
+        A: number;
+        S: number;
+        W: number;
+        Q: number;
+        E: number;
+        Left: number;
+        Right: number;
+        Top: number;
+        Shift: number;
+        Bottom: number;
+        Space: number;
+        Esc: number;
+        F5: number;
+        F11: number;
+        F12: number;
     };
 }
 declare module HG.Utils {
@@ -175,7 +182,7 @@ declare module HG.Utils {
     function isNode(): boolean;
 }
 declare module HG.Entities {
-    class BaseEntity extends HG.Core.EventDispatcher {
+    class BaseEntity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
         public abilities: HG.Abilities.BaseAbility[];
         public object: THREE.Object3D;
         public positionOffset: THREE.Vector3;
@@ -183,6 +190,7 @@ declare module HG.Entities {
         public ability(a: HG.Abilities.BaseAbility): boolean;
         public forAbilities(callback: (a: HG.Abilities.BaseAbility) => void): void;
         public offset(x: number, y: number, z: number): BaseEntity;
+        public load(data: {}): void;
         public scale(x: number, y: number, z: number): BaseEntity;
         public position(x: number, y: number, z: number): BaseEntity;
         public rotate(x: number, y: number, z: number): BaseEntity;
@@ -231,7 +239,7 @@ declare module HG.Abilities {
         public interpolation: number;
         public lastKeyframe: number;
         public currentKeyframe: number;
-        public eventsAvailable: string[];
+        public events: string[];
         public setHost(entity: HG.Entities.BaseEntity): void;
         public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
         public load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void;
@@ -258,22 +266,21 @@ declare module HG.Core {
     class BaseGame extends Core.EventDispatcher {
         public renderer: THREE.WebGLRenderer;
         public camera: HG.Entities.CameraEntity;
-        public isRunning: boolean;
         public soundMixer: HG.Sound.Mixer;
         public currentScene: HG.Scenes.BaseScene;
         public pluginHost: Core.PluginHost;
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
-        public shaders: Core.Shader[];
-        public eventsAvailable: string[];
+        public _running: boolean;
+        public _title: string;
+        public events: string[];
         constructor(container: HTMLElement, settingsPath: string);
+        public title : any[];
+        public scene(scene: HG.Scenes.BaseScene): void;
         public screenshot(path: string, imageType?: string): void;
-        public scene(s: HG.Scenes.BaseScene): void;
-        public title(...args: string[]): void;
-        public loadShader(path): Core.Shader;
         public load(): void;
         public connect(serverHost: string): void;
-        public start(serverHost: string): void;
+        public start(): void;
         public onKeyUp(e: KeyboardEvent): void;
         public onKeyDown(e: KeyboardEvent): void;
         public onMouseDown(e: MouseEvent): void;
@@ -290,17 +297,12 @@ declare module HG.Core {
     }
 }
 declare module HG.Core {
-    class InputHandler extends Core.EventDispatcher {
+    class InputHandler {
+        public mouse: Core.EventDispatcher;
+        public keyboard: Core.EventDispatcher;
         private keyState;
         private mouseState;
-        private lastMouse;
-        public eventsAvailable: string[];
-        public bind: {
-            (name: string[], callback?: (...args: any[]) => any): any;
-            (name: string, callback?: (...args: any[]) => any): any;
-            (name: number[], callback?: (...args: any[]) => any): any;
-            (name: number, callback?: (...args: any[]) => any): any;
-        };
+        private _mouse;
         public mousePosition : THREE.Vector2;
         constructor();
         public onMouseMove(e: MouseEvent): void;
@@ -360,7 +362,7 @@ declare module HG.Entities {
 declare module HG.Entities {
     class MeshEntity extends Entities.BaseEntity implements HG.Resource.ILoadable {
         public object: THREE.Mesh;
-        public eventsAvailable: string[];
+        public events: string[];
         constructor(geo?: THREE.Geometry, mat?: THREE.MeshBasicMaterial);
         public load(data: {}): void;
     }
@@ -411,13 +413,13 @@ declare module HG.LINQ {
 }
 declare module HG.Resource.Model {
     class JS extends HG.Core.EventDispatcher implements Resource.IFiletype {
-        public eventsAvailable: string[];
+        public events: string[];
         public load(path: string): void;
     }
 }
 declare module HG.Resource.Model {
     class STL extends HG.Core.EventDispatcher implements Resource.IFiletype {
-        public eventsAvailable: string[];
+        public events: string[];
         public load(path: string, material?: THREE.MeshFaceMaterial): void;
     }
 }
@@ -426,22 +428,22 @@ declare module HG.Resource {
         public baseDirectory: string;
         constructor(baseDirectory: string);
         public resolvePath(path: string): string;
-        public fromJSModel(path: string, entitiy: HG.Entities.MeshEntity): void;
-        public fromSTL(path: string, entitiy: HG.Entities.MeshEntity): void;
-        public fromPNG(path: string, entitiy: HG.Entities.BaseEntity): void;
-        public fromWAV(path: string, effect: HG.Sound.Effect): void;
+        private load(relPath, target, namespace);
+        public model(path: string, entitiy: HG.Entities.MeshEntity): void;
+        public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
+        public sound(path: string, effect: HG.Sound.Effect): void;
         public directory(directory: string): string[];
     }
 }
 declare module HG.Resource.Sound {
     class WAV extends HG.Core.EventDispatcher implements Resource.IFiletype {
-        public eventsAvailable: string[];
+        public events: string[];
         public load(path: string, context: AudioContext): void;
     }
 }
 declare module HG.Resource.Texture {
     class PNG extends HG.Core.EventDispatcher implements Resource.IFiletype {
-        public eventsAvailable: string[];
+        public events: string[];
         public load(path: string): void;
     }
 }
@@ -450,7 +452,7 @@ declare module HG.Sound {
         public name: string;
         public rootContext: AudioContext;
         public gainNode: GainNode;
-        public eventsAvailable: string[];
+        public events: string[];
         public gain : number;
         constructor(name: string);
         public volume(gain: number): void;

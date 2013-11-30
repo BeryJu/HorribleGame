@@ -1,16 +1,16 @@
-/* 
+/*
 * @Author: BeryJu
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:26:46
+* @Last Modified time: 2013-11-29 20:58:52
 */
 
 module HG.Core {
 
 	export class PluginHost extends HG.Core.EventDispatcher {
 
-		eventsAvailable: string[] = ['load', 'sceneChange'];
+		events: string[] = ['load', 'sceneChange'];
 		plugins: HG.Core.IPlugin[] = [];
 		paths: string[] = [];
 		game: HG.Core.BaseGame;
@@ -57,7 +57,7 @@ module HG.Core {
 				}
 			});
 		}
-		
+
 	}
 
 }

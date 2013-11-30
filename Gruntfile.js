@@ -22,7 +22,7 @@ var gamePaths = [
 
 var dist = "dist/app.nw";
 var outHG = "bin/lib/hg.js"
-var outGame = "bin/game.js"
+var outGame = "bin/game/game.js"
 
 var fs = require("fs");
 module.exports = function(grunt) {
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
 			}
 		}
 	});
-	
+
 	grunt.loadNpmTasks("grunt-ts");
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
 	grunt.loadNpmTasks('grunt-contrib-compress');

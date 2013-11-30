@@ -23,38 +23,38 @@
 	},
 	"Keys": {
 		"forward": [
-			"keyboard87",
-			"keyboard38"
+			87,
+			38
 		],
 		"backward": [
-			"keyboard83",
-			"keyboard40"
+			83,
+			40
 		],
 		"left": [
-			"keyboard65",
-			"keyboard37"
+			65,
+			37
 		],
 		"right": [
-			"keyboard68",
-			"keyboard39"
+			68,
+			39
 		],
 		"pause": [
-			"keyboard27"
+			27
 		],
 		"lower": [
-			"keyboard16"
+			16
 		],
 		"jump": [
-			"keyboard32"
+			32
 		],
 		"devConsole": [
-			"keyboard123"
+			123
 		],
 		"refresh": [
-			"keyboard116"
+			116
 		],
 		"fullscreen": [
-			"keyboard122"
+			122
 		]
 	}
 }

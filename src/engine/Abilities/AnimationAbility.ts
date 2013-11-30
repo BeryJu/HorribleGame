@@ -1,9 +1,9 @@
-/* 
+/*
 * @Author: BeryJu
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:34:20
+* @Last Modified time: 2013-11-29 20:58:53
 */
 
 module HG.Abilities {
@@ -17,7 +17,7 @@ module HG.Abilities {
 		interpolation: number = this.duration / this.keyframes;
 		lastKeyframe: number = 0;
 		currentKeyframe: number = 0;
-		eventsAvailable: string[] = ["loaded"];
+		events: string[] = ["loaded"];
 
 		setHost(entity: HG.Entities.BaseEntity): void {
 			this.hostEntity = entity;

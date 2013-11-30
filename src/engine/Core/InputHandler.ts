@@ -1,47 +1,48 @@
-/* 
+/*
 * @Author: BeryJu
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:25:47
+* @Last Modified time: 2013-11-29 20:58:52
 */
 
 module HG.Core {
 
-	export class InputHandler extends HG.Core.EventDispatcher {
+	export class InputHandler {
 
+		mouse: HG.Core.EventDispatcher;
+		keyboard: HG.Core.EventDispatcher;
 		private keyState: number[] = [];
 		private mouseState: number[] = [];
-		private lastMouse: THREE.Vector2;
-		eventsAvailable: string[] = ['mouseX', 'mouseY', 'mousemove'];
-		bind = this.on;
+		private _mouse: THREE.Vector2;
 
 		get mousePosition(): THREE.Vector2 {
-			return this.lastMouse;
+			return this._mouse;
 		}
 
 		constructor() {
-			super();
-			this.lastMouse = new THREE.Vector2();
+			this.mouse = new HG.Core.EventDispatcher(['x', 'y', 'move']);
+			this.keyboard = new HG.Core.EventDispatcher();
+			this._mouse = new THREE.Vector2();
 			for (var k in HG.Utils.KeyMap) {
-				this.eventsAvailable.push(HG.Utils.KeyMap[k]);
+				this.keyboard.events.push(HG.Utils.KeyMap[k]);
 			}
 		}
 
 		onMouseMove(e: MouseEvent): void {
 			var x = e.x || e.clientX;
 			var y = e.y || e.clientY;
-			if (x !== this.lastMouse.x) {
-				var diffX = this.lastMouse.x - x;
-				this.lastMouse.x = x;
-				this.dispatch('mouseX', diffX, x);
+			if (x !== this._mouse.x) {
+				var diffX = this._mouse.x - x;
+				this._mouse.x = x;
+				this.mouse.dispatch('x', diffX, x);
 			}
-			if (y !== this.lastMouse.y) {
-				var diffY = this.lastMouse.y - y;
-				this.lastMouse.y = y;
-				this.dispatch('mouseY', diffY, y)
+			if (y !== this._mouse.y) {
+				var diffY = this._mouse.y - y;
+				this._mouse.y = y;
+				this.mouse.dispatch('y', diffY, y)
 			}
-			this.dispatch('mouseMove', x, y);
+			this.mouse.dispatch('move', x, y);
 		}
 
 		onMouseDown(e: MouseEvent): void {
@@ -62,10 +63,10 @@ module HG.Core {
 
 		frame(delta: number): void {
 			this.keyState.forEach((s, i) => {
-				if (s === 1) this.dispatch("keyboard"+i, delta);
+				if (s === 1) this.keyboard.dispatch(i, delta);
 			});
 			this.mouseState.forEach((s, i) => {
-				if (s === 1) this.dispatch("mouse"+i, delta);
+				if (s === 1) this.mouse.dispatch(i, delta);
 			});
 		}
 

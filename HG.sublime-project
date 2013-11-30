@@ -6,7 +6,7 @@
 			"path": "J:\\projects\\HorribleGame"
 		},
 		{
-			"follow_symlinks": true,
+			"follow_symlinks": false,
 			"path": "J:\\projects\\HorribleGame-wiki"
 		}
 	]

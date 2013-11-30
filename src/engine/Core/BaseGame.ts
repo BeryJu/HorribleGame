@@ -3,24 +3,24 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 19:18:11
+* @Last Modified time: 2013-11-29 20:58:54
 */
 
 module HG.Core {
 
 	export class BaseGame extends  HG.Core.EventDispatcher  {
 
-		// socketClient: SocketManager;
 		renderer: THREE.WebGLRenderer;
 		camera: HG.Entities.CameraEntity;
-		isRunning: boolean = false;
 		soundMixer: HG.Sound.Mixer;
 		currentScene: HG.Scenes.BaseScene;
 		pluginHost: HG.Core.PluginHost;
 		controls: HG.Core.InputHandler = new HG.Core.InputHandler();
 		fpsCounter: HG.Utils.FPSCounter = new HG.Utils.FPSCounter();
-		shaders: HG.Core.Shader[] = [];
-		eventsAvailable: string[] = [
+
+		_running: boolean = false;
+		_title: string = "";
+		events: string[] = [
 			"load", "connected", "start", "keyup", "keydown",
 			"resize", "render", "mouseDown", "mouseUp",
 			"mouseMove", "preRender", "postRender"];
@@ -32,6 +32,7 @@ module HG.Core {
 
 			this.soundMixer = new HG.Sound.Mixer();
 			this.soundMixer.volume(HG.Settings.Sound.masterVolume);
+
 			for (var c in HG.Settings.Sound.channels) {
 				var ch = new HG.Sound.Channel(c.replace("Volume", ""));
 				ch.volume(HG.Settings.Sound.channels[c]);
@@ -48,11 +49,19 @@ module HG.Core {
 				window.innerWidth / window.innerHeight, 0.1,
 				HG.Settings.Graphics.viewDistance);
 			this.renderer = new THREE.WebGLRenderer({
-				antialias: HG.Settings.Graphics.antialiasing,
-				preserveDrawingBuffer: true
+				antialias: HG.Settings.Graphics.antialiasing
 			});
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 			container.appendChild(this.renderer.domElement);
+		}
+
+		set title(v: any[]) {
+			document.title = v.join("");
+		}
+
+		scene(scene: HG.Scenes.BaseScene): void {
+			this.pluginHost.dispatch('sceneChange', scene);
+			this.currentScene = scene;
 		}
 
 		screenshot(path: string, imageType: string = "image/png"): void {
@@ -61,21 +70,6 @@ module HG.Core {
 			//data:image/png;base64
 			var raw = new Buffer(data.replace("data:"+imageType+";base64,", ""), 'base64');
 			global.fs.writeFile(path, raw);
-		}
-
-		scene(s: HG.Scenes.BaseScene): void {
-			this.pluginHost.dispatch('sceneChange', s);
-			this.currentScene = s;
-		}
-
-		title(...args: string[]): void {
-			document.title = args.join("");
-		}
-
-		loadShader(path): HG.Core.Shader {
-			var s = new HG.Core.Shader(path);
-			this.shaders.push(s);
-			return s;
 		}
 
 		load(): void {
@@ -92,10 +86,9 @@ module HG.Core {
 			// this.dispatch("connected", serverHost);
 		}
 
-		start(serverHost: string): void {
-			this.connect(serverHost);
+		start(): void {
 			this.dispatch('start');
-			this.isRunning = true;
+			this._running = true;
 		}
 
 		onKeyUp(e: KeyboardEvent): void {

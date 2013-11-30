@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:43:51
+* @Last Modified time: 2013-11-29 20:58:53
 */
 
 module HG.Sound {
@@ -13,7 +13,7 @@ module HG.Sound {
 		name: string;
 		rootContext: AudioContext;
 		gainNode: GainNode;
-		eventsAvailable: string[] = ['volumeChange'];
+		events: string[] = ['volumeChange'];
 
 		get gain(): number {
 			return this.gainNode.gain.value || 0;

@@ -1,13 +1,13 @@
-/* 
+/*
 * @Author: BeryJu
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:25:46
+* @Last Modified time: 2013-11-30 00:51:52
 */
 module HG.Entities {
 
-	export class BaseEntity extends HG.Core.EventDispatcher {
+	export class BaseEntity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
 
 		abilities: HG.Abilities.BaseAbility[] = [];
 		object: THREE.Object3D;
@@ -39,6 +39,8 @@ module HG.Entities {
 			this.positionOffset.set(x, y, z);
 			return this;
 		}
+
+		load(data: {}): void {}
 
 		scale(x: number, y: number, z: number): BaseEntity {
 			this.object.scale.set(x, y, z);

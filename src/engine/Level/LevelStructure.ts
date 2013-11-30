@@ -30,7 +30,7 @@
 // 			position: {x: 0, y: 0, z: 0},
 // 			rotation: {x: 0, y: 0, z: 0}
 // 		};
-// 		eventsAvailable: string[] = ["loaded", "created"];
+// 		events: string[] = ["loaded", "created"];
 
 // 		load(data: {}): void {
 // 			var r = <HG.Level.LevelStructure> JSON.parse(data);

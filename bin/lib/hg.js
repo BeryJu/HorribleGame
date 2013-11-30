@@ -2,10 +2,12 @@ var HG;
 (function (HG) {
     (function (Core) {
         var EventDispatcher = (function () {
-            function EventDispatcher() {
-                this.events = {};
+            function EventDispatcher(events) {
+                this._events = {};
                 this.globalEvents = [];
-                this.eventsAvailable = [];
+                this.events = [];
+                this.bind = this.on;
+                this.events = events || [];
             }
             EventDispatcher.prototype.resolve = function (raw) {
                 var result;
@@ -31,14 +33,14 @@ var HG;
                     var type = this['constructor']['name'];
                     var resolved = this.resolve(name);
 
-                    if (this.eventsAvailable.indexOf(resolved) === -1) {
+                    if (this.events.indexOf(resolved) === -1) {
                         console.warn("[" + type + "] Event '" + name + "' not available, still added though");
                     } else {
                         console.log("[" + type + "] Added EventHandler for '" + name + "'");
                     }
 
-                    if (!this.events[resolved]) {
-                        this.events[resolved] = [];
+                    if (!this._events[resolved]) {
+                        this._events[resolved] = [];
                     }
 
                     if (!callback) {
@@ -49,7 +51,7 @@ var HG;
                         }
                     }
 
-                    this.events[resolved].push(callback);
+                    this._events[resolved].push(callback);
                     return this;
                 }
             };
@@ -64,12 +66,12 @@ var HG;
                     var type = this['constructor']['name'];
                     var resolved = this.resolve(name);
 
-                    if (!this.events[resolved]) {
-                        this.events[resolved] = [];
+                    if (!this._events[resolved]) {
+                        this._events[resolved] = [];
                     }
                     console.log("[" + type + "] Injected EventHandler for '" + name + "'");
 
-                    this.events[resolved].splice(0, 0, callback);
+                    this._events[resolved].splice(0, 0, callback);
                     return this;
                 }
             };
@@ -77,11 +79,11 @@ var HG;
             EventDispatcher.prototype.clear = function (name) {
                 if (typeof name !== "number")
                     name = name.toString().toLowerCase();
-                if (!this.events[name])
+                if (!this._events[name])
                     return;
-                if (this.events[name].length === 0)
+                if (this._events[name].length === 0)
                     return;
-                this.events[name] = [];
+                this._events[name] = [];
                 return this;
             };
 
@@ -97,15 +99,15 @@ var HG;
                     });
                 } else {
                     var resolved = this.resolve(name);
-                    if (!(resolved in this.eventsAvailable))
-                        this.eventsAvailable.push(resolved);
-                    if (!this.events[resolved])
+                    if (!(resolved in this.events))
+                        this.events.push(resolved);
+                    if (!this._events[resolved])
                         return;
-                    if (this.events[resolved].length === 0)
+                    if (this._events[resolved].length === 0)
                         return;
                     var parameters = Array.prototype.splice.call(arguments, 1);
                     parameters.push(resolved);
-                    this.events[resolved].forEach(function (event) {
+                    this._events[resolved].forEach(function (event) {
                         event.apply(_this, parameters);
                     });
                     this.globalEvents.forEach(function (event) {
@@ -133,7 +135,7 @@ var HG;
             __extends(PluginHost, _super);
             function PluginHost(instance) {
                 _super.call(this);
-                this.eventsAvailable = ['load', 'sceneChange'];
+                this.events = ['load', 'sceneChange'];
                 this.plugins = [];
                 this.paths = [];
                 this.game = instance;
@@ -273,22 +275,22 @@ var HG;
 (function (HG) {
     (function (Utils) {
         Utils.KeyMap = {
-            D: "keyboard68",
-            A: "keyboard65",
-            S: "keyboard83",
-            W: "keyboard87",
-            Q: "keyboard81",
-            E: "keyboard69",
-            Left: "keyboard37",
-            Right: "keyboard39",
-            Top: "keyboard38",
-            Shift: "keyboard16",
-            Bottom: "keyboard40",
-            Space: "keyboard32",
-            Esc: "keyboard27",
-            F5: "keyboard116",
-            F11: "keyboard122",
-            F12: "keyboard123"
+            D: 68,
+            A: 65,
+            S: 83,
+            W: 87,
+            Q: 81,
+            E: 69,
+            Left: 37,
+            Right: 39,
+            Top: 38,
+            Shift: 16,
+            Bottom: 40,
+            Space: 32,
+            Esc: 27,
+            F5: 116,
+            F11: 122,
+            F12: 123
         };
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
@@ -1314,6 +1316,9 @@ var HG;
                 return this;
             };
 
+            BaseEntity.prototype.load = function (data) {
+            };
+
             BaseEntity.prototype.scale = function (x, y, z) {
                 this.object.scale.set(x, y, z);
                 return this;
@@ -1510,7 +1515,7 @@ var HG;
                 this.interpolation = this.duration / this.keyframes;
                 this.lastKeyframe = 0;
                 this.currentKeyframe = 0;
-                this.eventsAvailable = ["loaded"];
+                this.events = ["loaded"];
             }
             AnimationAbility.prototype.setHost = function (entity) {
                 var _this = this;
@@ -1639,11 +1644,11 @@ var HG;
             __extends(BaseGame, _super);
             function BaseGame(container, settingsPath) {
                 _super.call(this);
-                this.isRunning = false;
                 this.controls = new HG.Core.InputHandler();
                 this.fpsCounter = new HG.Utils.FPSCounter();
-                this.shaders = [];
-                this.eventsAvailable = [
+                this._running = false;
+                this._title = "";
+                this.events = [
                     "load",
                     "connected",
                     "start",
@@ -1662,6 +1667,7 @@ var HG;
 
                 this.soundMixer = new HG.Sound.Mixer();
                 this.soundMixer.volume(HG.Settings.Sound.masterVolume);
+
                 for (var c in HG.Settings.Sound.channels) {
                     var ch = new HG.Sound.Channel(c.replace("Volume", ""));
                     ch.volume(HG.Settings.Sound.channels[c]);
@@ -1672,12 +1678,24 @@ var HG;
 
                 this.camera = new HG.Entities.CameraEntity(HG.Settings.Graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
                 this.renderer = new THREE.WebGLRenderer({
-                    antialias: HG.Settings.Graphics.antialiasing,
-                    preserveDrawingBuffer: true
+                    antialias: HG.Settings.Graphics.antialiasing
                 });
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
                 container.appendChild(this.renderer.domElement);
             }
+            Object.defineProperty(BaseGame.prototype, "title", {
+                set: function (v) {
+                    document.title = v.join("");
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            BaseGame.prototype.scene = function (scene) {
+                this.pluginHost.dispatch('sceneChange', scene);
+                this.currentScene = scene;
+            };
+
             BaseGame.prototype.screenshot = function (path, imageType) {
                 if (typeof imageType === "undefined") { imageType = "image/png"; }
                 var data = this.renderer.domElement.toDataURL(imageType);
@@ -1685,25 +1703,6 @@ var HG;
 
                 var raw = new Buffer(data.replace("data:" + imageType + ";base64,", ""), 'base64');
                 global.fs.writeFile(path, raw);
-            };
-
-            BaseGame.prototype.scene = function (s) {
-                this.pluginHost.dispatch('sceneChange', s);
-                this.currentScene = s;
-            };
-
-            BaseGame.prototype.title = function () {
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                    args[_i] = arguments[_i + 0];
-                }
-                document.title = args.join("");
-            };
-
-            BaseGame.prototype.loadShader = function (path) {
-                var s = new HG.Core.Shader(path);
-                this.shaders.push(s);
-                return s;
             };
 
             BaseGame.prototype.load = function () {
@@ -1715,10 +1714,9 @@ var HG;
             BaseGame.prototype.connect = function (serverHost) {
             };
 
-            BaseGame.prototype.start = function (serverHost) {
-                this.connect(serverHost);
+            BaseGame.prototype.start = function () {
                 this.dispatch('start');
-                this.isRunning = true;
+                this._running = true;
             };
 
             BaseGame.prototype.onKeyUp = function (e) {
@@ -1802,22 +1800,20 @@ var HG;
 var HG;
 (function (HG) {
     (function (Core) {
-        var InputHandler = (function (_super) {
-            __extends(InputHandler, _super);
+        var InputHandler = (function () {
             function InputHandler() {
-                _super.call(this);
                 this.keyState = [];
                 this.mouseState = [];
-                this.eventsAvailable = ['mouseX', 'mouseY', 'mousemove'];
-                this.bind = this.on;
-                this.lastMouse = new THREE.Vector2();
+                this.mouse = new HG.Core.EventDispatcher(['x', 'y', 'move']);
+                this.keyboard = new HG.Core.EventDispatcher();
+                this._mouse = new THREE.Vector2();
                 for (var k in HG.Utils.KeyMap) {
-                    this.eventsAvailable.push(HG.Utils.KeyMap[k]);
+                    this.keyboard.events.push(HG.Utils.KeyMap[k]);
                 }
             }
             Object.defineProperty(InputHandler.prototype, "mousePosition", {
                 get: function () {
-                    return this.lastMouse;
+                    return this._mouse;
                 },
                 enumerable: true,
                 configurable: true
@@ -1826,17 +1822,17 @@ var HG;
             InputHandler.prototype.onMouseMove = function (e) {
                 var x = e.x || e.clientX;
                 var y = e.y || e.clientY;
-                if (x !== this.lastMouse.x) {
-                    var diffX = this.lastMouse.x - x;
-                    this.lastMouse.x = x;
-                    this.dispatch('mouseX', diffX, x);
+                if (x !== this._mouse.x) {
+                    var diffX = this._mouse.x - x;
+                    this._mouse.x = x;
+                    this.mouse.dispatch('x', diffX, x);
                 }
-                if (y !== this.lastMouse.y) {
-                    var diffY = this.lastMouse.y - y;
-                    this.lastMouse.y = y;
-                    this.dispatch('mouseY', diffY, y);
+                if (y !== this._mouse.y) {
+                    var diffY = this._mouse.y - y;
+                    this._mouse.y = y;
+                    this.mouse.dispatch('y', diffY, y);
                 }
-                this.dispatch('mouseMove', x, y);
+                this.mouse.dispatch('move', x, y);
             };
 
             InputHandler.prototype.onMouseDown = function (e) {
@@ -1859,15 +1855,15 @@ var HG;
                 var _this = this;
                 this.keyState.forEach(function (s, i) {
                     if (s === 1)
-                        _this.dispatch("keyboard" + i, delta);
+                        _this.keyboard.dispatch(i, delta);
                 });
                 this.mouseState.forEach(function (s, i) {
                     if (s === 1)
-                        _this.dispatch("mouse" + i, delta);
+                        _this.mouse.dispatch(i, delta);
                 });
             };
             return InputHandler;
-        })(HG.Core.EventDispatcher);
+        })();
         Core.InputHandler = InputHandler;
     })(HG.Core || (HG.Core = {}));
     var Core = HG.Core;
@@ -2036,7 +2032,7 @@ var HG;
             __extends(MeshEntity, _super);
             function MeshEntity(geo, mat) {
                 _super.call(this);
-                this.eventsAvailable = ["loaded"];
+                this.events = ["loaded"];
                 if (geo && mat)
                     this.object = new THREE.Mesh(geo, mat);
             }
@@ -2259,7 +2255,7 @@ var HG;
                 __extends(JS, _super);
                 function JS() {
                     _super.apply(this, arguments);
-                    this.eventsAvailable = ["loaded"];
+                    this.events = ["loaded"];
                 }
                 JS.prototype.load = function (path) {
                     var _this = this;
@@ -2288,17 +2284,21 @@ var HG;
                 __extends(STL, _super);
                 function STL() {
                     _super.apply(this, arguments);
-                    this.eventsAvailable = ["loaded"];
+                    this.events = ["loaded"];
                 }
                 STL.prototype.load = function (path, material) {
                     var _this = this;
                     var loader = new THREE.STLLoader();
                     loader.addEventListener('load', function (event) {
                         var geometry = event.content;
-
-                        var material = new THREE.MeshBasicMaterial({
-                            map: THREE.ImageUtils.loadTexture("assets/textures/skybox/xneg.png")
+                        var phong = new THREE.MeshPhongMaterial({
+                            ambient: 0xff5533,
+                            color: 0xff5533,
+                            specular: 0x111111,
+                            shininess: 200
                         });
+                        var material = new THREE.MeshFaceMaterial([phong]);
+
                         var model = {
                             geometry: geometry,
                             material: material
@@ -2333,40 +2333,32 @@ var HG;
                 }
             };
 
-            ResourceLoader.prototype.fromJSModel = function (path, entitiy) {
-                path = global.path.join(this.baseDirectory, path);
-                var jsLoader = new HG.Resource.Model.JS();
-                jsLoader.on("loaded", function (model) {
-                    entitiy.load(model);
-                });
-                jsLoader.load(path);
+            ResourceLoader.prototype.load = function (relPath, target, namespace) {
+                var absPath = global.path.join(this.baseDirectory, relPath);
+                var extension = global.path.extname(absPath).toUpperCase().replace(".", "");
+                for (var k in namespace) {
+                    if (extension.toUpperCase() === k) {
+                        var loader = new namespace[k]();
+                        loader.on("loaded", function (model) {
+                            target.load(model);
+                        });
+                        loader.load(absPath);
+                        return;
+                    }
+                }
+                throw new Error("No Loader for Filetype '" + global.path.extname(absPath) + "' available.");
             };
 
-            ResourceLoader.prototype.fromSTL = function (path, entitiy) {
-                path = global.path.join(this.baseDirectory, path);
-                var stlLoader = new HG.Resource.Model.STL();
-                stlLoader.on("loaded", function (model) {
-                    entitiy.load(model);
-                });
-                stlLoader.load(path);
+            ResourceLoader.prototype.model = function (path, entitiy) {
+                this.load(path, entitiy, HG.Resource.Model);
             };
 
-            ResourceLoader.prototype.fromPNG = function (path, entitiy) {
-                path = global.path.join(this.baseDirectory, path);
-                var pngLoader = new HG.Resource.Texture.PNG();
-                throw new Error("NotImplementedError");
-                pngLoader.on("loaded", function (image) {
-                });
-                pngLoader.load(path);
+            ResourceLoader.prototype.texture = function (path, entitiy) {
+                this.load(path, entitiy, HG.Resource.Texture);
             };
 
-            ResourceLoader.prototype.fromWAV = function (path, effect) {
-                path = global.path.join(this.baseDirectory, path);
-                var wavLoader = new HG.Resource.Sound.WAV();
-                wavLoader.on("loaded", function (data) {
-                    effect.load(data);
-                });
-                wavLoader.load(path, effect.rootContext);
+            ResourceLoader.prototype.sound = function (path, effect) {
+                this.load(path, effect, HG.Resource.Sound);
             };
 
             ResourceLoader.prototype.directory = function (directory) {
@@ -2393,7 +2385,7 @@ var HG;
                 __extends(WAV, _super);
                 function WAV() {
                     _super.apply(this, arguments);
-                    this.eventsAvailable = ["loaded"];
+                    this.events = ["loaded"];
                 }
                 WAV.prototype.load = function (path, context) {
                     var _this = this;
@@ -2402,7 +2394,7 @@ var HG;
                     request.responseType = "arraybuffer";
 
                     request.onload = function () {
-                        context.decodeAudioData(request.response, function (buffer) {
+                        new AudioContext().decodeAudioData(request.response, function (buffer) {
                             _this.dispatch("loaded", buffer);
                         }, function (error) {
                             console.error('decodeAudioData error', error);
@@ -2427,15 +2419,11 @@ var HG;
                 __extends(PNG, _super);
                 function PNG() {
                     _super.apply(this, arguments);
-                    this.eventsAvailable = ["loaded"];
+                    this.events = ["loaded"];
                 }
                 PNG.prototype.load = function (path) {
-                    var _this = this;
                     var loader = new THREE.ImageLoader();
-                    loader.addEventListener("load", function (image) {
-                        _this.dispatch("loaded", image);
-                    });
-                    loader.load(path);
+                    throw new Error("NotImplementedError");
                 };
                 return PNG;
             })(HG.Core.EventDispatcher);
@@ -2452,7 +2440,7 @@ var HG;
             __extends(Channel, _super);
             function Channel(name) {
                 _super.call(this);
-                this.eventsAvailable = ['volumeChange'];
+                this.events = ['volumeChange'];
                 this.name = name;
             }
             Object.defineProperty(Channel.prototype, "gain", {
