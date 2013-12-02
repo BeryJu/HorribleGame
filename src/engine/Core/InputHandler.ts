@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 13:27:57
+* @Last Modified time: 2013-12-02 18:10:29
 */
 
 module HG.Core {
@@ -21,11 +21,11 @@ module HG.Core {
 		}
 
 		constructor() {
-			this.mouse = new HG.Core.EventDispatcher(['x', 'y', 'move']);
+			this.mouse = new HG.Core.EventDispatcher(["x", "y", "move"]);
 			this.keyboard = new HG.Core.EventDispatcher();
 			this._mouse = new THREE.Vector2();
-			for (var k in HG.Utils.KeyMap) {
-				this.keyboard.events.push(HG.Utils.KeyMap[k.toString()]);
+			for (var k in HG.Utils.KEY_MAP) {
+				this.keyboard.events.push(HG.Utils.KEY_MAP[k.toString()]);
 			}
 		}
 
@@ -35,14 +35,14 @@ module HG.Core {
 			if (x !== this._mouse.x) {
 				var diffX = this._mouse.x - x;
 				this._mouse.x = x;
-				this.mouse.dispatch('x', diffX, x);
+				this.mouse.dispatch("x", diffX, x);
 			}
 			if (y !== this._mouse.y) {
 				var diffY = this._mouse.y - y;
 				this._mouse.y = y;
-				this.mouse.dispatch('y', diffY, y)
+				this.mouse.dispatch("y", diffY, y);
 			}
-			this.mouse.dispatch('move', x, y);
+			this.mouse.dispatch("move", x, y);
 		}
 
 		onMouseDown(e: MouseEvent): void {
@@ -62,10 +62,10 @@ module HG.Core {
 		}
 
 		frame(delta: number): void {
-			this.keyState.forEach((s, i) => {
+			this.keyState.each((s, i) => {
 				if (s === 1) this.keyboard.dispatch(i, delta);
 			});
-			this.mouseState.forEach((s, i) => {
+			this.mouseState.each((s, i) => {
 				if (s === 1) this.mouse.dispatch(i, delta);
 			});
 		}

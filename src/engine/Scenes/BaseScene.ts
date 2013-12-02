@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 19:18:13
+* @Last Modified time: 2013-12-02 18:47:55
 */
 
 module HG.Scenes {
@@ -37,16 +37,15 @@ module HG.Scenes {
 
 		getAllNamed(type: any = HG.Entities.BaseEntity): any[] {
 			var es = [];
-			for (var k in this.entities.named) {
-				var ne = this.entities.named[k];
-				if (ne instanceof type) es.push(ne);;
-			}
+			this.entities.named.each((k, v) => {
+				if (v instanceof type) es.push(v);
+			});
 			return es;
 		}
 
 		getAllUnnamed(type: any = HG.Entities.BaseEntity): any[] {
 			var es = [];
-			this.entities.unnamed.forEach((e) => {
+			this.entities.unnamed.each((e) => {
 				if (e instanceof type) es.push(e);
 			});
 			return es;
@@ -61,15 +60,14 @@ module HG.Scenes {
 
 		forNamed(callback: (e: any, k: string) => any, type?: any): void {
 			if (!type) type = HG.Entities.BaseEntity;
-			for (var k in this.entities.named) {
-				var ne = this.entities.named[k];
-				if (ne instanceof type) callback(ne, k);
-			}
+			this.entities.named.each((k, v) => {
+				if (v instanceof type) callback(v, k);
+			});
 		}
 
 		forUnamed(callback: (e: any) => any, type?: any): void {
 			if (!type) type = HG.Entities.BaseEntity;
-			this.entities.unnamed.forEach((e) => {
+			this.entities.unnamed.each((e) => {
 				if (e instanceof type) callback(e);
 			});
 		}
@@ -87,9 +85,7 @@ module HG.Scenes {
 			var e = [];
 			for (var i = 0; i < nameTag.length; i++) {
 				var ee = this.entities.named[nameTag[i].toLowerCase()];
-				if (ee instanceof type) {
-					e.push(ee);
-				}
+				if (ee instanceof type) e.push(ee);
 			}
 			return e;
 		}

@@ -25,7 +25,7 @@
 
 // 	export class LevelStructure extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
 
-// 		entities: HG.Level.LevelEntity[];
+// 		entities: HG.Level.new Array<LevelEntity>();
 // 		camera = {
 // 			position: {x: 0, y: 0, z: 0},
 // 			rotation: {x: 0, y: 0, z: 0}
@@ -36,7 +36,7 @@
 // 			var r = <HG.Level.LevelStructure> JSON.parse(data);
 // 			this.entities = r.entities;
 // 			this.camera = r.camera;
-// 			this.dispatch('loaded', {level: this});
+// 			this.dispatch("loaded", {level: this});
 // 		}
 
 // 		create(): void {
@@ -54,7 +54,7 @@
 // 			}
 // 			this.camera.position = {x: 0, y: 25, z: -25};
 // 			this.camera.rotation = {x: 75, y: 75, z: 0};
-// 			this.dispatch('created', {level: this});
+// 			this.dispatch("created", {level: this});
 // 		}
 // 	}
 // }

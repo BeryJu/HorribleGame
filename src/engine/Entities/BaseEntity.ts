@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 00:51:52
+* @Last Modified time: 2013-12-02 18:03:33
 */
 module HG.Entities {
 
@@ -32,7 +32,7 @@ module HG.Entities {
 		}
 
 		forAbilities(callback: (a: HG.Abilities.BaseAbility) => void): void {
-			this.abilities.forEach(callback);
+			this.abilities.each(callback);
 		}
 
 		offset(x: number, y: number, z: number): BaseEntity {
@@ -40,7 +40,7 @@ module HG.Entities {
 			return this;
 		}
 
-		load(data: {}): void {}
+		load(data: {}): void { return; }
 
 		scale(x: number, y: number, z: number): BaseEntity {
 			this.object.scale.set(x, y, z);
@@ -66,7 +66,7 @@ module HG.Entities {
 
 		frame(delta: number): void {
 			if (this.abilities.length > 0) {
-				this.abilities.forEach((ability) => {
+				this.abilities.each((ability) => {
 					ability.frame(delta);
 				});
 			}

@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 13:45:10
+* @Last Modified time: 2013-12-02 16:30:20
 */
 
 module HG.Sound {
@@ -19,7 +19,7 @@ module HG.Sound {
 		}
 
 		constructor(name: string) {
-			super(['volumeChange']);
+			super(["volumeChange"]);
 			this.name = name;
 		}
 

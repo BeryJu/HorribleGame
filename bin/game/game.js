@@ -3,10 +3,11 @@ var game = new HG.Core.BaseGame(document.getElementById("gameWrapper"), "setting
 var mainScene = new HG.Scenes.BaseScene();
 var loader = new HG.Resource.ResourceLoader("assets/");
 
+game.pluginHost.load(loader.directory("plugins"));
 game.on('load', function () {
     game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
-    var playerLight = new HG.Entities.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.Settings.Graphics.viewDistance / 10));
+    var playerLight = new HG.Entities.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.settings.graphics.viewDistance / 10));
     playerLight.offset(0, 150, 0).position(0, 0, 0);
     mainScene.add(playerLight, "playerLight");
 
@@ -35,7 +36,7 @@ game.on('load', function () {
     });
     loader.model("models/room01.stl", room);
 
-    if (HG.Settings.debug === true) {
+    if (HG.settings.debug === true) {
         var axes = new HG.Entities.BaseEntity(new THREE.AxisHelper(500));
         axes.position(0, 0, 0);
         mainScene.add(axes);
@@ -47,7 +48,7 @@ game.on('load', function () {
 game.on('start', function () {
     game.scene(mainScene);
 
-    if (HG.Settings.debug === true) {
+    if (HG.settings.debug === true) {
         HG.Utils.profile(function () {
             game.render();
         });
@@ -70,11 +71,11 @@ game.on('start', function () {
     window.onmouseup = function (a) {
         return game.onMouseUp(a);
     };
-    if (HG.Settings.Graphics.useStaticFramerate === true) {
+    if (HG.settings.graphics.useStaticFramerate === true) {
         var render = function () {
             game.render();
         };
-        setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
+        setInterval(render, 1000 / HG.settings.graphics.staticFramerate);
         render();
     } else {
         var render = function () {
@@ -85,25 +86,21 @@ game.on('start', function () {
     }
 });
 
-game.controls.keyboard.bind(HG.Settings.Keys.refresh, function (delta) {
+game.controls.keyboard.bind(HG.settings.keys.refresh, function (delta) {
     game.reload();
 });
 
-game.controls.keyboard.bind(HG.Settings.Keys.fullscreen, function (delta) {
+game.controls.keyboard.bind(HG.settings.keys.fullscreen, function (delta) {
     game.toggleFullScreenMode();
 });
 
 game.on(['start', 'resize'], function () {
-    document.getElementById("resolution").innerText = "Rendering on: " + window.innerWidth + "x" + window.innerHeight;
 });
 
 game.on("render", function (delta) {
     mainScene.forNamed(function (e) {
         return e.frame(delta);
     });
-    document.getElementById("fps").innerText = "FPS: " + game.fpsCounter.FPS;
-    document.getElementById("verts").innerText = "Vertices: " + game.renderer.info.render.vertices;
-    document.getElementById("frametime").innerText = "Frametime: " + game.fpsCounter.frameTime + "ms";
 });
 
 window.onload = function () {

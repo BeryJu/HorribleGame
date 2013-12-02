@@ -10,7 +10,7 @@
 
 // 	export class Level extends HG.Core.EventDispatcher {
 
-// 		entities: HG.Entities.BaseEntity[] = [];
+// 		entities: HG.Entities.new Array<BaseEntity>() = [];
 // 		camera = {
 // 			position: new THREE.Vector3(),
 // 			rotation: new THREE.Vector3()
@@ -25,7 +25,7 @@
 // 			// 	HG.CONSTANTS.BLOCK_SIZE
 // 			// );
 // 			// var m =  new THREE.MeshPhongMaterial({color: 0x000000});
-// 			// level.entities.forEach((e) => {
+// 			// level.entities.each((e) => {
 // 			// 	m.color = new THREE.Color(e.color);
 // 			// 	var en = new HG.Entities.MeshEntity(g, m);
 // 			// 	en.position(e.position.x, e.position.y, e.position.z);

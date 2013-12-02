@@ -8,7 +8,8 @@
     "grunt-ts": "latest",
     "grunt-contrib-nodeunit": "latest",
     "grunt-contrib-yuidoc": "latest",
-    "grunt-format": "latest"
+    "grunt-format": "latest",
+    "grunt-tslint": "~0.3.2"
   },
   "version": "0.0.1",
   "url": "http://beryju.org",

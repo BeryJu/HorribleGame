@@ -3,7 +3,7 @@
 * @Date:   2013-11-10 13:59:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 01:06:06
+* @Last Modified time: 2013-12-02 17:59:27
 */
 
 module HG.Resource.Sound {
@@ -19,10 +19,10 @@ module HG.Resource.Sound {
 			request.responseType = "arraybuffer";
 
 			request.onload = () => {
-				new AudioContext().decodeAudioData(request.response,(buffer) => {
+				new AudioContext().decodeAudioData(request.response, (buffer) => {
 					this.dispatch("loaded", buffer);
 				}, (error) => {
-					console.error('decodeAudioData error', error);
+					console.error("decodeAudioData error", error);
 				});
 			};
 

@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 02:06:24
+* @Last Modified time: 2013-12-02 18:01:22
 */
 
 module HG.Resource {
@@ -28,7 +28,8 @@ module HG.Resource {
 
 		private load(relPath: string, target: HG.Resource.ILoadable, namespace: any): void {
 			var absPath = HG.Modules.path.join(this.baseDirectory, relPath);
-			var extension = HG.Modules.path.extname(absPath).toUpperCase().replace(".", "");
+			var extension = HG.Modules.path.extname(absPath);
+			var extensionName = extensionName.toUpperCase().replace(".", "");
 			for (var k in namespace) {
 				if (extension.toUpperCase() === k) {
 					var loader = new namespace[k]();
@@ -39,7 +40,7 @@ module HG.Resource {
 					return;
 				}
 			}
-			throw new Error("No Loader for Filetype '"+HG.Modules.path.extname(absPath)+"' available.");
+			throw new Error(HG.locale.resource.noLoader.f(extension));
 		}
 
 		model(path: string, entitiy: HG.Entities.MeshEntity): void {
@@ -54,11 +55,11 @@ module HG.Resource {
 			this.load(path, effect, HG.Resource.Sound);
 		}
 
-		directory(directory: string): string[] {
+		directory(directory: string): Array<string> {
 			var path = HG.Modules.path.join(this.baseDirectory, directory);
 			var files = HG.Modules.fs.readdirSync(path);
-			var realFiles: string[] = [];
-			files.forEach((file) => {
+			var realFiles = [];
+			files.each((file) => {
 				realFiles.push(HG.Modules.path.join(this.baseDirectory, directory, file));
 			});
 			return realFiles;

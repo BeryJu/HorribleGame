@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:04:33
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 20:58:53
+* @Last Modified time: 2013-12-02 18:02:09
 */
 
 module HG.Resource.Model {
@@ -18,7 +18,7 @@ module HG.Resource.Model {
 				var model = {
 					geometry: geometry,
 					material: material
-				}
+				};
 				this.dispatch("loaded", model);
 			});
 		}

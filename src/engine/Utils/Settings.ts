@@ -3,12 +3,12 @@
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 21:56:57
+* @Last Modified time: 2013-12-02 17:58:34
 */
 
 module HG {
 
-	export var Settings: HG.Utils.ISettings;
+	export var settings: HG.Utils.ISettings;
 
 	export function loadSettings(path: string, fallback?: HG.Utils.ISettings): HG.Utils.ISettings {
 		var raw = HG.Modules.fs.readFileSync(path);
@@ -23,15 +23,16 @@ module HG {
 		return new HG.Utils.ISettings();
 	}
 
-	export function saveSettings(path: string, settings: HG.Utils.ISettings, pretty: boolean = false): void {
+	export function saveSettings(path: string, settings: HG.Utils.ISettings,
+		pretty: boolean = false): void {
 		var parsed;
 		if (pretty === true) {
 			parsed = JSON.stringify(settings, null , "\t");
 		} else {
 			parsed = JSON.stringify(settings);
 		}
-		HG.Modules.fs.writeFile(path, parsed, () => {});
-		console.debug("[Settings] Saved settings.");
+		HG.Modules.fs.writeFile(path, parsed);
+		HG.log("[Settings] Saved settings.");
 	}
 
 }

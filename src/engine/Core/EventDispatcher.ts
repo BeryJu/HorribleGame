@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 22:26:56
+* @Last Modified time: 2013-12-02 18:52:21
 */
 
 module HG.Core {
@@ -24,13 +24,11 @@ module HG.Core {
 		}
 
 		resolve(raw: any): string {
-			var result: string;
-			if (typeof raw === "number") {
-				result = raw.toString();
+			if (HG.Utils.isNumber(raw) === true) {
+				return raw.toString();
 			} else {
-				result = raw.toString().toLowerCase();
+				return raw.toString().toLowerCase();
 			}
-			return result;
 		}
 
 		onAll(eventHandler: (...args: any[]) => any): HG.Core.EventDispatcher {
@@ -44,17 +42,15 @@ module HG.Core {
 		on(name: number, eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher;
 		on(name: any, eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
-				name.forEach((n) => {
-					this.on(n, eventHandler);
-				});
+				name.each((n) => this.on(n, eventHandler));
 			} else {
-				var type = this['constructor']['name'];
+				var type = this["constructor"]["name"];
 				var resolved = this.resolve(name);
 				// if not in .events, warn; else just log
 				if (this.events.indexOf(resolved) === -1) {
-					HG.log("["+type+"] Event '"+name+"' not available, still added though");
+					HG.locale.event.eventNotAvailable.format(type, name).warn();
 				} else {
-					HG.log("["+type+"] Added EventHandler for '"+name+"'");
+					HG.locale.event.eventAdded.format(type, name).log();
 				}
 				// if no events list for name, create one
 				if (!this._events[resolved]) {
@@ -62,11 +58,11 @@ module HG.Core {
 				}
 				// if no eventHandler, check if function is on this class
 				if (!eventHandler) {
-					if (this[resolved] && typeof(this[resolved]) === 'function') {
+					if (this[resolved] && HG.Utils.isFunction(this[resolved])) {
 						// use this
 						eventHandler = this[resolved];
 					} else {
-						throw new Error("Can't add empty event Handler");
+						throw new Error(HG.locale.event.isEmpty);
 					}
 				}
 				// actually add the eventHandler
@@ -80,17 +76,17 @@ module HG.Core {
 
 		inject(name: any, eventHandler: (...args: any[]) => any): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
-				name.forEach((n) => {
+				name.each((n) => {
 					this.inject(n, eventHandler);
 				});
 			} else {
-				var type = this['constructor']['name'];
+				var type = this["constructor"]["name"];
 				var resolved = this.resolve(name);
 				// if no events list for name, create one
 				if (!this._events[resolved]) {
 					this._events[resolved] = [];
 				}
-				HG.log("["+type+"] Injected EventHandler for '"+name+"'");
+				HG.locale.event.injected.format(type, name).log();
 				// actually add the eventHandler
 				this._events[resolved].splice(0, 0, eventHandler);
 				return this;
@@ -111,7 +107,7 @@ module HG.Core {
 		dispatch(name: number, ...args: any[]): HG.Core.EventDispatcher;
 		dispatch(name: any, ...args: any[]): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
-				name.forEach((n) => this.dispatch(n, args));
+				name.each((n) => this.dispatch(n, args));
 			} else {
 				var resolved = this.resolve(name);
 				if (!(resolved in this.events)) this.events.push(resolved);
@@ -119,10 +115,10 @@ module HG.Core {
 				if (this._events[resolved].length === 0) return;
 				var parameters = Array.prototype.splice.call(arguments, 1);
 				parameters.push(resolved);
-				this._events[resolved].forEach((event) => {
+				this._events[resolved].each((event) => {
 					event.apply(this, parameters);
 				});
-				this.globalEvents.forEach((event) => {
+				this.globalEvents.each((event) => {
 					event.apply(this, parameters);
 				});
 				return this;

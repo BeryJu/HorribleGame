@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:48:28
+* @Last Modified time: 2013-12-02 16:51:02
 */
 
 module HG.Utils {
@@ -22,26 +22,19 @@ module HG.Utils {
 		}
 
 		get<T>(x: number = 0, y: number = 0, z: number = 0, fallback?: any): T {
-			if (!this.data[x]) return fallback;
-			if (!this.data[x][y]) return fallback;
-			if (!this.data[x][y][z]) return fallback;
-			return <T> this.data[x][y][z];
-		}
-
-		clearX(x: number): boolean {
-			if (this.data[x]) this.data[x] = {};
-			return true;
-		}
-
-		clearY(x: number, y: number): boolean {
-			if (!this.data[x]) return false;
-			if (this.data[x][y]) this.data[x][y] = {}
-		}
-
-		clearZ(x: number, y: number, z: number): boolean {
-			if (!this.data[x]) return false;
-			if (!this.data[x][y]) return false;
-			if (this.data[x][y][z]) this.data[x][y][z] = {}
+			if (!this.data[x]) {
+				return fallback;
+			} else {
+				if (!this.data[x][y]) {
+					return fallback;
+				} else {
+					if (!this.data[x][y][z]) {
+						return fallback;
+					} else {
+						return <T> this.data[x][y][z];
+					}
+				}
+			}
 		}
 
 	}

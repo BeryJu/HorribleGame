@@ -3,12 +3,12 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 01:58:46
+* @Last Modified time: 2013-12-02 17:26:07
 */
 
 module HG.Utils {
 
-	export var KeyMap = {
+	export var KEY_MAP = {
 		D: 68,
 		A: 65,
 		S: 83,
@@ -25,6 +25,6 @@ module HG.Utils {
 		F5: 116,
 		F11: 122,
 		F12: 123
-	}
+	};
 
 }

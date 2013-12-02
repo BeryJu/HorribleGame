@@ -3,12 +3,12 @@ var game = new HG.Core.BaseGame(document.getElementById("gameWrapper"), "setting
 var mainScene = new HG.Scenes.BaseScene();
 var loader = new HG.Resource.ResourceLoader("assets/");
 // var srv = new HG.BaseServer(9898);
-// game.pluginHost.load(loader.directory("plugins"));
+game.pluginHost.load(loader.directory("plugins"));
 game.on('load', () => {
 	game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
 	var playerLight = new HG.Entities.BaseEntity(
-		new THREE.PointLight(0xffffff, 3, HG.Settings.Graphics.viewDistance / 10));
+		new THREE.PointLight(0xffffff, 3, HG.settings.graphics	.viewDistance / 10));
 	playerLight.offset(0, 150, 0)
 				.position(0, 0, 0);
 	mainScene.add(playerLight, "playerLight");
@@ -17,7 +17,7 @@ game.on('load', () => {
 	// scene.add(particles, "particles");
 
 	// create a skybox for demo purposes
-	// var skyBox = new HG.Entities.SkyBoxEntity(HG.Settings.viewDistance * 2);
+	// var skyBox = new HG.Entities.SkyBoxEntity(HG.settings.viewDistance * 2);
 	// loader.directory("textures/skybox").forEach((tex) => {
 	// 	skyBox
 	// });
@@ -58,15 +58,15 @@ game.on('load', () => {
 	// 	level.entities.forEach((e) => {
 	// 		scene.add(e);
 	// 	});
-	// 	var cam = new HG.Entities.ChasingCameraEntity(player, HG.Settings.Graphics.fov,
-	// 			window.innerWidth / window.innerHeight, 0.1, HG.Settings.Graphics.viewDistance);
+	// 	var cam = new HG.Entities.ChasingCameraEntity(player, HG.settings.graphics	.fov,
+	// 			window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics	.viewDistance);
 	// 	level.applyCameraOffset(cam);
 	// 	game.camera = cam;
 	// });
 	// // levelStruct.loadAsync("assets/levels/level1.json");
 	// levelStruct.create();
 
-	if (HG.Settings.debug === true) {
+	if (HG.settings.debug === true) {
 		var axes = new HG.Entities.BaseEntity(new THREE.AxisHelper(500));
 		axes.position(0, 0, 0)
 		mainScene.add(axes);
@@ -78,7 +78,7 @@ game.on('load', () => {
 game.on('start', () => {
 	game.scene(mainScene);
 	// HG.Utils.bootstrap(game, window);
-	if (HG.Settings.debug === true) {
+	if (HG.settings.debug === true) {
 		HG.Utils.profile(() => {
 			game.render();
 		});
@@ -89,9 +89,9 @@ game.on('start', () => {
 	window.onmousemove = (a: any) => game.onMouseMove(a);
 	window.onmousedown = (a: any) => game.onMouseDown(a);
 	window.onmouseup = (a: any) => game.onMouseUp(a);
-	if (HG.Settings.Graphics.useStaticFramerate === true) {
+	if (HG.settings.graphics	.useStaticFramerate === true) {
 		var render = () => { game.render(); };
-		setInterval(render, 1000 / HG.Settings.Graphics.staticFramerate);
+		setInterval(render, 1000 / HG.settings.graphics	.staticFramerate);
 		render();
 	} else {
 		var render = () => {
@@ -102,25 +102,25 @@ game.on('start', () => {
 	}
 });
 
-game.controls.keyboard.bind(HG.Settings.Keys.refresh, (delta: number) => {
+game.controls.keyboard.bind(HG.settings.keys.refresh, (delta: number) => {
 	game.reload();
 });
 
-game.controls.keyboard.bind(HG.Settings.Keys.fullscreen, (delta: number) => {
+game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 	game.toggleFullScreenMode();
 });
 
 game.on(['start', 'resize'], () => {
-	document.getElementById("resolution").innerText =
-		"Rendering on: "+window.innerWidth+"x"+window.innerHeight;
+	// document.getElementById("resolution").innerText =
+	// 		"Rendering on: "+window.innerWidth+"x"+window.innerHeight;
 });
 
 game.on("render", (delta: number) => {
 	mainScene.forNamed((e) => e.frame(delta));
-	document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.FPS;
-	document.getElementById("verts").innerText = "Vertices: "+game.renderer.info.render.vertices;
-	document.getElementById("frametime").innerText =
-		"Frametime: "+game.fpsCounter.frameTime+"ms";
+	// document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.FPS;
+	// document.getElementById("verts").innerText = "Vertices: "+game.renderer.info.render.vertices;
+	// document.getElementById("frametime").innerText =
+	// 		"Frametime: "+game.fpsCounter.frameTime+"ms";
 });
 
 window.onload = () => game.load();

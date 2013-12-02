@@ -3,60 +3,64 @@
 * @Date:   2013-11-18 21:20:56
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 22:28:32
+* @Last Modified time: 2013-12-02 18:26:47
 */
+
+module HG.Utils {
+
+	export interface IOptions {
+		silent: boolean;
+	}
+
+}
 
 module HG {
 
-	export var __start: number = 0;
-	export var __gl: boolean = false;
-	export var __options: HG.Utils.IOptions = {
+	export var _start: number = 0;
+	export var _gl: boolean = false;
+	export var _options: HG.Utils.IOptions = {
 		silent: false
 	};
 
-	export module Utils {
-
-		export interface IOptions {
-			silent: boolean;
-		}
-
-	}
-
 	export function warn(...data: any[]): string {
-		var time = (new Date().getTime() - HG.__start).toString();//.lengthen(6);
-		var output = "["+time+"] "+data.join("");
-		if (HG.__options.silent === false) {
+		var time = new Date().getTime() - HG._start;
+		var timeString = (time + "");
+		var output = "[" + timeString + "] " + data.join("");
+		if (HG._options.silent === false) {
 			console.warn(output);
 		}
 		return output;
 	}
 
 	export function log(...data: any[]): string {
-		var time = (new Date().getTime() - HG.__start).toString();//.lengthen(6);
-		var output = "["+time+"] "+data.join("");
-		if (HG.__options.silent === false) {
+		var time = new Date().getTime() - HG._start;
+		var timeString = (time + "");
+		var output = "[" + timeString + "] " + data.join("");
+		if (HG._options.silent === false) {
 			console.log(output);
 		}
 		return output;
 	}
 
 	export function horrible(options?: HG.Utils.IOptions): any {
-		HG.__start = new Date().getTime();
-		if (options) HG.__options = options;
+		HG._start = new Date().getTime();
+		if (options) HG._options = options;
 		try {
-			HG.Modules.ui = require('nw.gui');
-		} catch (e) {}
-		// process.on('uncaughtException', (err) => {
+			HG.Modules.ui = require("nw.gui");
+		} catch (e) {
+			HG.log("UI not available, assuming Headless");
+		}
+		// process.on("uncaughtException", (err) => {
 		// 	console.warn(err);
 		// 	console.trace(err.trace);
 		// });
 		// Linq
 		HG.LINQ.initialize();
 		// GL detection
-		HG.__gl = HG.Utils.hasGL();
+		HG._gl = HG.Utils.hasGL();
 		// some Audio Polyfill
 		if (typeof window !== "undefined") {
-			window['AudioContext'] = window['AudioContext'] || window['webkitAudioContext'];
+			window["AudioContext"] = window["AudioContext"] || window["webkitAudioContext"];
 		}
 		return HG;
 	}

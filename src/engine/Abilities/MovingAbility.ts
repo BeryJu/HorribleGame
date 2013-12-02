@@ -1,9 +1,9 @@
-/* 
+/*
 * @Author: BeryJu
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:34:29
+* @Last Modified time: 2013-12-02 16:30:18
 */
 
 module HG.Abilities {
@@ -31,12 +31,12 @@ module HG.Abilities {
 		}
 
 		turnLeft(step: number): void {
-			this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), 
+			this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0),
 				step.toRadian());
 		}
 
 		turnRight(step: number): void {
-			this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), 
+			this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0),
 				-step.toRadian());
 		}
 

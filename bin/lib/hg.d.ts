@@ -89,7 +89,7 @@ declare module HG.Resource {
 declare module HG.Utils {
     class ISettings {
         public debug: boolean;
-        public Graphics: {
+        public graphics: {
             fullscreen: boolean;
             fov: number;
             viewDistance: number;
@@ -99,7 +99,7 @@ declare module HG.Utils {
             antialiasing: boolean;
             resolution: THREE.Vector2;
         };
-        public Sound: {
+        public sound: {
             masterVolume: number;
             channels: {
                 effectsEnvVolume: number;
@@ -107,7 +107,7 @@ declare module HG.Utils {
                 musicVolume: number;
             };
         };
-        public Keys: {
+        public keys: {
             forward: number[];
             backward: number[];
             left: number[];
@@ -137,7 +137,7 @@ declare module HG.Utils {
     }
 }
 declare module HG.Utils {
-    var KeyMap: {
+    var KEY_MAP: {
         D: number;
         A: number;
         S: number;
@@ -161,9 +161,6 @@ declare module HG.Utils {
         public data: {};
         public set<T>(data: T, x?: number, y?: number, z?: number): boolean;
         public get<T>(x?: number, y?: number, z?: number, fallback?: any): T;
-        public clearX(x: number): boolean;
-        public clearY(x: number, y: number): boolean;
-        public clearZ(x: number, y: number, z: number): boolean;
     }
 }
 declare module HG.Utils {
@@ -179,12 +176,15 @@ declare module HG.Utils {
     }
 }
 declare module HG {
-    var Settings: Utils.ISettings;
+    var settings: Utils.ISettings;
     function loadSettings(path: string, fallback?: Utils.ISettings): Utils.ISettings;
     function saveSettings(path: string, settings: Utils.ISettings, pretty?: boolean): void;
 }
 declare module HG.Utils {
     function rgbToHex(r: number, g: number, b: number): number;
+    function isFunction(va: any): boolean;
+    function isUndefined(va: any): boolean;
+    function isNumber(va: any): boolean;
     function bootstrap(gInstance: HG.Core.BaseGame, wnd: Window): void;
     function profile(fn: () => any): void;
     function hasGL(): boolean;
@@ -234,15 +234,15 @@ declare module HG.Scenes {
         public get(nameTag: string[], type?: any): any[];
     }
 }
-declare module HG {
-    var __start: number;
-    var __gl: boolean;
-    var __options: Utils.IOptions;
-    module Utils {
-        interface IOptions {
-            silent: boolean;
-        }
+declare module HG.Utils {
+    interface IOptions {
+        silent: boolean;
     }
+}
+declare module HG {
+    var _start: number;
+    var _gl: boolean;
+    var _options: Utils.IOptions;
     function warn(...data: any[]): string;
     function log(...data: any[]): string;
     function horrible(options?: Utils.IOptions): any;
@@ -289,7 +289,6 @@ declare module HG.Core {
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
         public _running: boolean;
-        public _title: string;
         public events: string[];
         constructor(container: HTMLElement, settingsPath: string);
         public title : any[];
@@ -406,7 +405,7 @@ declare module HG.Entities {
 }
 declare module HG.LINQ {
     class ArrayProvider implements LINQ.IProvider {
-        public each(context: any[], fn: (e: any) => any): void;
+        public each(context: any[], fn: (e: any, i?: number) => any): void;
         public where(context: any[], query: (e: any) => boolean): any[];
         public order(context: any[], order: (a: any, b: any) => any): any[];
         public select(context: any[], selector: (e: any) => any): any[];
@@ -427,8 +426,12 @@ declare module HG.LINQ {
 }
 declare module HG.LINQ {
     class StringProvider implements LINQ.IProvider {
-        public f(context: string, ...args: any[]): string;
+        public format(context: string, ...args: any[]): string;
+        public f: (context: string, ...args: any[]) => string;
+        public log(context: string): void;
+        public warn(context: string): void;
         public lengthen(context: string, length: number, filler?: string): string;
+        public replaceAll(context: string, find: RegExp, replace: string): string;
         public replaceAll(context: string, find: string, replace: string): string;
         public registerFunction(key: string, fn: (...args: any[]) => any): void;
         public provide(): void;
@@ -507,5 +510,46 @@ declare module HG.Sound {
         constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
+    }
+}
+declare module HG.LINQ {
+    class ObjectProvider implements LINQ.IProvider {
+        public each(context: Object, fn: (k: string, v: any) => any): void;
+        public registerFunction(key: string, fn: (...args: any[]) => any): void;
+        public provide(): void;
+    }
+}
+declare module HG.Locale {
+    interface HGLocaleEvent {
+        eventNotAvailable: string;
+        eventAdded: string;
+        isEmpty: string;
+        injected: string;
+    }
+    interface HGLocaleResource {
+        noLoader: string;
+    }
+    interface HGLocalePluginHost {
+        failure: string;
+        success: string;
+    }
+    interface HGLocaleLINQ {
+        provided: string;
+    }
+    interface HGLocale {
+        event: HGLocaleEvent;
+        linq: HGLocaleLINQ;
+        resource: HGLocaleResource;
+        pluginHost: HGLocalePluginHost;
+    }
+    var en: HGLocale;
+}
+declare module HG {
+    var locale: Locale.HGLocale;
+}
+declare module HG.Locale {
+}
+declare module HG.Locale {
+    class LocaleCategory {
     }
 }

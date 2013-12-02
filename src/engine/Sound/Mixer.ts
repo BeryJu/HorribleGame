@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 18:43:36
+* @Last Modified time: 2013-12-02 17:28:55
 */
 
 module HG.Sound {
@@ -19,8 +19,11 @@ module HG.Sound {
 		}
 
 		channel(name: string): HG.Sound.Channel {
-			if (name in this.channels) return this.channels[name];
-			return null;
+			if (name in this.channels) {
+				return this.channels[name];
+			} else {
+				return null;
+			}
 		}
 
 		constructor() {

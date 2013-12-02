@@ -3,17 +3,17 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-30 19:06:55
+* @Last Modified time: 2013-12-02 18:50:16
 */
 
 module HG.Utils {
 
 	export class ISettings {
 
-		debug: boolean = true;
+		debug: boolean;
 
 		// gfx options
-		Graphics: {
+		graphics: {
 			fullscreen: boolean;
 			fov: number;
 			viewDistance: number;
@@ -25,7 +25,7 @@ module HG.Utils {
 		};
 
 		// sfx options
-		Sound: {
+		sound: {
 			masterVolume: number;
 			channels: {
 				effectsEnvVolume: number;
@@ -34,7 +34,7 @@ module HG.Utils {
 			}
 		};
 
-		Keys: {
+		keys: {
 			forward: number[];
 			backward: number[];
 			left: number[];

@@ -45,6 +45,14 @@ module.exports = function(grunt) {
 				rules: sourceRules
 			}
 		},
+		tslint: {
+			options: {
+				configuration: grunt.file.readJSON("tslint.json")
+			},
+			hg: {
+				src: hgPaths
+			}
+		},
 		ts: {
 			hg: {
 				src: libs.concat(hgPaths),
@@ -79,27 +87,28 @@ module.exports = function(grunt) {
 					mode: 'zip'
 				},
 				files: [
-					{
-						cwd: 'bin/',
-						expand: true,
-						src: '**'
-					}
+				{
+					cwd: 'bin/',
+					expand: true,
+					src: '**'
+				}
 				]
 			}
 		}
 	});
 
 	grunt.loadNpmTasks("grunt-ts");
+	grunt.loadNpmTasks('grunt-tslint');
 	grunt.loadNpmTasks('grunt-format');
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
 	grunt.loadNpmTasks('grunt-contrib-compress');
 
-	grunt.registerTask("game", ["format", "ts:game"]);
+	grunt.registerTask("game", ["format:game", "ts:game"]);
 	grunt.registerTask("hg", ["format:hg", "ts:hg"]);
 
 	grunt.registerTask("build", ["format", "ts"]);
 	grunt.registerTask("test", ["nodeunit"]);
-
-	grunt.registerTask("default", ["format", "ts:hg", "nodeunit"]);
+	grunt.registerTask("dist", ["format", "ts", "compress"]);
+	grunt.registerTask("default", ["format:hg", "tslint:hg", "ts:hg", "nodeunit"]);
 	grunt.registerTask("all", ["format", "ts", "nodeunit", "compress"]);
 };

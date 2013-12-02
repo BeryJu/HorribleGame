@@ -69,4 +69,8 @@
 // grunt-end
 //grunt-start
 /// <reference path="../lib/LINQ.d.ts" />
+/// <reference path="LINQ/ObjectProvider.ts" />
+/// <reference path="Locale/HGLocale.ts" />
+/// <reference path="Locale/Locale.ts" />
+/// <reference path="Locale/LocaleCategory.ts" />
 //grunt-end

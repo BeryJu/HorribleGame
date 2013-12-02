@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-11-29 20:58:53
+* @Last Modified time: 2013-12-02 18:11:26
 */
 
 module HG.Abilities {
@@ -21,7 +21,7 @@ module HG.Abilities {
 
 		setHost(entity: HG.Entities.BaseEntity): void {
 			this.hostEntity = entity;
-			entity.on('loaded', (g, m) => {
+			entity.on("loaded", (g, m) => {
 				g = <THREE.Geometry> g;
 				m = <THREE.MeshLambertMaterial[]> m;
 				this.load(g, m);
@@ -33,7 +33,7 @@ module HG.Abilities {
 		}
 
 		load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void {
-			materials.forEach((material) => {
+			materials.each((material) => {
 				material.morphTargets = true;
 			});
 			var material = new THREE.MeshFaceMaterial(materials);
@@ -42,7 +42,7 @@ module HG.Abilities {
 			this.hostEntity.object = new THREE.Mesh(geometry, material);
 			this.hostEntity.object.position = oldPosition;
 			this.hostEntity.object.rotation = oldRotation;
-			this.dispatch('loaded');
+			this.dispatch("loaded");
 		}
 
 		frame(delta: number): void {
@@ -50,17 +50,17 @@ module HG.Abilities {
 			if (this.running === true) {
 				var time = new Date().getTime() % this.duration;
 				var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
-				if (keyframe != this.currentKeyframe ) {
-					this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] = 0;
-					this.hostEntity.object['morphTargetInfluences'][this.currentKeyframe] = 1;
-					this.hostEntity.object['morphTargetInfluences'][keyframe] = 0;
+				if (keyframe !== this.currentKeyframe ) {
+					this.hostEntity.object["morphTargetInfluences"][this.lastKeyframe] = 0;
+					this.hostEntity.object["morphTargetInfluences"][this.currentKeyframe] = 1;
+					this.hostEntity.object["morphTargetInfluences"][keyframe] = 0;
 					this.lastKeyframe = this.currentKeyframe;
 					this.currentKeyframe = keyframe;
 				}
-				this.hostEntity.object['morphTargetInfluences'][keyframe] =
+				this.hostEntity.object["morphTargetInfluences"][keyframe] =
 					(time % this.interpolation) / this.interpolation;
-				this.hostEntity.object['morphTargetInfluences'][this.lastKeyframe] =
-					1 - this.hostEntity.object['morphTargetInfluences'][keyframe];
+				this.hostEntity.object["morphTargetInfluences"][this.lastKeyframe] =
+					1 - this.hostEntity.object["morphTargetInfluences"][keyframe];
 				this.running = false;
 			}
 		}
