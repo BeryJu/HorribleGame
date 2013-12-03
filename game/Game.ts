@@ -4,7 +4,10 @@ var mainScene = new HG.Scenes.BaseScene();
 var loader = new HG.Resource.ResourceLoader("assets/");
 // var srv = new HG.BaseServer(9898);
 game.pluginHost.load(loader.directory("plugins"));
-game.on('load', () => {
+loader.locale("locale/HG.locale.json", (locale: HG.Locale.Locale) => {
+	HG.locale = locale;
+});
+game.on("load", () => {
 	game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
 	var playerLight = new HG.Entities.BaseEntity(
@@ -33,18 +36,18 @@ game.on('load', () => {
 	var animationAbility = new HG.Abilities.AnimationAbility();
 	player.ability(animationAbility);
 
-	player.on('loaded', () => {
+	player.on("loaded", () => {
 		player.scale(10, 10, 10)
 				.offset(0, 0, 50);
 		mainScene.add(player, "player");
 	});
 	loader.model("models/android.js", player);
 
-	var sound1 = new HG.Sound.Effect(game.soundMixer.channel('effectsEnv'));
+	var sound1 = new HG.Sound.Effect(game.soundMixer.channel("effectsEnv"));
 	loader.sound("sounds/001.wav", sound1);
 
 	var room = new HG.Entities.MeshEntity();
-	room.on('loaded', () => {
+	room.on("loaded", () => {
 		room.scale(5, 5, 5)
 			.offset(0, 0, 50)
 			.rotate((90).toRadian(), 0, 0);
@@ -53,8 +56,8 @@ game.on('load', () => {
 	loader.model("models/room01.stl", room);
 
 	// var levelStruct = new HG.Level.LevelStructure();
-	// levelStruct.on(['loaded', 'created'], (args: {}) => {
-	// 	var level = new HG.Level.Level(args['level']);
+	// levelStruct.on(["loaded", "created"], (args: {}) => {
+	// 	var level = new HG.Level.Level(args["level"]);
 	// 	level.entities.forEach((e) => {
 	// 		scene.add(e);
 	// 	});
@@ -68,14 +71,14 @@ game.on('load', () => {
 
 	if (HG.settings.debug === true) {
 		var axes = new HG.Entities.BaseEntity(new THREE.AxisHelper(500));
-		axes.position(0, 0, 0)
+		axes.position(0, 0, 0);
 		mainScene.add(axes);
 	}
 
 	game.start();
 });
 
-game.on('start', () => {
+game.on("start", () => {
 	game.scene(mainScene);
 	// HG.Utils.bootstrap(game, window);
 	if (HG.settings.debug === true) {
@@ -89,17 +92,17 @@ game.on('start', () => {
 	window.onmousemove = (a: any) => game.onMouseMove(a);
 	window.onmousedown = (a: any) => game.onMouseDown(a);
 	window.onmouseup = (a: any) => game.onMouseUp(a);
+	var render;
 	if (HG.settings.graphics	.useStaticFramerate === true) {
-		var render = () => { game.render(); };
+		render = () => { game.render(); };
 		setInterval(render, 1000 / HG.settings.graphics	.staticFramerate);
-		render();
 	} else {
-		var render = () => {
+		render = () => {
 			game.render();
 			requestAnimationFrame(render);
 		};
-		render();
 	}
+	render();
 });
 
 game.controls.keyboard.bind(HG.settings.keys.refresh, (delta: number) => {
@@ -110,7 +113,7 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 	game.toggleFullScreenMode();
 });
 
-game.on(['start', 'resize'], () => {
+game.on(["start", "resize"], () => {
 	// document.getElementById("resolution").innerText =
 	// 		"Rendering on: "+window.innerWidth+"x"+window.innerHeight;
 });

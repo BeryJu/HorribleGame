@@ -25,7 +25,7 @@
 // 			// 	HG.CONSTANTS.BLOCK_SIZE
 // 			// );
 // 			// var m =  new THREE.MeshPhongMaterial({color: 0x000000});
-// 			// level.entities.each((e) => {
+// 			// level.entities.forEach((e) => {
 // 			// 	m.color = new THREE.Color(e.color);
 // 			// 	var en = new HG.Entities.MeshEntity(g, m);
 // 			// 	en.position(e.position.x, e.position.y, e.position.z);

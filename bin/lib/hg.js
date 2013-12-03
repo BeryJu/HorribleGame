@@ -27,7 +27,7 @@ var HG;
             EventDispatcher.prototype.on = function (name, eventHandler) {
                 var _this = this;
                 if (Array.isArray(name) === true) {
-                    name.each(function (n) {
+                    name.forEach(function (n) {
                         return _this.on(n, eventHandler);
                     });
                 } else {
@@ -48,7 +48,7 @@ var HG;
                         if (this[resolved] && HG.Utils.isFunction(this[resolved])) {
                             eventHandler = this[resolved];
                         } else {
-                            throw new Error(HG.locale.event.isEmpty);
+                            HG.locale.event.isEmpty.error();
                         }
                     }
 
@@ -60,7 +60,7 @@ var HG;
             EventDispatcher.prototype.inject = function (name, eventHandler) {
                 var _this = this;
                 if (Array.isArray(name) === true) {
-                    name.each(function (n) {
+                    name.forEach(function (n) {
                         _this.inject(n, eventHandler);
                     });
                 } else {
@@ -95,7 +95,7 @@ var HG;
                 }
                 var _this = this;
                 if (Array.isArray(name) === true) {
-                    name.each(function (n) {
+                    name.forEach(function (n) {
                         return _this.dispatch(n, args);
                     });
                 } else {
@@ -108,10 +108,10 @@ var HG;
                         return;
                     var parameters = Array.prototype.splice.call(arguments, 1);
                     parameters.push(resolved);
-                    this._events[resolved].each(function (event) {
+                    this._events[resolved].forEach(function (event) {
                         event.apply(_this, parameters);
                     });
-                    this.globalEvents.each(function (event) {
+                    this.globalEvents.forEach(function (event) {
                         event.apply(_this, parameters);
                     });
                     return this;
@@ -156,7 +156,7 @@ var HG;
                 this.game = instance;
             }
             PluginHost.prototype.doReload = function () {
-                this.paths.each(function (path) {
+                this.paths.forEach(function (path) {
                     var resolved = global.require.resolve("./" + path);
                     delete global.require.cache[resolved];
                 });
@@ -164,7 +164,7 @@ var HG;
 
             PluginHost.prototype.load = function (path, env) {
                 var _this = this;
-                path.each(function (file) {
+                path.forEach(function (file) {
                     env = {
                         HG: HG,
                         THREE: THREE,
@@ -354,7 +354,7 @@ var HG;
         var Noise = (function () {
             function Noise() {
             }
-            Noise.Generate2 = function (x, y) {
+            Noise.generate2 = function (x, y) {
                 var F2 = 0.366025403;
                 var G2 = 0.211324865;
 
@@ -416,7 +416,7 @@ var HG;
                 return 40.0 * (n0 + n1 + n2);
             };
 
-            Noise.Generate3 = function (x, y, z) {
+            Noise.generate3 = function (x, y, z) {
                 var F3 = 0.333333333;
                 var G3 = 0.166666667;
 
@@ -1100,10 +1100,10 @@ var HG;
         var raw = HG.Modules.fs.readFileSync(path);
         fallback = fallback || new HG.Utils.ISettings();
         try  {
-            HG.log("[Settings] Loaded Settings from JSON.");
+            HG.locale.settings.loadedSuccess.log();
             return JSON.parse(raw);
         } catch (e) {
-            HG.log("[Settings] Failed to load settings, used fallback.");
+            HG.locale.settings.loadedFailure.log();
             return fallback || new HG.Utils.ISettings();
         }
         return new HG.Utils.ISettings();
@@ -1119,7 +1119,7 @@ var HG;
             parsed = JSON.stringify(settings);
         }
         HG.Modules.fs.writeFile(path, parsed);
-        HG.log("[Settings] Saved settings.");
+        HG.locale.settings.savedSuccess.log();
     }
     HG.saveSettings = saveSettings;
 })(HG || (HG = {}));
@@ -1154,6 +1154,7 @@ var HG;
         Utils.isNumber = isNumber;
 
         function bootstrap(gInstance, wnd) {
+            return;
         }
         Utils.bootstrap = bootstrap;
 
@@ -1202,7 +1203,7 @@ var HG;
             };
 
             BaseEntity.prototype.forAbilities = function (callback) {
-                this.abilities.each(callback);
+                this.abilities.forEach(callback);
             };
 
             BaseEntity.prototype.offset = function (x, y, z) {
@@ -1238,7 +1239,7 @@ var HG;
 
             BaseEntity.prototype.frame = function (delta) {
                 if (this.abilities.length > 0) {
-                    this.abilities.each(function (ability) {
+                    this.abilities.forEach(function (ability) {
                         ability.frame(delta);
                     });
                 }
@@ -1279,7 +1280,6 @@ var HG;
     (function (Scenes) {
         var BaseScene = (function () {
             function BaseScene() {
-                this.scene = null;
                 this.controls = new HG.Core.InputHandler();
                 this.scene = new Physijs.Scene();
                 this.entities = {
@@ -1290,16 +1290,22 @@ var HG;
             BaseScene.prototype.add = function (entity, nameTag) {
                 this.scene.add(entity.getInternal());
                 if (nameTag) {
+                    if (this.entities.named[nameTag.toLowerCase()]) {
+                        HG.locale.core.errors.duplicateNameTag.error();
+                    }
                     this.entities.named[nameTag.toLowerCase()] = entity;
                 } else {
                     this.entities.unnamed.push(entity);
                 }
             };
 
+            BaseScene.prototype.merge = function (otherScene) {
+            };
+
             BaseScene.prototype.getAllNamed = function (type) {
                 if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
                 var es = [];
-                this.entities.named.each(function (k, v) {
+                this.entities.named.forEach(function (k, v) {
                     if (v instanceof type)
                         es.push(v);
                 });
@@ -1309,7 +1315,7 @@ var HG;
             BaseScene.prototype.getAllUnnamed = function (type) {
                 if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
                 var es = [];
-                this.entities.unnamed.each(function (e) {
+                this.entities.unnamed.forEach(function (e) {
                     if (e instanceof type)
                         es.push(e);
                 });
@@ -1327,16 +1333,17 @@ var HG;
             BaseScene.prototype.forNamed = function (callback, type) {
                 if (!type)
                     type = HG.Entities.BaseEntity;
-                this.entities.named.each(function (k, v) {
-                    if (v instanceof type)
-                        callback(v, k);
-                });
+                for (var k in this.entities.named) {
+                    var ne = this.entities.named[k];
+                    if (ne instanceof type)
+                        callback(ne, k);
+                }
             };
 
             BaseScene.prototype.forUnamed = function (callback, type) {
                 if (!type)
                     type = HG.Entities.BaseEntity;
-                this.entities.unnamed.each(function (e) {
+                this.entities.unnamed.forEach(function (e) {
                     if (e instanceof type)
                         callback(e);
                 });
@@ -1390,6 +1397,19 @@ var HG;
         return output;
     }
     HG.warn = warn;
+
+    function forceLog() {
+        var data = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            data[_i] = arguments[_i + 0];
+        }
+        var time = new Date().getTime() - HG._start;
+        var timeString = (time + "");
+        var output = "[" + timeString + "] " + data.join("");
+        console.log(output);
+        return output;
+    }
+    HG.forceLog = forceLog;
 
     function log() {
         var data = [];
@@ -1464,7 +1484,7 @@ var HG;
             };
 
             AnimationAbility.prototype.load = function (geometry, materials) {
-                materials.each(function (material) {
+                materials.forEach(function (material) {
                     material.morphTargets = true;
                 });
                 var material = new THREE.MeshFaceMaterial(materials);
@@ -1816,11 +1836,11 @@ var HG;
 
             InputHandler.prototype.frame = function (delta) {
                 var _this = this;
-                this.keyState.each(function (s, i) {
+                this.keyState.forEach(function (s, i) {
                     if (s === 1)
                         _this.keyboard.dispatch(i, delta);
                 });
-                this.mouseState.each(function (s, i) {
+                this.mouseState.forEach(function (s, i) {
                     if (s === 1)
                         _this.mouse.dispatch(i, delta);
                 });
@@ -1973,7 +1993,7 @@ var HG;
                 var skyGeometry = new THREE.CubeGeometry(size, size, size);
 
                 var materialArray = [];
-                directions.each(function (d) {
+                directions.forEach(function (d) {
                     materialArray.push(new THREE.MeshBasicMaterial({
                         map: THREE.ImageUtils.loadTexture(directory + d + suffix),
                         side: THREE.BackSide
@@ -2072,14 +2092,11 @@ var HG;
     (function (LINQ) {
         var ArrayProvider = (function () {
             function ArrayProvider() {
+                this._prototype = Array.prototype;
             }
-            ArrayProvider.prototype.each = function (context, fn) {
-                context.each(fn);
-            };
-
             ArrayProvider.prototype.where = function (context, query) {
                 var result = [];
-                context.each(function (e) {
+                context.forEach(function (e) {
                     if (query(e) === true)
                         result.push(e);
                 });
@@ -2092,26 +2109,10 @@ var HG;
 
             ArrayProvider.prototype.select = function (context, selector) {
                 var result = [];
-                context.each(function (e) {
+                context.forEach(function (e) {
                     result.push(selector(e));
                 });
                 return result;
-            };
-
-            ArrayProvider.prototype.registerFunction = function (key, fn) {
-                Array.prototype[key] = function () {
-                    var args = Array.prototype.slice.call(arguments);
-                    args.splice(0, 0, this);
-                    return fn.apply(this, args);
-                };
-            };
-
-            ArrayProvider.prototype.provide = function () {
-                for (var k in this) {
-                    if (k !== "provide") {
-                        this.registerFunction(k, this[k]);
-                    }
-                }
             };
             return ArrayProvider;
         })();
@@ -2123,10 +2124,22 @@ var HG;
 (function (HG) {
     (function (LINQ) {
         function initialize() {
+            var registerFunction = function (key, type, fn) {
+                type[key] = function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    args.splice(0, 0, this);
+                    return fn.apply(this, args);
+                };
+            };
             for (var type in HG.LINQ) {
                 if (type.toString() !== "initialize") {
                     var provider = new HG.LINQ[type]();
-                    provider.provide();
+                    var prototype = provider._prototype;
+                    for (var method in provider) {
+                        if (method !== "_prototype") {
+                            registerFunction(method, prototype, provider[method]);
+                        }
+                    }
                 }
             }
         }
@@ -2139,6 +2152,7 @@ var HG;
     (function (LINQ) {
         var NumberProvider = (function () {
             function NumberProvider() {
+                this._prototype = Number.prototype;
             }
             NumberProvider.prototype.toRadian = function (nmb) {
                 return nmb * (Math.PI / 180);
@@ -2146,22 +2160,6 @@ var HG;
 
             NumberProvider.prototype.toDegrees = function (nmb) {
                 return nmb * (180 / Math.PI);
-            };
-
-            NumberProvider.prototype.registerFunction = function (key, fn) {
-                Number.prototype[key] = function () {
-                    var args = Array.prototype.slice.call(arguments);
-                    args.splice(0, 0, this);
-                    return fn.apply(this, args);
-                };
-            };
-
-            NumberProvider.prototype.provide = function () {
-                for (var k in this) {
-                    if (k !== "provide") {
-                        this.registerFunction(k, this[k]);
-                    }
-                }
             };
             return NumberProvider;
         })();
@@ -2172,18 +2170,39 @@ var HG;
 var HG;
 (function (HG) {
     (function (LINQ) {
+        var ObjectProvider = (function () {
+            function ObjectProvider() {
+                this._prototype = Object.prototype;
+            }
+            return ObjectProvider;
+        })();
+        LINQ.ObjectProvider = ObjectProvider;
+    })(HG.LINQ || (HG.LINQ = {}));
+    var LINQ = HG.LINQ;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (LINQ) {
         var StringProvider = (function () {
             function StringProvider() {
+                this._prototype = String.prototype;
                 this.f = this.format;
             }
-            StringProvider.prototype.format = function (context) {
+            StringProvider.prototype.format = function (context, arg1) {
                 var args = [];
-                for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                    args[_i] = arguments[_i + 1];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
                 }
-                args.each(function (arg, index) {
-                    context = context.replaceAll("${" + index + "}", arg);
-                });
+                if (args.length === 0) {
+                    for (var k in arg1) {
+                        context = context.replaceAll("${" + k + "}", arg1[k]);
+                    }
+                } else {
+                    context = context.replaceAll("${0}", arg1);
+                    args.forEach(function (arg, index) {
+                        context = context.replaceAll("${" + (index + 1) + "}", arg);
+                    });
+                }
                 return context;
             };
 
@@ -2193,6 +2212,10 @@ var HG;
 
             StringProvider.prototype.warn = function (context) {
                 HG.warn(context);
+            };
+
+            StringProvider.prototype.error = function (context) {
+                throw new Error(context);
             };
 
             StringProvider.prototype.lengthen = function (context, length, filler) {
@@ -2213,27 +2236,28 @@ var HG;
                 }
                 return context.replace(new RegExp(find, "g"), replace);
             };
-
-            StringProvider.prototype.registerFunction = function (key, fn) {
-                String.prototype[key] = function () {
-                    var args = Array.prototype.slice.call(arguments);
-                    args.splice(0, 0, this);
-                    return fn.apply(this, args);
-                };
-            };
-
-            StringProvider.prototype.provide = function () {
-                for (var k in this) {
-                    if (k !== "provide") {
-                        this.registerFunction(k, this[k]);
-                    }
-                }
-            };
             return StringProvider;
         })();
         LINQ.StringProvider = StringProvider;
     })(HG.LINQ || (HG.LINQ = {}));
     var LINQ = HG.LINQ;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    HG.locale;
+})(HG || (HG = {}));
+
+var HG;
+(function (HG) {
+    (function (Locale) {
+        var Locale = (function () {
+            function Locale() {
+            }
+            return Locale;
+        })();
+        Locale.Locale = Locale;
+    })(HG.Locale || (HG.Locale = {}));
+    var Locale = HG.Locale;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -2321,33 +2345,53 @@ var HG;
                 }
             };
 
-            ResourceLoader.prototype.load = function (relPath, target, namespace) {
+            ResourceLoader.prototype.load = function (relPath, namespace, target) {
                 var absPath = HG.Modules.path.join(this.baseDirectory, relPath);
                 var extension = HG.Modules.path.extname(absPath);
-                var extensionName = extensionName.toUpperCase().replace(".", "");
+                var extensionName = extension.toUpperCase().replace(".", "");
+                var foundLoader = false;
+                var isOk = false;
                 for (var k in namespace) {
-                    if (extension.toUpperCase() === k) {
+                    if (k === extensionName) {
                         var loader = new namespace[k]();
-                        loader.on("loaded", function (model) {
-                            target.load(model);
-                        });
+                        if (target["load"]) {
+                            loader.on("loaded", function (data) {
+                                target.load(data);
+                            });
+                        } else {
+                            loader.on("loaded", function (data) {
+                                target(data);
+                            });
+                        }
                         loader.load(absPath);
-                        return;
+                        foundLoader = true;
                     }
                 }
-                throw new Error(HG.locale.resource.noLoader.f(extension));
+                if (foundLoader === false) {
+                    HG.locale.resource.noLoader.f(extension).error();
+                }
             };
 
             ResourceLoader.prototype.model = function (path, entitiy) {
-                this.load(path, entitiy, HG.Resource.Model);
+                this.load(path, HG.Resource.Model, entitiy);
             };
 
             ResourceLoader.prototype.texture = function (path, entitiy) {
-                this.load(path, entitiy, HG.Resource.Texture);
+                this.load(path, HG.Resource.Texture, entitiy);
             };
 
             ResourceLoader.prototype.sound = function (path, effect) {
-                this.load(path, effect, HG.Resource.Sound);
+                this.load(path, HG.Resource.Sound, effect);
+            };
+
+            ResourceLoader.prototype.locale = function (path, fn) {
+                var absPath = HG.Modules.path.join(this.baseDirectory, path);
+                try  {
+                    var raw = HG.Modules.fs.readFileSync(absPath);
+                    fn(JSON.parse(raw));
+                } catch (e) {
+                    throw e;
+                }
             };
 
             ResourceLoader.prototype.directory = function (directory) {
@@ -2355,7 +2399,7 @@ var HG;
                 var path = HG.Modules.path.join(this.baseDirectory, directory);
                 var files = HG.Modules.fs.readdirSync(path);
                 var realFiles = [];
-                files.each(function (file) {
+                files.forEach(function (file) {
                     realFiles.push(HG.Modules.path.join(_this.baseDirectory, directory, file));
                 });
                 return realFiles;
@@ -2363,6 +2407,32 @@ var HG;
             return ResourceLoader;
         })(HG.Core.EventDispatcher);
         Resource.ResourceLoader = ResourceLoader;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Resource) {
+        (function (Settings) {
+            var JSONSettings = (function (_super) {
+                __extends(JSONSettings, _super);
+                function JSONSettings() {
+                    _super.apply(this, arguments);
+                    this.events = ["loaded"];
+                }
+                JSONSettings.prototype.load = function (path, fallback) {
+                    try  {
+                        var raw = HG.Modules.fs.readFileSync(path);
+                        this.dispatch("loaded", JSON.parse(raw));
+                    } catch (e) {
+                        HG.locale.resource.loaderFailure.f("JSONSettings", path).error();
+                    }
+                };
+                return JSONSettings;
+            })(HG.Core.EventDispatcher);
+            Settings.JSONSettings = JSONSettings;
+        })(Resource.Settings || (Resource.Settings = {}));
+        var Settings = Resource.Settings;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
 })(HG || (HG = {}));
@@ -2412,7 +2482,7 @@ var HG;
                 }
                 PNG.prototype.load = function (path) {
                     var loader = new THREE.ImageLoader();
-                    throw new Error("NotImplementedError");
+                    HG.locale.core.errors.notImplementedError.error();
                 };
                 return PNG;
             })(HG.Core.EventDispatcher);
@@ -2421,6 +2491,20 @@ var HG;
         var Texture = Resource.Texture;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Scenes) {
+        var GameScene = (function (_super) {
+            __extends(GameScene, _super);
+            function GameScene() {
+                _super.apply(this, arguments);
+            }
+            return GameScene;
+        })(HG.Scenes.BaseScene);
+        Scenes.GameScene = GameScene;
+    })(HG.Scenes || (HG.Scenes = {}));
+    var Scenes = HG.Scenes;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -2542,78 +2626,5 @@ var HG;
         Sound.Mixer = Mixer;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (LINQ) {
-        var ObjectProvider = (function () {
-            function ObjectProvider() {
-            }
-            ObjectProvider.prototype.each = function (context, fn) {
-                for (var k in context) {
-                    fn(k, context[k]);
-                }
-            };
-
-            ObjectProvider.prototype.registerFunction = function (key, fn) {
-                Object.prototype[key] = function () {
-                    var args = Array.prototype.slice.call(arguments);
-                    args.splice(0, 0, this);
-                    return fn.apply(this, args);
-                };
-            };
-
-            ObjectProvider.prototype.provide = function () {
-                for (var k in this) {
-                    if (k !== "provide") {
-                        this.registerFunction(k, this[k]);
-                    }
-                }
-            };
-            return ObjectProvider;
-        })();
-        LINQ.ObjectProvider = ObjectProvider;
-    })(HG.LINQ || (HG.LINQ = {}));
-    var LINQ = HG.LINQ;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Locale) {
-        Locale.en = {
-            event: {
-                eventAdded: "[${0}] Added EventHandler for '${1}'",
-                eventNotAvailable: "[${0}] Event '${1}' not available, still added though",
-                isEmpty: "Can't add empty event Handler",
-                injected: "[${0}] Injected EventHandler for '${1}'"
-            },
-            linq: {
-                provided: "[LINQ] Provided ${0}"
-            },
-            resource: {
-                noLoader: "No Loader for Filetype ${0} available."
-            },
-            pluginHost: {
-                failure: "[PluginHost] Failed to load Plugin ${0} because ${1}",
-                success: "[PluginHost] Loaded ${0}Plugin"
-            }
-        };
-    })(HG.Locale || (HG.Locale = {}));
-    var Locale = HG.Locale;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    HG.locale = HG.Locale.en;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Locale) {
-        var LocaleCategory = (function () {
-            function LocaleCategory() {
-            }
-            return LocaleCategory;
-        })();
-        Locale.LocaleCategory = LocaleCategory;
-    })(HG.Locale || (HG.Locale = {}));
-    var Locale = HG.Locale;
 })(HG || (HG = {}));
 //# sourceMappingURL=hg.js.map

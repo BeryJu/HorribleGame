@@ -3,7 +3,7 @@
 * @Date:   2013-12-01 21:20:16
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:09:50
+* @Last Modified time: 2013-12-03 21:10:45
 */
 
 module HG.Locale {
@@ -15,8 +15,18 @@ module HG.Locale {
 		injected: string;
 	}
 
+	export interface HGLocaleErrors {
+		notImplementedError: string;
+		duplicateNameTag: string;
+	}
+
+	export interface HGLocaleCore {
+		errors: HG.Locale.HGLocaleErrors;
+	}
+
 	export interface HGLocaleResource {
 		noLoader: string;
+		loaderFailure: string;
 	}
 
 	export interface HGLocalePluginHost {
@@ -28,30 +38,19 @@ module HG.Locale {
 		provided: string;
 	}
 
+	export interface HGLocaleSettings {
+		loadedSuccess: string;
+		loadedFailure: string;
+		savedSuccess: string;
+	}
+
 	export interface HGLocale {
 		event: HG.Locale.HGLocaleEvent;
 		linq: HG.Locale.HGLocaleLINQ;
 		resource: HG.Locale.HGLocaleResource;
 		pluginHost: HG.Locale.HGLocalePluginHost;
+		settings: HG.Locale.HGLocaleSettings;
+		core: HG.Locale.HGLocaleCore;
 	}
-
-	export var en: HG.Locale.HGLocale = {
-		event: {
-			eventAdded: "[${0}] Added EventHandler for '${1}'",
-			eventNotAvailable: "[${0}] Event '${1}' not available, still added though",
-			isEmpty: "Can't add empty event Handler",
-			injected: "[${0}] Injected EventHandler for '${1}'"
-		},
-		linq: {
-			provided: "[LINQ] Provided ${0}"
-		},
-		resource: {
-			noLoader: "No Loader for Filetype ${0} available."
-		},
-		pluginHost: {
-			failure: "[PluginHost] Failed to load Plugin ${0} because ${1}",
-			success: "[PluginHost] Loaded ${0}Plugin"
-		}
-	};
 
 }

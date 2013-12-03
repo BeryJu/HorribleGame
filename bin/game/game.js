@@ -4,7 +4,7 @@ var mainScene = new HG.Scenes.BaseScene();
 var loader = new HG.Resource.ResourceLoader("assets/");
 
 game.pluginHost.load(loader.directory("plugins"));
-game.on('load', function () {
+game.on("load", function () {
     game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
     var playerLight = new HG.Entities.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.settings.graphics.viewDistance / 10));
@@ -20,17 +20,17 @@ game.on('load', function () {
     var animationAbility = new HG.Abilities.AnimationAbility();
     player.ability(animationAbility);
 
-    player.on('loaded', function () {
+    player.on("loaded", function () {
         player.scale(10, 10, 10).offset(0, 0, 50);
         mainScene.add(player, "player");
     });
     loader.model("models/android.js", player);
 
-    var sound1 = new HG.Sound.Effect(game.soundMixer.channel('effectsEnv'));
+    var sound1 = new HG.Sound.Effect(game.soundMixer.channel("effectsEnv"));
     loader.sound("sounds/001.wav", sound1);
 
     var room = new HG.Entities.MeshEntity();
-    room.on('loaded', function () {
+    room.on("loaded", function () {
         room.scale(5, 5, 5).offset(0, 0, 50).rotate((90).toRadian(), 0, 0);
         mainScene.add(room);
     });
@@ -45,7 +45,7 @@ game.on('load', function () {
     game.start();
 });
 
-game.on('start', function () {
+game.on("start", function () {
     game.scene(mainScene);
 
     if (HG.settings.debug === true) {
@@ -71,19 +71,19 @@ game.on('start', function () {
     window.onmouseup = function (a) {
         return game.onMouseUp(a);
     };
+    var render;
     if (HG.settings.graphics.useStaticFramerate === true) {
-        var render = function () {
+        render = function () {
             game.render();
         };
         setInterval(render, 1000 / HG.settings.graphics.staticFramerate);
-        render();
     } else {
-        var render = function () {
+        render = function () {
             game.render();
             requestAnimationFrame(render);
         };
-        render();
     }
+    render();
 });
 
 game.controls.keyboard.bind(HG.settings.keys.refresh, function (delta) {
@@ -94,7 +94,7 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, function (delta) {
     game.toggleFullScreenMode();
 });
 
-game.on(['start', 'resize'], function () {
+game.on(["start", "resize"], function () {
 });
 
 game.on("render", function (delta) {

@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:10:29
+* @Last Modified time: 2013-12-02 20:33:16
 */
 
 module HG.Core {
@@ -62,10 +62,10 @@ module HG.Core {
 		}
 
 		frame(delta: number): void {
-			this.keyState.each((s, i) => {
+			this.keyState.forEach((s, i) => {
 				if (s === 1) this.keyboard.dispatch(i, delta);
 			});
-			this.mouseState.each((s, i) => {
+			this.mouseState.forEach((s, i) => {
 				if (s === 1) this.mouse.dispatch(i, delta);
 			});
 		}

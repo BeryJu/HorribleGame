@@ -23,12 +23,12 @@ var testPaths = [
 ];
 
 var gamePaths = [
-	"bin/lib/hg.d.ts",
 	"game/*.ts"
 ];
 
 var dist = "dist/app.nw";
-var outHG = "bin/lib/hg.js"
+var outHG = "bin/lib/hg.js";
+var hgDef = "bin/lib/hg.d.ts";
 var outGame = "bin/game/game.js"
 
 var fs = require("fs");
@@ -51,6 +51,9 @@ module.exports = function(grunt) {
 			},
 			hg: {
 				src: hgPaths
+			},
+			game: {
+				src: gamePaths
 			}
 		},
 		ts: {
@@ -67,7 +70,7 @@ module.exports = function(grunt) {
 				}
 			},
 			game: {
-				src: libs.concat(gamePaths),
+				src: libs.concat(hgDef, gamePaths),
 				out: outGame,
 				options: {
 					target: "es5",
@@ -87,11 +90,11 @@ module.exports = function(grunt) {
 					mode: 'zip'
 				},
 				files: [
-				{
-					cwd: 'bin/',
-					expand: true,
-					src: '**'
-				}
+					{
+						cwd: 'bin/',
+						expand: true,
+						src: '**'
+					}
 				]
 			}
 		}
@@ -103,12 +106,12 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
 	grunt.loadNpmTasks('grunt-contrib-compress');
 
-	grunt.registerTask("game", ["format:game", "ts:game"]);
-	grunt.registerTask("hg", ["format:hg", "ts:hg"]);
+	grunt.registerTask("game", ["format:game", "tslint:game", "ts:game"]);
+	grunt.registerTask("hg", ["format:hg", "tslint:hg", "ts:hg"]);
 
-	grunt.registerTask("build", ["format", "ts"]);
+	grunt.registerTask("build", ["format", "tslint", "ts"]);
 	grunt.registerTask("test", ["nodeunit"]);
-	grunt.registerTask("dist", ["format", "ts", "compress"]);
+	grunt.registerTask("dist", ["format", "tslint", "ts", "compress"]);
 	grunt.registerTask("default", ["format:hg", "tslint:hg", "ts:hg", "nodeunit"]);
-	grunt.registerTask("all", ["format", "ts", "nodeunit", "compress"]);
+	grunt.registerTask("all", ["format", "tslint", "ts", "nodeunit", "compress"]);
 };

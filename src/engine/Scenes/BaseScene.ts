@@ -3,14 +3,14 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:47:55
+* @Last Modified time: 2013-12-03 20:59:06
 */
 
 module HG.Scenes {
 
 	export class BaseScene {
 
-		scene: Physijs.Scene = null;
+		scene: Physijs.Scene;
 		controls: HG.Core.InputHandler;
 		entities: {
 			named: {};
@@ -29,15 +29,22 @@ module HG.Scenes {
 		add(entity: HG.Entities.BaseEntity, nameTag?: string): void {
 			this.scene.add(entity.getInternal());
 			if (nameTag) {
+				if (this.entities.named[nameTag.toLowerCase()]) {
+					HG.locale.core.errors.duplicateNameTag.error();
+				}
 				this.entities.named[nameTag.toLowerCase()] = entity;
 			} else {
 				this.entities.unnamed.push(entity);
 			}
 		}
 
+		merge(otherScene: HG.Scenes.BaseScene): void {
+			// todo
+		}
+
 		getAllNamed(type: any = HG.Entities.BaseEntity): any[] {
 			var es = [];
-			this.entities.named.each((k, v) => {
+			this.entities.named.forEach((k, v) => {
 				if (v instanceof type) es.push(v);
 			});
 			return es;
@@ -45,7 +52,7 @@ module HG.Scenes {
 
 		getAllUnnamed(type: any = HG.Entities.BaseEntity): any[] {
 			var es = [];
-			this.entities.unnamed.each((e) => {
+			this.entities.unnamed.forEach((e) => {
 				if (e instanceof type) es.push(e);
 			});
 			return es;
@@ -60,14 +67,15 @@ module HG.Scenes {
 
 		forNamed(callback: (e: any, k: string) => any, type?: any): void {
 			if (!type) type = HG.Entities.BaseEntity;
-			this.entities.named.each((k, v) => {
-				if (v instanceof type) callback(v, k);
-			});
+			for (var k in this.entities.named) {
+				var ne = this.entities.named[k];
+				if (ne instanceof type) callback(ne, k);
+			}
 		}
 
 		forUnamed(callback: (e: any) => any, type?: any): void {
 			if (!type) type = HG.Entities.BaseEntity;
-			this.entities.unnamed.each((e) => {
+			this.entities.unnamed.forEach((e) => {
 				if (e instanceof type) callback(e);
 			});
 		}

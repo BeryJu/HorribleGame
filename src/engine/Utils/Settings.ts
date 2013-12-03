@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 17:58:34
+* @Last Modified time: 2013-12-02 19:42:01
 */
 
 module HG {
@@ -14,10 +14,10 @@ module HG {
 		var raw = HG.Modules.fs.readFileSync(path);
 		fallback = fallback || new HG.Utils.ISettings();
 		try {
-			HG.log("[Settings] Loaded Settings from JSON.");
+			HG.locale.settings.loadedSuccess.log();
 			return <HG.Utils.ISettings> JSON.parse(raw);
 		} catch (e) {
-			HG.log("[Settings] Failed to load settings, used fallback.");
+			HG.locale.settings.loadedFailure.log();
 			return fallback || new HG.Utils.ISettings();
 		}
 		return new HG.Utils.ISettings();
@@ -32,7 +32,7 @@ module HG {
 			parsed = JSON.stringify(settings);
 		}
 		HG.Modules.fs.writeFile(path, parsed);
-		HG.log("[Settings] Saved settings.");
+		HG.locale.settings.savedSuccess.log();
 	}
 
 }

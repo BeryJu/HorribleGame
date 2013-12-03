@@ -3,19 +3,21 @@
 * @Date:   2013-12-01 20:15:13
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-01 22:03:18
+* @Last Modified time: 2013-12-03 21:10:58
 */
 
 module HG {
 
-	export var locale: HG.Locale.HGLocale = HG.Locale.en;
+	export var locale: HG.Locale.HGLocale;
 
 }
 
 module HG.Locale {
 
-	// export function loadLocale<T>(path: string, type: T): T {
-	// 	return <type> JSON.parse(HG.Module.fs.readFileSync(path));
-	// }
+	export class Locale {
+
+		languages: {};
+
+	}
 
 }

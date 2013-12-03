@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:10:14
+* @Last Modified time: 2013-12-02 20:33:16
 */
 
 module HG.Core {
@@ -21,14 +21,14 @@ module HG.Core {
 		}
 
 		doReload(): void {
-			this.paths.each((path) => {
+			this.paths.forEach((path) => {
 				var resolved = global.require.resolve("./" + path);
 				delete global.require.cache[resolved];
 			});
 		}
 
 		load(path: string[], env?: {}): void {
-			path.each((file) => {
+			path.forEach((file) => {
 				env = {
 					HG: HG,
 					THREE: THREE,

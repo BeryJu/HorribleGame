@@ -1,10 +1,10 @@
+/// <reference path="../../src/lib/LINQ.d.ts" />
 /// <reference path="../../src/lib/lib.d.ts" />
 /// <reference path="../../src/lib/node.d.ts" />
 /// <reference path="../../src/lib/physijs.d.ts" />
 /// <reference path="../../src/lib/socket.io.d.ts" />
 /// <reference path="../../src/lib/three.d.ts" />
 /// <reference path="../../src/lib/waa.d.ts" />
-/// <reference path="../../src/lib/LINQ.d.ts" />
 declare module HG.Core {
     class EventDispatcher {
         private _events;
@@ -73,7 +73,7 @@ declare module HG.Core {
 }
 declare module HG.LINQ {
     interface IProvider {
-        provide(): void;
+        _prototype: any;
     }
 }
 declare module HG.Resource {
@@ -166,8 +166,8 @@ declare module HG.Utils {
 declare module HG.Utils {
     class Noise {
         static perm: number[];
-        static Generate2(x: number, y: number): number;
-        static Generate3(x: number, y: number, z: number): number;
+        static generate2(x: number, y: number): number;
+        static generate3(x: number, y: number, z: number): number;
         static Mod(x: number, m: number): number;
         static grad1(hash: number, x: number): number;
         static grad2(hash: number, x: number, y: number): number;
@@ -224,6 +224,7 @@ declare module HG.Scenes {
         };
         constructor();
         public add(entity: HG.Entities.BaseEntity, nameTag?: string): void;
+        public merge(otherScene: BaseScene): void;
         public getAllNamed(type?: any): any[];
         public getAllUnnamed(type?: any): any[];
         public getAll(type?: any): any[];
@@ -244,6 +245,7 @@ declare module HG {
     var _gl: boolean;
     var _options: Utils.IOptions;
     function warn(...data: any[]): string;
+    function forceLog(...data: any[]): string;
     function log(...data: any[]): string;
     function horrible(options?: Utils.IOptions): any;
 }
@@ -405,12 +407,10 @@ declare module HG.Entities {
 }
 declare module HG.LINQ {
     class ArrayProvider implements LINQ.IProvider {
-        public each(context: any[], fn: (e: any, i?: number) => any): void;
+        public _prototype: any[];
         public where(context: any[], query: (e: any) => boolean): any[];
         public order(context: any[], order: (a: any, b: any) => any): any[];
         public select(context: any[], selector: (e: any) => any): any[];
-        public registerFunction(key: string, fn: (...args: any[]) => any): void;
-        public provide(): void;
     }
 }
 declare module HG.LINQ {
@@ -418,23 +418,74 @@ declare module HG.LINQ {
 }
 declare module HG.LINQ {
     class NumberProvider implements LINQ.IProvider {
+        public _prototype: Number;
         public toRadian(nmb: number): number;
         public toDegrees(nmb: number): number;
-        public registerFunction(key: string, fn: (...args: any[]) => any): void;
-        public provide(): void;
+    }
+}
+declare module HG.LINQ {
+    class ObjectProvider implements LINQ.IProvider {
+        public _prototype: Object;
     }
 }
 declare module HG.LINQ {
     class StringProvider implements LINQ.IProvider {
-        public format(context: string, ...args: any[]): string;
-        public f: (context: string, ...args: any[]) => string;
+        public _prototype: String;
+        public format(context: string, arg1: any, ...args: any[]): string;
+        public f: (context: string, arg1: any, ...args: any[]) => string;
         public log(context: string): void;
         public warn(context: string): void;
+        public error(context: string): void;
         public lengthen(context: string, length: number, filler?: string): string;
         public replaceAll(context: string, find: RegExp, replace: string): string;
         public replaceAll(context: string, find: string, replace: string): string;
-        public registerFunction(key: string, fn: (...args: any[]) => any): void;
-        public provide(): void;
+    }
+}
+declare module HG.Locale {
+    interface HGLocaleEvent {
+        eventNotAvailable: string;
+        eventAdded: string;
+        isEmpty: string;
+        injected: string;
+    }
+    interface HGLocaleErrors {
+        notImplementedError: string;
+        duplicateNameTag: string;
+    }
+    interface HGLocaleCore {
+        errors: HGLocaleErrors;
+    }
+    interface HGLocaleResource {
+        noLoader: string;
+        loaderFailure: string;
+    }
+    interface HGLocalePluginHost {
+        failure: string;
+        success: string;
+    }
+    interface HGLocaleLINQ {
+        provided: string;
+    }
+    interface HGLocaleSettings {
+        loadedSuccess: string;
+        loadedFailure: string;
+        savedSuccess: string;
+    }
+    interface HGLocale {
+        event: HGLocaleEvent;
+        linq: HGLocaleLINQ;
+        resource: HGLocaleResource;
+        pluginHost: HGLocalePluginHost;
+        settings: HGLocaleSettings;
+        core: HGLocaleCore;
+    }
+}
+declare module HG {
+    var locale: Locale.HGLocale;
+}
+declare module HG.Locale {
+    class Locale {
+        public languages: {};
     }
 }
 declare module HG.Resource.Model {
@@ -454,11 +505,18 @@ declare module HG.Resource {
         public baseDirectory: string;
         constructor(baseDirectory: string);
         public resolvePath(path: string): string;
-        private load(relPath, target, namespace);
+        private load(relPath, namespace, target);
         public model(path: string, entitiy: HG.Entities.MeshEntity): void;
         public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
+        public locale(path: string, fn: (locale: HG.Locale.Locale) => any): void;
         public directory(directory: string): string[];
+    }
+}
+declare module HG.Resource.Settings {
+    class JSONSettings extends HG.Core.EventDispatcher implements Resource.IFiletype {
+        public events: string[];
+        public load(path: string, fallback?: any): void;
     }
 }
 declare module HG.Resource.Sound {
@@ -471,6 +529,10 @@ declare module HG.Resource.Texture {
     class PNG extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
         public load(path: string): void;
+    }
+}
+declare module HG.Scenes {
+    class GameScene extends Scenes.BaseScene {
     }
 }
 declare module HG.Sound {
@@ -510,46 +572,5 @@ declare module HG.Sound {
         constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
-    }
-}
-declare module HG.LINQ {
-    class ObjectProvider implements LINQ.IProvider {
-        public each(context: Object, fn: (k: string, v: any) => any): void;
-        public registerFunction(key: string, fn: (...args: any[]) => any): void;
-        public provide(): void;
-    }
-}
-declare module HG.Locale {
-    interface HGLocaleEvent {
-        eventNotAvailable: string;
-        eventAdded: string;
-        isEmpty: string;
-        injected: string;
-    }
-    interface HGLocaleResource {
-        noLoader: string;
-    }
-    interface HGLocalePluginHost {
-        failure: string;
-        success: string;
-    }
-    interface HGLocaleLINQ {
-        provided: string;
-    }
-    interface HGLocale {
-        event: HGLocaleEvent;
-        linq: HGLocaleLINQ;
-        resource: HGLocaleResource;
-        pluginHost: HGLocalePluginHost;
-    }
-    var en: HGLocale;
-}
-declare module HG {
-    var locale: Locale.HGLocale;
-}
-declare module HG.Locale {
-}
-declare module HG.Locale {
-    class LocaleCategory {
     }
 }

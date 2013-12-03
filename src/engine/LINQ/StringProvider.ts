@@ -3,17 +3,26 @@
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:03:05
+* @Last Modified time: 2013-12-03 19:09:53
 */
 
 module HG.LINQ {
 
 	export class StringProvider implements HG.LINQ.IProvider {
 
-		format(context: string, ...args: any[]): string {
-			args.each((arg, index) => {
-				context = context.replaceAll("${" + index + "}", arg);
-			});
+		_prototype = String.prototype;
+
+		format(context: string, arg1: any, ...args: any[]): string {
+			if (args.length === 0) {
+				for (var k in arg1) {
+					context = context.replaceAll("${" + k + "}", arg1[k]);
+				}
+			} else {
+				context = context.replaceAll("${0}", arg1);
+				args.forEach((arg, index) => {
+					context = context.replaceAll("${" + (index + 1) + "}", arg);
+				});
+			}
 			return context;
 		}
 
@@ -25,6 +34,10 @@ module HG.LINQ {
 
 		warn(context: string): void {
 			HG.warn(context);
+		}
+
+		error(context: string): void {
+			throw new Error(context);
 		}
 
 		lengthen(context: string, length: number, filler?: string): string {
@@ -48,21 +61,6 @@ module HG.LINQ {
 			return context.replace(new RegExp(find, "g"), replace);
 		}
 
-		registerFunction(key: string, fn: (...args: any[]) => any): void {
-			String.prototype[key] = function () {
-				var args = Array.prototype.slice.call(arguments);
-				args.splice(0, 0, this);
-				return fn.apply(this, args);
-			};
-		}
-
-		provide(): void {
-			for (var k in this) {
-				if (k !== "provide") {
-					this.registerFunction(k, this[k]);
-				}
-			}
-		}
 	}
 
 }

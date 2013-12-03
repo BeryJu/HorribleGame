@@ -37,7 +37,7 @@ module HG.Utils {
 		192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
 		138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180];
 
-		static Generate2(x: number, y: number): number {
+		static generate2(x: number, y: number): number {
 			var F2 = 0.366025403; // F2 = 0.5 * (sqrt(3.0) - 1.0)
 			var G2 = 0.211324865; // G2 = (3.0 - Math.sqrt(3.0))/6.0
 
@@ -105,7 +105,7 @@ module HG.Utils {
 			return 40.0 * (n0 + n1 + n2); // TODO: The scale factor is preliminary!
 		}
 
-		static Generate3(x: number, y: number, z: number): number {
+		static generate3(x: number, y: number, z: number): number {
 			// Simple skewing factors for the 3D case
 			var F3 = 0.333333333;
 			var G3 = 0.166666667;

@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:52:21
+* @Last Modified time: 2013-12-03 19:10:33
 */
 
 module HG.Core {
@@ -42,7 +42,7 @@ module HG.Core {
 		on(name: number, eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher;
 		on(name: any, eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
-				name.each((n) => this.on(n, eventHandler));
+				name.forEach((n) => this.on(n, eventHandler));
 			} else {
 				var type = this["constructor"]["name"];
 				var resolved = this.resolve(name);
@@ -62,7 +62,7 @@ module HG.Core {
 						// use this
 						eventHandler = this[resolved];
 					} else {
-						throw new Error(HG.locale.event.isEmpty);
+						HG.locale.event.isEmpty.error();
 					}
 				}
 				// actually add the eventHandler
@@ -76,7 +76,7 @@ module HG.Core {
 
 		inject(name: any, eventHandler: (...args: any[]) => any): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
-				name.each((n) => {
+				name.forEach((n) => {
 					this.inject(n, eventHandler);
 				});
 			} else {
@@ -107,7 +107,7 @@ module HG.Core {
 		dispatch(name: number, ...args: any[]): HG.Core.EventDispatcher;
 		dispatch(name: any, ...args: any[]): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
-				name.each((n) => this.dispatch(n, args));
+				name.forEach((n) => this.dispatch(n, args));
 			} else {
 				var resolved = this.resolve(name);
 				if (!(resolved in this.events)) this.events.push(resolved);
@@ -115,10 +115,10 @@ module HG.Core {
 				if (this._events[resolved].length === 0) return;
 				var parameters = Array.prototype.splice.call(arguments, 1);
 				parameters.push(resolved);
-				this._events[resolved].each((event) => {
+				this._events[resolved].forEach((event) => {
 					event.apply(this, parameters);
 				});
-				this.globalEvents.each((event) => {
+				this.globalEvents.forEach((event) => {
 					event.apply(this, parameters);
 				});
 				return this;

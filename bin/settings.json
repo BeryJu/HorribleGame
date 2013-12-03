@@ -1,6 +1,6 @@
 {
 	"debug": true,
-	"Graphics": {
+	"graphics": {
 		"fullscreen": false,
 		"fov": 110,
 		"viewDistance": 5000,
@@ -13,7 +13,7 @@
 			"y": 720
 		}
 	},
-	"Sound": {
+	"sound": {
 		"masterVolume": 1,
 		"channels": {
 			"effectsEnvVolume": 0.7,
@@ -21,7 +21,7 @@
 			"musicVolume": 0.7
 		}
 	},
-	"Keys": {
+	"keys": {
 		"forward": [
 			87,
 			38

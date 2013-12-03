@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 21:20:56
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:26:47
+* @Last Modified time: 2013-12-03 11:37:12
 */
 
 module HG.Utils {
@@ -29,6 +29,14 @@ module HG {
 		if (HG._options.silent === false) {
 			console.warn(output);
 		}
+		return output;
+	}
+
+	export function forceLog(...data: any[]): string {
+		var time = new Date().getTime() - HG._start;
+		var timeString = (time + "");
+		var output = "[" + timeString + "] " + data.join("");
+		console.log(output);
 		return output;
 	}
 

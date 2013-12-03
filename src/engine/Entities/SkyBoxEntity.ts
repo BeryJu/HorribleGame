@@ -31,7 +31,7 @@
 // 				var skyGeometry = new THREE.CubeGeometry(size, size, size);
 
 // 				var materialArray = [];
-// 				directions.each((d) => {
+// 				directions.forEach((d) => {
 // 					materialArray.push( new THREE.MeshBasicMaterial({
 // 						map: THREE.ImageUtils.loadTexture(directory + d + suffix),
 // 						side: THREE.BackSide

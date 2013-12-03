@@ -25,7 +25,8 @@
 
 /// All the rest
 /// This is auto generated
-// grunt-start
+//grunt-start
+/// <reference path="../lib/LINQ.d.ts" />
 /// <reference path="../lib/lib.d.ts" />
 /// <reference path="../lib/node.d.ts" />
 /// <reference path="../lib/physijs.d.ts" />
@@ -53,24 +54,22 @@
 /// <reference path="LINQ/ArrayProvider.ts" />
 /// <reference path="LINQ/LINQ.ts" />
 /// <reference path="LINQ/NumberProvider.ts" />
+/// <reference path="LINQ/ObjectProvider.ts" />
 /// <reference path="LINQ/StringProvider.ts" />
 /// <reference path="Level/Level.ts" />
 /// <reference path="Level/LevelSerializer.ts" />
 /// <reference path="Level/LevelStructure.ts" />
+/// <reference path="Locale/HGLocale.ts" />
+/// <reference path="Locale/Locale.ts" />
 /// <reference path="Resources/Model/JS.ts" />
 /// <reference path="Resources/Model/STL.ts" />
 /// <reference path="Resources/ResourceLoader.ts" />
+/// <reference path="Resources/Settings/JSONSettings.ts" />
 /// <reference path="Resources/Sound/WAV.ts" />
 /// <reference path="Resources/Textures/PNG.ts" />
-/// <reference path="Scenes/EntityScene.ts" />
+/// <reference path="Scenes/GameScene.ts" />
+/// <reference path="Scenes/MapScene.ts" />
 /// <reference path="Sound/Channel.ts" />
 /// <reference path="Sound/Effect.ts" />
 /// <reference path="Sound/Mixer.ts" />
-// grunt-end
-//grunt-start
-/// <reference path="../lib/LINQ.d.ts" />
-/// <reference path="LINQ/ObjectProvider.ts" />
-/// <reference path="Locale/HGLocale.ts" />
-/// <reference path="Locale/Locale.ts" />
-/// <reference path="Locale/LocaleCategory.ts" />
 //grunt-end

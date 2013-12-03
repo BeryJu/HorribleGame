@@ -1,0 +1,30 @@
+{
+	"core": {
+		"errors": {
+			"notImplementedError": "NotImplementedError",
+			"duplicateNameTag": "Duplicate Name Tag"
+		}
+	},
+	"event": {
+		"eventAdded": "[${0}] Added EventHandler for '${1}'",
+		"eventNotAvailable": "[${0}] Event '${1}' not available, still added though",
+		"isEmpty": "Can't add empty event Handler",
+		"injected": "[${0}] Injected EventHandler for '${1}'"
+	},
+	"linq": {
+		"provided": "[LINQ] Provided ${0}"
+	},
+	"resource": {
+		"noLoader": "No Loader for Filetype ${0} available.",
+		"loaderFailuire": "[${1}Loader] Failed to load ${1}"
+	},
+	"pluginHost": {
+		"failure": "[PluginHost] Failed to load Plugin ${0} because ${1}",
+		"success": "[PluginHost] Loaded ${0}Plugin"
+	},
+	"settings": {
+		"loadedSuccess": "[Settings] Loaded Settings from JSON.",
+		"loadedFailure": "[Settings] Failed to load settings, used fallback.",
+		"savedSuccess": "[Settings] Saved settings."
+	}
+}
