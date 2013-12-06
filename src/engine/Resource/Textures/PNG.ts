@@ -3,7 +3,7 @@
 * @Date:   2013-11-20 14:10:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-03 19:10:57
+* @Last Modified time: 2013-12-06 19:30:10
 */
 
 module HG.Resource.Texture {
@@ -13,13 +13,7 @@ module HG.Resource.Texture {
 		events: string[] = ["loaded"];
 
 		load(path: string) {
-			var loader = new THREE.ImageLoader();
-			HG.locale.core.errors.notImplementedError.error();
-
-			// loader.addEventListener("load", (image) => {
-			// 	this.dispatch("loaded", image);
-			// });
-			// loader.load(path);
+			this.dispatch("loaded", THREE.ImageUtils.loadTexture(path));
 		}
 
 	}

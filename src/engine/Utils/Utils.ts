@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 16:53:32
+* @Last Modified time: 2013-12-06 19:10:28
 */
 
 module HG.Utils {
@@ -30,33 +30,44 @@ module HG.Utils {
 		return (typeof va === "number");
 	}
 
-	export function bootstrap(gInstance: HG.Core.BaseGame): void {
+	export function bootstrap(game: HG.Core.BaseGame): void {
 		if (HG.settings.debug === true) {
-			HG.Utils.profile("HG Profiling Frame", () => gInstance.render());
+			HG.Utils.profile("HG Profiling Frame", () => game.render());
 		}
-		window.onresize = () => gInstance.onResize();
-		window.onkeydown = (a: any) => gInstance.onKeyDown(a);
-		window.onkeyup = (a: any) => gInstance.onKeyUp(a);
-		window.onmousemove = (a: any) => gInstance.onMouseMove(a);
-		window.onmousedown = (a: any) => gInstance.onMouseDown(a);
-		window.onmouseup = (a: any) => gInstance.onMouseUp(a);
+		window.onresize = () => game.onResize();
+		window.onkeydown = (a: any) => game.onKeyDown(a);
+		window.onkeyup = (a: any) => game.onKeyUp(a);
+		window.onmousemove = (a: any) => game.onMouseMove(a);
+		window.onmousedown = (a: any) => game.onMouseDown(a);
+		window.onmouseup = (a: any) => game.onMouseUp(a);
 		var render;
-		if (HG.settings.graphics	.useStaticFramerate === true) {
-			render = () => { gInstance.render(); };
+		if (HG.settings.graphics.useStaticFramerate === true) {
+			render = () => { game.render(); };
 			setInterval(render, 1000 / HG.settings.graphics	.staticFramerate);
 		} else {
 			render = () => {
-				gInstance.render();
+				game.render();
 				requestAnimationFrame(render);
 			};
 		}
 		render();
 	}
 
-	export function profile(name: string, fn: () => any): void {
-		console.profile(name);
+	export function devTools(): void {
+		var whnd = HG.Modules.ui.Window.get();
+		whnd.showDevTools();
+	}
+
+	export function profile(label: string, fn: () => any): void {
+		console.profile(label);
 		fn();
 		console.profileEnd();
+	}
+
+	export function time(label: string, fn: () => any): void {
+		console.time(label);
+		fn();
+		console.timeEnd(label);
 	}
 
 	export function hasGL(): boolean {

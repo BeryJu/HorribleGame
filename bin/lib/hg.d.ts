@@ -162,8 +162,10 @@ declare module HG.Utils {
     function isFunction(va: any): boolean;
     function isUndefined(va: any): boolean;
     function isNumber(va: any): boolean;
-    function bootstrap(gInstance: HG.Core.BaseGame): void;
-    function profile(name: string, fn: () => any): void;
+    function bootstrap(game: HG.Core.BaseGame): void;
+    function devTools(): void;
+    function profile(label: string, fn: () => any): void;
+    function time(label: string, fn: () => any): void;
     function hasGL(): boolean;
 }
 declare module HG.Entities {
@@ -194,6 +196,7 @@ declare module HG.Abilities {
 declare module HG.Scenes {
     class BaseScene {
         public scene: Physijs.Scene;
+        public cameraEntity: HG.Entities.CameraEntity;
         public controls: HG.Core.InputHandler;
         public entities: {
             named: {};
@@ -201,7 +204,9 @@ declare module HG.Scenes {
         };
         constructor();
         public add(entity: HG.Entities.BaseEntity, nameTag?: string): void;
+        public camera(cam: HG.Entities.CameraEntity): void;
         public merge(otherScene: BaseScene): void;
+        public resize(ratio: number): void;
         public getAllNamed(type?: any): any[];
         public getAllUnnamed(type?: any): any[];
         public getAll(type?: any): any[];
@@ -209,7 +214,8 @@ declare module HG.Scenes {
         public forUnamed(callback: (e: any) => any, type?: any): void;
         public forAll(callback: (e: any) => any, type?: any): void;
         public getInternal(): Physijs.Scene;
-        public get(nameTag: string[], type?: any): any[];
+        public getCamera(): THREE.PerspectiveCamera;
+        public frame(delta: number): void;
     }
 }
 declare module HG.Utils {
@@ -261,7 +267,6 @@ declare module HG.Abilities {
 declare module HG.Core {
     class BaseGame extends Core.EventDispatcher {
         public renderer: THREE.WebGLRenderer;
-        public camera: HG.Entities.CameraEntity;
         public soundMixer: HG.Sound.Mixer;
         public currentScene: HG.Scenes.BaseScene;
         public pluginHost: Core.PluginHost;
@@ -336,6 +341,7 @@ declare module HG.Entities {
         constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
         public setViewDistance(distance: number): void;
         public resize(ratio: number): void;
+        public getInternal(): THREE.PerspectiveCamera;
     }
 }
 declare module HG.Entities {
@@ -387,7 +393,9 @@ declare module HG.Entities {
 declare module HG.Entities {
     class SpriteEntity extends Entities.BaseEntity {
         public object: THREE.Sprite;
-        constructor(canvas: HTMLCanvasElement, alignment?: THREE.Vector2);
+        public alignment: THREE.Vector2;
+        constructor(canvas?: HTMLCanvasElement, alignment?: THREE.Vector2);
+        public load(texture: THREE.Texture): void;
     }
 }
 declare module HG.Entities {

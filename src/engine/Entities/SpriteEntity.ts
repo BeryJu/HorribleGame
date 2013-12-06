@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:02:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 16:17:57
+* @Last Modified time: 2013-12-06 19:40:45
 */
 
 module HG.Entities {
@@ -11,19 +11,33 @@ module HG.Entities {
 	export class SpriteEntity extends HG.Entities.BaseEntity {
 
 		object: THREE.Sprite;
+		alignment: THREE.Vector2;
 
-		constructor(canvas: HTMLCanvasElement,
-			alignment: THREE.Vector2 = THREE.SpriteAlignment.topLeft) {
+		constructor(canvas?: HTMLCanvasElement,
+			alignment: THREE.Vector2 = new THREE.Vector2(1, -1)) {
 			super();
-			var texture = new THREE.Texture(canvas);
-			texture.needsUpdate = true;
+			this.alignment = alignment;
+			if (typeof canvas !== "undefined") {
+				console.log("wat");
+				var texture = new THREE.Texture(canvas);
+				texture.needsUpdate = true;
 
+				var spriteMaterial = new THREE.SpriteMaterial({
+					map: texture,
+					useScreenCoordinates: false,
+					alignment: this.alignment
+				});
+				this.object = new THREE.Sprite(spriteMaterial);
+			}
+		}
+
+		load(texture: THREE.Texture): void {
 			var spriteMaterial = new THREE.SpriteMaterial({
 				map: texture,
 				useScreenCoordinates: false,
-				alignment: alignment
+				alignment: this.alignment
 			});
-			var sprite = new THREE.Sprite(spriteMaterial);
+			this.object = new THREE.Sprite(spriteMaterial);
 		}
 
 	}

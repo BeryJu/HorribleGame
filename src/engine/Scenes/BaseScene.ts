@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 14:59:06
+* @Last Modified time: 2013-12-07 00:08:00
 */
 
 module HG.Scenes {
@@ -11,6 +11,7 @@ module HG.Scenes {
 	export class BaseScene {
 
 		scene: Physijs.Scene;
+		cameraEntity: HG.Entities.CameraEntity;
 		controls: HG.Core.InputHandler;
 		entities: {
 			named: {};
@@ -19,6 +20,10 @@ module HG.Scenes {
 
 		constructor() {
 			this.controls = new HG.Core.InputHandler();
+			this.cameraEntity = new HG.Entities.CameraEntity(
+				HG.settings.graphics.fov,
+				window.innerWidth / window.innerHeight, 0.1,
+				HG.settings.graphics.viewDistance);
 			this.scene = new Physijs.Scene();
 			this.entities = {
 				named: {},
@@ -38,8 +43,16 @@ module HG.Scenes {
 			}
 		}
 
+		camera(cam: HG.Entities.CameraEntity): void {
+			this.cameraEntity = cam;
+		}
+
 		merge(otherScene: HG.Scenes.BaseScene): void {
 			// todo
+		}
+
+		resize(ratio: number): void {
+			this.cameraEntity.resize(ratio);
 		}
 
 		getAllNamed(type: any = HG.Entities.BaseEntity): any[] {
@@ -90,13 +103,14 @@ module HG.Scenes {
 			return this.scene;
 		}
 
-		get(nameTag: string[], type: any = HG.Entities.BaseEntity): any[] {
-			var e = [];
-			for (var i = 0; i < nameTag.length; i++) {
-				var ee = this.entities.named[nameTag[i].toLowerCase()];
-				if (ee instanceof type) e.push(ee);
-			}
-			return e;
+		getCamera(): THREE.PerspectiveCamera {
+			return this.cameraEntity.getInternal();
+		}
+
+		frame(delta: number): void {
+			this.controls.frame(delta);
+			this.cameraEntity.frame(delta);
+			this.forNamed((e) => e.frame(delta));
 		}
 
 	}

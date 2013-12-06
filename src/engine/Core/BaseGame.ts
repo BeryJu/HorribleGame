@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 18:10:31
+* @Last Modified time: 2013-12-07 00:07:35
 */
 
 module HG.Core {
@@ -11,7 +11,6 @@ module HG.Core {
 	export class BaseGame extends  HG.Core.EventDispatcher  {
 
 		renderer: THREE.WebGLRenderer;
-		camera: HG.Entities.CameraEntity;
 		soundMixer: HG.Sound.Mixer;
 		currentScene: HG.Scenes.BaseScene;
 		pluginHost: HG.Core.PluginHost;
@@ -47,11 +46,6 @@ module HG.Core {
 			this.setFullScreenMode(HG.settings.graphics.fullscreen);
 			this.resize(HG.settings.graphics.resolution);
 
-
-			this.camera = new HG.Entities.CameraEntity(
-				HG.settings.graphics.fov,
-				window.innerWidth / window.innerHeight, 0.1,
-				HG.settings.graphics.viewDistance);
 			this.renderer = new THREE.WebGLRenderer({
 				antialias: HG.settings.graphics.antialiasing
 			});
@@ -154,7 +148,7 @@ module HG.Core {
 
 		onResize(): void {
 			this.dispatch("resize");
-			this.camera.resize(window.innerWidth / window.innerHeight);
+			this.currentScene.resize(window.innerWidth / window.innerHeight);
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}
 
@@ -162,15 +156,14 @@ module HG.Core {
 			var delta = this.fpsCounter.frameTime / 10;
 			this.dispatch("preRender", delta);
 			this.dispatch("render", delta);
-			this.currentScene.forNamed((e) => e.frame(delta));
-			this.currentScene.controls.frame(delta);
-			this.camera.frame(delta);
+			this.currentScene.frame(delta);
 			this.controls.frame(delta);
 			this.fpsCounter.frame(delta);
 			this.currentScene.getInternal().simulate();
 			this.renderer.render(this.currentScene.getInternal(),
-				<THREE.PerspectiveCamera> this.camera.getInternal());
+				this.currentScene.getCamera());
 			this.dispatch("postRender", delta);
+			console.timeStamp("rendered");
 		}
 
 	}

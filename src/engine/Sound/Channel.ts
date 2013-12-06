@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 15:52:36
+* @Last Modified time: 2013-12-06 19:51:38
 */
 
 module HG.Sound {
@@ -13,7 +13,7 @@ module HG.Sound {
 		name: string;
 		rootContext: AudioContext;
 		gainNode: GainNode;
-		private children: HG.Sound.Effect[];
+		private children: HG.Sound.Effect[] = [];
 
 		get gain(): number {
 			return this.gainNode.gain.value || 0;

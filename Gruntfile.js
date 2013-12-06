@@ -23,7 +23,7 @@ var testPaths = [
 ];
 
 var gamePaths = [
-	"game/*.ts"
+	"HorribleGame/*.ts"
 ];
 
 var dist = "dist/";
@@ -98,6 +98,6 @@ module.exports = function(grunt) {
 	grunt.registerTask("build", ["tslint", "ts"]);
 	grunt.registerTask("test", ["nodeunit"]);
 	grunt.registerTask("dist", ["tslint", "ts", "nodewebkit"]);
-	grunt.registerTask("default", ["tslint:hg", "ts:hg", "nodeunit"]);
+	grunt.registerTask("default", ["tslint:hg", "ts", "nodeunit"]);
 	grunt.registerTask("all", ["tslint", "ts", "nodeunit", "nodewebkit"]);
 };

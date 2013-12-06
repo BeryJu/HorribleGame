@@ -677,39 +677,39 @@ var HG;
         }
         Utils.isNumber = isNumber;
 
-        function bootstrap(gInstance) {
+        function bootstrap(game) {
             if (HG.settings.debug === true) {
                 HG.Utils.profile("HG Profiling Frame", function () {
-                    return gInstance.render();
+                    return game.render();
                 });
             }
             window.onresize = function () {
-                return gInstance.onResize();
+                return game.onResize();
             };
             window.onkeydown = function (a) {
-                return gInstance.onKeyDown(a);
+                return game.onKeyDown(a);
             };
             window.onkeyup = function (a) {
-                return gInstance.onKeyUp(a);
+                return game.onKeyUp(a);
             };
             window.onmousemove = function (a) {
-                return gInstance.onMouseMove(a);
+                return game.onMouseMove(a);
             };
             window.onmousedown = function (a) {
-                return gInstance.onMouseDown(a);
+                return game.onMouseDown(a);
             };
             window.onmouseup = function (a) {
-                return gInstance.onMouseUp(a);
+                return game.onMouseUp(a);
             };
             var render;
             if (HG.settings.graphics.useStaticFramerate === true) {
                 render = function () {
-                    gInstance.render();
+                    game.render();
                 };
                 setInterval(render, 1000 / HG.settings.graphics.staticFramerate);
             } else {
                 render = function () {
-                    gInstance.render();
+                    game.render();
                     requestAnimationFrame(render);
                 };
             }
@@ -717,12 +717,25 @@ var HG;
         }
         Utils.bootstrap = bootstrap;
 
-        function profile(name, fn) {
-            console.profile(name);
+        function devTools() {
+            var whnd = HG.Modules.ui.Window.get();
+            whnd.showDevTools();
+        }
+        Utils.devTools = devTools;
+
+        function profile(label, fn) {
+            console.profile(label);
             fn();
             console.profileEnd();
         }
         Utils.profile = profile;
+
+        function time(label, fn) {
+            console.time(label);
+            fn();
+            console.timeEnd(label);
+        }
+        Utils.time = time;
 
         function hasGL() {
             var wnd = (typeof window !== "undefined") ? true : false;
@@ -840,6 +853,7 @@ var HG;
         var BaseScene = (function () {
             function BaseScene() {
                 this.controls = new HG.Core.InputHandler();
+                this.cameraEntity = new HG.Entities.CameraEntity(HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
                 this.scene = new Physijs.Scene();
                 this.entities = {
                     named: {},
@@ -858,7 +872,15 @@ var HG;
                 }
             };
 
+            BaseScene.prototype.camera = function (cam) {
+                this.cameraEntity = cam;
+            };
+
             BaseScene.prototype.merge = function (otherScene) {
+            };
+
+            BaseScene.prototype.resize = function (ratio) {
+                this.cameraEntity.resize(ratio);
             };
 
             BaseScene.prototype.getAllNamed = function (type) {
@@ -919,15 +941,16 @@ var HG;
                 return this.scene;
             };
 
-            BaseScene.prototype.get = function (nameTag, type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
-                var e = [];
-                for (var i = 0; i < nameTag.length; i++) {
-                    var ee = this.entities.named[nameTag[i].toLowerCase()];
-                    if (ee instanceof type)
-                        e.push(ee);
-                }
-                return e;
+            BaseScene.prototype.getCamera = function () {
+                return this.cameraEntity.getInternal();
+            };
+
+            BaseScene.prototype.frame = function (delta) {
+                this.controls.frame(delta);
+                this.cameraEntity.frame(delta);
+                this.forNamed(function (e) {
+                    return e.frame(delta);
+                });
             };
             return BaseScene;
         })();
@@ -1171,7 +1194,6 @@ var HG;
                 this.setFullScreenMode(HG.settings.graphics.fullscreen);
                 this.resize(HG.settings.graphics.resolution);
 
-                this.camera = new HG.Entities.CameraEntity(HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
                 this.renderer = new THREE.WebGLRenderer({
                     antialias: HG.settings.graphics.antialiasing
                 });
@@ -1277,7 +1299,7 @@ var HG;
 
             BaseGame.prototype.onResize = function () {
                 this.dispatch("resize");
-                this.camera.resize(window.innerWidth / window.innerHeight);
+                this.currentScene.resize(window.innerWidth / window.innerHeight);
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
             };
 
@@ -1285,16 +1307,13 @@ var HG;
                 var delta = this.fpsCounter.frameTime / 10;
                 this.dispatch("preRender", delta);
                 this.dispatch("render", delta);
-                this.currentScene.forNamed(function (e) {
-                    return e.frame(delta);
-                });
-                this.currentScene.controls.frame(delta);
-                this.camera.frame(delta);
+                this.currentScene.frame(delta);
                 this.controls.frame(delta);
                 this.fpsCounter.frame(delta);
                 this.currentScene.getInternal().simulate();
-                this.renderer.render(this.currentScene.getInternal(), this.camera.getInternal());
+                this.renderer.render(this.currentScene.getInternal(), this.currentScene.getCamera());
                 this.dispatch("postRender", delta);
+                console.timeStamp("rendered");
             };
             return BaseGame;
         })(HG.Core.EventDispatcher);
@@ -1463,6 +1482,10 @@ var HG;
             CameraEntity.prototype.resize = function (ratio) {
                 this.object.aspect = ratio;
                 this.object.updateProjectionMatrix();
+            };
+
+            CameraEntity.prototype.getInternal = function () {
+                return this.object;
             };
             return CameraEntity;
         })(HG.Entities.BaseEntity);
@@ -1662,18 +1685,30 @@ var HG;
         var SpriteEntity = (function (_super) {
             __extends(SpriteEntity, _super);
             function SpriteEntity(canvas, alignment) {
-                if (typeof alignment === "undefined") { alignment = THREE.SpriteAlignment.topLeft; }
+                if (typeof alignment === "undefined") { alignment = new THREE.Vector2(1, -1); }
                 _super.call(this);
-                var texture = new THREE.Texture(canvas);
-                texture.needsUpdate = true;
+                this.alignment = alignment;
+                if (typeof canvas !== "undefined") {
+                    console.log("wat");
+                    var texture = new THREE.Texture(canvas);
+                    texture.needsUpdate = true;
 
+                    var spriteMaterial = new THREE.SpriteMaterial({
+                        map: texture,
+                        useScreenCoordinates: false,
+                        alignment: this.alignment
+                    });
+                    this.object = new THREE.Sprite(spriteMaterial);
+                }
+            }
+            SpriteEntity.prototype.load = function (texture) {
                 var spriteMaterial = new THREE.SpriteMaterial({
                     map: texture,
                     useScreenCoordinates: false,
-                    alignment: alignment
+                    alignment: this.alignment
                 });
-                var sprite = new THREE.Sprite(spriteMaterial);
-            }
+                this.object = new THREE.Sprite(spriteMaterial);
+            };
             return SpriteEntity;
         })(HG.Entities.BaseEntity);
         Entities.SpriteEntity = SpriteEntity;
@@ -2101,8 +2136,7 @@ var HG;
                     this.events = ["loaded"];
                 }
                 PNG.prototype.load = function (path) {
-                    var loader = new THREE.ImageLoader();
-                    HG.locale.core.errors.notImplementedError.error();
+                    this.dispatch("loaded", THREE.ImageUtils.loadTexture(path));
                 };
                 return PNG;
             })(HG.Core.EventDispatcher);
@@ -2133,6 +2167,7 @@ var HG;
             __extends(Channel, _super);
             function Channel(name) {
                 _super.call(this, ["volumeChange"]);
+                this.children = [];
                 this.name = name;
             }
             Object.defineProperty(Channel.prototype, "gain", {
