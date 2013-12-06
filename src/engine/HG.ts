@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 21:20:56
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-03 11:37:12
+* @Last Modified time: 2013-12-06 17:00:23
 */
 
 module HG.Utils {
@@ -29,7 +29,7 @@ module HG {
 		if (HG._options.silent === false) {
 			console.warn(output);
 		}
-		return output;
+		return data.join("");
 	}
 
 	export function forceLog(...data: any[]): string {
@@ -37,7 +37,7 @@ module HG {
 		var timeString = (time + "");
 		var output = "[" + timeString + "] " + data.join("");
 		console.log(output);
-		return output;
+		return data.join("");
 	}
 
 	export function log(...data: any[]): string {
@@ -47,7 +47,7 @@ module HG {
 		if (HG._options.silent === false) {
 			console.log(output);
 		}
-		return output;
+		return data.join("");
 	}
 
 	export function horrible(options?: HG.Utils.IOptions): any {
@@ -73,6 +73,13 @@ module HG {
 		return HG;
 	}
 
+}
+
+var $;
+if (typeof document !== "undefined") {
+	$ = (id: string) => {
+		return document.getElementById.call(document, id);
+	};
 }
 
 if (typeof module !== "undefined") {

@@ -3,16 +3,13 @@
 * @Date:   2013-11-18 19:57:17
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-03 21:20:24
+* @Last Modified time: 2013-12-05 19:55:01
 */
-var hgLoader = require("./TestHelper.js");
 exports.eventDispatcherTest = function (test) {
 	test.expect(3);
+	var hgLoader = require("./TestHelper.js");
 	var HG = hgLoader();
 	var loader = new HG.Resource.ResourceLoader("bin/assets/");
-	loader.locale("locale/HG.locale.json", function (locale) {
-		HG.locale = locale;
-	});
 	var disp = new HG.Core.EventDispatcher(['event1', 'event2']);
 	disp.on("event1", function () {
 		test.ok(true);

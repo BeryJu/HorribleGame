@@ -3,7 +3,7 @@
 * @Date:   2013-11-30 21:47:15
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-03 20:59:30
+* @Last Modified time: 2013-12-06 16:26:10
 */
 interface Number {
 	toRadian(): number;
@@ -21,11 +21,7 @@ interface String {
 }
 
 interface Array<T> {
-	where(query: (e: T) => boolean): T[];
-	order(order: (a: T, b: T) => number): T[];
-	select(selector: (e: T) => any): T[];
-}
-
-interface Object {
-	forEach(fn: (k: string, v: any) => any): void;
+	where(query: (e: any) => boolean): any[];
+	order(order: (a: any, b: any) => number): any[];
+	select(selector: (e: any) => any): any[];
 }

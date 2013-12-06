@@ -1,11 +1,12 @@
 {
 	"debug": true,
+	"hgLocale": "locale/HG.locale.json",
 	"graphics": {
 		"fullscreen": false,
 		"fov": 110,
 		"viewDistance": 5000,
 		"shadowMapSize": 2048,
-		"useStaticFramerate": true,
+		"useStaticFramerate": false,
 		"staticFramerate": 120,
 		"antialiasing": true,
 		"resolution": {

@@ -2,7 +2,14 @@
 	"core": {
 		"errors": {
 			"notImplementedError": "NotImplementedError",
-			"duplicateNameTag": "Duplicate Name Tag"
+			"duplicateNameTag": "Duplicate Name Tag",
+			"defaultSettingsUsed": "Default Settings used"
+		}
+	},
+	"utils": {
+		"updateChecker": {
+			"newThree": "[UpdateChecker] New THREE.js release: ${0} (${1})",
+			"noThree": "[UpdateChecker] Using newest THREE.js release: ${0}"
 		}
 	},
 	"event": {

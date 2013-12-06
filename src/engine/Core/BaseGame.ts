@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:46:02
+* @Last Modified time: 2013-12-06 18:10:31
 */
 
 module HG.Core {
@@ -24,9 +24,13 @@ module HG.Core {
 			"resize", "render", "mouseDown", "mouseUp",
 			"mouseMove", "preRender", "postRender"];
 
-		constructor(container: HTMLElement, settingsPath: string) {
+		constructor(container: HTMLElement) {
 			super();
-			HG.settings = HG.loadSettings(settingsPath);
+			if (!HG.settings) {
+				HG.settings = HG.Utils.defaultSettings;
+				HG.locale.core.errors.defaultSettingsUsed.warn();
+			}
+			new HG.Utils.UpdateChecker();
 			this.controls = new HG.Core.InputHandler();
 			this.pluginHost = new HG.Core.PluginHost(this);
 			this.fpsCounter = new HG.Utils.FPSCounter();

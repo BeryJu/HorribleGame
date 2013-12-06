@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-03 20:59:06
+* @Last Modified time: 2013-12-06 14:59:06
 */
 
 module HG.Scenes {
@@ -44,9 +44,10 @@ module HG.Scenes {
 
 		getAllNamed(type: any = HG.Entities.BaseEntity): any[] {
 			var es = [];
-			this.entities.named.forEach((k, v) => {
+			for (var k in this.entities.named) {
+				var v = this.entities.named[k];
 				if (v instanceof type) es.push(v);
-			});
+			}
 			return es;
 		}
 

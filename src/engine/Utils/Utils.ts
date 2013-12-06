@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 20:12:26
+* @Last Modified time: 2013-12-06 16:53:32
 */
 
 module HG.Utils {
@@ -30,12 +30,31 @@ module HG.Utils {
 		return (typeof va === "number");
 	}
 
-	export function bootstrap(gInstance: HG.Core.BaseGame, wnd: Window): void {
-		return;
+	export function bootstrap(gInstance: HG.Core.BaseGame): void {
+		if (HG.settings.debug === true) {
+			HG.Utils.profile("HG Profiling Frame", () => gInstance.render());
+		}
+		window.onresize = () => gInstance.onResize();
+		window.onkeydown = (a: any) => gInstance.onKeyDown(a);
+		window.onkeyup = (a: any) => gInstance.onKeyUp(a);
+		window.onmousemove = (a: any) => gInstance.onMouseMove(a);
+		window.onmousedown = (a: any) => gInstance.onMouseDown(a);
+		window.onmouseup = (a: any) => gInstance.onMouseUp(a);
+		var render;
+		if (HG.settings.graphics	.useStaticFramerate === true) {
+			render = () => { gInstance.render(); };
+			setInterval(render, 1000 / HG.settings.graphics	.staticFramerate);
+		} else {
+			render = () => {
+				gInstance.render();
+				requestAnimationFrame(render);
+			};
+		}
+		render();
 	}
 
-	export function profile(fn: () => any): void {
-		console.profile("HG Profile");
+	export function profile(name: string, fn: () => any): void {
+		console.profile(name);
 		fn();
 		console.profileEnd();
 	}

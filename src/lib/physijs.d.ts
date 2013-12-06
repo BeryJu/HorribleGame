@@ -1,10 +1,10 @@
-// /* 
-// * @Author: BeryJu
-// * @Date:   2013-11-06 16:31:08
-// * @Email:  jenslanghammer@gmail.com
-// * @Last Modified by:   BeryJu
-// * @Last Modified time: 2013-11-07 12:47:18
-// */
+/*
+* @Author: BeryJu
+* @Date:   2013-11-06 16:31:08
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-12-05 18:51:19
+*/
 declare module Physijs {
 
 	export var scripts: {
@@ -24,7 +24,7 @@ declare module Physijs {
 	export function getObjectId(): number;
 	export function getEulerXYZFromQuaternion(x: number, y: number,
 		z: number, w: number): THREE.Vector3
-	export function getQuatertionFromEuler(x: number, y: number, 
+	export function getQuatertionFromEuler(x: number, y: number,
 		z: number): {w: number; x: number; y: number; z: number};
 	export function convertWorldPositionToObject(position: THREE.Vector3,
 		object: THREE.Object3D): THREE.Vector3;
@@ -40,7 +40,7 @@ declare module Physijs {
 
 	export class PointConstraint {
 
-		constructor(objecta: THREE.Object3D, objectb: THREE.Object3D, 
+		constructor(objecta: THREE.Object3D, objectb: THREE.Object3D,
 			position: THREE.Vector3);
 		getDefinition(): {
 			type: string;

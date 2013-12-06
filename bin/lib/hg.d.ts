@@ -2,7 +2,6 @@
 /// <reference path="../../src/lib/lib.d.ts" />
 /// <reference path="../../src/lib/node.d.ts" />
 /// <reference path="../../src/lib/physijs.d.ts" />
-/// <reference path="../../src/lib/socket.io.d.ts" />
 /// <reference path="../../src/lib/three.d.ts" />
 /// <reference path="../../src/lib/waa.d.ts" />
 declare module HG.Core {
@@ -11,47 +10,23 @@ declare module HG.Core {
         private globalEvents;
         public events: string[];
         constructor(events?: string[]);
-        public resolve(raw: any): string;
+        private resolve(raw);
         public onAll(eventHandler: (...args: any[]) => any): EventDispatcher;
-        public on(name: string[], eventHandler?: (...args: any[]) => any): EventDispatcher;
-        public on(name: string, eventHandler?: (...args: any[]) => any): EventDispatcher;
-        public on(name: number[], eventHandler?: (...args: any[]) => any): EventDispatcher;
-        public on(name: number, eventHandler?: (...args: any[]) => any): EventDispatcher;
-        public bind: {
-            (name: string[], eventHandler?: (...args: any[]) => any): EventDispatcher;
-            (name: string, eventHandler?: (...args: any[]) => any): EventDispatcher;
-            (name: number[], eventHandler?: (...args: any[]) => any): EventDispatcher;
-            (name: number, eventHandler?: (...args: any[]) => any): EventDispatcher;
-        };
-        public addEventListener: {
-            (name: string[], eventHandler?: (...args: any[]) => any): EventDispatcher;
-            (name: string, eventHandler?: (...args: any[]) => any): EventDispatcher;
-            (name: number[], eventHandler?: (...args: any[]) => any): EventDispatcher;
-            (name: number, eventHandler?: (...args: any[]) => any): EventDispatcher;
-        };
-        public inject(name: any, eventHandler: (...args: any[]) => any): EventDispatcher;
+        public on(name: any, eventHandler?: Function): EventDispatcher;
+        public bind: (name: any, eventHandler?: Function) => EventDispatcher;
+        public addEventListener: (name: any, eventHandler?: Function) => EventDispatcher;
+        public inject(name: any, eventHandler: Function): EventDispatcher;
         public clear(name: string): EventDispatcher;
-        public dispatch(name: string[], ...args: any[]): EventDispatcher;
-        public dispatch(name: string, ...args: any[]): EventDispatcher;
-        public dispatch(name: number[], ...args: any[]): EventDispatcher;
-        public dispatch(name: number, ...args: any[]): EventDispatcher;
-        public emit: {
-            (name: string[], ...args: any[]): EventDispatcher;
-            (name: string, ...args: any[]): EventDispatcher;
-            (name: number[], ...args: any[]): EventDispatcher;
-            (name: number, ...args: any[]): EventDispatcher;
-        };
+        public dispatch(name: any, ...args: any[]): EventDispatcher;
+        public emit: (name: any, ...args: any[]) => EventDispatcher;
     }
 }
 declare module HG.Modules {
-    var fs;
-    var path;
-    var http;
-    var ui;
-    var socketio: {
-        server: any;
-        client: any;
-    };
+    var fs: any;
+    var path: any;
+    var http: any;
+    var ui: any;
+    var net: any;
 }
 declare module HG.Core {
     class PluginHost extends Core.EventDispatcher {
@@ -78,7 +53,7 @@ declare module HG.LINQ {
 }
 declare module HG.Resource {
     interface IFiletype {
-        load(path: string, ...args): any;
+        load(path: string, ...args: any[]): any;
     }
 }
 declare module HG.Resource {
@@ -89,6 +64,7 @@ declare module HG.Resource {
 declare module HG.Utils {
     class ISettings {
         public debug: boolean;
+        public hgLocale: string;
         public graphics: {
             fullscreen: boolean;
             fov: number;
@@ -177,16 +153,17 @@ declare module HG.Utils {
 }
 declare module HG {
     var settings: Utils.ISettings;
-    function loadSettings(path: string, fallback?: Utils.ISettings): Utils.ISettings;
-    function saveSettings(path: string, settings: Utils.ISettings, pretty?: boolean): void;
+}
+declare module HG.Utils {
+    var defaultSettings: ISettings;
 }
 declare module HG.Utils {
     function rgbToHex(r: number, g: number, b: number): number;
     function isFunction(va: any): boolean;
     function isUndefined(va: any): boolean;
     function isNumber(va: any): boolean;
-    function bootstrap(gInstance: HG.Core.BaseGame, wnd: Window): void;
-    function profile(fn: () => any): void;
+    function bootstrap(gInstance: HG.Core.BaseGame): void;
+    function profile(name: string, fn: () => any): void;
     function hasGL(): boolean;
 }
 declare module HG.Entities {
@@ -249,6 +226,7 @@ declare module HG {
     function log(...data: any[]): string;
     function horrible(options?: Utils.IOptions): any;
 }
+declare var $: any;
 declare module HG.Abilities {
     class AnimationAbility extends Abilities.BaseAbility {
         public animOffset: number;
@@ -261,7 +239,6 @@ declare module HG.Abilities {
         public events: string[];
         public setHost(entity: HG.Entities.BaseEntity): void;
         public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
-        public load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void;
         public frame(delta: number): void;
     }
 }
@@ -292,7 +269,7 @@ declare module HG.Core {
         public fpsCounter: HG.Utils.FPSCounter;
         public _running: boolean;
         public events: string[];
-        constructor(container: HTMLElement, settingsPath: string);
+        constructor(container: HTMLElement);
         public title : any[];
         public scene(scene: HG.Scenes.BaseScene): void;
         public screenshot(path: string, imageType?: string): void;
@@ -315,8 +292,10 @@ declare module HG.Core {
 }
 declare module HG.Core {
     class BaseServer extends Core.EventDispatcher {
-        public socketServer: SocketManager;
+        public clients: Core.ServerConnection[];
         constructor(port: number);
+        public broadcast(message: any, sender?: Core.ServerConnection): void;
+        public onSocket(socket: any): void;
     }
 }
 declare module HG.Core {
@@ -336,10 +315,11 @@ declare module HG.Core {
         public frame(delta: number): void;
     }
 }
-declare module HG {
-    class ServerConnection extends HG.Core.EventDispatcher {
-        public socket: Socket;
-        constructor(host: string);
+declare module HG.Core {
+    class ServerConnection extends Core.EventDispatcher {
+        public socket: any;
+        constructor(socket: any);
+        public write: any;
     }
 }
 declare module HG.Core {
@@ -371,8 +351,12 @@ declare module HG.Entities {
     class FirstPersonCameraEntity extends Entities.CameraEntity {
         public object: THREE.PerspectiveCamera;
         public target: Entities.MeshEntity;
-        public lookAt: boolean;
+        public pitchObject: THREE.Object3D;
+        public yawObject: THREE.Object3D;
+        public velocity: THREE.Vector3;
+        public PI_2: number;
         constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
+        public onMouseMove(x: number, y: number): void;
         public setViewDistance(d: number): void;
         public frame(delta: number): void;
     }
@@ -398,6 +382,12 @@ declare module HG.Entities {
         public map: string;
         constructor(map: string, count?: number, size?: number);
         public create(): void;
+    }
+}
+declare module HG.Entities {
+    class SpriteEntity extends Entities.BaseEntity {
+        public object: THREE.Sprite;
+        constructor(canvas: HTMLCanvasElement, alignment?: THREE.Vector2);
     }
 }
 declare module HG.Entities {
@@ -441,51 +431,50 @@ declare module HG.LINQ {
         public replaceAll(context: string, find: string, replace: string): string;
     }
 }
-declare module HG.Locale {
-    interface HGLocaleEvent {
-        eventNotAvailable: string;
-        eventAdded: string;
-        isEmpty: string;
-        injected: string;
-    }
-    interface HGLocaleErrors {
-        notImplementedError: string;
-        duplicateNameTag: string;
-    }
-    interface HGLocaleCore {
-        errors: HGLocaleErrors;
-    }
-    interface HGLocaleResource {
-        noLoader: string;
-        loaderFailure: string;
-    }
-    interface HGLocalePluginHost {
-        failure: string;
-        success: string;
-    }
-    interface HGLocaleLINQ {
-        provided: string;
-    }
-    interface HGLocaleSettings {
-        loadedSuccess: string;
-        loadedFailure: string;
-        savedSuccess: string;
-    }
-    interface HGLocale {
-        event: HGLocaleEvent;
-        linq: HGLocaleLINQ;
-        resource: HGLocaleResource;
-        pluginHost: HGLocalePluginHost;
-        settings: HGLocaleSettings;
-        core: HGLocaleCore;
-    }
-}
 declare module HG {
-    var locale: Locale.HGLocale;
+    var locale: Locale.LocaleDefinition;
 }
 declare module HG.Locale {
     class Locale {
-        public languages: {};
+    }
+}
+declare module HG.Locale {
+    interface LocaleDefinition {
+        core: {
+            errors: {
+                notImplementedError: string;
+                duplicateNameTag: string;
+                defaultSettingsUsed: string;
+            };
+        };
+        event: {
+            eventNotAvailable: string;
+            eventAdded: string;
+            isEmpty: string;
+            injected: string;
+        };
+        linq: {
+            provided: string;
+        };
+        resource: {
+            noLoader: string;
+            loaderFailure: string;
+        };
+        pluginHost: {
+            failure: string;
+            success: string;
+        };
+        settings: {
+            loadedSuccess: string;
+            loadedFailure: string;
+            savedSuccess: string;
+        };
+        utils: {
+            updateChecker: {
+                newThree: string;
+                noThree: string;
+            };
+        };
     }
 }
 declare module HG.Resource.Model {
@@ -509,20 +498,22 @@ declare module HG.Resource {
         public model(path: string, entitiy: HG.Entities.MeshEntity): void;
         public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
-        public locale(path: string, fn: (locale: HG.Locale.Locale) => any): void;
+        public scene(path: string, done: (scene: HG.Scenes.BaseScene) => any): void;
+        public json<T>(path: string): T;
+        public settings(path: string): void;
         public directory(directory: string): string[];
     }
 }
-declare module HG.Resource.Settings {
-    class JSONSettings extends HG.Core.EventDispatcher implements Resource.IFiletype {
+declare module HG.Resource.Scene {
+    class Scene extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
-        public load(path: string, fallback?: any): void;
+        public load(path: string): void;
     }
 }
 declare module HG.Resource.Sound {
     class WAV extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
-        public load(path: string, context: AudioContext): void;
+        public load(path: string): void;
     }
 }
 declare module HG.Resource.Texture {
@@ -540,8 +531,10 @@ declare module HG.Sound {
         public name: string;
         public rootContext: AudioContext;
         public gainNode: GainNode;
+        private children;
         public gain : number;
         constructor(name: string);
+        public effect(): Sound.Effect;
         public volume(gain: number): void;
     }
 }
@@ -559,7 +552,7 @@ declare module HG.Sound {
         public recreate(): void;
         public play(): void;
         public stop(): void;
-        private volume(gain);
+        public volume(gain: number): void;
     }
 }
 declare module HG.Sound {
@@ -572,5 +565,18 @@ declare module HG.Sound {
         constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
+    }
+}
+declare module HG.Utils {
+    class CanvasUtils {
+        static roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void;
+    }
+}
+declare module HG.Utils {
+    class UpdateChecker {
+        public threeUrl: string;
+        constructor();
+        public downloadString(url: string, fn: (res: any) => any): void;
+        public checkThree(onNew: (downloadUrl: string, version: string) => any, noNew: (version: string) => any): void;
     }
 }

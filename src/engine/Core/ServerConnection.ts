@@ -3,27 +3,21 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 13:39:18
+* @Last Modified time: 2013-12-05 19:45:35
 */
 
-module HG {
+module HG.Core {
 
 	export class ServerConnection extends HG.Core.EventDispatcher {
 
-		socket: Socket;
+		socket: any;
 
-		constructor(host: string) {
+		constructor(socket: any) {
 			super();
-			var io = require("socket.io-client");
-			this.socket = io.connect(host);
-			this.socket.emit("join", {
-
-			});
+			this.socket = socket;
 		}
 
-		// fetchLevel(): HG.Level {
-		// 	// this.socket.emit("fetchLevel");
-		// }
+		write = this.socket.write;
 
 	}
 

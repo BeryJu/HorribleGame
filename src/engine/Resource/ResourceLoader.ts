@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-03 21:20:04
+* @Last Modified time: 2013-12-06 17:54:17
 */
 
 module HG.Resource {
@@ -15,6 +15,11 @@ module HG.Resource {
 		constructor(baseDirectory: string) {
 			super();
 			this.baseDirectory = baseDirectory;
+			var suspectSettingsFile = "settings.json";
+			var settingsPath = HG.Modules.path.join(this.baseDirectory, suspectSettingsFile);
+			if (HG.Modules.fs.existsSync(settingsPath) === true) {
+				this.settings(suspectSettingsFile);
+			}
 		}
 
 		resolvePath(path: string): string {
@@ -37,15 +42,17 @@ module HG.Resource {
 			for (var k in namespace) {
 				if (k === extensionName) {
 					var loader = new namespace[k]();
+					var handler;
 					if (target["load"]) {
-						loader.on("loaded", (data) => {
+						handler = (data) => {
 							target.load(data);
-						});
+						};
 					} else {
-						loader.on("loaded", (data) => {
+						handler = (data) => {
 							target(data);
-						});
+						};
 					}
+					loader.on("loaded", handler);
 					loader.load(absPath);
 					foundLoader = true;
 				}
@@ -67,16 +74,26 @@ module HG.Resource {
 			this.load(path, HG.Resource.Sound, effect);
 		}
 
-		locale(path: string, fn: (locale: HG.Locale.Locale) => any): void {
-			// Gotta do this because EventDispatcher and the Resource Loader
-			// don't work without having a Locale loaded
-			var absPath = HG.Modules.path.join(this.baseDirectory, path);
-			try {
-				var raw = HG.Modules.fs.readFileSync(absPath);
-				fn(JSON.parse(raw));
-			} catch (e) {
-				throw e;
+		scene(path: string, done: (scene: HG.Scenes.BaseScene) => any): void {
+			this.load(path, HG.Resource.Scene, done);
+		}
+
+		json<T>(path: string): T {
+			var realPath = HG.Modules.path.join(this.baseDirectory, path);
+			if (HG.Modules.fs.existsSync(realPath) === true) {
+				var raw = HG.Modules.fs.readFileSync(realPath);
+				return <T> JSON.parse(raw);
+			} else {
+				return null;
 			}
+		}
+
+		settings(path: string): void {
+			var absPath = HG.Modules.path.join(this.baseDirectory, path);
+			var raw = HG.Modules.fs.readFileSync(absPath);
+			HG.settings = <HG.Utils.ISettings> JSON.parse(raw);
+			var localePath = HG.Modules.path.join(this.baseDirectory, HG.settings.hgLocale);
+			HG.locale = JSON.parse(HG.Modules.fs.readFileSync(localePath));
 		}
 
 		directory(directory: string): Array<string> {

@@ -12,7 +12,7 @@ module HG.Resource.Sound {
 
 		events: string[] = ["loaded"];
 
-		load(path: string, context: AudioContext): void {
+		load(path: string): void {
 			// Load buffer asynchronously
 			var request = new XMLHttpRequest();
 			request.open("GET", path, true);

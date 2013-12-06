@@ -2,12 +2,15 @@
 	"folders":
 	[
 		{
-			"follow_symlinks": false,
 			"path": "J:\\projects\\HorribleGame"
 		},
 		{
-			"follow_symlinks": false,
 			"path": "J:\\projects\\HorribleGame-wiki"
 		}
-	]
+	],
+	"settings": {
+		"typescript": [
+			"src/engine/"
+		]
+	}
 }

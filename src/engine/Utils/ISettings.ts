@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:50:16
+* @Last Modified time: 2013-12-05 16:33:06
 */
 
 module HG.Utils {
@@ -11,6 +11,7 @@ module HG.Utils {
 	export class ISettings {
 
 		debug: boolean;
+		hgLocale: string;
 
 		// gfx options
 		graphics: {

@@ -3,36 +3,50 @@
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 19:42:01
+* @Last Modified time: 2013-12-06 18:10:57
 */
 
 module HG {
 
 	export var settings: HG.Utils.ISettings;
 
-	export function loadSettings(path: string, fallback?: HG.Utils.ISettings): HG.Utils.ISettings {
-		var raw = HG.Modules.fs.readFileSync(path);
-		fallback = fallback || new HG.Utils.ISettings();
-		try {
-			HG.locale.settings.loadedSuccess.log();
-			return <HG.Utils.ISettings> JSON.parse(raw);
-		} catch (e) {
-			HG.locale.settings.loadedFailure.log();
-			return fallback || new HG.Utils.ISettings();
-		}
-		return new HG.Utils.ISettings();
-	}
+}
 
-	export function saveSettings(path: string, settings: HG.Utils.ISettings,
-		pretty: boolean = false): void {
-		var parsed;
-		if (pretty === true) {
-			parsed = JSON.stringify(settings, null , "\t");
-		} else {
-			parsed = JSON.stringify(settings);
+module HG.Utils {
+
+	export var defaultSettings: HG.Utils.ISettings = {
+		debug: true,
+		hgLocale: "locale/HG.locale.json",
+		graphics: {
+			fullscreen: false,
+			fov: 110,
+			viewDistance: 5000,
+			shadowMapSize: 2048,
+			useStaticFramerate: false,
+			staticFramerate: 120,
+			antialiasing: true,
+			resolution: new THREE.Vector2(1280, 720)
+		},
+		sound: {
+			masterVolume: 1,
+			channels: {
+				effectsEnvVolume: 0.7,
+				effectsSelfVolume: 0.8,
+				musicVolume: 0.7
+			}
+		},
+		keys: {
+			forward: [87, 38],
+			backward: [83, 40],
+			left: [65, 37],
+			right: [68, 39],
+			pause: [27],
+			lower: [16],
+			jump: [32],
+			devConsole: [123],
+			refresh: [116],
+			fullscreen: [122]
 		}
-		HG.Modules.fs.writeFile(path, parsed);
-		HG.locale.settings.savedSuccess.log();
-	}
+	};
 
 }

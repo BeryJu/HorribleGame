@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 17:29:09
+* @Last Modified time: 2013-12-06 15:50:11
 */
 
 module HG.Sound {
@@ -23,7 +23,6 @@ module HG.Sound {
 
 		constructor(ch: HG.Sound.Channel) {
 			this.destination = ch;
-			this.destination.on("volumeChange", this.volume);
 			this.rootContext = this.destination.rootContext;
 			this.gainNode = this.rootContext.createGain();
 			this.gainNode.connect(this.rootContext.destination);
@@ -52,9 +51,8 @@ module HG.Sound {
 				this.source.stop(0);
 		}
 
-		private volume(gain: number): void {
-			if (this.gainNode)
-				this.gainNode.gain.value = gain;
+		volume(gain: number): void {
+			this.gainNode.gain.value = gain;
 		}
 
 	}

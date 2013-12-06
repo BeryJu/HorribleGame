@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-03 19:09:53
+* @Last Modified time: 2013-12-06 17:10:09
 */
 
 module HG.LINQ {
@@ -13,15 +13,15 @@ module HG.LINQ {
 		_prototype = String.prototype;
 
 		format(context: string, arg1: any, ...args: any[]): string {
-			if (args.length === 0) {
-				for (var k in arg1) {
-					context = context.replaceAll("${" + k + "}", arg1[k]);
-				}
-			} else {
+			if (args.length > 0 || typeof arg1 === "number" || typeof arg1 === "string") {
 				context = context.replaceAll("${0}", arg1);
 				args.forEach((arg, index) => {
 					context = context.replaceAll("${" + (index + 1) + "}", arg);
 				});
+			} else {
+				for (var k in arg1) {
+					context = context.replaceAll("${" + k + "}", arg1[k]);
+				}
 			}
 			return context;
 		}

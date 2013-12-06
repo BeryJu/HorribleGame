@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-03 19:10:33
+* @Last Modified time: 2013-12-06 16:34:31
 */
 
 module HG.Core {
@@ -11,19 +11,17 @@ module HG.Core {
 	export class EventDispatcher {
 
 		// holds all event eventHandlers like
-		//{ name: [cb1, cb2 ] }
 		private _events: {} = {};
+		// same for public events
 		private globalEvents: any[] = [];
 		// holds events available to subscribe to
-		// if subscribed to an event not in there,
-		// there will be a warning
 		events: string[] = [];
 
 		constructor(events?: string[]) {
 			this.events = events || [];
 		}
 
-		resolve(raw: any): string {
+		private resolve(raw: any): string {
 			if (HG.Utils.isNumber(raw) === true) {
 				return raw.toString();
 			} else {
@@ -36,11 +34,7 @@ module HG.Core {
 			return this;
 		}
 
-		on(name: string[], eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher;
-		on(name: string, eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher;
-		on(name: number[], eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher;
-		on(name: number, eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher;
-		on(name: any, eventHandler?: (...args: any[]) => any): HG.Core.EventDispatcher {
+		on(name: any, eventHandler?: Function): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
 				name.forEach((n) => this.on(n, eventHandler));
 			} else {
@@ -74,7 +68,7 @@ module HG.Core {
 		bind = this.on;
 		addEventListener = this.on;
 
-		inject(name: any, eventHandler: (...args: any[]) => any): HG.Core.EventDispatcher {
+		inject(name: any, eventHandler: Function): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
 				name.forEach((n) => {
 					this.inject(n, eventHandler);
@@ -101,10 +95,6 @@ module HG.Core {
 			return this;
 		}
 
-		dispatch(name: string[], ...args: any[]): HG.Core.EventDispatcher;
-		dispatch(name: string, ...args: any[]): HG.Core.EventDispatcher;
-		dispatch(name: number[], ...args: any[]): HG.Core.EventDispatcher;
-		dispatch(name: number, ...args: any[]): HG.Core.EventDispatcher;
 		dispatch(name: any, ...args: any[]): HG.Core.EventDispatcher {
 			if (Array.isArray(name) === true) {
 				name.forEach((n) => this.dispatch(n, args));

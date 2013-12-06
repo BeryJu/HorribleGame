@@ -130,10 +130,7 @@ var HG;
         Modules.path = require("path");
         Modules.http = require("http");
         Modules.ui;
-        Modules.socketio = {
-            server: require("socket.io"),
-            client: require("socket.io-client")
-        };
+        Modules.net = require("net");
     })(HG.Modules || (HG.Modules = {}));
     var Modules = HG.Modules;
 })(HG || (HG = {}));
@@ -573,519 +570,32 @@ var HG;
                 return ((h & 1) !== 0 ? -u : u) + ((h & 2) !== 0 ? -v : v) + ((h & 4) !== 0 ? -w : w);
             };
             Noise.perm = [
-                151,
-                160,
-                137,
-                91,
-                90,
-                15,
-                131,
-                13,
-                201,
-                95,
-                96,
-                53,
-                194,
-                233,
-                7,
-                225,
-                140,
-                36,
-                103,
-                30,
-                69,
-                142,
-                8,
-                99,
-                37,
-                240,
-                21,
-                10,
-                23,
-                190,
-                6,
-                148,
-                247,
-                120,
-                234,
-                75,
-                0,
-                26,
-                197,
-                62,
-                94,
-                252,
-                219,
-                203,
-                117,
-                35,
-                11,
-                32,
-                57,
-                177,
-                33,
-                88,
-                237,
-                149,
-                56,
-                87,
-                174,
-                20,
-                125,
-                136,
-                171,
-                168,
-                68,
-                175,
-                74,
-                165,
-                71,
-                134,
-                139,
-                48,
-                27,
-                166,
-                77,
-                146,
-                158,
-                22931,
-                83,
-                111,
-                229,
-                122,
-                60,
-                211,
-                133,
-                230,
-                220,
-                105,
-                92,
-                41,
-                55,
-                46,
-                245,
-                40,
-                244,
-                102,
-                143,
-                54,
-                65,
-                25,
-                63,
-                161,
-                1,
-                216,
-                80,
-                73,
-                209,
-                76,
-                132,
-                187,
-                208,
-                89,
-                18,
-                169,
-                200,
-                196,
-                135,
-                130,
-                116,
-                188,
-                159,
-                86,
-                164,
-                100,
-                109,
-                198,
-                173,
-                186,
-                3,
-                64,
-                52,
-                217,
-                226,
-                250,
-                124,
-                123,
-                5,
-                202,
-                38,
-                147,
-                118,
-                126,
-                255,
-                82,
-                85,
-                212,
-                207,
-                206,
-                59,
-                227,
-                47,
-                16,
-                58,
-                17,
-                182,
-                189,
-                28,
-                42,
-                223,
-                183,
-                170,
-                213,
-                119,
-                248,
-                152,
-                2,
-                44,
-                154,
-                163,
-                70,
-                221,
-                153,
-                101,
-                155,
-                167,
-                43,
-                172,
-                9,
-                129,
-                22,
-                39,
-                253,
-                19,
-                98,
-                108,
-                110,
-                79,
-                113,
-                224,
-                232,
-                178,
-                185,
-                112,
-                104,
-                218,
-                246,
-                97,
-                228,
-                251,
-                34,
-                242,
-                193,
-                238,
-                210,
-                144,
-                12,
-                191,
-                179,
-                162,
-                241,
-                81,
-                51,
-                145,
-                235,
-                249,
-                14,
-                239,
-                107,
-                49,
-                192,
-                214,
-                31,
-                181,
-                199,
-                106,
-                157,
-                184,
-                84,
-                204,
-                176,
-                115,
-                121,
-                50,
-                45,
-                127,
-                4,
-                150,
-                254,
-                138,
-                236,
-                205,
-                93,
-                222,
-                114,
-                67,
-                29,
-                24,
-                72,
-                243,
-                141,
-                128,
-                195,
-                78,
-                66,
-                215,
-                61,
-                156,
-                180,
-                151,
-                160,
-                137,
-                91,
-                90,
-                15,
-                131,
-                13,
-                201,
-                95,
-                96,
-                53,
-                194,
-                233,
-                7,
-                225,
-                140,
-                36,
-                103,
-                30,
-                69,
-                142,
-                8,
-                99,
-                37,
-                240,
-                21,
-                10,
-                23,
-                190,
-                6,
-                148,
-                247,
-                120,
-                234,
-                75,
-                0,
-                26,
-                197,
-                62,
-                94,
-                252,
-                219,
-                203,
-                117,
-                35,
-                11,
-                32,
-                57,
-                177,
-                33,
-                88,
-                237,
-                149,
-                56,
-                87,
-                174,
-                20,
-                125,
-                136,
-                171,
-                168,
-                68,
-                175,
-                74,
-                165,
-                71,
-                134,
-                139,
-                48,
-                27,
-                166,
-                77,
-                146,
-                158,
-                231,
-                83,
-                111,
-                229,
-                122,
-                60,
-                211,
-                133,
-                230,
-                220,
-                105,
-                92,
-                41,
-                55,
-                46,
-                245,
-                40,
-                244,
-                102,
-                143,
-                54,
-                65,
-                25,
-                63,
-                161,
-                1,
-                216,
-                80,
-                73,
-                209,
-                76,
-                132,
-                187,
-                208,
-                89,
-                18,
-                169,
-                200,
-                196,
-                135,
-                130,
-                116,
-                188,
-                159,
-                86,
-                164,
-                100,
-                109,
-                198,
-                173,
-                186,
-                3,
-                64,
-                52,
-                217,
-                226,
-                250,
-                124,
-                123,
-                5,
-                202,
-                38,
-                147,
-                118,
-                126,
-                255,
-                82,
-                85,
-                212,
-                207,
-                206,
-                59,
-                227,
-                47,
-                16,
-                58,
-                17,
-                182,
-                189,
-                28,
-                42,
-                223,
-                183,
-                170,
-                213,
-                119,
-                248,
-                152,
-                2,
-                44,
-                154,
-                163,
-                70,
-                221,
-                153,
-                101,
-                155,
-                167,
-                43,
-                172,
-                9,
-                129,
-                22,
-                39,
-                253,
-                19,
-                98,
-                108,
-                110,
-                79,
-                113,
-                224,
-                232,
-                178,
-                185,
-                112,
-                104,
-                218,
-                246,
-                97,
-                228,
-                251,
-                34,
-                242,
-                193,
-                238,
-                210,
-                144,
-                12,
-                191,
-                179,
-                162,
-                241,
-                81,
-                51,
-                145,
-                235,
-                249,
-                14,
-                239,
-                107,
-                49,
-                192,
-                214,
-                31,
-                181,
-                199,
-                106,
-                157,
-                184,
-                84,
-                204,
-                176,
-                115,
-                121,
-                50,
-                45,
-                127,
-                4,
-                150,
-                254,
-                138,
-                236,
-                205,
-                93,
-                222,
-                114,
-                67,
-                29,
-                24,
-                72,
-                243,
-                141,
-                128,
-                195,
-                78,
-                66,
-                215,
-                61,
-                156,
-                180
-            ];
+                151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7,
+                225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75,
+                0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33, 88, 237, 149, 56, 87, 174,
+                20, 125, 136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166, 77, 146, 158, 22931,
+                83, 111, 229, 122, 60, 211, 133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244, 102, 143, 54,
+                65, 25, 63, 161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89, 18, 169, 200, 196, 135, 130,
+                116, 188, 159, 86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226, 250, 124, 123, 5, 202,
+                38, 147, 118, 126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182, 189, 28, 42,
+                223, 183, 170, 213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9,
+                129, 22, 39, 253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97,
+                228, 251, 34, 242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14,
+                239, 107, 49, 192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4,
+                150, 254, 138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61,
+                156, 180, 151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36,
+                103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0, 26, 197,
+                62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33, 88, 237, 149, 56, 87, 174, 20, 125,
+                136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166, 77, 146, 158, 231, 83, 111, 229,
+                122, 60, 211, 133, 230, 220, 105, 92, 41, 55, 46, 245, 40, 244, 102, 143, 54, 65, 25, 63,
+                161, 1, 216, 80, 73, 209, 76, 132, 187, 208, 89, 18, 169, 200, 196, 135, 130, 116, 188, 159,
+                86, 164, 100, 109, 198, 173, 186, 3, 64, 52, 217, 226, 250, 124, 123, 5, 202, 38, 147, 118,
+                126, 255, 82, 85, 212, 207, 206, 59, 227, 47, 16, 58, 17, 182, 189, 28, 42, 223, 183, 170,
+                213, 119, 248, 152, 2, 44, 154, 163, 70, 221, 153, 101, 155, 167, 43, 172, 9, 129, 22, 39,
+                253, 19, 98, 108, 110, 79, 113, 224, 232, 178, 185, 112, 104, 218, 246, 97, 228, 251, 34,
+                242, 193, 238, 210, 144, 12, 191, 179, 162, 241, 81, 51, 145, 235, 249, 14, 239, 107, 49,
+                192, 214, 31, 181, 199, 106, 157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254,
+                138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180];
             return Noise;
         })();
         Utils.Noise = Noise;
@@ -1095,33 +605,47 @@ var HG;
 var HG;
 (function (HG) {
     HG.settings;
+})(HG || (HG = {}));
 
-    function loadSettings(path, fallback) {
-        var raw = HG.Modules.fs.readFileSync(path);
-        fallback = fallback || new HG.Utils.ISettings();
-        try  {
-            HG.locale.settings.loadedSuccess.log();
-            return JSON.parse(raw);
-        } catch (e) {
-            HG.locale.settings.loadedFailure.log();
-            return fallback || new HG.Utils.ISettings();
-        }
-        return new HG.Utils.ISettings();
-    }
-    HG.loadSettings = loadSettings;
-
-    function saveSettings(path, settings, pretty) {
-        if (typeof pretty === "undefined") { pretty = false; }
-        var parsed;
-        if (pretty === true) {
-            parsed = JSON.stringify(settings, null, "\t");
-        } else {
-            parsed = JSON.stringify(settings);
-        }
-        HG.Modules.fs.writeFile(path, parsed);
-        HG.locale.settings.savedSuccess.log();
-    }
-    HG.saveSettings = saveSettings;
+var HG;
+(function (HG) {
+    (function (Utils) {
+        Utils.defaultSettings = {
+            debug: true,
+            hgLocale: "locale/HG.locale.json",
+            graphics: {
+                fullscreen: false,
+                fov: 110,
+                viewDistance: 5000,
+                shadowMapSize: 2048,
+                useStaticFramerate: false,
+                staticFramerate: 120,
+                antialiasing: true,
+                resolution: new THREE.Vector2(1280, 720)
+            },
+            sound: {
+                masterVolume: 1,
+                channels: {
+                    effectsEnvVolume: 0.7,
+                    effectsSelfVolume: 0.8,
+                    musicVolume: 0.7
+                }
+            },
+            keys: {
+                forward: [87, 38],
+                backward: [83, 40],
+                left: [65, 37],
+                right: [68, 39],
+                pause: [27],
+                lower: [16],
+                jump: [32],
+                devConsole: [123],
+                refresh: [116],
+                fullscreen: [122]
+            }
+        };
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -1153,13 +677,48 @@ var HG;
         }
         Utils.isNumber = isNumber;
 
-        function bootstrap(gInstance, wnd) {
-            return;
+        function bootstrap(gInstance) {
+            if (HG.settings.debug === true) {
+                HG.Utils.profile("HG Profiling Frame", function () {
+                    return gInstance.render();
+                });
+            }
+            window.onresize = function () {
+                return gInstance.onResize();
+            };
+            window.onkeydown = function (a) {
+                return gInstance.onKeyDown(a);
+            };
+            window.onkeyup = function (a) {
+                return gInstance.onKeyUp(a);
+            };
+            window.onmousemove = function (a) {
+                return gInstance.onMouseMove(a);
+            };
+            window.onmousedown = function (a) {
+                return gInstance.onMouseDown(a);
+            };
+            window.onmouseup = function (a) {
+                return gInstance.onMouseUp(a);
+            };
+            var render;
+            if (HG.settings.graphics.useStaticFramerate === true) {
+                render = function () {
+                    gInstance.render();
+                };
+                setInterval(render, 1000 / HG.settings.graphics.staticFramerate);
+            } else {
+                render = function () {
+                    gInstance.render();
+                    requestAnimationFrame(render);
+                };
+            }
+            render();
         }
         Utils.bootstrap = bootstrap;
 
-        function profile(fn) {
-            console.profile("HG Profile");
+        function profile(name, fn) {
+            console.profile(name);
             fn();
             console.profileEnd();
         }
@@ -1186,7 +745,7 @@ var HG;
             function BaseEntity(object) {
                 _super.call(this);
                 this.abilities = [];
-                this.positionOffset = new THREE.Vector3();
+                this.positionOffset = new THREE.Vector3;
                 if (object) {
                     this.object = object;
                 } else {
@@ -1305,10 +864,11 @@ var HG;
             BaseScene.prototype.getAllNamed = function (type) {
                 if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
                 var es = [];
-                this.entities.named.forEach(function (k, v) {
+                for (var k in this.entities.named) {
+                    var v = this.entities.named[k];
                     if (v instanceof type)
                         es.push(v);
-                });
+                }
                 return es;
             };
 
@@ -1375,6 +935,7 @@ var HG;
     })(HG.Scenes || (HG.Scenes = {}));
     var Scenes = HG.Scenes;
 })(HG || (HG = {}));
+
 var HG;
 (function (HG) {
     HG._start = 0;
@@ -1394,7 +955,7 @@ var HG;
         if (HG._options.silent === false) {
             console.warn(output);
         }
-        return output;
+        return data.join("");
     }
     HG.warn = warn;
 
@@ -1407,7 +968,7 @@ var HG;
         var timeString = (time + "");
         var output = "[" + timeString + "] " + data.join("");
         console.log(output);
-        return output;
+        return data.join("");
     }
     HG.forceLog = forceLog;
 
@@ -1422,7 +983,7 @@ var HG;
         if (HG._options.silent === false) {
             console.log(output);
         }
-        return output;
+        return data.join("");
     }
     HG.log = log;
 
@@ -1448,6 +1009,13 @@ var HG;
     HG.horrible = horrible;
 })(HG || (HG = {}));
 
+var $;
+if (typeof document !== "undefined") {
+    $ = function (id) {
+        return document.getElementById.call(document, id);
+    };
+}
+
 if (typeof module !== "undefined") {
     module.exports = {
         horrible: HG.horrible
@@ -1470,30 +1038,11 @@ var HG;
                 this.events = ["loaded"];
             }
             AnimationAbility.prototype.setHost = function (entity) {
-                var _this = this;
                 this.hostEntity = entity;
-                entity.on("loaded", function (g, m) {
-                    g = g;
-                    m = m;
-                    _this.load(g, m);
-                });
             };
 
             AnimationAbility.prototype.checkCompatibility = function (entity) {
                 return (entity instanceof HG.Entities.MeshEntity);
-            };
-
-            AnimationAbility.prototype.load = function (geometry, materials) {
-                materials.forEach(function (material) {
-                    material.morphTargets = true;
-                });
-                var material = new THREE.MeshFaceMaterial(materials);
-                var oldPosition = this.hostEntity.object.position;
-                var oldRotation = this.hostEntity.object.rotation;
-                this.hostEntity.object = new THREE.Mesh(geometry, material);
-                this.hostEntity.object.position = oldPosition;
-                this.hostEntity.object.rotation = oldRotation;
-                this.dispatch("loaded");
             };
 
             AnimationAbility.prototype.frame = function (delta) {
@@ -1594,24 +1143,18 @@ var HG;
     (function (Core) {
         var BaseGame = (function (_super) {
             __extends(BaseGame, _super);
-            function BaseGame(container, settingsPath) {
+            function BaseGame(container) {
                 _super.call(this);
                 this._running = false;
                 this.events = [
-                    "load",
-                    "connected",
-                    "start",
-                    "keyup",
-                    "keydown",
-                    "resize",
-                    "render",
-                    "mouseDown",
-                    "mouseUp",
-                    "mouseMove",
-                    "preRender",
-                    "postRender"
-                ];
-                HG.settings = HG.loadSettings(settingsPath);
+                    "load", "connected", "start", "keyup", "keydown",
+                    "resize", "render", "mouseDown", "mouseUp",
+                    "mouseMove", "preRender", "postRender"];
+                if (!HG.settings) {
+                    HG.settings = HG.Utils.defaultSettings;
+                    HG.locale.core.errors.defaultSettingsUsed.warn();
+                }
+                new HG.Utils.UpdateChecker();
                 this.controls = new HG.Core.InputHandler();
                 this.pluginHost = new HG.Core.PluginHost(this);
                 this.fpsCounter = new HG.Utils.FPSCounter();
@@ -1766,14 +1309,23 @@ var HG;
             __extends(BaseServer, _super);
             function BaseServer(port) {
                 _super.call(this);
-                this.socketServer = HG.Modules.socketio.server.listen(port);
-                this.socketServer.set("log level", 1);
-                this.socketServer.sockets.on("connection", function (socket) {
-                    socket.on("my other event", function (data) {
-                        HG.log(data);
-                    });
-                });
+                this.clients = [];
+                HG.Modules.net.createServer(this.onSocket).listen(port);
             }
+            BaseServer.prototype.broadcast = function (message, sender) {
+                this.clients.forEach(function (client) {
+                    if (client !== sender) {
+                        client.write(message);
+                    }
+                });
+                HG.log(message);
+            };
+
+            BaseServer.prototype.onSocket = function (socket) {
+                socket.name = socket.remoteAddress + ":" + socket.remotePort;
+
+                this.clients.push(new HG.Core.ServerConnection(socket));
+            };
             return BaseServer;
         })(HG.Core.EventDispatcher);
         Core.BaseServer = BaseServer;
@@ -1853,17 +1405,19 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    var ServerConnection = (function (_super) {
-        __extends(ServerConnection, _super);
-        function ServerConnection(host) {
-            _super.call(this);
-            var io = require("socket.io-client");
-            this.socket = io.connect(host);
-            this.socket.emit("join", {});
-        }
-        return ServerConnection;
-    })(HG.Core.EventDispatcher);
-    HG.ServerConnection = ServerConnection;
+    (function (Core) {
+        var ServerConnection = (function (_super) {
+            __extends(ServerConnection, _super);
+            function ServerConnection(socket) {
+                _super.call(this);
+                this.write = this.socket.write;
+                this.socket = socket;
+            }
+            return ServerConnection;
+        })(HG.Core.EventDispatcher);
+        Core.ServerConnection = ServerConnection;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -1957,9 +1511,22 @@ var HG;
                 if (typeof zNear === "undefined") { zNear = 0.1; }
                 if (typeof zFar === "undefined") { zFar = 10000; }
                 _super.call(this);
-                this.lookAt = true;
+                this.PI_2 = Math.PI / 2;
                 this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
+                this.pitchObject = new THREE.Object3D();
+                this.pitchObject.add(this.object);
+                this.yawObject = new THREE.Object3D();
+                this.yawObject.position.y = 10;
+                this.yawObject.add(this.object);
+                this.velocity = new THREE.Vector3();
             }
+            FirstPersonCameraEntity.prototype.onMouseMove = function (x, y) {
+                this.yawObject.rotation.y -= x * 0.002;
+                this.pitchObject.rotation.x -= y * 0.002;
+
+                this.pitchObject.rotation.x = Math.max(-this.PI_2, Math.min(this.PI_2, this.pitchObject.rotation.x));
+            };
+
             FirstPersonCameraEntity.prototype.setViewDistance = function (d) {
                 this.object.far = d;
                 this.object.updateProjectionMatrix();
@@ -1967,12 +1534,19 @@ var HG;
 
             FirstPersonCameraEntity.prototype.frame = function (delta) {
                 var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
-                HG.log(typeof cameraOffset);
-                this.object.position.x = cameraOffset.x;
-                this.object.position.y = cameraOffset.y;
-                this.object.position.z = cameraOffset.z;
-                if (this.lookAt)
-                    this.object.lookAt(this.target.object.position);
+                this.velocity.x += (-this.velocity.x) * 0.08 * delta;
+                this.velocity.z += (-this.velocity.z) * 0.08 * delta;
+
+                this.velocity.y -= 0.25 * delta;
+
+                this.yawObject.translateX(this.velocity.x);
+                this.yawObject.translateY(this.velocity.y);
+                this.yawObject.translateZ(this.velocity.z);
+
+                if (this.yawObject.position.y < 10) {
+                    this.velocity.y = 0;
+                    this.yawObject.position.y = 10;
+                }
             };
             return FirstPersonCameraEntity;
         })(HG.Entities.CameraEntity);
@@ -2020,7 +1594,16 @@ var HG;
                     this.object = new THREE.Mesh(geo, mat);
             }
             MeshEntity.prototype.load = function (data) {
-                this.object = new THREE.Mesh(data["geometry"], data["material"]);
+                var material = data["material"];
+                if (Array.isArray(material)) {
+                    material.forEach(function (material) {
+                        material.morphTargets = true;
+                    });
+                    var meshMaterial = new THREE.MeshFaceMaterial(material);
+                    this.object = new THREE.Mesh(data["geometry"], meshMaterial);
+                } else {
+                    this.object = new THREE.Mesh(data["geometry"], material);
+                }
                 this.dispatch("loaded", data["geometry"], data["material"]);
             };
             return MeshEntity;
@@ -2070,6 +1653,30 @@ var HG;
             return ParticleEntity;
         })(HG.Entities.BaseEntity);
         Entities.ParticleEntity = ParticleEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Entities) {
+        var SpriteEntity = (function (_super) {
+            __extends(SpriteEntity, _super);
+            function SpriteEntity(canvas, alignment) {
+                if (typeof alignment === "undefined") { alignment = THREE.SpriteAlignment.topLeft; }
+                _super.call(this);
+                var texture = new THREE.Texture(canvas);
+                texture.needsUpdate = true;
+
+                var spriteMaterial = new THREE.SpriteMaterial({
+                    map: texture,
+                    useScreenCoordinates: false,
+                    alignment: alignment
+                });
+                var sprite = new THREE.Sprite(spriteMaterial);
+            }
+            return SpriteEntity;
+        })(HG.Entities.BaseEntity);
+        Entities.SpriteEntity = SpriteEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
@@ -2193,15 +1800,15 @@ var HG;
                 for (var _i = 0; _i < (arguments.length - 2); _i++) {
                     args[_i] = arguments[_i + 2];
                 }
-                if (args.length === 0) {
-                    for (var k in arg1) {
-                        context = context.replaceAll("${" + k + "}", arg1[k]);
-                    }
-                } else {
+                if (args.length > 0 || typeof arg1 === "number" || typeof arg1 === "string") {
                     context = context.replaceAll("${0}", arg1);
                     args.forEach(function (arg, index) {
                         context = context.replaceAll("${" + (index + 1) + "}", arg);
                     });
+                } else {
+                    for (var k in arg1) {
+                        context = context.replaceAll("${" + k + "}", arg1[k]);
+                    }
                 }
                 return context;
             };
@@ -2249,13 +1856,13 @@ var HG;
 
 var HG;
 (function (HG) {
-    (function (Locale) {
+    (function (_Locale) {
         var Locale = (function () {
             function Locale() {
             }
             return Locale;
         })();
-        Locale.Locale = Locale;
+        _Locale.Locale = Locale;
     })(HG.Locale || (HG.Locale = {}));
     var Locale = HG.Locale;
 })(HG || (HG = {}));
@@ -2335,6 +1942,11 @@ var HG;
             function ResourceLoader(baseDirectory) {
                 _super.call(this);
                 this.baseDirectory = baseDirectory;
+                var suspectSettingsFile = "settings.json";
+                var settingsPath = HG.Modules.path.join(this.baseDirectory, suspectSettingsFile);
+                if (HG.Modules.fs.existsSync(settingsPath) === true) {
+                    this.settings(suspectSettingsFile);
+                }
             }
             ResourceLoader.prototype.resolvePath = function (path) {
                 var absPath = HG.Modules.path.join(this.baseDirectory, path);
@@ -2354,15 +1966,17 @@ var HG;
                 for (var k in namespace) {
                     if (k === extensionName) {
                         var loader = new namespace[k]();
+                        var handler;
                         if (target["load"]) {
-                            loader.on("loaded", function (data) {
+                            handler = function (data) {
                                 target.load(data);
-                            });
+                            };
                         } else {
-                            loader.on("loaded", function (data) {
+                            handler = function (data) {
                                 target(data);
-                            });
+                            };
                         }
+                        loader.on("loaded", handler);
                         loader.load(absPath);
                         foundLoader = true;
                     }
@@ -2384,14 +1998,26 @@ var HG;
                 this.load(path, HG.Resource.Sound, effect);
             };
 
-            ResourceLoader.prototype.locale = function (path, fn) {
-                var absPath = HG.Modules.path.join(this.baseDirectory, path);
-                try  {
-                    var raw = HG.Modules.fs.readFileSync(absPath);
-                    fn(JSON.parse(raw));
-                } catch (e) {
-                    throw e;
+            ResourceLoader.prototype.scene = function (path, done) {
+                this.load(path, HG.Resource.Scene, done);
+            };
+
+            ResourceLoader.prototype.json = function (path) {
+                var realPath = HG.Modules.path.join(this.baseDirectory, path);
+                if (HG.Modules.fs.existsSync(realPath) === true) {
+                    var raw = HG.Modules.fs.readFileSync(realPath);
+                    return JSON.parse(raw);
+                } else {
+                    return null;
                 }
+            };
+
+            ResourceLoader.prototype.settings = function (path) {
+                var absPath = HG.Modules.path.join(this.baseDirectory, path);
+                var raw = HG.Modules.fs.readFileSync(absPath);
+                HG.settings = JSON.parse(raw);
+                var localePath = HG.Modules.path.join(this.baseDirectory, HG.settings.hgLocale);
+                HG.locale = JSON.parse(HG.Modules.fs.readFileSync(localePath));
             };
 
             ResourceLoader.prototype.directory = function (directory) {
@@ -2413,26 +2039,20 @@ var HG;
 var HG;
 (function (HG) {
     (function (Resource) {
-        (function (Settings) {
-            var JSONSettings = (function (_super) {
-                __extends(JSONSettings, _super);
-                function JSONSettings() {
+        (function (_Scene) {
+            var Scene = (function (_super) {
+                __extends(Scene, _super);
+                function Scene() {
                     _super.apply(this, arguments);
                     this.events = ["loaded"];
                 }
-                JSONSettings.prototype.load = function (path, fallback) {
-                    try  {
-                        var raw = HG.Modules.fs.readFileSync(path);
-                        this.dispatch("loaded", JSON.parse(raw));
-                    } catch (e) {
-                        HG.locale.resource.loaderFailure.f("JSONSettings", path).error();
-                    }
+                Scene.prototype.load = function (path) {
                 };
-                return JSONSettings;
+                return Scene;
             })(HG.Core.EventDispatcher);
-            Settings.JSONSettings = JSONSettings;
-        })(Resource.Settings || (Resource.Settings = {}));
-        var Settings = Resource.Settings;
+            _Scene.Scene = Scene;
+        })(Resource.Scene || (Resource.Scene = {}));
+        var Scene = Resource.Scene;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
 })(HG || (HG = {}));
@@ -2446,7 +2066,7 @@ var HG;
                     _super.apply(this, arguments);
                     this.events = ["loaded"];
                 }
-                WAV.prototype.load = function (path, context) {
+                WAV.prototype.load = function (path) {
                     var _this = this;
                     var request = new XMLHttpRequest();
                     request.open("GET", path, true);
@@ -2523,10 +2143,19 @@ var HG;
                 configurable: true
             });
 
+            Channel.prototype.effect = function () {
+                var fx = new HG.Sound.Effect(this);
+                this.children.push(fx);
+                return fx;
+            };
+
             Channel.prototype.volume = function (gain) {
                 if (this.gainNode) {
                     this.gainNode.gain.value = gain;
-                    this.dispatch("volumeChange", gain);
+                    if (this.children.length > 0)
+                        this.children.forEach(function (child) {
+                            return child.volume(gain);
+                        });
                 }
             };
             return Channel;
@@ -2541,7 +2170,6 @@ var HG;
         var Effect = (function () {
             function Effect(ch) {
                 this.destination = ch;
-                this.destination.on("volumeChange", this.volume);
                 this.rootContext = this.destination.rootContext;
                 this.gainNode = this.rootContext.createGain();
                 this.gainNode.connect(this.rootContext.destination);
@@ -2579,8 +2207,7 @@ var HG;
             };
 
             Effect.prototype.volume = function (gain) {
-                if (this.gainNode)
-                    this.gainNode.gain.value = gain;
+                this.gainNode.gain.value = gain;
             };
             return Effect;
         })();
@@ -2626,5 +2253,73 @@ var HG;
         Sound.Mixer = Mixer;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var CanvasUtils = (function () {
+            function CanvasUtils() {
+            }
+            CanvasUtils.roundRect = function (ctx, x, y, w, h, r) {
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            };
+            return CanvasUtils;
+        })();
+        Utils.CanvasUtils = CanvasUtils;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var UpdateChecker = (function () {
+            function UpdateChecker() {
+                this.threeUrl = "https://api.github.com/repos/mrdoob/three.js/releases";
+                this.checkThree(function (downloadUrl, version) {
+                    HG.locale.utils.updateChecker.newThree.f(version, downloadUrl).log();
+                }, function (version) {
+                    HG.locale.utils.updateChecker.noThree.f(version).log();
+                });
+            }
+            UpdateChecker.prototype.downloadString = function (url, fn) {
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (req) {
+                    if (this.readyState === 4) {
+                        fn(JSON.parse(this.responseText));
+                    }
+                };
+                req.open("GET", url, true);
+                req.send();
+            };
+
+            UpdateChecker.prototype.checkThree = function (onNew, noNew) {
+                this.downloadString(this.threeUrl, function (res) {
+                    var latest = res[0];
+                    var revision = parseInt(latest["name"].replace("r", ""), 0);
+                    var threer = parseInt(THREE.REVISION, 0);
+                    if (revision > threer) {
+                        onNew(latest["html_url"], latest["name"]);
+                    } else {
+                        noNew(latest["name"]);
+                    }
+                });
+            };
+            return UpdateChecker;
+        })();
+        Utils.UpdateChecker = UpdateChecker;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
 })(HG || (HG = {}));
 //# sourceMappingURL=hg.js.map

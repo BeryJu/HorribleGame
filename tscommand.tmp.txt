@@ -1,1 +1,1 @@
-"/srvroot/projects/HorribleGame/src/engine/HG.ref.ts" --sourcemap --declaration --removeComments --target ES5 --module commonjs --out bin/lib/hg.js
+"src/lib/LINQ.d.ts" "src/lib/lib.d.ts" "src/lib/node.d.ts" "src/lib/physijs.d.ts" "src/lib/three.d.ts" "src/lib/waa.d.ts" "bin/lib/hg.d.ts" "game/Game.ts" "game/GameLocale.ts" --sourcemap --removeComments --target ES5 --module amd --out bin/game/game.js

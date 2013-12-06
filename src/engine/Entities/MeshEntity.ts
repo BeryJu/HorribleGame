@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 16:34:29
+* @Last Modified time: 2013-12-06 15:55:22
 */
 
 module HG.Entities {
@@ -19,7 +19,16 @@ module HG.Entities {
 		}
 
 		load(data: {}): void {
-			this.object = new THREE.Mesh(data["geometry"], data["material"]);
+			var material = data["material"];
+			if (Array.isArray(material)) {
+				material.forEach((material) => {
+					material.morphTargets = true;
+				});
+				var meshMaterial = new THREE.MeshFaceMaterial(material);
+				this.object = new THREE.Mesh(data["geometry"], meshMaterial);
+			} else {
+				this.object = new THREE.Mesh(data["geometry"], material);
+			}
 			this.dispatch("loaded", data["geometry"], data["material"]);
 		}
 

@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 20:33:16
+* @Last Modified time: 2013-12-06 16:22:21
 */
 
 module HG.Core {
@@ -37,7 +37,7 @@ module HG.Core {
 					document: document
 				} || env;
 				try {
-					var plugin = <HG.Core.IPlugin> require("./" + file);
+					var plugin = require("./" + file);
 					var instance = new plugin(this, env);
 					HG.locale.pluginHost.success.f(instance.name).log();
 					this.plugins.push(instance);

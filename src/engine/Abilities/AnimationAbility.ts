@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 20:33:16
+* @Last Modified time: 2013-12-06 15:55:36
 */
 
 module HG.Abilities {
@@ -21,28 +21,10 @@ module HG.Abilities {
 
 		setHost(entity: HG.Entities.BaseEntity): void {
 			this.hostEntity = entity;
-			entity.on("loaded", (g, m) => {
-				g = <THREE.Geometry> g;
-				m = <THREE.MeshLambertMaterial[]> m;
-				this.load(g, m);
-			});
 		}
 
 		checkCompatibility(entity: HG.Entities.BaseEntity): boolean {
 			return (entity instanceof HG.Entities.MeshEntity);
-		}
-
-		load(geometry: THREE.Geometry, materials: THREE.MeshLambertMaterial[]): void {
-			materials.forEach((material) => {
-				material.morphTargets = true;
-			});
-			var material = new THREE.MeshFaceMaterial(materials);
-			var oldPosition = this.hostEntity.object.position;
-			var oldRotation = this.hostEntity.object.rotation;
-			this.hostEntity.object = new THREE.Mesh(geometry, material);
-			this.hostEntity.object.position = oldPosition;
-			this.hostEntity.object.rotation = oldRotation;
-			this.dispatch("loaded");
 		}
 
 		frame(delta: number): void {

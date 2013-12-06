@@ -4,12 +4,12 @@ var hgPaths = [
 	"src/engine/**/**/*.ts"
 ];
 
-var sourceRules = [
-	// Replaces '//a' with '// a'
-	{ match: new RegExp('//([a-bA-Z]{1})'), replace: "// $&" },
-	// Replaces '){' with ') {'
-	{ match: new RegExp('\\)\{'), replace: ") {" }
-];
+// var sourceRules = [
+// 	// Replaces '//a' with '// a'
+// 	{ match: new RegExp('(\:{0})//([a-bA-Z]{1})'), replace: "// $&" },
+// 	// Replaces '){' with ') {'
+// 	{ match: new RegExp('\\)\{'), replace: ") {" }
+// ];
 
 var hgRef = "src/engine/HG.ref.ts";
 
@@ -26,7 +26,7 @@ var gamePaths = [
 	"game/*.ts"
 ];
 
-var dist = "dist/app.nw";
+var dist = "dist/";
 var outHG = "bin/lib/hg.js";
 var hgDef = "bin/lib/hg.d.ts";
 var outGame = "bin/game/game.js"
@@ -35,16 +35,6 @@ var fs = require("fs");
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		format: {
-			hg: {
-				src: hgPaths,
-				rules: sourceRules
-			},
-			game: {
-				src: gamePaths,
-				rules: sourceRules
-			}
-		},
 		tslint: {
 			options: {
 				configuration: grunt.file.readJSON("tslint.json")
@@ -75,43 +65,39 @@ module.exports = function(grunt) {
 				options: {
 					target: "es5",
 					comments: true,
-					sourcemap: true,
-					fullSourceMapPath: true
+					sourcemap: false
 				}
 			}
 		},
 		nodeunit: {
 			hg: testPaths
 		},
-		compress: {
+		nodewebkit: {
 			hg: {
 				options: {
-					archive: dist,
-					mode: 'zip'
+					build_dir: dist,
+					mac: true,
+					win: true,
+					linux32: true,
+					linux64: true,
+					version: "0.8.0"
 				},
-				files: [
-					{
-						cwd: 'bin/',
-						expand: true,
-						src: '**'
-					}
-				]
+				src: 'bin/'
 			}
 		}
 	});
 
 	grunt.loadNpmTasks("grunt-ts");
 	grunt.loadNpmTasks('grunt-tslint');
-	grunt.loadNpmTasks('grunt-format');
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
-	grunt.loadNpmTasks('grunt-contrib-compress');
+	grunt.loadNpmTasks('grunt-node-webkit-builder');
 
-	grunt.registerTask("game", ["format:game", "tslint:game", "ts:game"]);
-	grunt.registerTask("hg", ["format:hg", "tslint:hg", "ts:hg"]);
+	grunt.registerTask("game", ["tslint:game", "ts:game"]);
+	grunt.registerTask("hg", ["tslint:hg", "ts:hg", "nodeunit:hg"]);
 
-	grunt.registerTask("build", ["format", "tslint", "ts"]);
+	grunt.registerTask("build", ["tslint", "ts"]);
 	grunt.registerTask("test", ["nodeunit"]);
-	grunt.registerTask("dist", ["format", "tslint", "ts", "compress"]);
-	grunt.registerTask("default", ["format:hg", "tslint:hg", "ts:hg", "nodeunit"]);
-	grunt.registerTask("all", ["format", "tslint", "ts", "nodeunit", "compress"]);
+	grunt.registerTask("dist", ["tslint", "ts", "nodewebkit"]);
+	grunt.registerTask("default", ["tslint:hg", "ts:hg", "nodeunit"]);
+	grunt.registerTask("all", ["tslint", "ts", "nodeunit", "nodewebkit"]);
 };

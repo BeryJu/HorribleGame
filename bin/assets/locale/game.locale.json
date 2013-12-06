@@ -1,0 +1,8 @@
+{
+	"debugInfo": {
+		"resolution": "Rendering on ${0}x${1}",
+		"fps": "FPS: ${0}",
+		"verts": "Vertices: ${0}",
+		"frametime": "Frametime: ${0}ms"
+	}
+}

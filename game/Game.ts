@@ -1,17 +1,29 @@
+/*
+* @Author: BeryJu
+* @Date:   2013-12-06 16:43:52
+* @Email:  jenslanghammer@gmail.com
+* @Last Modified by:   BeryJu
+* @Last Modified time: 2013-12-06 18:14:35
+*/
+/// <reference path="GameLocale.ts" />
+
 HG.horrible();
-var game = new HG.Core.BaseGame(document.getElementById("gameWrapper"), "settings.json");
-var mainScene = new HG.Scenes.BaseScene();
+// $ is the same as document.getElementById, just shorter
+var gameCanvas = $("gameWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
+var game = new HG.Core.BaseGame(gameCanvas);
+var mainScene = new HG.Scenes.BaseScene();
+var locale = loader.json<GameLocale>("locale/game.locale.json");
+
+var player = new HG.Entities.MeshEntity();
+var room = new HG.Entities.MeshEntity();
 // var srv = new HG.BaseServer(9898);
 game.pluginHost.load(loader.directory("plugins"));
-loader.locale("locale/HG.locale.json", (locale: HG.Locale.Locale) => {
-	HG.locale = locale;
-});
 game.on("load", () => {
 	game.renderer.setClearColor(new THREE.Color(0x000000), .5);
 
 	var playerLight = new HG.Entities.BaseEntity(
-		new THREE.PointLight(0xffffff, 3, HG.settings.graphics	.viewDistance / 10));
+		new THREE.PointLight(0xffffff, 3, HG.settings.graphics.viewDistance / 10));
 	playerLight.offset(0, 150, 0)
 				.position(0, 0, 0);
 	mainScene.add(playerLight, "playerLight");
@@ -27,29 +39,28 @@ game.on("load", () => {
 	// add it to the scene
 	// mainScene.add(skyBox, "skyBox");
 
-	var player = new HG.Entities.MeshEntity();
+	// var playerMove = new HG.Abilities.MovingAbility();
+	// player.ability(playerMove);
+	// playerLight.ability(playerMove);
 
-	var playerMove = new HG.Abilities.MovingAbility();
-	player.ability(playerMove);
-	playerLight.ability(playerMove);
+	// var animationAbility = new HG.Abilities.AnimationAbility();
+	// player.ability(animationAbility);
 
-	var animationAbility = new HG.Abilities.AnimationAbility();
-	player.ability(animationAbility);
+	// player.on("loaded", () => {
+	// 	player.scale(10, 10, 10)
+	// 			.offset(0, 0, 50);
+	// 	mainScene.add(player, "player");
+	// });
+	// loader.model("models/android.js", player);
 
-	player.on("loaded", () => {
-		player.scale(10, 10, 10)
-				.offset(0, 0, 50);
-		mainScene.add(player, "player");
-	});
-	loader.model("models/android.js", player);
+	// var soundEffects = game.soundMixer.channel("effectsEnv");
+	// var sound1 = soundEffects.effect();
+	// var sound1 = new HG.Sound.Effect(game.soundMixer.channel("effectsEnv"));
+	// loader.sound("sounds/001.wav", sound1);
 
-	var sound1 = new HG.Sound.Effect(game.soundMixer.channel("effectsEnv"));
-	loader.sound("sounds/001.wav", sound1);
-
-	var room = new HG.Entities.MeshEntity();
 	room.on("loaded", () => {
 		room.scale(5, 5, 5)
-			.offset(0, 0, 50)
+			.offset(0, 0, 250)
 			.rotate((90).toRadian(), 0, 0);
 		mainScene.add(room);
 	});
@@ -61,8 +72,8 @@ game.on("load", () => {
 	// 	level.entities.forEach((e) => {
 	// 		scene.add(e);
 	// 	});
-	// 	var cam = new HG.Entities.ChasingCameraEntity(player, HG.settings.graphics	.fov,
-	// 			window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics	.viewDistance);
+	// 	var cam = new HG.Entities.ChasingCameraEntity(player, HG.settings.graphics.fov,
+	// 			window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
 	// 	level.applyCameraOffset(cam);
 	// 	game.camera = cam;
 	// });
@@ -80,29 +91,7 @@ game.on("load", () => {
 
 game.on("start", () => {
 	game.scene(mainScene);
-	// HG.Utils.bootstrap(game, window);
-	if (HG.settings.debug === true) {
-		HG.Utils.profile(() => {
-			game.render();
-		});
-	}
-	window.onresize = () => game.onResize();
-	window.onkeydown = (a: any) => game.onKeyDown(a);
-	window.onkeyup = (a: any) => game.onKeyUp(a);
-	window.onmousemove = (a: any) => game.onMouseMove(a);
-	window.onmousedown = (a: any) => game.onMouseDown(a);
-	window.onmouseup = (a: any) => game.onMouseUp(a);
-	var render;
-	if (HG.settings.graphics	.useStaticFramerate === true) {
-		render = () => { game.render(); };
-		setInterval(render, 1000 / HG.settings.graphics	.staticFramerate);
-	} else {
-		render = () => {
-			game.render();
-			requestAnimationFrame(render);
-		};
-	}
-	render();
+	HG.Utils.bootstrap(game);
 });
 
 game.controls.keyboard.bind(HG.settings.keys.refresh, (delta: number) => {
@@ -114,16 +103,14 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 });
 
 game.on(["start", "resize"], () => {
-	// document.getElementById("resolution").innerText =
-	// 		"Rendering on: "+window.innerWidth+"x"+window.innerHeight;
+	$("resolution").innerText = locale.debugInfo.resolution.f(window.innerWidth, window.innerHeight);
 });
 
 game.on("render", (delta: number) => {
 	mainScene.forNamed((e) => e.frame(delta));
-	// document.getElementById("fps").innerText = "FPS: "+game.fpsCounter.FPS;
-	// document.getElementById("verts").innerText = "Vertices: "+game.renderer.info.render.vertices;
-	// document.getElementById("frametime").innerText =
-	// 		"Frametime: "+game.fpsCounter.frameTime+"ms";
+	$("fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
+	$("verts").innerText = locale.debugInfo.verts.f(game.renderer.info.render.vertices);
+	$("frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
 });
 
 window.onload = () => game.load();
