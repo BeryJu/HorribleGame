@@ -13,14 +13,11 @@ if (HG.settings.debug === true) {
 game.pluginHost.load(loader.directory("plugins"));
 
 game.on("load", function () {
-    var effectsChannel = game.soundMixer.channel("effectsEnv");
-    var sound1 = effectsChannel.effect();
-    loader.sound("sounds/001.wav", sound1);
-
     mainScene = loader.scene("scenes/test.scene.json");
     var cam = new HG.Entities.CameraEntity(HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
     cam.offset(0, 25, -25).rotate(75, 75, 0);
     mainScene.color = new THREE.Color(0x000000);
+
     mainScene.camera = cam;
     game.scene(mainScene);
 

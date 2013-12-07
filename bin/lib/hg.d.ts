@@ -163,7 +163,7 @@ declare module HG.Utils {
     function isUndefined(va: any): boolean;
     function isNumber(va: any): boolean;
     function bootstrap(game: HG.Core.BaseGame): void;
-    function devTools(): void;
+    function devTools(): any;
     function profile(label: string, fn: () => any): void;
     function time(label: string, fn: () => any): void;
     function hasGL(): boolean;

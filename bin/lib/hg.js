@@ -719,7 +719,9 @@ var HG;
 
         function devTools() {
             var whnd = HG.Modules.ui.Window.get();
-            whnd.showDevTools();
+            var devToolsWindow = whnd.showDevTools();
+            devToolsWindow.resizeTo(1280, 720);
+            return devToolsWindow;
         }
         Utils.devTools = devTools;
 
@@ -2278,14 +2280,12 @@ var HG;
                         keyboardBindings.forEach(function (binding) {
                             var keyHandler = ability[binding["action"]];
                             scene.controls.keyboard.bind(HG.settings.keys[binding["event"]], function (delta, event) {
-                                console.log(binding);
                                 keyHandler.apply(ability, [delta, event]);
                             });
                         });
                         mouseBindings.forEach(function (binding) {
                             var keyHandler = ability[binding["action"]];
                             scene.controls.mouse.bind(binding["event"], function (delta, event) {
-                                console.log(binding);
                                 keyHandler.apply(ability, [delta, event]);
                             });
                         });

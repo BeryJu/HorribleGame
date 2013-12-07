@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 17:11:22
+* @Last Modified time: 2013-12-07 17:18:28
 */
 /// <reference path="GameLocale.ts" />
 // Initialize HG
@@ -23,10 +23,6 @@ if (HG.settings.debug === true) {
 game.pluginHost.load(loader.directory("plugins"));
 
 game.on("load", () => {
-	var effectsChannel = game.soundMixer.channel("effectsEnv");
-	var sound1 = effectsChannel.effect();
-	loader.sound("sounds/001.wav", sound1);
-
 	mainScene = loader.scene("scenes/test.scene.json");
 	var cam = new HG.Entities.CameraEntity(HG.settings.graphics.fov,
 			window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
