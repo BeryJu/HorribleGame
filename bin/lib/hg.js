@@ -854,7 +854,7 @@ var HG;
         var BaseScene = (function () {
             function BaseScene() {
                 this.controls = new HG.Core.InputHandler();
-                this.cameraEntity = new HG.Entities.CameraEntity(HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
+                this.camera = new HG.Entities.CameraEntity(HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
                 this.scene = new Physijs.Scene();
                 this.entities = {
                     named: {},
@@ -873,15 +873,11 @@ var HG;
                 }
             };
 
-            BaseScene.prototype.camera = function (cam) {
-                this.cameraEntity = cam;
-            };
-
             BaseScene.prototype.merge = function (otherScene) {
             };
 
             BaseScene.prototype.resize = function (ratio) {
-                this.cameraEntity.resize(ratio);
+                this.camera.resize(ratio);
             };
 
             BaseScene.prototype.getAllNamed = function (type) {
@@ -943,12 +939,17 @@ var HG;
             };
 
             BaseScene.prototype.getCamera = function () {
-                return this.cameraEntity.getInternal();
+                return this.camera.getInternal();
+            };
+
+            BaseScene.prototype.get = function (nameTag) {
+                nameTag = nameTag.toLowerCase();
+                return null || this.entities.named[nameTag];
             };
 
             BaseScene.prototype.frame = function (delta) {
                 this.controls.frame(delta);
-                this.cameraEntity.frame(delta);
+                this.camera.frame(delta);
                 this.forNamed(function (e) {
                     return e.frame(delta);
                 });
@@ -1109,6 +1110,7 @@ var HG;
             }
             MovingAbility.prototype.moveLeft = function (delta) {
                 var _this = this;
+                HG.log("left");
                 this.hosts.forEach(function (host) {
                     host.object.translateX(delta * _this.baseStep);
                 });
@@ -1217,6 +1219,7 @@ var HG;
 
             BaseGame.prototype.scene = function (scene) {
                 this.pluginHost.dispatch("sceneChange", scene);
+                this.renderer.setClearColor(scene.color, scene.colorAlpha);
                 this.currentScene = scene;
             };
 
@@ -1265,13 +1268,46 @@ var HG;
                 whwnd.toggleFullscreen();
             };
 
-            BaseGame.prototype.openDevConsole = function () {
-                HG.Modules.ui.Window.get().showDevTools();
-            };
-
             BaseGame.prototype.start = function () {
+                var _this = this;
                 this.dispatch("start");
                 this._running = true;
+                if (HG.settings.debug === true) {
+                    HG.Utils.profile("HG Profiling Frame", function () {
+                        return _this.render.apply(_this);
+                    });
+                }
+                window.onresize = function () {
+                    return _this.onResize.apply(_this);
+                };
+                window.onkeydown = function (a) {
+                    return _this.onKeyDown.apply(_this, [a]);
+                };
+                window.onkeyup = function (a) {
+                    return _this.onKeyUp.apply(_this, [a]);
+                };
+                window.onmousemove = function (a) {
+                    return _this.onMouseMove.apply(_this, [a]);
+                };
+                window.onmousedown = function (a) {
+                    return _this.onMouseDown.apply(_this, [a]);
+                };
+                window.onmouseup = function (a) {
+                    return _this.onMouseUp.apply(_this, [a]);
+                };
+                var render;
+                if (HG.settings.graphics.useStaticFramerate === true) {
+                    render = function () {
+                        _this.render.apply(_this);
+                    };
+                    setInterval(render, 1000 / HG.settings.graphics.staticFramerate);
+                } else {
+                    render = function () {
+                        _this.render.apply(_this);
+                        requestAnimationFrame(render);
+                    };
+                }
+                render();
             };
 
             BaseGame.prototype.onKeyUp = function (e) {
@@ -1369,7 +1405,7 @@ var HG;
                 this.keyboard = new HG.Core.EventDispatcher();
                 this._mouse = new THREE.Vector2();
                 for (var k in HG.Utils.KEY_MAP) {
-                    this.keyboard.events.push(HG.Utils.KEY_MAP[k.toString()]);
+                    this.keyboard.events.push(HG.Utils.KEY_MAP[k].toString());
                 }
             }
             Object.defineProperty(InputHandler.prototype, "mousePosition", {
@@ -2166,19 +2202,31 @@ var HG;
                 this.defaultScale = [1, 1, 1];
                 this.loader = loader;
             }
-            SceneSerializer.prototype.parseMaterials = function (raw) {
+            SceneSerializer.prototype.parseMaterials = function (raw, scene) {
                 var _this = this;
                 var material;
                 if (Array.isArray(raw) === true) {
                     var materials = [];
                     raw.forEach(function (m) {
-                        materials.push(_this.parseSingleMaterial(m));
+                        materials.push(_this.parseSingleMaterial(m, scene));
                     });
                     material = new THREE.MeshFaceMaterial(materials);
                 } else {
-                    material = this.parseSingleMaterial(raw);
+                    material = this.parseSingleMaterial(raw, scene);
                 }
                 return material;
+            };
+
+            SceneSerializer.prototype.parseGeometry = function (raw, scene) {
+                var geometryType = THREE[raw["type"]];
+                var geometryProperties = this.parseProperties(raw["properties"], scene);
+                var geometry;
+                if (Array.isArray(geometryProperties) === true) {
+                    geometry = this.applyConstructor(geometryType, raw["properties"]);
+                } else {
+                    geometry = new geometryType(raw["properties"]);
+                }
+                return geometry;
             };
 
             SceneSerializer.prototype.parseColor = function (raw) {
@@ -2193,13 +2241,19 @@ var HG;
                 return color;
             };
 
-            SceneSerializer.prototype.parseSingleMaterial = function (raw) {
+            SceneSerializer.prototype.parseMisc = function (raw, scene) {
+                var camera = this.parseEntity(raw["camera"], scene);
+                scene.color = this.parseColor(raw);
+                scene.colorAlpha = 1 || raw["colorAlpha"];
+            };
+
+            SceneSerializer.prototype.parseSingleMaterial = function (raw, scene) {
                 var material;
                 var materialType;
                 if (raw["properties"]["color"]) {
                     raw["properties"]["color"] = this.parseColor(raw["properties"]["color"]);
                 }
-                var properties = this.parseProperties(raw["properties"]);
+                var properties = this.parseProperties(raw["properties"], scene);
                 if (!raw["texture"]) {
                     materialType = THREE[raw["type"]];
                     material = new materialType(properties);
@@ -2214,30 +2268,29 @@ var HG;
 
             SceneSerializer.prototype.parseAbilities = function (raw, entity, scene) {
                 var _this = this;
-                if (raw["abilitise"]) {
-                    raw["abilitise"].forEach(function (rawAbility) {
+                if (raw["abilities"]) {
+                    raw["abilities"].forEach(function (rawAbility) {
                         var type = HG.Abilities[rawAbility["type"]];
-                        var properties = [] || _this.parseProperties(rawAbility["properties"]);
-                        var keyboardBindings = {} || rawAbility["bindings"]["keyboard"];
-                        var mouseBindings = {} || rawAbility["bindings"]["mouse"];
+                        var properties = _this.parseProperties(rawAbility["properties"], scene);
+                        var keyboardBindings = rawAbility["bindings"]["keyboard"] || [];
+                        var mouseBindings = rawAbility["bindings"]["mouse"] || [];
                         var ability = _this.applyConstructor(type, properties);
-                        var handler;
-                        for (var key in keyboardBindings) {
-                            var keys = HG.settings.keys[key];
-                            handler = ability[keyboardBindings[key]];
-                            scene.controls.keyboard.bind(keys, function (delta, event) {
-                                handler(delta, event);
+                        keyboardBindings.forEach(function (binding) {
+                            var keyHandler = ability[binding["action"]];
+                            scene.controls.keyboard.bind(HG.settings.keys[binding["event"]], function (delta, event) {
+                                console.log(binding);
+                                keyHandler.apply(ability, [delta, event]);
                             });
-                        }
-                        for (var evnet in mouseBindings) {
-                            handler = ability[mouseBindings[evnet]];
-                            scene.controls.mouse.bind(keys, function (x, y, evnet) {
-                                handler(x, y, event);
+                        });
+                        mouseBindings.forEach(function (binding) {
+                            var keyHandler = ability[binding["action"]];
+                            scene.controls.mouse.bind(binding["event"], function (delta, event) {
+                                console.log(binding);
+                                keyHandler.apply(ability, [delta, event]);
                             });
-                        }
+                        });
+                        entity.ability(ability);
                     });
-                } else {
-                    return entity;
                 }
             };
 
@@ -2269,8 +2322,8 @@ var HG;
                     this.loader.model(raw["model"], entity);
                 } else if (raw["material"] && raw["material"]) {
                     entity = new type();
-                    var material = this.parseMaterials(raw["material"]);
-                    var geometry = this.parseGeometry(raw["geometry"]);
+                    var material = this.parseMaterials(raw["material"], scene);
+                    var geometry = this.parseGeometry(raw["geometry"], scene);
                     var mesh = new THREE.Mesh(geometry, material);
                     entity.object = mesh;
                 } else if (raw["object"]) {
@@ -2279,8 +2332,8 @@ var HG;
                     var objectProperties = raw["object"]["type"];
                     var object = this.applyConstructor(objectType, objectProperties);
                     entity.object = object;
-                } else if (raw["properties"]) {
-                    var properties = this.parseProperties(raw["properties"]);
+                } else if (raw["type"] && raw["properties"]) {
+                    var properties = this.parseProperties(raw["properties"], scene);
                     if (Array.isArray(properties) === true) {
                         entity = this.applyConstructor(type, properties);
                     } else {
@@ -2289,54 +2342,46 @@ var HG;
                 }
 
                 this.setup(raw, entity);
-                entity = this.parseAbilities(raw, entity, scene);
+                this.parseAbilities(raw, entity, scene);
                 return entity;
             };
 
-            SceneSerializer.prototype.parseProperty = function (raw) {
-                if (typeof raw === "string") {
-                    return raw.f({
-                        ratio: window.innerWidth / window.innerHeight,
-                        viewDistance: HG.settings.graphics.viewDistance
-                    });
-                } else {
-                    return raw;
-                }
-            };
-
-            SceneSerializer.prototype.parseProperties = function (raw) {
+            SceneSerializer.prototype.parseProperties = function (raw, scene) {
                 var _this = this;
                 var props;
                 if (Array.isArray(raw) === true) {
                     props = [];
                     raw.forEach(function (prop) {
-                        props.push(_this.parseProperty(prop));
+                        props.push(_this.parseProperty(prop, scene));
                     });
                 } else {
                     props = {};
                     for (var k in raw) {
-                        props[k] = this.parseProperty(raw[k]);
+                        props[k] = this.parseProperty(raw[k], scene);
                     }
                 }
                 return props;
             };
 
-            SceneSerializer.prototype.parseGeometry = function (raw) {
-                var geometryType = THREE[raw["type"]];
-                var geometryProperties = this.parseProperties(raw["properties"]);
-                var geometry;
-                if (Array.isArray(geometryProperties) === true) {
-                    geometry = this.applyConstructor(geometryType, raw["properties"]);
+            SceneSerializer.prototype.parseProperty = function (raw, scene) {
+                if (typeof raw === "string") {
+                    if (raw.substring(0, 5) === "get::") {
+                        return scene.get(raw.replace("get::", ""));
+                    } else {
+                        return raw.f({
+                            ratio: window.innerWidth / window.innerHeight,
+                            viewDistance: HG.settings.graphics.viewDistance,
+                            fov: HG.settings.graphics.fov
+                        });
+                    }
                 } else {
-                    geometry = new geometryType(raw["properties"]);
+                    return raw;
                 }
-                return geometry;
             };
 
             SceneSerializer.prototype.fromGeneric = function (gen) {
                 var _this = this;
                 var scene = new HG.Scenes.BaseScene();
-
                 gen.entities.forEach(function (entry) {
                     var entity = _this.parseEntity(entry, scene);
                     if (!entry["disabled"] || entry["disabled"] === false) {
@@ -2347,6 +2392,7 @@ var HG;
                         }
                     }
                 });
+                this.parseMisc(gen, scene);
                 return scene;
             };
             return SceneSerializer;

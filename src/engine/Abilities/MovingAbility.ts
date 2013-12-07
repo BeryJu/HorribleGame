@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 14:24:57
+* @Last Modified time: 2013-12-07 15:13:20
 */
 
 module HG.Abilities {
@@ -18,6 +18,7 @@ module HG.Abilities {
 		}
 
 		moveLeft(delta: number): void {
+			HG.log("left");
 			this.hosts.forEach((host) => {
 				host.object.translateX(delta * this.baseStep);
 			});

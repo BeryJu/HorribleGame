@@ -196,15 +196,16 @@ declare module HG.Abilities {
 declare module HG.Scenes {
     class BaseScene {
         public scene: Physijs.Scene;
-        public cameraEntity: HG.Entities.CameraEntity;
+        public camera: HG.Entities.CameraEntity;
         public controls: HG.Core.InputHandler;
+        public color: THREE.Color;
+        public colorAlpha: number;
         public entities: {
             named: {};
             unnamed: HG.Entities.BaseEntity[];
         };
         constructor();
         public add(entity: HG.Entities.BaseEntity, nameTag?: string): void;
-        public camera(cam: HG.Entities.CameraEntity): void;
         public merge(otherScene: BaseScene): void;
         public resize(ratio: number): void;
         public getAllNamed(type?: any): any[];
@@ -215,6 +216,7 @@ declare module HG.Scenes {
         public forAll(callback: (e: any) => any, type?: any): void;
         public getInternal(): Physijs.Scene;
         public getCamera(): THREE.PerspectiveCamera;
+        public get<T>(nameTag: string): T;
         public frame(delta: number): void;
     }
 }
@@ -287,7 +289,6 @@ declare module HG.Core {
         public setFullScreenMode(state: boolean): void;
         public reload(): void;
         public toggleFullScreenMode(): void;
-        public openDevConsole(): void;
         public start(): void;
         public onKeyUp(e: KeyboardEvent): void;
         public onKeyDown(e: KeyboardEvent): void;
@@ -539,16 +540,17 @@ declare module HG.Scenes {
         public defaultScale: number[];
         public loader: HG.Resource.ResourceLoader;
         constructor(loader: HG.Resource.ResourceLoader);
-        private parseMaterials(raw);
+        private parseMaterials(raw, scene);
+        private parseGeometry(raw, scene);
         private parseColor(raw);
-        private parseSingleMaterial(raw);
+        private parseMisc(raw, scene);
+        private parseSingleMaterial(raw, scene);
         private parseAbilities(raw, entity, scene);
         private setup(raw, entity);
         private applyConstructor(type, argArray);
         private parseEntity(raw, scene);
-        private parseProperty(raw);
-        private parseProperties(raw);
-        private parseGeometry(raw);
+        private parseProperties(raw, scene);
+        private parseProperty(raw, scene);
         public fromGeneric(gen: any): Scenes.BaseScene;
     }
 }

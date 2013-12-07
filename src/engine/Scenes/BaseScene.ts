@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 14:36:59
+* @Last Modified time: 2013-12-07 17:02:17
 */
 
 module HG.Scenes {
@@ -11,9 +11,9 @@ module HG.Scenes {
 	export class BaseScene {
 
 		scene: Physijs.Scene;
-		cameraEntity: HG.Entities.CameraEntity;
+		camera: HG.Entities.CameraEntity;
 		controls: HG.Core.InputHandler;
-		color: THREE.Color,
+		color: THREE.Color;
 		colorAlpha: number;
 		entities: {
 			named: {};
@@ -22,7 +22,7 @@ module HG.Scenes {
 
 		constructor() {
 			this.controls = new HG.Core.InputHandler();
-			this.cameraEntity = new HG.Entities.CameraEntity(
+			this.camera = new HG.Entities.CameraEntity(
 				HG.settings.graphics.fov,
 				window.innerWidth / window.innerHeight, 0.1,
 				HG.settings.graphics.viewDistance);
@@ -45,16 +45,12 @@ module HG.Scenes {
 			}
 		}
 
-		camera(cam: HG.Entities.CameraEntity): void {
-			this.cameraEntity = cam;
-		}
-
 		merge(otherScene: HG.Scenes.BaseScene): void {
 			// todo
 		}
 
 		resize(ratio: number): void {
-			this.cameraEntity.resize(ratio);
+			this.camera.resize(ratio);
 		}
 
 		getAllNamed(type: any = HG.Entities.BaseEntity): any[] {
@@ -106,12 +102,17 @@ module HG.Scenes {
 		}
 
 		getCamera(): THREE.PerspectiveCamera {
-			return this.cameraEntity.getInternal();
+			return this.camera.getInternal();
+		}
+
+		get<T>(nameTag: string): T {
+			nameTag = nameTag.toLowerCase();
+			return null || <T> this.entities.named[nameTag];
 		}
 
 		frame(delta: number): void {
 			this.controls.frame(delta);
-			this.cameraEntity.frame(delta);
+			this.camera.frame(delta);
 			this.forNamed((e) => e.frame(delta));
 		}
 

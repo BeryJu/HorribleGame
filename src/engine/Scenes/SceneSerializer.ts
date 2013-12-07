@@ -3,7 +3,7 @@
 * @Date:   2013-12-07 11:37:00
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 14:34:57
+* @Last Modified time: 2013-12-07 17:17:26
 */
 
 module HG.Scenes {
@@ -21,18 +21,30 @@ module HG.Scenes {
 			this.loader = loader;
 		}
 
-		private parseMaterials(raw: any): any {
+		private parseMaterials(raw: any, scene: HG.Scenes.BaseScene): any {
 			var material;
 			if (Array.isArray(raw) === true) {
 				var materials = [];
 				raw.forEach((m) => {
-					materials.push(this.parseSingleMaterial(m));
+					materials.push(this.parseSingleMaterial(m, scene));
 				});
 				material = new THREE.MeshFaceMaterial(materials);
 			} else {
-				material = this.parseSingleMaterial(raw);
+				material = this.parseSingleMaterial(raw, scene);
 			}
 			return material;
+		}
+
+		private parseGeometry(raw: any, scene: HG.Scenes.BaseScene): THREE.Geometry {
+			var geometryType = THREE[raw["type"]];
+			var geometryProperties = this.parseProperties(raw["properties"], scene);
+			var geometry;
+			if (Array.isArray(geometryProperties) === true) {
+				geometry = this.applyConstructor(geometryType, raw["properties"]);
+			} else {
+				geometry = new geometryType(raw["properties"]);
+			}
+			return <THREE.Geometry> geometry;
 		}
 
 		private parseColor(raw: any): THREE.Color {
@@ -47,13 +59,20 @@ module HG.Scenes {
 			return color;
 		}
 
-		private parseSingleMaterial(raw: any): any {
+		private parseMisc(raw: any, scene: HG.Scenes.BaseScene): void {
+			var camera = this.parseEntity(raw["camera"], scene);
+			scene.color = this.parseColor(raw);
+			scene.colorAlpha = 1 || raw["colorAlpha"];
+			// scene.camera(<HG.Entities.CameraEntity> camera);
+		}
+
+		private parseSingleMaterial(raw: any, scene: HG.Scenes.BaseScene): any {
 			var material;
 			var materialType;
 			if (raw["properties"]["color"]) {
 				raw["properties"]["color"] = this.parseColor(raw["properties"]["color"]);
 			}
-			var properties = this.parseProperties(raw["properties"]);
+			var properties = this.parseProperties(raw["properties"], scene);
 			if (!raw["texture"]) {
 				materialType = THREE[raw["type"]];
 				material = new materialType(properties);
@@ -67,31 +86,30 @@ module HG.Scenes {
 		}
 
 		private parseAbilities(raw: any, entity: HG.Entities.BaseEntity,
-				scene: HG.Scenes.BaseScene): HG.Entities.BaseEntity {
-			if (raw["abilitise"]) {
-				raw["abilitise"].forEach((rawAbility) => {
+				scene: HG.Scenes.BaseScene): void {
+			if (raw["abilities"]) {
+				raw["abilities"].forEach((rawAbility) => {
 					var type = HG.Abilities[rawAbility["type"]];
-					var properties = [] || this.parseProperties(rawAbility["properties"]);
-					var keyboardBindings = {} || rawAbility["bindings"]["keyboard"];
-					var mouseBindings = {} || rawAbility["bindings"]["mouse"];
+					var properties = this.parseProperties(rawAbility["properties"], scene);
+					var keyboardBindings = rawAbility["bindings"]["keyboard"] || [];
+					var mouseBindings = rawAbility["bindings"]["mouse"] || [];
 					var ability = this.applyConstructor(type, properties);
-					var handler;
-					for (var key in keyboardBindings) {
-						var keys = HG.settings.keys[key];
-						handler = ability[keyboardBindings[key]];
-						scene.controls.keyboard.bind(keys, (delta: number, event: string) => {
-							handler(delta, event);
+					keyboardBindings.forEach((binding) => {
+						var keyHandler = ability[binding["action"]];
+						scene.controls.keyboard.bind(HG.settings.keys[binding["event"]],
+							(delta: number, event: string) => {
+							keyHandler.apply(ability, [delta, event]);
 						});
-					}
-					for (var evnet in mouseBindings) {
-						handler = ability[mouseBindings[evnet]];
-						scene.controls.mouse.bind(keys, (x: number, y: number, evnet: string) => {
-							handler(x, y, event);
+					});
+					mouseBindings.forEach((binding) => {
+						var keyHandler = ability[binding["action"]];
+						scene.controls.mouse.bind(binding["event"],
+							(delta: number, event: string) => {
+							keyHandler.apply(ability, [delta, event]);
 						});
-					}
+					});
+					entity.ability(ability);
 				});
-			} else {
-				return entity;
 			}
 		}
 
@@ -123,8 +141,8 @@ module HG.Scenes {
 				this.loader.model(raw["model"], entity);
 			} else if (raw["material"] && raw["material"]) {
 				entity = new type();
-				var material = this.parseMaterials(raw["material"]);
-				var geometry = this.parseGeometry(raw["geometry"]);
+				var material = this.parseMaterials(raw["material"], scene);
+				var geometry = this.parseGeometry(raw["geometry"], scene);
 				var mesh = new THREE.Mesh(geometry, material);
 				entity.object = mesh;
 			} else if (raw["object"]) {
@@ -133,8 +151,8 @@ module HG.Scenes {
 				var objectProperties = raw["object"]["type"];
 				var object = this.applyConstructor(objectType, objectProperties);
 				entity.object = object;
-			} else if (raw["properties"]) {
-				var properties = this.parseProperties(raw["properties"]);
+			} else if (raw["type"] && raw["properties"]) {
+				var properties = this.parseProperties(raw["properties"], scene);
 				if (Array.isArray(properties) === true) {
 					entity = this.applyConstructor(type, properties);
 				} else {
@@ -143,52 +161,44 @@ module HG.Scenes {
 			}
 
 			this.setup(raw, entity);
-			entity = this.parseAbilities(raw, entity, scene);
+			this.parseAbilities(raw, entity, scene);
 			return entity;
 		}
 
-		private parseProperty(raw: any): any {
-			if (typeof raw === "string") {
-				return raw.f({
-					ratio: window.innerWidth / window.innerHeight,
-					viewDistance: HG.settings.graphics.viewDistance
-				});
-			} else {
-				return raw;
-			}
-		}
-
-		private parseProperties(raw: any): any {
+		private parseProperties(raw: any, scene: HG.Scenes.BaseScene): any {
 			var props;
 			if (Array.isArray(raw) === true) {
 				props = [];
 				raw.forEach((prop) => {
-					props.push(this.parseProperty(prop));
+					props.push(this.parseProperty(prop, scene));
 				});
 			} else {
 				props = {};
 				for (var k in raw) {
-					props[k] = this.parseProperty(raw[k]);
+					props[k] = this.parseProperty(raw[k], scene);
 				}
 			}
 			return props;
 		}
 
-		private parseGeometry(raw: any): THREE.Geometry {
-			var geometryType = THREE[raw["type"]];
-			var geometryProperties = this.parseProperties(raw["properties"]);
-			var geometry;
-			if (Array.isArray(geometryProperties) === true) {
-				geometry = this.applyConstructor(geometryType, raw["properties"]);
+		private parseProperty(raw: any, scene: HG.Scenes.BaseScene): any {
+			if (typeof raw === "string") {
+				if (raw.substring(0, 5) === "get::") {
+					return scene.get(raw.replace("get::", ""));
+				} else {
+					return raw.f({
+						ratio: window.innerWidth / window.innerHeight,
+						viewDistance: HG.settings.graphics.viewDistance,
+						fov: HG.settings.graphics.fov
+					});
+				}
 			} else {
-				geometry = new geometryType(raw["properties"]);
+				return raw;
 			}
-			return <THREE.Geometry> geometry;
 		}
 
 		fromGeneric(gen: any): HG.Scenes.BaseScene {
 			var scene = new HG.Scenes.BaseScene();
-
 			gen.entities.forEach((entry) => {
 				var entity = this.parseEntity(entry, scene);
 				if (!entry["disabled"] || entry["disabled"] === false) {
@@ -199,6 +209,7 @@ module HG.Scenes {
 					}
 				}
 			});
+			this.parseMisc(gen, scene);
 			return scene;
 		}
 

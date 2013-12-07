@@ -1,14 +1,18 @@
 {
 	"camera": {
 		"type": "ChasingCameraEntity",
+		"name": "camera",
+		"offset": [0, 25, -25],
+		"rotation": [75, 75, 0],
 		"properties": [
-			"player",
+			"get::player",
+			"${fov}",
 			"${ratio}",
 			0.1,
 			"${viewDistance}"
 		]
 	},
-	"color": [],
+	"color": [20, 20, 20],
 	"colorAlpha": 0.5,
 	"entities": [
 		{
@@ -22,13 +26,28 @@
 					"type": "MovingAbility",
 					"properties": [3.125],
 					"bindings": {
-						"keyboard": {
-							"left": "turnLeft",
-							"right": "turnRight",
-							"forward": "moveForward",
-							"backward": "moveBackward",
-							"lower": "lower"
-						}
+						"keyboard": [
+							{
+								"event": "left",
+								"action": "turnLeft"
+							},
+							{
+								"event": "right",
+								"action": "turnRight"
+							},
+							{
+								"event": "forward",
+								"action": "moveForward"
+							},
+							{
+								"event": "backward",
+								"action": "moveBackward"
+							},
+							{
+								"event": "lower",
+								"action": "lower"
+							}
+						]
 					}
 				},
 				{
@@ -39,11 +58,20 @@
 						"keyframes": 20
 					},
 					"bindings": {
-						"keyboard": {
-							"forward": "run",
-							"backward": "run",
-							"lower": "run"
-						}
+						"keyboard": [
+							{
+								"event": "forward",
+								"action": "run"
+							},
+							{
+								"event": "backward",
+								"action": "run"
+							},
+							{
+								"event": "lower",
+								"action": "run"
+							}
+						]
 					}
 				}
 			]

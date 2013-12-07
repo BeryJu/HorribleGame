@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 14:36:43
+* @Last Modified time: 2013-12-07 16:02:04
 */
 
 module HG.Core {
@@ -111,13 +111,29 @@ module HG.Core {
 			whwnd.toggleFullscreen();
 		}
 
-		openDevConsole(): void {
-			HG.Modules.ui.Window.get().showDevTools();
-		}
-
 		start(): void {
 			this.dispatch("start");
 			this._running = true;
+			if (HG.settings.debug === true) {
+				HG.Utils.profile("HG Profiling Frame", () => this.render.apply(this));
+			}
+			window.onresize = () => this.onResize.apply(this);
+			window.onkeydown = (a: any) => this.onKeyDown.apply(this, [a]);
+			window.onkeyup = (a: any) => this.onKeyUp.apply(this, [a]);
+			window.onmousemove = (a: any) => this.onMouseMove.apply(this, [a]);
+			window.onmousedown = (a: any) => this.onMouseDown.apply(this, [a]);
+			window.onmouseup = (a: any) => this.onMouseUp.apply(this, [a]);
+			var render;
+			if (HG.settings.graphics.useStaticFramerate === true) {
+				render = () => { this.render.apply(this); };
+				setInterval(render, 1000 / HG.settings.graphics	.staticFramerate);
+			} else {
+				render = () => {
+					this.render.apply(this);
+					requestAnimationFrame(render);
+				};
+			}
+			render();
 		}
 
 		onKeyUp(e: KeyboardEvent): void {
