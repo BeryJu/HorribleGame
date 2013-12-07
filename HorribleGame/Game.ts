@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 00:30:03
+* @Last Modified time: 2013-12-07 11:34:43
 */
 /// <reference path="GameLocale.ts" />
 
@@ -55,14 +55,14 @@ game.on("load", () => {
 	var sound1 = effectsChannel.effect();
 	loader.sound("sounds/001.wav", sound1);
 
-	// var room = new HG.Entities.MeshEntity();
-	// room.on("loaded", () => {
-	// 	room.scale(5, 5, 5)
-	// 		.offset(0, 0, 50)
-	// 		.rotate((90).toRadian(), 0, 0);
-	// 	mainScene.add(room);
-	// });
-	// loader.model("models/room01.stl", room);
+	var room = new HG.Entities.MeshEntity();
+	room.on("loaded", () => {
+		room.scale(5, 5, 5)
+			.offset(0, 0, 50)
+			.rotate((90).toRadian(), 0, 0);
+		mainScene.add(room);
+	});
+	loader.model("models/room01.stl", room);
 
 	mainScene.controls.keyboard.bind(HG.settings.keys.left, (delta: number) => {
 		playerMove.turnLeft(3.125 * delta);
@@ -84,11 +84,6 @@ game.on("load", () => {
 
 	mainScene.controls.keyboard.bind(HG.settings.keys.lower, (delta: number) => {
 		playerMove.lower(3.125 * delta);
-		animationAbility.running = true;
-	});
-
-	mainScene.controls.keyboard.bind(HG.settings.keys.jump, (delta: number) => {
-		playerMove.jump();
 		animationAbility.running = true;
 	});
 

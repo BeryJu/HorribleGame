@@ -829,9 +829,10 @@ var HG;
             __extends(BaseAbility, _super);
             function BaseAbility() {
                 _super.apply(this, arguments);
+                this.hosts = [];
             }
             BaseAbility.prototype.setHost = function (entity) {
-                this.hostEntity = entity;
+                this.hosts.push(entity);
             };
 
             BaseAbility.prototype.checkCompatibility = function (entity) {
@@ -1060,28 +1061,27 @@ var HG;
                 this.currentKeyframe = 0;
                 this.events = ["loaded"];
             }
-            AnimationAbility.prototype.setHost = function (entity) {
-                this.hostEntity = entity;
-            };
-
             AnimationAbility.prototype.checkCompatibility = function (entity) {
                 return (entity instanceof HG.Entities.MeshEntity);
             };
 
             AnimationAbility.prototype.frame = function (delta) {
+                var _this = this;
                 _super.prototype.frame.call(this, delta);
                 if (this.running === true) {
-                    var time = new Date().getTime() % this.duration;
-                    var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
-                    if (keyframe !== this.currentKeyframe) {
-                        this.hostEntity.object["morphTargetInfluences"][this.lastKeyframe] = 0;
-                        this.hostEntity.object["morphTargetInfluences"][this.currentKeyframe] = 1;
-                        this.hostEntity.object["morphTargetInfluences"][keyframe] = 0;
-                        this.lastKeyframe = this.currentKeyframe;
-                        this.currentKeyframe = keyframe;
-                    }
-                    this.hostEntity.object["morphTargetInfluences"][keyframe] = (time % this.interpolation) / this.interpolation;
-                    this.hostEntity.object["morphTargetInfluences"][this.lastKeyframe] = 1 - this.hostEntity.object["morphTargetInfluences"][keyframe];
+                    this.hosts.forEach(function (host) {
+                        var time = new Date().getTime() % _this.duration;
+                        var keyframe = Math.floor(time / _this.interpolation) + _this.animOffset;
+                        if (keyframe !== _this.currentKeyframe) {
+                            host.object["morphTargetInfluences"][_this.lastKeyframe] = 0;
+                            host.object["morphTargetInfluences"][_this.currentKeyframe] = 1;
+                            host.object["morphTargetInfluences"][keyframe] = 0;
+                            _this.lastKeyframe = _this.currentKeyframe;
+                            _this.currentKeyframe = keyframe;
+                        }
+                        host.object["morphTargetInfluences"][keyframe] = (time % _this.interpolation) / _this.interpolation;
+                        host.object["morphTargetInfluences"][_this.lastKeyframe] = 1 - host.object["morphTargetInfluences"][keyframe];
+                    });
                     this.running = false;
                 }
             };
@@ -1098,62 +1098,51 @@ var HG;
             __extends(MovingAbility, _super);
             function MovingAbility() {
                 _super.apply(this, arguments);
-                this.jumpState = 0;
-                this.oldY = 0;
-                this.maxY = 200;
             }
             MovingAbility.prototype.moveLeft = function (step) {
-                this.hostEntity.object.translateX(step);
+                this.hosts.forEach(function (host) {
+                    host.object.translateX(step);
+                });
             };
 
             MovingAbility.prototype.moveRight = function (step) {
-                this.hostEntity.object.translateX(-step);
+                this.hosts.forEach(function (host) {
+                    host.object.translateX(-step);
+                });
             };
 
             MovingAbility.prototype.lower = function (step) {
-                this.hostEntity.object.position.y -= step;
+                this.hosts.forEach(function (host) {
+                    host.object.position.y -= step;
+                });
             };
 
             MovingAbility.prototype.turnLeft = function (step) {
-                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), step.toRadian());
+                this.hosts.forEach(function (host) {
+                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), step.toRadian());
+                });
             };
 
             MovingAbility.prototype.turnRight = function (step) {
-                this.hostEntity.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), -step.toRadian());
+                this.hosts.forEach(function (host) {
+                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), -step.toRadian());
+                });
             };
 
             MovingAbility.prototype.moveForward = function (step) {
-                this.hostEntity.object.translateZ(step);
+                this.hosts.forEach(function (host) {
+                    host.object.translateZ(step);
+                });
             };
 
             MovingAbility.prototype.moveBackward = function (step) {
-                this.hostEntity.object.translateZ(-step);
-            };
-
-            MovingAbility.prototype.jump = function () {
-                this.oldY = this.hostEntity.object.position.y;
-                this.jumpState = 1;
+                this.hosts.forEach(function (host) {
+                    host.object.translateZ(-step);
+                });
             };
 
             MovingAbility.prototype.frame = function (delta) {
-                if (this.jumpState >= 1) {
-                    if (this.jumpState === 3) {
-                        this.oldY = this.hostEntity.object.position.y;
-                        this.jumpState = 0;
-                    }
-                    if (this.hostEntity.object.position.y < (this.maxY + this.oldY) && this.jumpState === 1) {
-                        this.hostEntity.object.position.y += 3 * delta;
-                    }
-                    if (this.hostEntity.object.position.y >= (this.maxY + this.oldY) && this.jumpState >= 1) {
-                        this.jumpState = 2;
-                    }
-                    if (this.hostEntity.object.position.y <= this.oldY && this.jumpState >= 2) {
-                        this.hostEntity.object.position.y = this.oldY;
-                        this.jumpState = 3;
-                    } else if (this.jumpState >= 2) {
-                        this.hostEntity.object.position.y -= 3 * delta;
-                    }
-                }
+                return;
             };
             return MovingAbility;
         })(HG.Abilities.BaseAbility);

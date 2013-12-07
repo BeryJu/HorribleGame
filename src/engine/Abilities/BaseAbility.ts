@@ -3,17 +3,17 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:11:35
+* @Last Modified time: 2013-12-07 11:33:38
 */
 
 module HG.Abilities {
 
 	export class BaseAbility extends HG.Core.EventDispatcher {
 
-		hostEntity: HG.Entities.BaseEntity;
+		hosts: HG.Entities.BaseEntity[] = [];
 
 		setHost(entity: HG.Entities.BaseEntity): void {
-			this.hostEntity = entity;
+			this.hosts.push(entity);
 		}
 
 		checkCompatibility(entity: HG.Entities.BaseEntity): boolean { return true; }

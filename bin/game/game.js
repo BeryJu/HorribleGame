@@ -41,6 +41,13 @@ game.on("load", function () {
     var sound1 = effectsChannel.effect();
     loader.sound("sounds/001.wav", sound1);
 
+    var room = new HG.Entities.MeshEntity();
+    room.on("loaded", function () {
+        room.scale(5, 5, 5).offset(0, 0, 50).rotate((90).toRadian(), 0, 0);
+        mainScene.add(room);
+    });
+    loader.model("models/room01.stl", room);
+
     mainScene.controls.keyboard.bind(HG.settings.keys.left, function (delta) {
         playerMove.turnLeft(3.125 * delta);
     });
@@ -61,11 +68,6 @@ game.on("load", function () {
 
     mainScene.controls.keyboard.bind(HG.settings.keys.lower, function (delta) {
         playerMove.lower(3.125 * delta);
-        animationAbility.running = true;
-    });
-
-    mainScene.controls.keyboard.bind(HG.settings.keys.jump, function (delta) {
-        playerMove.jump();
         animationAbility.running = true;
     });
 

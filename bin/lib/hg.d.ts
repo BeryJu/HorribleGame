@@ -187,7 +187,7 @@ declare module HG.Entities {
 }
 declare module HG.Abilities {
     class BaseAbility extends HG.Core.EventDispatcher {
-        public hostEntity: HG.Entities.BaseEntity;
+        public hosts: HG.Entities.BaseEntity[];
         public setHost(entity: HG.Entities.BaseEntity): void;
         public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
         public frame(delta: number): void;
@@ -243,16 +243,12 @@ declare module HG.Abilities {
         public lastKeyframe: number;
         public currentKeyframe: number;
         public events: string[];
-        public setHost(entity: HG.Entities.BaseEntity): void;
         public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
         public frame(delta: number): void;
     }
 }
 declare module HG.Abilities {
     class MovingAbility extends Abilities.BaseAbility {
-        public jumpState: number;
-        public oldY: number;
-        public maxY: number;
         public moveLeft(step: number): void;
         public moveRight(step: number): void;
         public lower(step: number): void;
@@ -260,7 +256,6 @@ declare module HG.Abilities {
         public turnRight(step: number): void;
         public moveForward(step: number): void;
         public moveBackward(step: number): void;
-        public jump(): void;
         public frame(delta: number): void;
     }
 }
