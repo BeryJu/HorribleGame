@@ -1,0 +1,34 @@
+{
+	"entities": [
+		{
+			"type": "MeshEntity",
+			"name": "room",
+			"scale": [5, 5, 5],
+			"offset": [0, 0, 50],
+			"rotation": [1.5707963267948966, 0, 0],
+			"model": "models/room01.stl"
+		},
+		{
+			"type": "MeshEntity",
+			"position": [50, 50, 50],
+			"material": {
+				"type": "MeshBasicMaterial",
+				"properties": {
+					"color": 0
+				}
+			},
+			"geometry": {
+				"type": "CubeGeometry",
+				"properties": [50, 50, 50]
+			}
+		},
+		{
+			"type": "BaseEntity",
+			"offset": [0, 150, 0],
+			"object": {
+				"type": "PointLight",
+				"properties": [16777215, 3, 500]
+			}
+		}
+	]
+}

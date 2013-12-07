@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 17:54:17
+* @Last Modified time: 2013-12-07 12:11:03
 */
 
 module HG.Resource {
@@ -74,8 +74,14 @@ module HG.Resource {
 			this.load(path, HG.Resource.Sound, effect);
 		}
 
-		scene(path: string, done: (scene: HG.Scenes.BaseScene) => any): void {
-			this.load(path, HG.Resource.Scene, done);
+		scene(path: string): HG.Scenes.BaseScene {
+			var realPath = HG.Modules.path.join(this.baseDirectory, path);
+			if (HG.Modules.fs.existsSync(realPath) === true) {
+				var raw = HG.Modules.fs.readFileSync(realPath);
+				return new HG.Scenes.SceneSerializer().fromGeneric(JSON.parse(raw), this);
+			} else {
+				return null;
+			}
 		}
 
 		json<T>(path: string): T {

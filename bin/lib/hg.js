@@ -2022,8 +2022,14 @@ var HG;
                 this.load(path, HG.Resource.Sound, effect);
             };
 
-            ResourceLoader.prototype.scene = function (path, done) {
-                this.load(path, HG.Resource.Scene, done);
+            ResourceLoader.prototype.scene = function (path) {
+                var realPath = HG.Modules.path.join(this.baseDirectory, path);
+                if (HG.Modules.fs.existsSync(realPath) === true) {
+                    var raw = HG.Modules.fs.readFileSync(realPath);
+                    return new HG.Scenes.SceneSerializer().fromGeneric(JSON.parse(raw), this);
+                } else {
+                    return null;
+                }
             };
 
             ResourceLoader.prototype.json = function (path) {
@@ -2057,26 +2063,6 @@ var HG;
             return ResourceLoader;
         })(HG.Core.EventDispatcher);
         Resource.ResourceLoader = ResourceLoader;
-    })(HG.Resource || (HG.Resource = {}));
-    var Resource = HG.Resource;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Resource) {
-        (function (_Scene) {
-            var Scene = (function (_super) {
-                __extends(Scene, _super);
-                function Scene() {
-                    _super.apply(this, arguments);
-                    this.events = ["loaded"];
-                }
-                Scene.prototype.load = function (path) {
-                };
-                return Scene;
-            })(HG.Core.EventDispatcher);
-            _Scene.Scene = Scene;
-        })(Resource.Scene || (Resource.Scene = {}));
-        var Scene = Resource.Scene;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
 })(HG || (HG = {}));
@@ -2146,6 +2132,80 @@ var HG;
             return GameScene;
         })(HG.Scenes.BaseScene);
         Scenes.GameScene = GameScene;
+    })(HG.Scenes || (HG.Scenes = {}));
+    var Scenes = HG.Scenes;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Scenes) {
+        var SceneSerializer = (function (_super) {
+            __extends(SceneSerializer, _super);
+            function SceneSerializer() {
+                _super.apply(this, arguments);
+                this.defaultPosition = [0, 0, 0];
+                this.defaultRotation = [0, 0, 0];
+                this.defaultOffset = [0, 0, 0];
+                this.defaultScale = [1, 1, 1];
+            }
+            SceneSerializer.prototype.fromGeneric = function (gen, loader) {
+                var _this = this;
+                var scene = new HG.Scenes.BaseScene();
+
+                function applyToConstructor(constructor, argArray) {
+                    var args = [null].concat(argArray);
+                    var factoryFunction = constructor.bind.apply(constructor, args);
+                    return new factoryFunction();
+                }
+                ;
+
+                gen.forEach(function (entry) {
+                    var type = HG.Entities[entry["type"]];
+                    var entity = new type();
+                    var setup = function (entity) {
+                        var position = _this.defaultPosition || entry["position"];
+
+                        entity.position.apply(entity, position);
+                        var rotation = _this.defaultRotation || entry["rotation"];
+                        entity.rotate.apply(entity, rotation);
+                        var scale = _this.defaultScale || entry["scale"];
+                        entity.scale.apply(entity, scale);
+                        var offset = _this.defaultOffset || entry["offset"];
+                        entity.offset.apply(entity, offset);
+                    };
+                    if (entry["model"]) {
+                        loader.model(entry["model"], entity);
+                    } else if (entry["material"] && entry["material"]) {
+                        var materialType = THREE[entry["material"]["type"]];
+                        var material = new materialType(entry["material"]["properties"]);
+                        var geometryType = THREE[entry["geometry"]["type"]];
+                        var geometryProperties = entry["geometry"]["properties"];
+                        var geometry;
+                        if (Array.isArray(geometryProperties) === true) {
+                            geometry = applyToConstructor(geometryType, entry["geometry"]["properties"]);
+                        } else {
+                            geometry = new geometryType(entry["geometry"]["properties"]);
+                        }
+                        var mesh = new THREE.Mesh(geometry, material);
+                        entity.object = mesh;
+                    } else if (entry["object"]) {
+                        var objectType = THREE[entry["object"]["type"]];
+                        var objectProperties = entry["object"]["type"];
+                        var object = applyToConstructor(objectType, objectProperties);
+                    }
+                    setup(entity);
+                    if (!entry["disabled"] || entry["disabled"] === false) {
+                        if (entry["name"]) {
+                            scene.add(entity, entry["name"]);
+                        } else {
+                            scene.add(entity);
+                        }
+                    }
+                });
+                return scene;
+            };
+            return SceneSerializer;
+        })(HG.Core.EventDispatcher);
+        Scenes.SceneSerializer = SceneSerializer;
     })(HG.Scenes || (HG.Scenes = {}));
     var Scenes = HG.Scenes;
 })(HG || (HG = {}));

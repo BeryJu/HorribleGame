@@ -10,6 +10,7 @@ if (HG.settings.debug === true) {
     HG.Utils.devTools();
 }
 
+var testScene;
 var player = new HG.Entities.MeshEntity();
 var room = new HG.Entities.MeshEntity();
 var sprite = new HG.Entities.SpriteEntity();
@@ -41,12 +42,7 @@ game.on("load", function () {
     var sound1 = effectsChannel.effect();
     loader.sound("sounds/001.wav", sound1);
 
-    var room = new HG.Entities.MeshEntity();
-    room.on("loaded", function () {
-        room.scale(5, 5, 5).offset(0, 0, 50).rotate((90).toRadian(), 0, 0);
-        mainScene.add(room);
-    });
-    loader.model("models/room01.stl", room);
+    testScene = loader.scene("scenes/test.scene.json");
 
     mainScene.controls.keyboard.bind(HG.settings.keys.left, function (delta) {
         playerMove.turnLeft(3.125 * delta);

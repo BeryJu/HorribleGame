@@ -501,16 +501,10 @@ declare module HG.Resource {
         public model(path: string, entitiy: HG.Entities.MeshEntity): void;
         public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
-        public scene(path: string, done: (scene: HG.Scenes.BaseScene) => any): void;
+        public scene(path: string): HG.Scenes.BaseScene;
         public json<T>(path: string): T;
         public settings(path: string): void;
         public directory(directory: string): string[];
-    }
-}
-declare module HG.Resource.Scene {
-    class Scene extends HG.Core.EventDispatcher implements Resource.IFiletype {
-        public events: string[];
-        public load(path: string): void;
     }
 }
 declare module HG.Resource.Sound {
@@ -527,6 +521,15 @@ declare module HG.Resource.Texture {
 }
 declare module HG.Scenes {
     class GameScene extends Scenes.BaseScene {
+    }
+}
+declare module HG.Scenes {
+    class SceneSerializer extends HG.Core.EventDispatcher {
+        public defaultPosition: number[];
+        public defaultRotation: number[];
+        public defaultOffset: number[];
+        public defaultScale: number[];
+        public fromGeneric(gen: any, loader: HG.Resource.ResourceLoader): Scenes.BaseScene;
     }
 }
 declare module HG.Sound {
