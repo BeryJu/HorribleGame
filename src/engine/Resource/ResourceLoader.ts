@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 12:11:03
+* @Last Modified time: 2013-12-07 13:09:19
 */
 
 module HG.Resource {
@@ -78,7 +78,7 @@ module HG.Resource {
 			var realPath = HG.Modules.path.join(this.baseDirectory, path);
 			if (HG.Modules.fs.existsSync(realPath) === true) {
 				var raw = HG.Modules.fs.readFileSync(realPath);
-				return new HG.Scenes.SceneSerializer().fromGeneric(JSON.parse(raw), this);
+				return new HG.Scenes.SceneSerializer(this).fromGeneric(JSON.parse(raw));
 			} else {
 				return null;
 			}

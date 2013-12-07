@@ -243,19 +243,27 @@ declare module HG.Abilities {
         public lastKeyframe: number;
         public currentKeyframe: number;
         public events: string[];
+        constructor(options: {
+            offset: number;
+            duration: number;
+            keyframes: number;
+        });
+        public run(): void;
         public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
         public frame(delta: number): void;
     }
 }
 declare module HG.Abilities {
     class MovingAbility extends Abilities.BaseAbility {
-        public moveLeft(step: number): void;
-        public moveRight(step: number): void;
-        public lower(step: number): void;
-        public turnLeft(step: number): void;
-        public turnRight(step: number): void;
-        public moveForward(step: number): void;
-        public moveBackward(step: number): void;
+        public baseStep: number;
+        constructor(baseStep: number);
+        public moveLeft(delta: number): void;
+        public moveRight(delta: number): void;
+        public lower(delta: number): void;
+        public turnLeft(delta: number): void;
+        public turnRight(delta: number): void;
+        public moveForward(delta: number): void;
+        public moveBackward(delta: number): void;
         public frame(delta: number): void;
     }
 }
@@ -529,7 +537,19 @@ declare module HG.Scenes {
         public defaultRotation: number[];
         public defaultOffset: number[];
         public defaultScale: number[];
-        public fromGeneric(gen: any, loader: HG.Resource.ResourceLoader): Scenes.BaseScene;
+        public loader: HG.Resource.ResourceLoader;
+        constructor(loader: HG.Resource.ResourceLoader);
+        private parseMaterials(raw);
+        private parseColor(raw);
+        private parseSingleMaterial(raw);
+        private parseAbilities(raw, entity, scene);
+        private setup(raw, entity);
+        private applyConstructor(type, argArray);
+        private parseEntity(raw, scene);
+        private parseProperty(raw);
+        private parseProperties(raw);
+        private parseGeometry(raw);
+        public fromGeneric(gen: any): Scenes.BaseScene;
     }
 }
 declare module HG.Sound {

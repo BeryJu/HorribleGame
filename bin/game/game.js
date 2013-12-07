@@ -10,10 +10,6 @@ if (HG.settings.debug === true) {
     HG.Utils.devTools();
 }
 
-var testScene;
-var player = new HG.Entities.MeshEntity();
-var room = new HG.Entities.MeshEntity();
-var sprite = new HG.Entities.SpriteEntity();
 var cam = new HG.Entities.ChasingCameraEntity(player, HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
 cam.offset(0, 25, -25).rotate(75, 75, 0);
 mainScene.camera(cam);
@@ -23,55 +19,11 @@ game.pluginHost.load(loader.directory("plugins"));
 game.on("load", function () {
     game.renderer.setClearColor(new THREE.Color(0x000000), 0.5);
 
-    var playerMove = new HG.Abilities.MovingAbility();
-    player.ability(playerMove);
-    var playerLight = new HG.Entities.BaseEntity(new THREE.PointLight(0xffffff, 3, HG.settings.graphics.viewDistance / 10));
-    playerLight.ability(playerMove);
-    playerLight.offset(0, 150, 0).position(0, 0, 0);
-    mainScene.add(playerLight, "playerLight");
-
-    var animationAbility = new HG.Abilities.AnimationAbility();
-    player.ability(animationAbility);
-    player.on("loaded", function () {
-        player.scale(10, 10, 10).offset(0, 0, 50);
-        mainScene.add(player, "player");
-    });
-    loader.model("models/android.js", player);
-
     var effectsChannel = game.soundMixer.channel("effectsEnv");
     var sound1 = effectsChannel.effect();
     loader.sound("sounds/001.wav", sound1);
 
-    testScene = loader.scene("scenes/test.scene.json");
-
-    mainScene.controls.keyboard.bind(HG.settings.keys.left, function (delta) {
-        playerMove.turnLeft(3.125 * delta);
-    });
-
-    mainScene.controls.keyboard.bind(HG.settings.keys.right, function (delta) {
-        playerMove.turnRight(3.125 * delta);
-    });
-
-    mainScene.controls.keyboard.bind(HG.settings.keys.forward, function (delta) {
-        playerMove.moveForward(3.125 * delta);
-        animationAbility.running = true;
-    });
-
-    mainScene.controls.keyboard.bind(HG.settings.keys.backward, function (delta) {
-        playerMove.moveBackward(3.125 * delta);
-        animationAbility.running = true;
-    });
-
-    mainScene.controls.keyboard.bind(HG.settings.keys.lower, function (delta) {
-        playerMove.lower(3.125 * delta);
-        animationAbility.running = true;
-    });
-
-    if (HG.settings.debug === true) {
-        var axes = new HG.Entities.BaseEntity(new THREE.AxisHelper(500));
-        axes.position(0, 0, 0);
-        mainScene.add(axes);
-    }
+    mainScene = loader.scene("scenes/test.scene.json");
 
     game.start();
 });

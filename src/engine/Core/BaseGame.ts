@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 00:07:35
+* @Last Modified time: 2013-12-07 14:36:43
 */
 
 module HG.Core {
@@ -45,12 +45,15 @@ module HG.Core {
 
 			this.setFullScreenMode(HG.settings.graphics.fullscreen);
 			this.resize(HG.settings.graphics.resolution);
-
-			this.renderer = new THREE.WebGLRenderer({
-				antialias: HG.settings.graphics.antialiasing
-			});
-			this.renderer.setSize(window.innerWidth, window.innerHeight);
-			container.appendChild(this.renderer.domElement);
+			if (HG._gl === true) {
+				this.renderer = new THREE.WebGLRenderer({
+					antialias: HG.settings.graphics.antialiasing
+				});
+				this.renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(this.renderer.domElement);
+			} else {
+				return;
+			}
 		}
 
 		set title(v: any[]) {
@@ -59,6 +62,7 @@ module HG.Core {
 
 		scene(scene: HG.Scenes.BaseScene): void {
 			this.pluginHost.dispatch("sceneChange", scene);
+			this.renderer.setClearColor(scene.color, scene.colorAlpha);
 			this.currentScene = scene;
 		}
 

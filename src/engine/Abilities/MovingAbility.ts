@@ -3,52 +3,59 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 11:32:48
+* @Last Modified time: 2013-12-07 14:24:57
 */
 
 module HG.Abilities {
 
 	export class MovingAbility extends HG.Abilities.BaseAbility {
 
-		moveLeft(step: number): void {
+		baseStep: number;
+
+		constructor(baseStep: number) {
+			super();
+			this.baseStep = baseStep;
+		}
+
+		moveLeft(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateX(step);
+				host.object.translateX(delta * this.baseStep);
 			});
 		}
 
-		moveRight(step: number): void {
+		moveRight(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateX(-step);
+				host.object.translateX(-delta * this.baseStep);
 			});
 		}
 
-		lower(step: number): void {
+		lower(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.position.y -= step;
+				host.object.position.y -= (delta * this.baseStep);
 			});
 		}
 
-		turnLeft(step: number): void {
+		turnLeft(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), step.toRadian());
+				host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (delta * this.baseStep).toRadian());
 			});
 		}
 
-		turnRight(step: number): void {
+		turnRight(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), -step.toRadian());
+				host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (-delta * this.baseStep).toRadian());
 			});
 		}
 
-		moveForward(step: number): void {
+		moveForward(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateZ(step);
+				host.object.translateZ(delta * this.baseStep);
 			});
 		}
 
-		moveBackward(step: number): void {
+		moveBackward(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateZ(-step);
+				host.object.translateZ(-delta * this.baseStep);
 			});
 		}
 

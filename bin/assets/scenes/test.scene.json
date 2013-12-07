@@ -1,5 +1,53 @@
 {
+	"camera": {
+		"type": "ChasingCameraEntity",
+		"properties": [
+			"player",
+			"${ratio}",
+			0.1,
+			"${viewDistance}"
+		]
+	},
+	"color": [],
+	"colorAlpha": 0.5,
 	"entities": [
+		{
+			"type": "MeshEntity",
+			"name": "Player",
+			"model": "models/android.js",
+			"scale": [10, 10, 10],
+			"offset": [0, 0, 50],
+			"abilities": [
+				{
+					"type": "MovingAbility",
+					"properties": [3.125],
+					"bindings": {
+						"keyboard": {
+							"left": "turnLeft",
+							"right": "turnRight",
+							"forward": "moveForward",
+							"backward": "moveBackward",
+							"lower": "lower"
+						}
+					}
+				},
+				{
+					"type": "AnimationAbility",
+					"properties": {
+						"offset": 0,
+						"duration": 1000,
+						"keyframes": 20
+					},
+					"bindings": {
+						"keyboard": {
+							"forward": "run",
+							"backward": "run",
+							"lower": "run"
+						}
+					}
+				}
+			]
+		},
 		{
 			"type": "MeshEntity",
 			"name": "room",
@@ -9,25 +57,20 @@
 			"model": "models/room01.stl"
 		},
 		{
-			"type": "MeshEntity",
-			"position": [50, 50, 50],
-			"material": {
-				"type": "MeshBasicMaterial",
-				"properties": {
-					"color": 0
-				}
-			},
-			"geometry": {
-				"type": "CubeGeometry",
-				"properties": [50, 50, 50]
-			}
-		},
-		{
 			"type": "BaseEntity",
 			"offset": [0, 150, 0],
 			"object": {
 				"type": "PointLight",
 				"properties": [16777215, 3, 500]
+			}
+		},
+		{
+			"type": "BaseEntity",
+			"name": "debugAxes",
+			"position": [0, 0, 0],
+			"object": {
+				"type": "AxisHelper",
+				"properties": [500]
 			}
 		}
 	]

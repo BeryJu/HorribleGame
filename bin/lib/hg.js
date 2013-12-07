@@ -1050,8 +1050,8 @@ var HG;
     (function (Abilities) {
         var AnimationAbility = (function (_super) {
             __extends(AnimationAbility, _super);
-            function AnimationAbility() {
-                _super.apply(this, arguments);
+            function AnimationAbility(options) {
+                _super.call(this);
                 this.animOffset = 0;
                 this.running = false;
                 this.duration = 1000;
@@ -1060,7 +1060,14 @@ var HG;
                 this.lastKeyframe = 0;
                 this.currentKeyframe = 0;
                 this.events = ["loaded"];
+                this.animOffset = 0 || options.offset;
+                this.duration = 1000 || options.duration;
+                this.keyframes = 20 || options.keyframes;
             }
+            AnimationAbility.prototype.run = function () {
+                this.running = true;
+            };
+
             AnimationAbility.prototype.checkCompatibility = function (entity) {
                 return (entity instanceof HG.Entities.MeshEntity);
             };
@@ -1096,48 +1103,56 @@ var HG;
     (function (Abilities) {
         var MovingAbility = (function (_super) {
             __extends(MovingAbility, _super);
-            function MovingAbility() {
-                _super.apply(this, arguments);
+            function MovingAbility(baseStep) {
+                _super.call(this);
+                this.baseStep = baseStep;
             }
-            MovingAbility.prototype.moveLeft = function (step) {
+            MovingAbility.prototype.moveLeft = function (delta) {
+                var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateX(step);
+                    host.object.translateX(delta * _this.baseStep);
                 });
             };
 
-            MovingAbility.prototype.moveRight = function (step) {
+            MovingAbility.prototype.moveRight = function (delta) {
+                var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateX(-step);
+                    host.object.translateX(-delta * _this.baseStep);
                 });
             };
 
-            MovingAbility.prototype.lower = function (step) {
+            MovingAbility.prototype.lower = function (delta) {
+                var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.position.y -= step;
+                    host.object.position.y -= (delta * _this.baseStep);
                 });
             };
 
-            MovingAbility.prototype.turnLeft = function (step) {
+            MovingAbility.prototype.turnLeft = function (delta) {
+                var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), step.toRadian());
+                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (delta * _this.baseStep).toRadian());
                 });
             };
 
-            MovingAbility.prototype.turnRight = function (step) {
+            MovingAbility.prototype.turnRight = function (delta) {
+                var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), -step.toRadian());
+                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (-delta * _this.baseStep).toRadian());
                 });
             };
 
-            MovingAbility.prototype.moveForward = function (step) {
+            MovingAbility.prototype.moveForward = function (delta) {
+                var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateZ(step);
+                    host.object.translateZ(delta * _this.baseStep);
                 });
             };
 
-            MovingAbility.prototype.moveBackward = function (step) {
+            MovingAbility.prototype.moveBackward = function (delta) {
+                var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateZ(-step);
+                    host.object.translateZ(-delta * _this.baseStep);
                 });
             };
 
@@ -1182,12 +1197,15 @@ var HG;
 
                 this.setFullScreenMode(HG.settings.graphics.fullscreen);
                 this.resize(HG.settings.graphics.resolution);
-
-                this.renderer = new THREE.WebGLRenderer({
-                    antialias: HG.settings.graphics.antialiasing
-                });
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-                container.appendChild(this.renderer.domElement);
+                if (HG._gl === true) {
+                    this.renderer = new THREE.WebGLRenderer({
+                        antialias: HG.settings.graphics.antialiasing
+                    });
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                    container.appendChild(this.renderer.domElement);
+                } else {
+                    return;
+                }
             }
             Object.defineProperty(BaseGame.prototype, "title", {
                 set: function (v) {
@@ -2026,7 +2044,7 @@ var HG;
                 var realPath = HG.Modules.path.join(this.baseDirectory, path);
                 if (HG.Modules.fs.existsSync(realPath) === true) {
                     var raw = HG.Modules.fs.readFileSync(realPath);
-                    return new HG.Scenes.SceneSerializer().fromGeneric(JSON.parse(raw), this);
+                    return new HG.Scenes.SceneSerializer(this).fromGeneric(JSON.parse(raw));
                 } else {
                     return null;
                 }
@@ -2140,59 +2158,187 @@ var HG;
     (function (Scenes) {
         var SceneSerializer = (function (_super) {
             __extends(SceneSerializer, _super);
-            function SceneSerializer() {
-                _super.apply(this, arguments);
+            function SceneSerializer(loader) {
+                _super.call(this);
                 this.defaultPosition = [0, 0, 0];
                 this.defaultRotation = [0, 0, 0];
                 this.defaultOffset = [0, 0, 0];
                 this.defaultScale = [1, 1, 1];
+                this.loader = loader;
             }
-            SceneSerializer.prototype.fromGeneric = function (gen, loader) {
+            SceneSerializer.prototype.parseMaterials = function (raw) {
+                var _this = this;
+                var material;
+                if (Array.isArray(raw) === true) {
+                    var materials = [];
+                    raw.forEach(function (m) {
+                        materials.push(_this.parseSingleMaterial(m));
+                    });
+                    material = new THREE.MeshFaceMaterial(materials);
+                } else {
+                    material = this.parseSingleMaterial(raw);
+                }
+                return material;
+            };
+
+            SceneSerializer.prototype.parseColor = function (raw) {
+                var color = new THREE.Color(0xaabbcc);
+                if (raw["color"]) {
+                    if (Array.isArray(raw["color"]) === true) {
+                        color.setRGB.apply(color, raw["color"]);
+                    } else {
+                        color.setHex(raw["color"]);
+                    }
+                }
+                return color;
+            };
+
+            SceneSerializer.prototype.parseSingleMaterial = function (raw) {
+                var material;
+                var materialType;
+                if (raw["properties"]["color"]) {
+                    raw["properties"]["color"] = this.parseColor(raw["properties"]["color"]);
+                }
+                var properties = this.parseProperties(raw["properties"]);
+                if (!raw["texture"]) {
+                    materialType = THREE[raw["type"]];
+                    material = new materialType(properties);
+                } else {
+                    var map = THREE.ImageUtils.loadTexture(this.loader.resolvePath(raw["texture"]));
+                    materialType = THREE[raw["type"]];
+                    properties["map"] = map;
+                    material = new materialType(properties);
+                }
+                return material;
+            };
+
+            SceneSerializer.prototype.parseAbilities = function (raw, entity, scene) {
+                var _this = this;
+                if (raw["abilitise"]) {
+                    raw["abilitise"].forEach(function (rawAbility) {
+                        var type = HG.Abilities[rawAbility["type"]];
+                        var properties = [] || _this.parseProperties(rawAbility["properties"]);
+                        var keyboardBindings = {} || rawAbility["bindings"]["keyboard"];
+                        var mouseBindings = {} || rawAbility["bindings"]["mouse"];
+                        var ability = _this.applyConstructor(type, properties);
+                        var handler;
+                        for (var key in keyboardBindings) {
+                            var keys = HG.settings.keys[key];
+                            handler = ability[keyboardBindings[key]];
+                            scene.controls.keyboard.bind(keys, function (delta, event) {
+                                handler(delta, event);
+                            });
+                        }
+                        for (var evnet in mouseBindings) {
+                            handler = ability[mouseBindings[evnet]];
+                            scene.controls.mouse.bind(keys, function (x, y, evnet) {
+                                handler(x, y, event);
+                            });
+                        }
+                    });
+                } else {
+                    return entity;
+                }
+            };
+
+            SceneSerializer.prototype.setup = function (raw, entity) {
+                var position = this.defaultPosition || raw["position"];
+
+                entity.position.apply(entity, position);
+                var rotation = this.defaultRotation || raw["rotation"];
+                entity.rotate.apply(entity, rotation);
+                var scale = this.defaultScale || raw["scale"];
+                entity.scale.apply(entity, scale);
+                var offset = this.defaultOffset || raw["offset"];
+                entity.offset.apply(entity, offset);
+                return entity;
+            };
+
+            SceneSerializer.prototype.applyConstructor = function (type, argArray) {
+                var args = [null].concat(argArray);
+                var factoryFunction = type.bind.apply(type, args);
+                return new factoryFunction();
+            };
+
+            SceneSerializer.prototype.parseEntity = function (raw, scene) {
+                var type = HG.Entities[raw["type"]];
+                var entity;
+
+                if (raw["model"]) {
+                    entity = new type();
+                    this.loader.model(raw["model"], entity);
+                } else if (raw["material"] && raw["material"]) {
+                    entity = new type();
+                    var material = this.parseMaterials(raw["material"]);
+                    var geometry = this.parseGeometry(raw["geometry"]);
+                    var mesh = new THREE.Mesh(geometry, material);
+                    entity.object = mesh;
+                } else if (raw["object"]) {
+                    entity = new type();
+                    var objectType = THREE[raw["object"]["type"]];
+                    var objectProperties = raw["object"]["type"];
+                    var object = this.applyConstructor(objectType, objectProperties);
+                    entity.object = object;
+                } else if (raw["properties"]) {
+                    var properties = this.parseProperties(raw["properties"]);
+                    if (Array.isArray(properties) === true) {
+                        entity = this.applyConstructor(type, properties);
+                    } else {
+                        entity = new type(properties);
+                    }
+                }
+
+                this.setup(raw, entity);
+                entity = this.parseAbilities(raw, entity, scene);
+                return entity;
+            };
+
+            SceneSerializer.prototype.parseProperty = function (raw) {
+                if (typeof raw === "string") {
+                    return raw.f({
+                        ratio: window.innerWidth / window.innerHeight,
+                        viewDistance: HG.settings.graphics.viewDistance
+                    });
+                } else {
+                    return raw;
+                }
+            };
+
+            SceneSerializer.prototype.parseProperties = function (raw) {
+                var _this = this;
+                var props;
+                if (Array.isArray(raw) === true) {
+                    props = [];
+                    raw.forEach(function (prop) {
+                        props.push(_this.parseProperty(prop));
+                    });
+                } else {
+                    props = {};
+                    for (var k in raw) {
+                        props[k] = this.parseProperty(raw[k]);
+                    }
+                }
+                return props;
+            };
+
+            SceneSerializer.prototype.parseGeometry = function (raw) {
+                var geometryType = THREE[raw["type"]];
+                var geometryProperties = this.parseProperties(raw["properties"]);
+                var geometry;
+                if (Array.isArray(geometryProperties) === true) {
+                    geometry = this.applyConstructor(geometryType, raw["properties"]);
+                } else {
+                    geometry = new geometryType(raw["properties"]);
+                }
+                return geometry;
+            };
+
+            SceneSerializer.prototype.fromGeneric = function (gen) {
                 var _this = this;
                 var scene = new HG.Scenes.BaseScene();
 
-                function applyToConstructor(constructor, argArray) {
-                    var args = [null].concat(argArray);
-                    var factoryFunction = constructor.bind.apply(constructor, args);
-                    return new factoryFunction();
-                }
-                ;
-
-                gen.forEach(function (entry) {
-                    var type = HG.Entities[entry["type"]];
-                    var entity = new type();
-                    var setup = function (entity) {
-                        var position = _this.defaultPosition || entry["position"];
-
-                        entity.position.apply(entity, position);
-                        var rotation = _this.defaultRotation || entry["rotation"];
-                        entity.rotate.apply(entity, rotation);
-                        var scale = _this.defaultScale || entry["scale"];
-                        entity.scale.apply(entity, scale);
-                        var offset = _this.defaultOffset || entry["offset"];
-                        entity.offset.apply(entity, offset);
-                    };
-                    if (entry["model"]) {
-                        loader.model(entry["model"], entity);
-                    } else if (entry["material"] && entry["material"]) {
-                        var materialType = THREE[entry["material"]["type"]];
-                        var material = new materialType(entry["material"]["properties"]);
-                        var geometryType = THREE[entry["geometry"]["type"]];
-                        var geometryProperties = entry["geometry"]["properties"];
-                        var geometry;
-                        if (Array.isArray(geometryProperties) === true) {
-                            geometry = applyToConstructor(geometryType, entry["geometry"]["properties"]);
-                        } else {
-                            geometry = new geometryType(entry["geometry"]["properties"]);
-                        }
-                        var mesh = new THREE.Mesh(geometry, material);
-                        entity.object = mesh;
-                    } else if (entry["object"]) {
-                        var objectType = THREE[entry["object"]["type"]];
-                        var objectProperties = entry["object"]["type"];
-                        var object = applyToConstructor(objectType, objectProperties);
-                    }
-                    setup(entity);
+                gen.entities.forEach(function (entry) {
+                    var entity = _this.parseEntity(entry, scene);
                     if (!entry["disabled"] || entry["disabled"] === false) {
                         if (entry["name"]) {
                             scene.add(entity, entry["name"]);
