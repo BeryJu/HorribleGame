@@ -35,7 +35,6 @@ declare module HG.Core {
         public paths: string[];
         public game: Core.BaseGame;
         constructor(instance: Core.BaseGame);
-        public doReload(): void;
         public load(path: string[], env?: {}): void;
     }
 }

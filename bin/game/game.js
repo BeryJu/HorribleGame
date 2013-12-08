@@ -7,6 +7,7 @@ var mainScene = new HG.Scenes.BaseScene();
 var locale = loader.json("locale/game.locale.json");
 
 game.pluginHost.load(loader.directory("plugins"));
+var cam;
 
 if (HG.settings.debug === true) {
     HG.Utils.devTools();
@@ -15,9 +16,10 @@ if (HG.settings.debug === true) {
 game.on("load", function () {
     loader.scene("scenes/test.scene.json", function (scene) {
         mainScene = scene;
-        var cam = new HG.Entities.ChasingCameraEntity(mainScene.get("player"), HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
+
+        cam = new HG.Entities.ChasingCameraEntity(mainScene.get("player"), HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
         cam.offset(0, 25, -25).rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782).position(-27.512701511383057, 250, 211.5527195930481);
-        mainScene.camera = cam;
+
         game.scene(mainScene);
         game.start();
     });

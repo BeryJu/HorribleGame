@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-08 00:24:21
+* @Last Modified time: 2013-12-08 22:03:41
 */
 
 module HG.Scenes {
@@ -11,7 +11,8 @@ module HG.Scenes {
 	export class BaseScene {
 
 		scene: Physijs.Scene;
-		camera: HG.Entities.CameraEntity;
+		cameras: HG.Entities.CameraEntity[];
+		selectedCamera: number;
 		controls: HG.Core.InputHandler;
 		color: THREE.Color;
 		colorAlpha: number;
@@ -22,10 +23,7 @@ module HG.Scenes {
 
 		constructor() {
 			this.controls = new HG.Core.InputHandler();
-			this.camera = new HG.Entities.CameraEntity(
-				HG.settings.graphics.fov,
-				window.innerWidth / window.innerHeight, 0.1,
-				HG.settings.graphics.viewDistance);
+			this.camera = [];
 			this.scene = new Physijs.Scene();
 			this.entities = {
 				named: {},
@@ -35,13 +33,18 @@ module HG.Scenes {
 
 		add(entity: HG.Entities.BaseEntity, nameTag?: string): void {
 			this.scene.add(entity.getInternal());
-			if (nameTag) {
-				if (this.entities.named[nameTag.toLowerCase()]) {
-					HG.locale.core.errors.duplicateNameTag.f(nameTag).error();
+			if (entity instanceof HG.Entities.CameraEntity) {
+				this.cameras.push(entity);
+			} else if (entity instanceof HG.Entities.BaseEntity) {
+				if (nameTag) {
+					if (this.entities.named[nameTag.toLowerCase()]) {
+						HG.locale.core.errors.duplicateNameTag.f(nameTag).error();
+					} else {
+						this.entities.named[nameTag.toLowerCase()] = entity;
+					}
+				} else {
+					this.entities.unnamed.push(entity);
 				}
-				this.entities.named[nameTag.toLowerCase()] = entity;
-			} else {
-				this.entities.unnamed.push(entity);
 			}
 		}
 
@@ -102,7 +105,7 @@ module HG.Scenes {
 		}
 
 		getCamera(): THREE.PerspectiveCamera {
-			return this.camera.getInternal();
+			return this.cameras[this.selectedCamera].getInternal() || null;
 		}
 
 		get<T>(nameTag: string): T {
@@ -112,7 +115,7 @@ module HG.Scenes {
 
 		frame(delta: number): void {
 			this.controls.frame(delta);
-			this.camera.frame(delta);
+			this.cameras[this.selectedCamera].frame(delta);
 			this.forNamed((e) => e.frame(delta));
 		}
 

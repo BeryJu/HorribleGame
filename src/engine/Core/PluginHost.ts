@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 16:22:21
+* @Last Modified time: 2013-12-08 17:10:30
 */
 
 module HG.Core {
@@ -20,31 +20,20 @@ module HG.Core {
 			this.game = instance;
 		}
 
-		doReload(): void {
-			this.paths.forEach((path) => {
-				var resolved = global.require.resolve("./" + path);
-				delete global.require.cache[resolved];
-			});
-		}
-
 		load(path: string[], env?: {}): void {
+			env = {
+				HG: HG,
+				THREE: THREE,
+				game: this.game,
+				window: window,
+				document: document
+			} || env;
 			path.forEach((file) => {
-				env = {
-					HG: HG,
-					THREE: THREE,
-					game: this.game,
-					window: window,
-					document: document
-				} || env;
-				try {
-					var plugin = require("./" + file);
-					var instance = new plugin(this, env);
-					HG.locale.pluginHost.success.f(instance.name).log();
-					this.plugins.push(instance);
-					this.paths.push(file);
-				} catch (e) {
-					HG.locale.pluginHost.failure.f(file, e).log();
-				}
+				var plugin = require("./" + file);
+				var instance = new plugin(this, env);
+				HG.locale.pluginHost.success.f(instance.name).log();
+				this.plugins.push(instance);
+				this.paths.push(file);
 			});
 		}
 

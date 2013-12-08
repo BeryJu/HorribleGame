@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-08 14:22:38
+* @Last Modified time: 2013-12-08 21:50:43
 */
 /// <reference path="GameLocale.ts" />
 // Initialize HG
@@ -16,6 +16,7 @@ var mainScene = new HG.Scenes.BaseScene();
 var locale = loader.json<GameLocale>("locale/game.locale.json");
 // var server = new HG.Core.BaseServer(9898);
 game.pluginHost.load(loader.directory("plugins"));
+var cam;
 
 if (HG.settings.debug === true) {
 	HG.Utils.devTools();
@@ -24,12 +25,15 @@ if (HG.settings.debug === true) {
 game.on("load", () => {
 	loader.scene("scenes/test.scene.json", (scene: HG.Scenes.BaseScene) => {
 		mainScene = scene;
-		var cam = new HG.Entities.ChasingCameraEntity(mainScene.get<HG.Entities.MeshEntity>("player"),
+		// console.log(mainScene.camera);
+		cam = new HG.Entities.ChasingCameraEntity(
+				mainScene.get<HG.Entities.MeshEntity>("player"),
 				HG.settings.graphics.fov, window.innerWidth / window.innerHeight,
 				0.1, HG.settings.graphics.viewDistance);
 		cam.offset(0, 25, -25).rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782).
 			position(-27.512701511383057, 250, 211.5527195930481);
-		mainScene.camera = cam;
+		// mainScene.camera = cam;
+		// console.log(mainScene.camera);
 		game.scene(mainScene);
 		game.start();
 	});

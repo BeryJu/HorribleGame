@@ -113,5 +113,5 @@ module.exports = function(grunt) {
 	grunt.registerTask("test", ["nodeunit"]);
 	grunt.registerTask("dist", ["tslint", "ts", "nodewebkit"]);
 	grunt.registerTask("default", ["tslint:hg", "ts", "nodeunit"]);
-	grunt.registerTask("all", ["tslint", "ts", "nodeunit", "nodewebkit"]);
+	grunt.registerTask('all', ["tslint", "ts", "nodeunit", "nodewebkit"]);
 };
