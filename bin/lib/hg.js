@@ -1143,49 +1143,49 @@ var HG;
             MovingAbility.prototype.moveLeft = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateX((delta * .1) * _this.baseStep);
+                    host.object.translateX(delta * _this.baseStep);
                 });
             };
 
             MovingAbility.prototype.moveRight = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateX((-delta * .1) * _this.baseStep);
+                    host.object.translateX(-delta * _this.baseStep);
                 });
             };
 
             MovingAbility.prototype.lower = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.position.y -= ((delta * .1) * _this.baseStep);
+                    host.object.position.y -= (delta * _this.baseStep);
                 });
             };
 
             MovingAbility.prototype.turnLeft = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), ((delta * .1) * _this.baseStep).toRadian());
+                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (delta * _this.baseStep).toRadian());
                 });
             };
 
             MovingAbility.prototype.turnRight = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), ((-delta * .1) * _this.baseStep).toRadian());
+                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (-delta * _this.baseStep).toRadian());
                 });
             };
 
             MovingAbility.prototype.moveForward = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateZ((delta * .1) * _this.baseStep);
+                    host.object.translateZ(delta * _this.baseStep);
                 });
             };
 
             MovingAbility.prototype.moveBackward = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateZ((-delta * .1) * _this.baseStep);
+                    host.object.translateZ(-delta * _this.baseStep);
                 });
             };
 
