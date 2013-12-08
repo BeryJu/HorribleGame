@@ -2340,10 +2340,10 @@ var HG;
                 };
 
                 EntityParser.prototype.setup = function (raw, entity) {
-                    var position = this.defaultPosition || raw.position;
-                    var rotation = this.defaultRotation || raw.rotation;
-                    var offset = this.defaultOffset || raw.offset;
-                    var scale = this.defaultScale || raw.scale;
+                    var position = (raw.position) ? raw.position : this.defaultPosition;
+                    var rotation = (raw.rotation) ? raw.rotation : this.defaultRotation;
+                    var offset = (raw.offset) ? raw.offset : this.defaultOffset;
+                    var scale = (raw.scale) ? raw.scale : this.defaultScale;
 
                     entity.object.position.set.apply(entity.object.position, position);
                     entity.object.rotation.set.apply(entity.object.rotation, rotation);

@@ -3,7 +3,7 @@
 * @Date:   2013-12-07 23:42:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-08 14:06:15
+* @Last Modified time: 2013-12-08 14:31:37
 */
 
 module HG.Scenes.Serializer {
@@ -112,10 +112,10 @@ module HG.Scenes.Serializer {
 
 		private setup(raw: HG.Scenes.Serializer.EntityDefinition,
 				entity: HG.Entities.BaseEntity): HG.Entities.BaseEntity {
-			var position = this.defaultPosition || raw.position;
-			var rotation = this.defaultRotation || raw.rotation;
-			var offset = this.defaultOffset || raw.offset;
-			var scale = this.defaultScale || raw.scale;
+			var position = (raw.position) ? raw.position : this.defaultPosition;
+			var rotation = (raw.rotation) ? raw.rotation : this.defaultRotation;
+			var offset = (raw.offset) ? raw.offset : this.defaultOffset;
+			var scale = (raw.scale) ? raw.scale : this.defaultScale;
 			// use this so we don't have to access every single number
 			entity.object.position.set.apply(entity.object.position, position);
 			entity.object.rotation.set.apply(entity.object.rotation, rotation);
