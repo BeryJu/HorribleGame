@@ -162,11 +162,24 @@ declare module HG.Utils {
     function isFunction(va: any): boolean;
     function isUndefined(va: any): boolean;
     function isNumber(va: any): boolean;
-    function bootstrap(game: HG.Core.BaseGame): void;
     function devTools(): any;
     function profile(label: string, fn: () => any): void;
     function time(label: string, fn: () => any): void;
     function hasGL(): boolean;
+}
+declare module HG.Utils {
+    class CanvasUtils {
+        static roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void;
+    }
+}
+declare module HG.Utils {
+    class UpdateChecker {
+        public threeUrl: string;
+        public nwUrl: string;
+        constructor();
+        public downloadString(url: string, fn: (res: any) => any): void;
+        public checkThree(onNew: (downloadUrl: string, version: string) => any, noNew: (version: string) => any): void;
+    }
 }
 declare module HG.Entities {
     class BaseEntity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
@@ -277,6 +290,7 @@ declare module HG.Core {
         public pluginHost: Core.PluginHost;
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
+        public resolution: THREE.Vector2;
         public _running: boolean;
         public events: string[];
         constructor(container: HTMLElement);
@@ -416,6 +430,11 @@ declare module HG.LINQ {
     }
 }
 declare module HG.LINQ {
+    class FunctionProvider implements LINQ.IProvider {
+        public _prototype: Function;
+    }
+}
+declare module HG.LINQ {
     function initialize(): void;
 }
 declare module HG.LINQ {
@@ -510,8 +529,8 @@ declare module HG.Resource {
         public model(path: string, entitiy: HG.Entities.MeshEntity): void;
         public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
-        public scene(path: string): HG.Scenes.BaseScene;
-        public json<T>(path: string): T;
+        public scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void;
+        public json<T>(path: string, data?: T): T;
         public settings(path: string): void;
         public directory(directory: string): string[];
     }
@@ -532,26 +551,88 @@ declare module HG.Scenes {
     class GameScene extends Scenes.BaseScene {
     }
 }
-declare module HG.Scenes {
-    class SceneSerializer extends HG.Core.EventDispatcher {
+declare module HG.Scenes.Serializer {
+    interface AbilityDefinition {
+        type: string;
+        properties?: any[];
+        bindings?: {
+            keyboard?: Serializer.BindingDefinition[];
+            mouse?: Serializer.BindingDefinition[];
+        };
+    }
+}
+declare module HG.Scenes.Serializer {
+    interface BindingDefinition {
+        event: string;
+        action: string;
+    }
+}
+declare module HG.Scenes.Serializer {
+    interface EntityDefinition {
+        type: string;
+        properties: any[];
+        abilities?: Serializer.AbilityDefinition[];
+        object: Serializer.ObjectDefinition;
+        material?: Serializer.MaterialDefinition;
+        geometry?: Serializer.ObjectDefinition;
+        name?: string;
+        model?: string;
+        scale?: number[];
+        position?: number[];
+        offset?: number[];
+        rotation?: number[];
+    }
+}
+declare module HG.Scenes.Serializer {
+    class EntityParser extends HG.Core.EventDispatcher {
+        public scene: Scenes.BaseScene;
+        public loader: HG.Resource.ResourceLoader;
         public defaultPosition: number[];
         public defaultRotation: number[];
         public defaultOffset: number[];
         public defaultScale: number[];
-        public loader: HG.Resource.ResourceLoader;
-        constructor(loader: HG.Resource.ResourceLoader);
+        constructor(scene: Scenes.BaseScene, loader: HG.Resource.ResourceLoader);
         private parseMaterials(raw, scene);
         private parseGeometry(raw, scene);
-        private parseColor(raw);
-        private parseMisc(raw, scene);
+        public parseColor(raw: any): THREE.Color;
         private parseSingleMaterial(raw, scene);
         private parseAbilities(raw, entity, scene);
         private setup(raw, entity);
         private applyConstructor(type, argArray);
-        private parseEntity(raw, scene);
         private parseProperties(raw, scene);
         private parseProperty(raw, scene);
-        public fromGeneric(gen: any): Scenes.BaseScene;
+        public parse(rawEntity: Serializer.EntityDefinition): void;
+    }
+}
+declare module HG.Scenes.Serializer {
+    interface MaterialDefinition {
+        type: string;
+        properties?: any[];
+        color?: number[];
+        texture?: string;
+    }
+}
+declare module HG.Scenes.Serializer {
+    interface ObjectDefinition {
+        type: string;
+        properties?: any[];
+    }
+}
+declare module HG.Scenes.Serializer {
+    interface SceneDefinition {
+        camera: Serializer.EntityDefinition;
+        color?: number[];
+        colorAlpha: number;
+        entities: Serializer.EntityDefinition[];
+    }
+}
+declare module HG.Scenes.Serializer {
+    class SceneSerializer extends HG.Core.EventDispatcher {
+        public loader: HG.Resource.ResourceLoader;
+        public done: number;
+        constructor(loader: HG.Resource.ResourceLoader);
+        private parseMisc(raw, scene);
+        public fromGeneric(gen: any): void;
     }
 }
 declare module HG.Sound {
@@ -593,18 +674,5 @@ declare module HG.Sound {
         constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
-    }
-}
-declare module HG.Utils {
-    class CanvasUtils {
-        static roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void;
-    }
-}
-declare module HG.Utils {
-    class UpdateChecker {
-        public threeUrl: string;
-        constructor();
-        public downloadString(url: string, fn: (res: any) => any): void;
-        public checkThree(onNew: (downloadUrl: string, version: string) => any, noNew: (version: string) => any): void;
     }
 }

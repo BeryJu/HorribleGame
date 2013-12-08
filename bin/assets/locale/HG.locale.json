@@ -2,7 +2,7 @@
 	"core": {
 		"errors": {
 			"notImplementedError": "NotImplementedError",
-			"duplicateNameTag": "Duplicate Name Tag",
+			"duplicateNameTag": "Duplicate Name Tag: ${0}",
 			"defaultSettingsUsed": "Default Settings used"
 		}
 	},

@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 13:09:19
+* @Last Modified time: 2013-12-08 01:36:00
 */
 
 module HG.Resource {
@@ -74,21 +74,30 @@ module HG.Resource {
 			this.load(path, HG.Resource.Sound, effect);
 		}
 
-		scene(path: string): HG.Scenes.BaseScene {
+		scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void {
 			var realPath = HG.Modules.path.join(this.baseDirectory, path);
 			if (HG.Modules.fs.existsSync(realPath) === true) {
 				var raw = HG.Modules.fs.readFileSync(realPath);
-				return new HG.Scenes.SceneSerializer(this).fromGeneric(JSON.parse(raw));
-			} else {
-				return null;
+				var serializer =  new HG.Scenes.Serializer.SceneSerializer(this);
+				serializer.on("done", done);
+				serializer.fromGeneric(JSON.parse(raw));
 			}
 		}
 
-		json<T>(path: string): T {
+		json<T>(path: string, data?: T): T {
 			var realPath = HG.Modules.path.join(this.baseDirectory, path);
 			if (HG.Modules.fs.existsSync(realPath) === true) {
-				var raw = HG.Modules.fs.readFileSync(realPath);
-				return <T> JSON.parse(raw);
+				if (data) {
+					try {
+						HG.Modules.fs.writeFileSync(JSON.stringify(data));
+					} catch (e) {
+						e.toString().warn();
+						return null;
+					}
+				} else {
+					var raw = HG.Modules.fs.readFileSync(realPath);
+					return <T> JSON.parse(raw);
+				}
 			} else {
 				return null;
 			}

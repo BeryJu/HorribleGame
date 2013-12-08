@@ -17,6 +17,8 @@
 /// <reference path="Utils/Noise.ts" />
 /// <reference path="Utils/Settings.ts" />
 /// <reference path="Utils/Utils.ts" />
+/// <reference path="Utils/CanvasUtils.ts" />
+/// <reference path="Utils/UpdateChecker.ts" />
 
 /// Base Classes
 /// <reference path="Entities/BaseEntity.ts" />
@@ -52,6 +54,7 @@
 /// <reference path="Entities/SpriteEntity.ts" />
 /// <reference path="Entities/VideoEntity.ts" />
 /// <reference path="LINQ/ArrayProvider.ts" />
+/// <reference path="LINQ/FunctionProvider.ts" />
 /// <reference path="LINQ/LINQ.ts" />
 /// <reference path="LINQ/NumberProvider.ts" />
 /// <reference path="LINQ/ObjectProvider.ts" />
@@ -65,10 +68,15 @@
 /// <reference path="Resource/Textures/PNG.ts" />
 /// <reference path="Scenes/GameScene.ts" />
 /// <reference path="Scenes/MapScene.ts" />
-/// <reference path="Scenes/SceneSerializer.ts" />
+/// <reference path="Scenes/Serializer/AbilityDefinition.ts" />
+/// <reference path="Scenes/Serializer/BindingDefinition.ts" />
+/// <reference path="Scenes/Serializer/EntityDefinition.ts" />
+/// <reference path="Scenes/Serializer/EntityParser.ts" />
+/// <reference path="Scenes/Serializer/MaterialDefinition.ts" />
+/// <reference path="Scenes/Serializer/ObjectDefinition.ts" />
+/// <reference path="Scenes/Serializer/SceneDefinition.ts" />
+/// <reference path="Scenes/Serializer/SceneSerializer.ts" />
 /// <reference path="Sound/Channel.ts" />
 /// <reference path="Sound/Effect.ts" />
 /// <reference path="Sound/Mixer.ts" />
-/// <reference path="Utils/CanvasUtils.ts" />
-/// <reference path="Utils/UpdateChecker.ts" />
 //grunt-end

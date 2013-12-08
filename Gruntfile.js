@@ -84,6 +84,19 @@ module.exports = function(grunt) {
 				},
 				src: 'bin/'
 			}
+		},
+		yuidoc: {
+			hg: {
+				name: '<%= pkg.name %>',
+				description: '<%= pkg.description %>',
+				version: '<%= pkg.version %>',
+				url: '<%= pkg.homepage %>',
+				options: {
+					extension: "ts",
+					paths: ["src/engine"],
+					outdir: 'docs/'
+				}
+			}
 		}
 	});
 
@@ -91,10 +104,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-tslint');
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
 	grunt.loadNpmTasks('grunt-node-webkit-builder');
+	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 
 	grunt.registerTask("game", ["tslint:game", "ts:game"]);
 	grunt.registerTask("hg", ["tslint:hg", "ts:hg", "nodeunit:hg"]);
-
+	grunt.registerTask("docs", "ts:hg", "yuidoc");
 	grunt.registerTask("build", ["tslint", "ts"]);
 	grunt.registerTask("test", ["nodeunit"]);
 	grunt.registerTask("dist", ["tslint", "ts", "nodewebkit"]);

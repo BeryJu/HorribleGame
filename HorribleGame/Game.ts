@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 17:18:28
+* @Last Modified time: 2013-12-08 14:22:38
 */
 /// <reference path="GameLocale.ts" />
 // Initialize HG
@@ -15,24 +15,24 @@ var game = new HG.Core.BaseGame(gameCanvas);
 var mainScene = new HG.Scenes.BaseScene();
 var locale = loader.json<GameLocale>("locale/game.locale.json");
 // var server = new HG.Core.BaseServer(9898);
+game.pluginHost.load(loader.directory("plugins"));
 
 if (HG.settings.debug === true) {
 	HG.Utils.devTools();
 }
 
-game.pluginHost.load(loader.directory("plugins"));
-
 game.on("load", () => {
-	mainScene = loader.scene("scenes/test.scene.json");
-	var cam = new HG.Entities.CameraEntity(HG.settings.graphics.fov,
-			window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
-	cam.offset(0, 25, -25).rotate(75, 75, 0);
-	mainScene.color = new THREE.Color(0x000000);
-
-	mainScene.camera = cam;
-	game.scene(mainScene);
-
-	game.start();
+	loader.scene("scenes/test.scene.json", (scene: HG.Scenes.BaseScene) => {
+		mainScene = scene;
+		var cam = new HG.Entities.ChasingCameraEntity(mainScene.get<HG.Entities.MeshEntity>("player"),
+				HG.settings.graphics.fov, window.innerWidth / window.innerHeight,
+				0.1, HG.settings.graphics.viewDistance);
+		cam.offset(0, 25, -25).rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782).
+			position(-27.512701511383057, 250, 211.5527195930481);
+		mainScene.camera = cam;
+		game.scene(mainScene);
+		game.start();
+	});
 });
 
 game.controls.keyboard.bind(HG.settings.keys.refresh, (delta: number) => {
@@ -44,7 +44,7 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 });
 
 game.on(["start", "resize"], () => {
-	$("resolution").innerText = locale.debugInfo.resolution.f(window.innerWidth, window.innerHeight);
+	$("resolution").innerText = locale.debugInfo.resolution.f(game.resolution.x, game.resolution.y);
 });
 
 game.on("render", (delta: number) => {

@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 17:35:15
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 18:03:43
+* @Last Modified time: 2013-12-08 02:34:54
 */
 
 module HG.Utils {
@@ -11,7 +11,7 @@ module HG.Utils {
 	export class UpdateChecker {
 
 		threeUrl: string = "https://api.github.com/repos/mrdoob/three.js/releases";
-		// nwUrl: string = "https://api.github.com/repos/rogerwang/node-webkit/releases"
+		nwUrl: string = "https://api.github.com/repos/rogerwang/node-webkit/releases";
 
 		constructor() {
 			this.checkThree((downloadUrl: string, version: string) => {

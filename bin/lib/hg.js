@@ -677,50 +677,11 @@ var HG;
         }
         Utils.isNumber = isNumber;
 
-        function bootstrap(game) {
-            if (HG.settings.debug === true) {
-                HG.Utils.profile("HG Profiling Frame", function () {
-                    return game.render();
-                });
-            }
-            window.onresize = function () {
-                return game.onResize();
-            };
-            window.onkeydown = function (a) {
-                return game.onKeyDown(a);
-            };
-            window.onkeyup = function (a) {
-                return game.onKeyUp(a);
-            };
-            window.onmousemove = function (a) {
-                return game.onMouseMove(a);
-            };
-            window.onmousedown = function (a) {
-                return game.onMouseDown(a);
-            };
-            window.onmouseup = function (a) {
-                return game.onMouseUp(a);
-            };
-            var render;
-            if (HG.settings.graphics.useStaticFramerate === true) {
-                render = function () {
-                    game.render();
-                };
-                setInterval(render, 1000 / HG.settings.graphics.staticFramerate);
-            } else {
-                render = function () {
-                    game.render();
-                    requestAnimationFrame(render);
-                };
-            }
-            render();
-        }
-        Utils.bootstrap = bootstrap;
-
         function devTools() {
             var whnd = HG.Modules.ui.Window.get();
             var devToolsWindow = whnd.showDevTools();
             devToolsWindow.resizeTo(1280, 720);
+            devToolsWindow.setPosition("center");
             return devToolsWindow;
         }
         Utils.devTools = devTools;
@@ -749,6 +710,75 @@ var HG;
             }
         }
         Utils.hasGL = hasGL;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var CanvasUtils = (function () {
+            function CanvasUtils() {
+            }
+            CanvasUtils.roundRect = function (ctx, x, y, w, h, r) {
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            };
+            return CanvasUtils;
+        })();
+        Utils.CanvasUtils = CanvasUtils;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var UpdateChecker = (function () {
+            function UpdateChecker() {
+                this.threeUrl = "https://api.github.com/repos/mrdoob/three.js/releases";
+                this.nwUrl = "https://api.github.com/repos/rogerwang/node-webkit/releases";
+                this.checkThree(function (downloadUrl, version) {
+                    HG.locale.utils.updateChecker.newThree.f(version, downloadUrl).log();
+                }, function (version) {
+                    HG.locale.utils.updateChecker.noThree.f(version).log();
+                });
+            }
+            UpdateChecker.prototype.downloadString = function (url, fn) {
+                var req = new XMLHttpRequest();
+                req.onreadystatechange = function (req) {
+                    if (this.readyState === 4) {
+                        fn(JSON.parse(this.responseText));
+                    }
+                };
+                req.open("GET", url, true);
+                req.send();
+            };
+
+            UpdateChecker.prototype.checkThree = function (onNew, noNew) {
+                this.downloadString(this.threeUrl, function (res) {
+                    var latest = res[0];
+                    var revision = parseInt(latest["name"].replace("r", ""), 0);
+                    var threer = parseInt(THREE.REVISION, 0);
+                    if (revision > threer) {
+                        onNew(latest["html_url"], latest["name"]);
+                    } else {
+                        noNew(latest["name"]);
+                    }
+                });
+            };
+            return UpdateChecker;
+        })();
+        Utils.UpdateChecker = UpdateChecker;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
@@ -867,7 +897,7 @@ var HG;
                 this.scene.add(entity.getInternal());
                 if (nameTag) {
                     if (this.entities.named[nameTag.toLowerCase()]) {
-                        HG.locale.core.errors.duplicateNameTag.error();
+                        HG.locale.core.errors.duplicateNameTag.f(nameTag).error();
                     }
                     this.entities.named[nameTag.toLowerCase()] = entity;
                 } else {
@@ -946,7 +976,7 @@ var HG;
 
             BaseScene.prototype.get = function (nameTag) {
                 nameTag = nameTag.toLowerCase();
-                return null || this.entities.named[nameTag];
+                return this.entities.named[nameTag] || null;
             };
 
             BaseScene.prototype.frame = function (delta) {
@@ -1112,51 +1142,50 @@ var HG;
             }
             MovingAbility.prototype.moveLeft = function (delta) {
                 var _this = this;
-                HG.log("left");
                 this.hosts.forEach(function (host) {
-                    host.object.translateX(delta * _this.baseStep);
+                    host.object.translateX((delta * .1) * _this.baseStep);
                 });
             };
 
             MovingAbility.prototype.moveRight = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateX(-delta * _this.baseStep);
+                    host.object.translateX((-delta * .1) * _this.baseStep);
                 });
             };
 
             MovingAbility.prototype.lower = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.position.y -= (delta * _this.baseStep);
+                    host.object.position.y -= ((delta * .1) * _this.baseStep);
                 });
             };
 
             MovingAbility.prototype.turnLeft = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (delta * _this.baseStep).toRadian());
+                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), ((delta * .1) * _this.baseStep).toRadian());
                 });
             };
 
             MovingAbility.prototype.turnRight = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (-delta * _this.baseStep).toRadian());
+                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), ((-delta * .1) * _this.baseStep).toRadian());
                 });
             };
 
             MovingAbility.prototype.moveForward = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateZ(delta * _this.baseStep);
+                    host.object.translateZ((delta * .1) * _this.baseStep);
                 });
             };
 
             MovingAbility.prototype.moveBackward = function (delta) {
                 var _this = this;
                 this.hosts.forEach(function (host) {
-                    host.object.translateZ(-delta * _this.baseStep);
+                    host.object.translateZ((-delta * .1) * _this.baseStep);
                 });
             };
 
@@ -1198,6 +1227,7 @@ var HG;
                     ch.volume(HG.settings.sound.channels[c]);
                     this.soundMixer.addChannel(ch);
                 }
+                this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 
                 this.setFullScreenMode(HG.settings.graphics.fullscreen);
                 this.resize(HG.settings.graphics.resolution);
@@ -1234,9 +1264,10 @@ var HG;
             };
 
             BaseGame.prototype.load = function () {
-                console.time("HG.loadResources");
-                this.dispatch("load");
-                console.timeEnd("HG.loadResources");
+                var _this = this;
+                HG.Utils.time("Resource Loading", function () {
+                    _this.dispatch("load");
+                });
             };
 
             BaseGame.prototype.resize = function (resolution) {
@@ -1344,6 +1375,7 @@ var HG;
 
             BaseGame.prototype.onResize = function () {
                 this.dispatch("resize");
+                this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
                 this.currentScene.resize(window.innerWidth / window.innerHeight);
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
             };
@@ -1555,7 +1587,6 @@ var HG;
             }
             ChasingCameraEntity.prototype.frame = function (delta) {
                 var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
-
                 this.object.position.x = cameraOffset.x;
                 this.object.position.y = cameraOffset.y;
                 this.object.position.z = cameraOffset.z;
@@ -1810,6 +1841,19 @@ var HG;
 var HG;
 (function (HG) {
     (function (LINQ) {
+        var FunctionProvider = (function () {
+            function FunctionProvider() {
+                this._prototype = Function.prototype;
+            }
+            return FunctionProvider;
+        })();
+        LINQ.FunctionProvider = FunctionProvider;
+    })(HG.LINQ || (HG.LINQ = {}));
+    var LINQ = HG.LINQ;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (LINQ) {
         function initialize() {
             var registerFunction = function (key, type, fn) {
                 type[key] = function () {
@@ -1997,7 +2041,6 @@ var HG;
                             shininess: 200
                         });
                         var material = new THREE.MeshFaceMaterial([phong]);
-
                         var model = {
                             geometry: geometry,
                             material: material
@@ -2078,21 +2121,30 @@ var HG;
                 this.load(path, HG.Resource.Sound, effect);
             };
 
-            ResourceLoader.prototype.scene = function (path) {
+            ResourceLoader.prototype.scene = function (path, done) {
                 var realPath = HG.Modules.path.join(this.baseDirectory, path);
                 if (HG.Modules.fs.existsSync(realPath) === true) {
                     var raw = HG.Modules.fs.readFileSync(realPath);
-                    return new HG.Scenes.SceneSerializer(this).fromGeneric(JSON.parse(raw));
-                } else {
-                    return null;
+                    var serializer = new HG.Scenes.Serializer.SceneSerializer(this);
+                    serializer.on("done", done);
+                    serializer.fromGeneric(JSON.parse(raw));
                 }
             };
 
-            ResourceLoader.prototype.json = function (path) {
+            ResourceLoader.prototype.json = function (path, data) {
                 var realPath = HG.Modules.path.join(this.baseDirectory, path);
                 if (HG.Modules.fs.existsSync(realPath) === true) {
-                    var raw = HG.Modules.fs.readFileSync(realPath);
-                    return JSON.parse(raw);
+                    if (data) {
+                        try  {
+                            HG.Modules.fs.writeFileSync(JSON.stringify(data));
+                        } catch (e) {
+                            e.toString().warn();
+                            return null;
+                        }
+                    } else {
+                        var raw = HG.Modules.fs.readFileSync(realPath);
+                        return JSON.parse(raw);
+                    }
                 } else {
                     return null;
                 }
@@ -2194,210 +2246,237 @@ var HG;
 var HG;
 (function (HG) {
     (function (Scenes) {
-        var SceneSerializer = (function (_super) {
-            __extends(SceneSerializer, _super);
-            function SceneSerializer(loader) {
-                _super.call(this);
-                this.defaultPosition = [0, 0, 0];
-                this.defaultRotation = [0, 0, 0];
-                this.defaultOffset = [0, 0, 0];
-                this.defaultScale = [1, 1, 1];
-                this.loader = loader;
-            }
-            SceneSerializer.prototype.parseMaterials = function (raw, scene) {
-                var _this = this;
-                var material;
-                if (Array.isArray(raw) === true) {
-                    var materials = [];
-                    raw.forEach(function (m) {
-                        materials.push(_this.parseSingleMaterial(m, scene));
-                    });
-                    material = new THREE.MeshFaceMaterial(materials);
-                } else {
-                    material = this.parseSingleMaterial(raw, scene);
+        (function (Serializer) {
+            var EntityParser = (function (_super) {
+                __extends(EntityParser, _super);
+                function EntityParser(scene, loader) {
+                    _super.call(this, ["parsed", "entitiesParsed", "done"]);
+                    this.defaultPosition = [0, 0, 0];
+                    this.defaultRotation = [0, 0, 0];
+                    this.defaultOffset = [0, 0, 0];
+                    this.defaultScale = [1, 1, 1];
+                    this.scene = scene;
+                    this.loader = loader;
                 }
-                return material;
-            };
-
-            SceneSerializer.prototype.parseGeometry = function (raw, scene) {
-                var geometryType = THREE[raw["type"]];
-                var geometryProperties = this.parseProperties(raw["properties"], scene);
-                var geometry;
-                if (Array.isArray(geometryProperties) === true) {
-                    geometry = this.applyConstructor(geometryType, raw["properties"]);
-                } else {
-                    geometry = new geometryType(raw["properties"]);
-                }
-                return geometry;
-            };
-
-            SceneSerializer.prototype.parseColor = function (raw) {
-                var color = new THREE.Color(0xaabbcc);
-                if (raw["color"]) {
-                    if (Array.isArray(raw["color"]) === true) {
-                        color.setRGB.apply(color, raw["color"]);
-                    } else {
-                        color.setHex(raw["color"]);
-                    }
-                }
-                return color;
-            };
-
-            SceneSerializer.prototype.parseMisc = function (raw, scene) {
-                var camera = this.parseEntity(raw["camera"], scene);
-                scene.color = this.parseColor(raw);
-                scene.colorAlpha = 1 || raw["colorAlpha"];
-            };
-
-            SceneSerializer.prototype.parseSingleMaterial = function (raw, scene) {
-                var material;
-                var materialType;
-                if (raw["properties"]["color"]) {
-                    raw["properties"]["color"] = this.parseColor(raw["properties"]["color"]);
-                }
-                var properties = this.parseProperties(raw["properties"], scene);
-                if (!raw["texture"]) {
-                    materialType = THREE[raw["type"]];
-                    material = new materialType(properties);
-                } else {
-                    var map = THREE.ImageUtils.loadTexture(this.loader.resolvePath(raw["texture"]));
-                    materialType = THREE[raw["type"]];
-                    properties["map"] = map;
-                    material = new materialType(properties);
-                }
-                return material;
-            };
-
-            SceneSerializer.prototype.parseAbilities = function (raw, entity, scene) {
-                var _this = this;
-                if (raw["abilities"]) {
-                    raw["abilities"].forEach(function (rawAbility) {
-                        var type = HG.Abilities[rawAbility["type"]];
-                        var properties = _this.parseProperties(rawAbility["properties"], scene);
-                        var keyboardBindings = rawAbility["bindings"]["keyboard"] || [];
-                        var mouseBindings = rawAbility["bindings"]["mouse"] || [];
-                        var ability = _this.applyConstructor(type, properties);
-                        keyboardBindings.forEach(function (binding) {
-                            var keyHandler = ability[binding["action"]];
-                            scene.controls.keyboard.bind(HG.settings.keys[binding["event"]], function (delta, event) {
-                                keyHandler.apply(ability, [delta, event]);
-                            });
+                EntityParser.prototype.parseMaterials = function (raw, scene) {
+                    var _this = this;
+                    var material;
+                    if (Array.isArray(raw) === true) {
+                        var materials = [];
+                        raw.forEach(function (m) {
+                            materials.push(_this.parseSingleMaterial(m, scene));
                         });
-                        mouseBindings.forEach(function (binding) {
-                            var keyHandler = ability[binding["action"]];
-                            scene.controls.mouse.bind(binding["event"], function (delta, event) {
-                                keyHandler.apply(ability, [delta, event]);
-                            });
-                        });
-                        entity.ability(ability);
-                    });
-                }
-            };
-
-            SceneSerializer.prototype.setup = function (raw, entity) {
-                var position = this.defaultPosition || raw["position"];
-
-                entity.position.apply(entity, position);
-                var rotation = this.defaultRotation || raw["rotation"];
-                entity.rotate.apply(entity, rotation);
-                var scale = this.defaultScale || raw["scale"];
-                entity.scale.apply(entity, scale);
-                var offset = this.defaultOffset || raw["offset"];
-                entity.offset.apply(entity, offset);
-                return entity;
-            };
-
-            SceneSerializer.prototype.applyConstructor = function (type, argArray) {
-                var args = [null].concat(argArray);
-                var factoryFunction = type.bind.apply(type, args);
-                return new factoryFunction();
-            };
-
-            SceneSerializer.prototype.parseEntity = function (raw, scene) {
-                var type = HG.Entities[raw["type"]];
-                var entity;
-
-                if (raw["model"]) {
-                    entity = new type();
-                    this.loader.model(raw["model"], entity);
-                } else if (raw["material"] && raw["material"]) {
-                    entity = new type();
-                    var material = this.parseMaterials(raw["material"], scene);
-                    var geometry = this.parseGeometry(raw["geometry"], scene);
-                    var mesh = new THREE.Mesh(geometry, material);
-                    entity.object = mesh;
-                } else if (raw["object"]) {
-                    entity = new type();
-                    var objectType = THREE[raw["object"]["type"]];
-                    var objectProperties = raw["object"]["type"];
-                    var object = this.applyConstructor(objectType, objectProperties);
-                    entity.object = object;
-                } else if (raw["type"] && raw["properties"]) {
-                    var properties = this.parseProperties(raw["properties"], scene);
-                    if (Array.isArray(properties) === true) {
-                        entity = this.applyConstructor(type, properties);
+                        material = new THREE.MeshFaceMaterial(materials);
                     } else {
-                        entity = new type(properties);
+                        material = this.parseSingleMaterial(raw, scene);
                     }
-                }
+                    return material;
+                };
 
-                this.setup(raw, entity);
-                this.parseAbilities(raw, entity, scene);
-                return entity;
-            };
+                EntityParser.prototype.parseGeometry = function (raw, scene) {
+                    var geometryType = THREE[raw.type];
+                    var geometryProperties = this.parseProperties(raw.properties, scene);
+                    var geometry = this.applyConstructor(geometryType, raw.properties);
+                    return geometry;
+                };
 
-            SceneSerializer.prototype.parseProperties = function (raw, scene) {
-                var _this = this;
-                var props;
-                if (Array.isArray(raw) === true) {
-                    props = [];
+                EntityParser.prototype.parseColor = function (raw) {
+                    var color = new THREE.Color(0xaabbcc);
+                    if (Array.isArray(raw) === true) {
+                        color.setRGB.apply(color, raw);
+                    } else {
+                        color.setHex(raw);
+                    }
+                    return color;
+                };
+
+                EntityParser.prototype.parseSingleMaterial = function (raw, scene) {
+                    var material;
+                    var materialType;
+                    if (raw.properties[0]["color"]) {
+                        raw.properties[0]["color"] = this.parseColor(raw.properties[0]["color"]);
+                    }
+                    var properties = this.parseProperties(raw.properties, scene);
+                    if (!raw.texture) {
+                        materialType = THREE[raw.type];
+                        material = new materialType(properties);
+                    } else {
+                        var map = THREE.ImageUtils.loadTexture(this.loader.resolvePath(raw.texture));
+                        materialType = THREE[raw.type];
+                        properties["map"] = map;
+                        material = new materialType(properties);
+                    }
+                    return material;
+                };
+
+                EntityParser.prototype.parseAbilities = function (raw, entity, scene) {
+                    var _this = this;
+                    if (raw.abilities) {
+                        raw.abilities.forEach(function (rawAbility) {
+                            var type = HG.Abilities[rawAbility.type];
+
+                            var properties = _this.parseProperties(rawAbility.properties, scene);
+                            var keyboardBindings = rawAbility.bindings.keyboard || [];
+                            var mouseBindings = rawAbility.bindings.mouse || [];
+
+                            var ability = _this.applyConstructor(type, properties);
+
+                            keyboardBindings.forEach(function (binding) {
+                                var keyHandler = ability[binding.action];
+                                scene.controls.keyboard.bind(HG.settings.keys[binding.event], function (delta, event) {
+                                    keyHandler.apply(ability, [delta, event]);
+                                });
+                            });
+
+                            mouseBindings.forEach(function (binding) {
+                                var keyHandler = ability[binding.action];
+                                scene.controls.mouse.bind(binding.event, function (delta, event) {
+                                    keyHandler.apply(ability, [delta, event]);
+                                });
+                            });
+                            entity.ability(ability);
+                        });
+                    }
+                };
+
+                EntityParser.prototype.setup = function (raw, entity) {
+                    var position = this.defaultPosition || raw.position;
+                    var rotation = this.defaultRotation || raw.rotation;
+                    var offset = this.defaultOffset || raw.offset;
+                    var scale = this.defaultScale || raw.scale;
+
+                    entity.object.position.set.apply(entity.object.position, position);
+                    entity.object.rotation.set.apply(entity.object.rotation, rotation);
+                    entity.object.scale.set.apply(entity.object.scale, scale);
+                    entity.offset.apply(entity, offset);
+                    return entity;
+                };
+
+                EntityParser.prototype.applyConstructor = function (type, argArray) {
+                    var args = [null].concat(argArray);
+                    var instance = type.bind.apply(type, args);
+                    return new instance();
+                };
+
+                EntityParser.prototype.parseProperties = function (raw, scene) {
+                    var _this = this;
+                    var props = [];
                     raw.forEach(function (prop) {
                         props.push(_this.parseProperty(prop, scene));
                     });
-                } else {
-                    props = {};
-                    for (var k in raw) {
-                        props[k] = this.parseProperty(raw[k], scene);
-                    }
-                }
-                return props;
-            };
+                    return props;
+                };
 
-            SceneSerializer.prototype.parseProperty = function (raw, scene) {
-                if (typeof raw === "string") {
-                    if (raw.substring(0, 5) === "get::") {
-                        return scene.get(raw.replace("get::", ""));
-                    } else {
-                        return raw.f({
-                            ratio: window.innerWidth / window.innerHeight,
-                            viewDistance: HG.settings.graphics.viewDistance,
-                            fov: HG.settings.graphics.fov
-                        });
-                    }
-                } else {
-                    return raw;
-                }
-            };
-
-            SceneSerializer.prototype.fromGeneric = function (gen) {
-                var _this = this;
-                var scene = new HG.Scenes.BaseScene();
-                gen.entities.forEach(function (entry) {
-                    var entity = _this.parseEntity(entry, scene);
-                    if (!entry["disabled"] || entry["disabled"] === false) {
-                        if (entry["name"]) {
-                            scene.add(entity, entry["name"]);
+                EntityParser.prototype.parseProperty = function (raw, scene) {
+                    if (typeof raw === "string") {
+                        if (raw.substring(0, 8) === "${scene:") {
+                            var entity = scene.get(raw.replace("${scene:", "").replace("}", ""));
+                            return entity;
                         } else {
-                            scene.add(entity);
+                            return raw.f({
+                                ratio: window.innerWidth / window.innerHeight,
+                                viewDistance: HG.settings.graphics.viewDistance,
+                                fov: HG.settings.graphics.fov
+                            });
                         }
+                    } else {
+                        return raw;
                     }
-                });
-                this.parseMisc(gen, scene);
-                return scene;
-            };
-            return SceneSerializer;
-        })(HG.Core.EventDispatcher);
-        Scenes.SceneSerializer = SceneSerializer;
+                };
+
+                EntityParser.prototype.parse = function (rawEntity) {
+                    var _this = this;
+                    var type = HG.Entities[rawEntity.type];
+                    var entity;
+
+                    if (rawEntity.model) {
+                        entity = new type();
+                        entity.on("loaded", function (geometry, material) {
+                            _this.setup(rawEntity, entity);
+                            _this.parseAbilities(rawEntity, entity, _this.scene);
+                            _this.dispatch("parsed", entity);
+                        });
+                        this.loader.model(rawEntity.model, entity);
+                    } else if (rawEntity.material && rawEntity.geometry) {
+                        entity = new type();
+                        var material = this.parseMaterials(rawEntity.material, this.scene);
+                        var geometry = this.parseGeometry(rawEntity.geometry, this.scene);
+                        var mesh = new THREE.Mesh(geometry, material);
+                        entity.object = mesh;
+                        this.dispatch("parsed", entity);
+                    } else if (rawEntity.object) {
+                        entity = new type();
+                        var objectType = THREE[rawEntity.object.type];
+                        var objectProperties = rawEntity.object.properties;
+                        var object = this.applyConstructor(objectType, objectProperties);
+                        entity.object = object;
+                        this.dispatch("parsed", entity);
+                    } else if (rawEntity.type && rawEntity.properties) {
+                        var properties = this.parseProperties(rawEntity.properties, this.scene);
+                        entity = this.applyConstructor(type, properties);
+                        this.dispatch("parsed", entity);
+                    }
+                };
+                return EntityParser;
+            })(HG.Core.EventDispatcher);
+            Serializer.EntityParser = EntityParser;
+        })(Scenes.Serializer || (Scenes.Serializer = {}));
+        var Serializer = Scenes.Serializer;
+    })(HG.Scenes || (HG.Scenes = {}));
+    var Scenes = HG.Scenes;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Scenes) {
+        (function (Serializer) {
+            var SceneSerializer = (function (_super) {
+                __extends(SceneSerializer, _super);
+                function SceneSerializer(loader) {
+                    _super.call(this);
+                    this.done = 0;
+                    this.loader = loader;
+                }
+                SceneSerializer.prototype.parseMisc = function (raw, scene) {
+                    var parser = new HG.Scenes.Serializer.EntityParser(scene, this.loader);
+                    parser.on("parsed", function (entity) {
+                        scene.camera = entity;
+                    });
+                    parser.parse(raw.camera);
+                    scene.color = parser.parseColor(raw.color);
+                    scene.colorAlpha = 1 || raw.colorAlpha;
+                };
+
+                SceneSerializer.prototype.fromGeneric = function (gen) {
+                    var _this = this;
+                    var scene = new HG.Scenes.BaseScene();
+
+                    this.on("entitiesParsed", function (gen, scene) {
+                        HG.log("parsing camera");
+                        _this.parseMisc(gen, scene);
+                        _this.dispatch("done", scene);
+                    });
+                    gen.entities.forEach(function (entry, index) {
+                        _this.done--;
+                        var parser = new HG.Scenes.Serializer.EntityParser(scene, _this.loader);
+                        parser.on("parsed", function (entity) {
+                            if (entry.name) {
+                                scene.add(entity, entry.name);
+                            } else {
+                                scene.add(entity);
+                            }
+                            _this.done++;
+                            if (_this.done === 0) {
+                                _this.dispatch("entitiesParsed", gen, scene);
+                            }
+                        });
+                        parser.parse(entry);
+                    });
+                };
+                return SceneSerializer;
+            })(HG.Core.EventDispatcher);
+            Serializer.SceneSerializer = SceneSerializer;
+        })(Scenes.Serializer || (Scenes.Serializer = {}));
+        var Serializer = Scenes.Serializer;
     })(HG.Scenes || (HG.Scenes = {}));
     var Scenes = HG.Scenes;
 })(HG || (HG = {}));
@@ -2529,73 +2608,5 @@ var HG;
         Sound.Mixer = Mixer;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Utils) {
-        var CanvasUtils = (function () {
-            function CanvasUtils() {
-            }
-            CanvasUtils.roundRect = function (ctx, x, y, w, h, r) {
-                ctx.beginPath();
-                ctx.moveTo(x + r, y);
-                ctx.lineTo(x + w - r, y);
-                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-                ctx.lineTo(x + w, y + h - r);
-                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-                ctx.lineTo(x + r, y + h);
-                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-                ctx.lineTo(x, y + r);
-                ctx.quadraticCurveTo(x, y, x + r, y);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            };
-            return CanvasUtils;
-        })();
-        Utils.CanvasUtils = CanvasUtils;
-    })(HG.Utils || (HG.Utils = {}));
-    var Utils = HG.Utils;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Utils) {
-        var UpdateChecker = (function () {
-            function UpdateChecker() {
-                this.threeUrl = "https://api.github.com/repos/mrdoob/three.js/releases";
-                this.checkThree(function (downloadUrl, version) {
-                    HG.locale.utils.updateChecker.newThree.f(version, downloadUrl).log();
-                }, function (version) {
-                    HG.locale.utils.updateChecker.noThree.f(version).log();
-                });
-            }
-            UpdateChecker.prototype.downloadString = function (url, fn) {
-                var req = new XMLHttpRequest();
-                req.onreadystatechange = function (req) {
-                    if (this.readyState === 4) {
-                        fn(JSON.parse(this.responseText));
-                    }
-                };
-                req.open("GET", url, true);
-                req.send();
-            };
-
-            UpdateChecker.prototype.checkThree = function (onNew, noNew) {
-                this.downloadString(this.threeUrl, function (res) {
-                    var latest = res[0];
-                    var revision = parseInt(latest["name"].replace("r", ""), 0);
-                    var threer = parseInt(THREE.REVISION, 0);
-                    if (revision > threer) {
-                        onNew(latest["html_url"], latest["name"]);
-                    } else {
-                        noNew(latest["name"]);
-                    }
-                });
-            };
-            return UpdateChecker;
-        })();
-        Utils.UpdateChecker = UpdateChecker;
-    })(HG.Utils || (HG.Utils = {}));
-    var Utils = HG.Utils;
 })(HG || (HG = {}));
 //# sourceMappingURL=hg.js.map

@@ -1,23 +1,23 @@
 {
 	"camera": {
-		"type": "ChasingCameraEntity",
+		"type": "CameraEntity",
 		"name": "camera",
 		"offset": [0, 25, -25],
-		"rotation": [75, 75, 0],
+		"_rotation": [-0.9631355494204247, -0.5329935895199441, -0.6309911466206782],
+		"_position": [-27.512701511383057, 250, 211.5527195930481],
 		"properties": [
-			"get::player",
 			"${fov}",
 			"${ratio}",
 			0.1,
 			"${viewDistance}"
 		]
 	},
-	"color": [20, 20, 20],
+	"color": 12307677,
 	"colorAlpha": 0.5,
 	"entities": [
 		{
 			"type": "MeshEntity",
-			"name": "Player",
+			"name": "player",
 			"model": "models/android.js",
 			"scale": [10, 10, 10],
 			"offset": [0, 0, 50],
@@ -52,11 +52,13 @@
 				},
 				{
 					"type": "AnimationAbility",
-					"properties": {
-						"offset": 0,
-						"duration": 1000,
-						"keyframes": 20
-					},
+					"properties": [
+						{
+							"offset": 0,
+							"duration": 1000,
+							"keyframes": 20
+						}
+					],
 					"bindings": {
 						"keyboard": [
 							{
@@ -77,6 +79,46 @@
 			]
 		},
 		{
+			"type": "BaseEntity",
+			"name": "playerLight",
+			"offset": [0, 0, 0],
+			"position": [0, 0, 0],
+			"object": {
+				"type": "PointLight",
+				"properties": [16777215, 3, 500]
+			},
+			"abilities": [
+				{
+					"type": "MovingAbility",
+					"properties": [3.125],
+					"bindings": {
+						"keyboard": [
+							{
+								"event": "left",
+								"action": "turnLeft"
+							},
+							{
+								"event": "right",
+								"action": "turnRight"
+							},
+							{
+								"event": "forward",
+								"action": "moveForward"
+							},
+							{
+								"event": "backward",
+								"action": "moveBackward"
+							},
+							{
+								"event": "lower",
+								"action": "lower"
+							}
+						]
+					}
+				}
+			]
+		},
+		{
 			"type": "MeshEntity",
 			"name": "room",
 			"scale": [5, 5, 5],
@@ -86,15 +128,6 @@
 		},
 		{
 			"type": "BaseEntity",
-			"offset": [0, 150, 0],
-			"object": {
-				"type": "PointLight",
-				"properties": [16777215, 3, 500]
-			}
-		},
-		{
-			"type": "BaseEntity",
-			"name": "debugAxes",
 			"position": [0, 0, 0],
 			"object": {
 				"type": "AxisHelper",

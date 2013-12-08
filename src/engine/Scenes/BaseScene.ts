@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 17:02:17
+* @Last Modified time: 2013-12-08 00:24:21
 */
 
 module HG.Scenes {
@@ -37,7 +37,7 @@ module HG.Scenes {
 			this.scene.add(entity.getInternal());
 			if (nameTag) {
 				if (this.entities.named[nameTag.toLowerCase()]) {
-					HG.locale.core.errors.duplicateNameTag.error();
+					HG.locale.core.errors.duplicateNameTag.f(nameTag).error();
 				}
 				this.entities.named[nameTag.toLowerCase()] = entity;
 			} else {
@@ -107,7 +107,7 @@ module HG.Scenes {
 
 		get<T>(nameTag: string): T {
 			nameTag = nameTag.toLowerCase();
-			return null || <T> this.entities.named[nameTag];
+			return <T> this.entities.named[nameTag] || null;
 		}
 
 		frame(delta: number): void {

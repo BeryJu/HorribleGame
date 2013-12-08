@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 15:13:20
+* @Last Modified time: 2013-12-08 14:24:38
 */
 
 module HG.Abilities {
@@ -18,45 +18,46 @@ module HG.Abilities {
 		}
 
 		moveLeft(delta: number): void {
-			HG.log("left");
 			this.hosts.forEach((host) => {
-				host.object.translateX(delta * this.baseStep);
+				host.object.translateX((delta * .1) * this.baseStep);
 			});
 		}
 
 		moveRight(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateX(-delta * this.baseStep);
+				host.object.translateX((-delta * .1) * this.baseStep);
 			});
 		}
 
 		lower(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.position.y -= (delta * this.baseStep);
+				host.object.position.y -= ((delta * .1) * this.baseStep);
 			});
 		}
 
 		turnLeft(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (delta * this.baseStep).toRadian());
+				host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), ((delta * .1) *
+					this.baseStep).toRadian());
 			});
 		}
 
 		turnRight(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (-delta * this.baseStep).toRadian());
+				host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), ((-delta * .1) *
+					this.baseStep).toRadian());
 			});
 		}
 
 		moveForward(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateZ(delta * this.baseStep);
+				host.object.translateZ((delta * .1) * this.baseStep);
 			});
 		}
 
 		moveBackward(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateZ(-delta * this.baseStep);
+				host.object.translateZ((-delta * .1) * this.baseStep);
 			});
 		}
 

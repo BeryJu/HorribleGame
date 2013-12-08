@@ -1,19 +1,20 @@
 {
-  "name": "HorribleGame",
-  "author": "BeryJu jenslanghammer@gmail.com",
-  "description": "A Horrible Game",
-  "devDependencies": {
-    "grunt": "latest",
-    "grunt-ts": "latest",
-    "grunt-tslint": "latest",
-    "grunt-contrib-nodeunit": "latest",
-    "grunt-node-webkit-builder": "~0.1.13"
-  },
-  "version": "0.0.1",
-  "url": "http://beryju.org",
-  "developedBy": "BeryJu jenslanghammer@gmail.com",
-  "repository": {
-    "type": "git",
-    "url": "https://bitbucket.org/BeryJu/horriblegame.git"
-  }
+	"name": "HorribleGame",
+	"author": "BeryJu jenslanghammer@gmail.com",
+	"description": "A Horrible Game",
+	"devDependencies": {
+		"grunt": "latest",
+		"grunt-ts": "latest",
+		"grunt-tslint": "latest",
+		"grunt-contrib-nodeunit": "latest",
+		"grunt-node-webkit-builder": "~0.1.13",
+		"grunt-contrib-yuidoc": "~0.5.0"
+	},
+	"version": "0.0.1",
+	"url": "http://beryju.org",
+	"developedBy": "BeryJu jenslanghammer@gmail.com",
+	"repository": {
+		"type": "git",
+		"url": "https://bitbucket.org/BeryJu/horriblegame.git"
+	}
 }

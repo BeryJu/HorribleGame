@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 17:27:52
+* @Last Modified time: 2013-12-07 21:44:15
 */
 
 module HG.Utils {
@@ -30,33 +30,11 @@ module HG.Utils {
 		return (typeof va === "number");
 	}
 
-	export function bootstrap(game: HG.Core.BaseGame): void {
-		if (HG.settings.debug === true) {
-			HG.Utils.profile("HG Profiling Frame", () => game.render());
-		}
-		window.onresize = () => game.onResize();
-		window.onkeydown = (a: any) => game.onKeyDown(a);
-		window.onkeyup = (a: any) => game.onKeyUp(a);
-		window.onmousemove = (a: any) => game.onMouseMove(a);
-		window.onmousedown = (a: any) => game.onMouseDown(a);
-		window.onmouseup = (a: any) => game.onMouseUp(a);
-		var render;
-		if (HG.settings.graphics.useStaticFramerate === true) {
-			render = () => { game.render(); };
-			setInterval(render, 1000 / HG.settings.graphics	.staticFramerate);
-		} else {
-			render = () => {
-				game.render();
-				requestAnimationFrame(render);
-			};
-		}
-		render();
-	}
-
 	export function devTools(): any {
 		var whnd = HG.Modules.ui.Window.get();
 		var devToolsWindow = whnd.showDevTools();
 		devToolsWindow.resizeTo(1280, 720);
+		devToolsWindow.setPosition("center");
 		return devToolsWindow;
 	}
 

@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 16:02:04
+* @Last Modified time: 2013-12-08 00:59:11
 */
 
 module HG.Core {
@@ -16,6 +16,7 @@ module HG.Core {
 		pluginHost: HG.Core.PluginHost;
 		controls: HG.Core.InputHandler;
 		fpsCounter: HG.Utils.FPSCounter;
+		resolution: THREE.Vector2;
 
 		_running: boolean = false;
 		events: string[] =
@@ -42,6 +43,7 @@ module HG.Core {
 				ch.volume(HG.settings.sound.channels[c]);
 				this.soundMixer.addChannel(ch);
 			}
+			this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 
 			this.setFullScreenMode(HG.settings.graphics.fullscreen);
 			this.resize(HG.settings.graphics.resolution);
@@ -75,9 +77,9 @@ module HG.Core {
 		}
 
 		load(): void {
-			console.time("HG.loadResources");
-			this.dispatch("load");
-			console.timeEnd("HG.loadResources");
+			HG.Utils.time("Resource Loading", () => {
+				this.dispatch("load");
+			});
 		}
 
 		resize(resolution: THREE.Vector2): void {
@@ -168,6 +170,7 @@ module HG.Core {
 
 		onResize(): void {
 			this.dispatch("resize");
+			this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			this.currentScene.resize(window.innerWidth / window.innerHeight);
 			this.renderer.setSize(window.innerWidth, window.innerHeight);
 		}
