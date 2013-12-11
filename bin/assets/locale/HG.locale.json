@@ -1,9 +1,10 @@
 {
 	"core": {
 		"errors": {
-			"notImplementedError": "NotImplementedError",
-			"duplicateNameTag": "Duplicate Name Tag: ${0}",
-			"defaultSettingsUsed": "Default Settings used"
+			"notImplementedError": "NotImplemented Error",
+			"nullReferenceError": "NullReference Error",
+			"duplicateNameTagError": "Duplicate Name Tag: ${0}",
+			"defaultSettingsUsedWarning": "Default Settings used"
 		}
 	},
 	"utils": {

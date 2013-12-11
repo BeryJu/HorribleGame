@@ -73,6 +73,7 @@ declare module HG.Utils {
             staticFramerate: number;
             antialiasing: boolean;
             resolution: THREE.Vector2;
+            devToolsResolution: THREE.Vector2;
         };
         public sound: {
             masterVolume: number;
@@ -158,6 +159,7 @@ declare module HG.Utils {
 }
 declare module HG.Utils {
     function rgbToHex(r: number, g: number, b: number): number;
+    function parseColor(raw: any): THREE.Color;
     function isFunction(va: any): boolean;
     function isUndefined(va: any): boolean;
     function isNumber(va: any): boolean;
@@ -184,6 +186,7 @@ declare module HG.Entities {
     class BaseEntity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
         public abilities: HG.Abilities.BaseAbility[];
         public object: THREE.Object3D;
+        public name: string;
         public positionOffset: THREE.Vector3;
         constructor(object?: THREE.Object3D);
         public ability(a: HG.Abilities.BaseAbility): boolean;
@@ -208,27 +211,19 @@ declare module HG.Abilities {
 declare module HG.Scenes {
     class BaseScene {
         public scene: Physijs.Scene;
-        public camera: HG.Entities.CameraEntity;
+        public cameras: Scenes.EntityCollection<HG.Entities.CameraEntity>;
+        public entities: Scenes.EntityCollection<HG.Entities.BaseEntity>;
+        public selectedCamera: string;
         public controls: HG.Core.InputHandler;
         public color: THREE.Color;
         public colorAlpha: number;
-        public entities: {
-            named: {};
-            unnamed: HG.Entities.BaseEntity[];
-        };
         constructor();
-        public add(entity: HG.Entities.BaseEntity, nameTag?: string): void;
+        public add(entity: HG.Entities.BaseEntity): void;
         public merge(otherScene: BaseScene): void;
-        public resize(ratio: number): void;
-        public getAllNamed(type?: any): any[];
-        public getAllUnnamed(type?: any): any[];
-        public getAll(type?: any): any[];
-        public forNamed(callback: (e: any, k: string) => any, type?: any): void;
-        public forUnamed(callback: (e: any) => any, type?: any): void;
-        public forAll(callback: (e: any) => any, type?: any): void;
+        public onResize(ratio: number): void;
+        public camera(name: string): boolean;
         public getInternal(): Physijs.Scene;
         public getCamera(): THREE.PerspectiveCamera;
-        public get<T>(nameTag: string): T;
         public frame(delta: number): void;
     }
 }
@@ -268,6 +263,15 @@ declare module HG.Abilities {
     }
 }
 declare module HG.Abilities {
+    class AudioAbility extends Abilities.BaseAbility {
+        public audioEffect: HG.Sound.Effect;
+        constructor(options: {
+            effect: HG.Sound.Effect;
+        });
+        public play(): void;
+    }
+}
+declare module HG.Abilities {
     class MovingAbility extends Abilities.BaseAbility {
         public baseStep: number;
         constructor(baseStep: number);
@@ -281,6 +285,14 @@ declare module HG.Abilities {
         public frame(delta: number): void;
     }
 }
+declare module HG.Abilities {
+    class ScriptExecuteAbility extends Abilities.BaseAbility {
+        public events: string[];
+        constructor();
+        public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
+        public frame(delta: number): void;
+    }
+}
 declare module HG.Core {
     class BaseGame extends Core.EventDispatcher {
         public renderer: THREE.WebGLRenderer;
@@ -290,6 +302,7 @@ declare module HG.Core {
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
         public resolution: THREE.Vector2;
+        public shaders: Core.Shader[];
         public _running: boolean;
         public events: string[];
         constructor(container: HTMLElement);
@@ -345,11 +358,9 @@ declare module HG.Core {
     }
 }
 declare module HG.Core {
-    class Shader extends Core.EventDispatcher {
-        public vertexShader: string;
-        public fragmentShader: string;
-        constructor(path?: string);
-        public load(raw: {}): void;
+    interface Shader {
+        vertex: string[];
+        fragment: string[];
     }
 }
 declare module HG.Entities {
@@ -473,8 +484,9 @@ declare module HG.Locale {
         core: {
             errors: {
                 notImplementedError: string;
-                duplicateNameTag: string;
-                defaultSettingsUsed: string;
+                nullReferenceError: string;
+                duplicateNameTagError: string;
+                defaultSettingsUsedWarning: string;
             };
         };
         event: {
@@ -507,6 +519,14 @@ declare module HG.Locale {
         };
     }
 }
+declare module HG.Resource {
+    class Cache {
+        public loader: Resource.ResourceLoader;
+        public files: {};
+        constructor(loader: Resource.ResourceLoader);
+        public cache(path: string, data?: any): boolean;
+    }
+}
 declare module HG.Resource.Model {
     class JS extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
@@ -525,6 +545,7 @@ declare module HG.Resource {
         constructor(baseDirectory: string);
         public resolvePath(path: string): string;
         private load(relPath, namespace, target);
+        public shader(path: string): THREE.ShaderMaterial;
         public model(path: string, entitiy: HG.Entities.MeshEntity): void;
         public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
@@ -547,6 +568,21 @@ declare module HG.Resource.Texture {
     }
 }
 declare module HG.Scenes {
+    class EntityCollection<T extends HG.Entities.BaseEntity> {
+        public named: {};
+        public unNamed: T[];
+        public add(entity: T): void;
+        public has(name: string): boolean;
+        public getAllNamed(type?: any): any[];
+        public getAllUnnamed(type?: any): any[];
+        public getAll(type?: any): any[];
+        public forNamed(callback: (e: any, k: string) => any, type?: any): void;
+        public forUnamed(callback: (e: any) => any, type?: any): void;
+        public get(name: string): T;
+        public forAll(callback: (e: any) => any, type?: any): void;
+    }
+}
+declare module HG.Scenes {
     class GameScene extends Scenes.BaseScene {
     }
 }
@@ -564,6 +600,7 @@ declare module HG.Scenes.Serializer {
     interface BindingDefinition {
         event: string;
         action: string;
+        properties?: any[];
     }
 }
 declare module HG.Scenes.Serializer {
@@ -593,7 +630,6 @@ declare module HG.Scenes.Serializer {
         constructor(scene: Scenes.BaseScene, loader: HG.Resource.ResourceLoader);
         private parseMaterials(raw, scene);
         private parseGeometry(raw, scene);
-        public parseColor(raw: any): THREE.Color;
         private parseSingleMaterial(raw, scene);
         private parseAbilities(raw, entity, scene);
         private setup(raw, entity);
@@ -621,6 +657,7 @@ declare module HG.Scenes.Serializer {
     interface SceneDefinition {
         camera: Serializer.EntityDefinition;
         color?: number[];
+        initialCamera: string;
         colorAlpha: number;
         entities: Serializer.EntityDefinition[];
     }
@@ -630,8 +667,7 @@ declare module HG.Scenes.Serializer {
         public loader: HG.Resource.ResourceLoader;
         public done: number;
         constructor(loader: HG.Resource.ResourceLoader);
-        private parseMisc(raw, scene);
-        public fromGeneric(gen: any): void;
+        public fromGeneric(generic: any): void;
     }
 }
 declare module HG.Sound {
@@ -647,7 +683,7 @@ declare module HG.Sound {
     }
 }
 declare module HG.Sound {
-    class Effect implements HG.Resource.ILoadable {
+    class Effect extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
         public name: string;
         public gainNode: GainNode;
         public destination: Sound.Channel;

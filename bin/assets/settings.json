@@ -12,6 +12,10 @@
 		"resolution": {
 			"x": 1280,
 			"y": 720
+		},
+		"devToolsResolution": {
+			"x": 1600,
+			"y": 900
 		}
 	},
 	"sound": {

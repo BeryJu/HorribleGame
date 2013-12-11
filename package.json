@@ -6,9 +6,7 @@
 		"grunt": "latest",
 		"grunt-ts": "latest",
 		"grunt-tslint": "latest",
-		"grunt-contrib-nodeunit": "latest",
-		"grunt-node-webkit-builder": "~0.1.13",
-		"grunt-contrib-yuidoc": "~0.5.0"
+		"grunt-contrib-nodeunit": "latest"
 	},
 	"version": "0.0.1",
 	"url": "http://beryju.org",

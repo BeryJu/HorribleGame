@@ -610,7 +610,8 @@ var HG;
                 useStaticFramerate: false,
                 staticFramerate: 120,
                 antialiasing: true,
-                resolution: new THREE.Vector2(1280, 720)
+                resolution: new THREE.Vector2(1280, 720),
+                devToolsResolution: new THREE.Vector2(1600, 900)
             },
             sound: {
                 masterVolume: 1,
@@ -651,6 +652,17 @@ var HG;
         }
         Utils.rgbToHex = rgbToHex;
 
+        function parseColor(raw) {
+            var color = new THREE.Color(0xaabbcc);
+            if (Array.isArray(raw) === true) {
+                color.setRGB.apply(color, raw);
+            } else {
+                color.setHex(raw);
+            }
+            return color;
+        }
+        Utils.parseColor = parseColor;
+
         function isFunction(va) {
             return (typeof va === "function");
         }
@@ -669,7 +681,7 @@ var HG;
         function devTools() {
             var whnd = HG.Modules.ui.Window.get();
             var devToolsWindow = whnd.showDevTools();
-            devToolsWindow.resizeTo(1280, 720);
+            devToolsWindow.resizeTo(HG.settings.graphics.devToolsResolution.x, HG.settings.graphics.devToolsResolution.y);
             devToolsWindow.setPosition("center");
             return devToolsWindow;
         }
@@ -875,89 +887,37 @@ var HG;
         var BaseScene = (function () {
             function BaseScene() {
                 this.controls = new HG.Core.InputHandler();
-                this.camera = [];
+                this.selectedCamera = "";
                 this.scene = new Physijs.Scene();
-                this.entities = {
-                    named: {},
-                    unnamed: []
-                };
+                this.entities = new HG.Scenes.EntityCollection();
+                this.cameras = new HG.Scenes.EntityCollection();
             }
-            BaseScene.prototype.add = function (entity, nameTag) {
+            BaseScene.prototype.add = function (entity) {
                 this.scene.add(entity.getInternal());
                 if (entity instanceof HG.Entities.CameraEntity) {
-                    this.cameras.push(entity);
+                    this.cameras.add(entity);
                 } else if (entity instanceof HG.Entities.BaseEntity) {
-                    if (nameTag) {
-                        if (this.entities.named[nameTag.toLowerCase()]) {
-                            HG.locale.core.errors.duplicateNameTag.f(nameTag).error();
-                        } else {
-                            this.entities.named[nameTag.toLowerCase()] = entity;
-                        }
-                    } else {
-                        this.entities.unnamed.push(entity);
-                    }
+                    this.entities.add(entity);
                 }
             };
 
             BaseScene.prototype.merge = function (otherScene) {
             };
 
-            BaseScene.prototype.resize = function (ratio) {
-                this.camera.resize(ratio);
-            };
-
-            BaseScene.prototype.getAllNamed = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
-                var es = [];
-                for (var k in this.entities.named) {
-                    var v = this.entities.named[k];
-                    if (v instanceof type)
-                        es.push(v);
-                }
-                return es;
-            };
-
-            BaseScene.prototype.getAllUnnamed = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
-                var es = [];
-                this.entities.unnamed.forEach(function (e) {
-                    if (e instanceof type)
-                        es.push(e);
-                });
-                return es;
-            };
-
-            BaseScene.prototype.getAll = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
-                var es = [];
-                es.concat(this.getAllUnnamed(type));
-                es.concat(this.getAllNamed(type));
-                return es;
-            };
-
-            BaseScene.prototype.forNamed = function (callback, type) {
-                if (!type)
-                    type = HG.Entities.BaseEntity;
-                for (var k in this.entities.named) {
-                    var ne = this.entities.named[k];
-                    if (ne instanceof type)
-                        callback(ne, k);
-                }
-            };
-
-            BaseScene.prototype.forUnamed = function (callback, type) {
-                if (!type)
-                    type = HG.Entities.BaseEntity;
-                this.entities.unnamed.forEach(function (e) {
-                    if (e instanceof type)
-                        callback(e);
+            BaseScene.prototype.onResize = function (ratio) {
+                this.cameras.forNamed(function (e) {
+                    return e.resize(ratio);
                 });
             };
 
-            BaseScene.prototype.forAll = function (callback, type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
-                this.forNamed(callback, type);
-                this.forUnamed(callback, type);
+            BaseScene.prototype.camera = function (name) {
+                var has = this.cameras.has(name);
+                if (has !== null) {
+                    this.selectedCamera = name;
+                    return true;
+                } else {
+                    return false;
+                }
             };
 
             BaseScene.prototype.getInternal = function () {
@@ -965,18 +925,15 @@ var HG;
             };
 
             BaseScene.prototype.getCamera = function () {
-                return this.cameras[this.selectedCamera].getInternal() || null;
-            };
-
-            BaseScene.prototype.get = function (nameTag) {
-                nameTag = nameTag.toLowerCase();
-                return this.entities.named[nameTag] || null;
+                return this.cameras.get(this.selectedCamera).getInternal() || null;
             };
 
             BaseScene.prototype.frame = function (delta) {
                 this.controls.frame(delta);
-                this.cameras[this.selectedCamera].frame(delta);
-                this.forNamed(function (e) {
+                this.entities.forNamed(function (e) {
+                    return e.frame(delta);
+                });
+                this.cameras.forNamed(function (e) {
                     return e.frame(delta);
                 });
             };
@@ -1128,6 +1085,27 @@ var HG;
 var HG;
 (function (HG) {
     (function (Abilities) {
+        var AudioAbility = (function (_super) {
+            __extends(AudioAbility, _super);
+            function AudioAbility(options) {
+                _super.call(this);
+                this.audioEffect = options.effect;
+                if (this.audioEffect === null) {
+                    HG.locale.core.errors.nullReferenceError.error();
+                }
+            }
+            AudioAbility.prototype.play = function () {
+                this.audioEffect.play();
+            };
+            return AudioAbility;
+        })(HG.Abilities.BaseAbility);
+        Abilities.AudioAbility = AudioAbility;
+    })(HG.Abilities || (HG.Abilities = {}));
+    var Abilities = HG.Abilities;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Abilities) {
         var MovingAbility = (function (_super) {
             __extends(MovingAbility, _super);
             function MovingAbility(baseStep) {
@@ -1194,6 +1172,28 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
+    (function (Abilities) {
+        var ScriptExecuteAbility = (function (_super) {
+            __extends(ScriptExecuteAbility, _super);
+            function ScriptExecuteAbility() {
+                _super.call(this);
+                this.events = ["loaded"];
+            }
+            ScriptExecuteAbility.prototype.checkCompatibility = function (entity) {
+                return (entity instanceof HG.Entities.MeshEntity);
+            };
+
+            ScriptExecuteAbility.prototype.frame = function (delta) {
+                _super.prototype.frame.call(this, delta);
+            };
+            return ScriptExecuteAbility;
+        })(HG.Abilities.BaseAbility);
+        Abilities.ScriptExecuteAbility = ScriptExecuteAbility;
+    })(HG.Abilities || (HG.Abilities = {}));
+    var Abilities = HG.Abilities;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
     (function (Core) {
         var BaseGame = (function (_super) {
             __extends(BaseGame, _super);
@@ -1206,12 +1206,13 @@ var HG;
                     "mouseMove", "preRender", "postRender"];
                 if (!HG.settings) {
                     HG.settings = HG.Utils.defaultSettings;
-                    HG.locale.core.errors.defaultSettingsUsed.warn();
+                    HG.locale.core.errors.defaultSettingsUsedWarning.warn();
                 }
                 new HG.Utils.UpdateChecker();
                 this.controls = new HG.Core.InputHandler();
                 this.pluginHost = new HG.Core.PluginHost(this);
                 this.fpsCounter = new HG.Utils.FPSCounter();
+                this.shaders = [];
 
                 this.soundMixer = new HG.Sound.Mixer();
                 this.soundMixer.volume(HG.settings.sound.masterVolume);
@@ -1221,10 +1222,10 @@ var HG;
                     ch.volume(HG.settings.sound.channels[c]);
                     this.soundMixer.addChannel(ch);
                 }
-                this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
-
                 this.setFullScreenMode(HG.settings.graphics.fullscreen);
+
                 this.resize(HG.settings.graphics.resolution);
+                this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
                 if (HG._gl === true) {
                     this.renderer = new THREE.WebGLRenderer({
                         antialias: HG.settings.graphics.antialiasing
@@ -1258,10 +1259,7 @@ var HG;
             };
 
             BaseGame.prototype.load = function () {
-                var _this = this;
-                HG.Utils.time("Resource Loading", function () {
-                    _this.dispatch("load");
-                });
+                this.dispatch("load");
             };
 
             BaseGame.prototype.resize = function (resolution) {
@@ -1371,7 +1369,7 @@ var HG;
             BaseGame.prototype.onResize = function () {
                 this.dispatch("resize");
                 this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
-                this.currentScene.resize(window.innerWidth / window.innerHeight);
+                this.currentScene.onResize(window.innerWidth / window.innerHeight);
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
             };
 
@@ -1512,29 +1510,6 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    (function (Core) {
-        var Shader = (function (_super) {
-            __extends(Shader, _super);
-            function Shader(path) {
-                _super.call(this);
-                if (path) {
-                    var shader = require("./" + path);
-                    this.load(shader);
-                }
-            }
-            Shader.prototype.load = function (raw) {
-                this.vertexShader = raw["vertex"];
-                this.fragmentShader = raw["fragment"];
-                this.dispatch("loaded");
-            };
-            return Shader;
-        })(HG.Core.EventDispatcher);
-        Core.Shader = Shader;
-    })(HG.Core || (HG.Core = {}));
-    var Core = HG.Core;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
     (function (Entities) {
         var CameraEntity = (function (_super) {
             __extends(CameraEntity, _super);
@@ -1577,6 +1552,9 @@ var HG;
                 if (typeof zFar === "undefined") { zFar = 10000; }
                 _super.call(this);
                 this.lookAt = true;
+                if (target === null) {
+                    HG.locale.core.errors.nullReferenceError.error();
+                }
                 this.target = target;
                 this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
             }
@@ -1988,6 +1966,22 @@ var HG;
 var HG;
 (function (HG) {
     (function (Resource) {
+        var Cache = (function () {
+            function Cache(loader) {
+                this.loader = loader;
+            }
+            Cache.prototype.cache = function (path, data) {
+                return true;
+            };
+            return Cache;
+        })();
+        Resource.Cache = Cache;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Resource) {
         (function (Model) {
             var JS = (function (_super) {
                 __extends(JS, _super);
@@ -2102,6 +2096,15 @@ var HG;
                 if (foundLoader === false) {
                     HG.locale.resource.noLoader.f(extension).error();
                 }
+            };
+
+            ResourceLoader.prototype.shader = function (path) {
+                var raw = this.json(path);
+                var material = new THREE.ShaderMaterial({
+                    vertexShader: raw.vertex.join("\n"),
+                    fragmentShader: raw.fragment.join("\n")
+                });
+                return material;
             };
 
             ResourceLoader.prototype.model = function (path, entitiy) {
@@ -2224,6 +2227,96 @@ var HG;
 var HG;
 (function (HG) {
     (function (Scenes) {
+        var EntityCollection = (function () {
+            function EntityCollection() {
+                this.named = {};
+                this.unNamed = [];
+            }
+            EntityCollection.prototype.add = function (entity) {
+                if (entity.name) {
+                    if (this.named[entity.name.toLowerCase()]) {
+                        HG.locale.core.errors.duplicateNameTagError.f(entity.name).error();
+                    } else {
+                        this.named[entity.name.toLowerCase()] = entity;
+                    }
+                } else {
+                    this.unNamed.push(entity);
+                }
+            };
+
+            EntityCollection.prototype.has = function (name) {
+                if (!name)
+                    return false;
+                return (this.named[name.toLowerCase()]) ? true : false;
+            };
+
+            EntityCollection.prototype.getAllNamed = function (type) {
+                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
+                var es = [];
+                for (var k in this.named) {
+                    var v = this.named[k];
+                    if (v instanceof type)
+                        es.push(v);
+                }
+                return es;
+            };
+
+            EntityCollection.prototype.getAllUnnamed = function (type) {
+                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
+                var es = [];
+                this.unNamed.forEach(function (e) {
+                    if (e instanceof type)
+                        es.push(e);
+                });
+                return es;
+            };
+
+            EntityCollection.prototype.getAll = function (type) {
+                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
+                var es = [];
+                es.concat(this.getAllUnnamed(type));
+                es.concat(this.getAllNamed(type));
+                return es;
+            };
+
+            EntityCollection.prototype.forNamed = function (callback, type) {
+                if (!type)
+                    type = HG.Entities.BaseEntity;
+                for (var k in this.named) {
+                    var ne = this.named[k];
+                    if (ne instanceof type)
+                        callback(ne, k);
+                }
+            };
+
+            EntityCollection.prototype.forUnamed = function (callback, type) {
+                if (!type)
+                    type = HG.Entities.BaseEntity;
+                this.unNamed.forEach(function (e) {
+                    if (e instanceof type)
+                        callback(e);
+                });
+            };
+
+            EntityCollection.prototype.get = function (name) {
+                name = name.toLowerCase();
+                return this.named[name] || null;
+            };
+
+            EntityCollection.prototype.forAll = function (callback, type) {
+                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
+                this.forNamed(callback, type);
+                this.forUnamed(callback, type);
+            };
+            return EntityCollection;
+        })();
+        Scenes.EntityCollection = EntityCollection;
+    })(HG.Scenes || (HG.Scenes = {}));
+    var Scenes = HG.Scenes;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Scenes) {
         var GameScene = (function (_super) {
             __extends(GameScene, _super);
             function GameScene() {
@@ -2272,21 +2365,11 @@ var HG;
                     return geometry;
                 };
 
-                EntityParser.prototype.parseColor = function (raw) {
-                    var color = new THREE.Color(0xaabbcc);
-                    if (Array.isArray(raw) === true) {
-                        color.setRGB.apply(color, raw);
-                    } else {
-                        color.setHex(raw);
-                    }
-                    return color;
-                };
-
                 EntityParser.prototype.parseSingleMaterial = function (raw, scene) {
                     var material;
                     var materialType;
                     if (raw.properties[0]["color"]) {
-                        raw.properties[0]["color"] = this.parseColor(raw.properties[0]["color"]);
+                        raw.properties[0]["color"] = HG.Utils.parseColor(raw.properties[0]["color"]);
                     }
                     var properties = this.parseProperties(raw.properties, scene);
                     if (!raw.texture) {
@@ -2362,7 +2445,7 @@ var HG;
                 EntityParser.prototype.parseProperty = function (raw, scene) {
                     if (typeof raw === "string") {
                         if (raw.substring(0, 8) === "${scene:") {
-                            var entity = scene.get(raw.replace("${scene:", "").replace("}", ""));
+                            var entity = scene.entities.get(raw.replace("${scene:", "").replace("}", ""));
                             return entity;
                         } else {
                             return raw.f({
@@ -2383,6 +2466,9 @@ var HG;
 
                     if (rawEntity.model) {
                         entity = new type();
+                        if (rawEntity.name)
+                            entity.name = rawEntity.name;
+
                         entity.on("loaded", function (geometry, material) {
                             _this.setup(rawEntity, entity);
                             _this.parseAbilities(rawEntity, entity, _this.scene);
@@ -2391,6 +2477,9 @@ var HG;
                         this.loader.model(rawEntity.model, entity);
                     } else if (rawEntity.material && rawEntity.geometry) {
                         entity = new type();
+                        if (rawEntity.name)
+                            entity.name = rawEntity.name;
+
                         var material = this.parseMaterials(rawEntity.material, this.scene);
                         var geometry = this.parseGeometry(rawEntity.geometry, this.scene);
                         var mesh = new THREE.Mesh(geometry, material);
@@ -2398,6 +2487,9 @@ var HG;
                         this.dispatch("parsed", entity);
                     } else if (rawEntity.object) {
                         entity = new type();
+                        if (rawEntity.name)
+                            entity.name = rawEntity.name;
+
                         var objectType = THREE[rawEntity.object.type];
                         var objectProperties = rawEntity.object.properties;
                         var object = this.applyConstructor(objectType, objectProperties);
@@ -2406,6 +2498,9 @@ var HG;
                     } else if (rawEntity.type && rawEntity.properties) {
                         var properties = this.parseProperties(rawEntity.properties, this.scene);
                         entity = this.applyConstructor(type, properties);
+
+                        if (rawEntity.name)
+                            entity.name = rawEntity.name;
                         this.dispatch("parsed", entity);
                     }
                 };
@@ -2428,37 +2523,29 @@ var HG;
                     this.done = 0;
                     this.loader = loader;
                 }
-                SceneSerializer.prototype.parseMisc = function (raw, scene) {
+                SceneSerializer.prototype.fromGeneric = function (generic) {
                     var _this = this;
-                    var parser = new HG.Scenes.Serializer.EntityParser(scene, this.loader);
-                    parser.on("parsed", function (entity) {
-                        scene.color = parser.parseColor(raw.color);
-                        scene.colorAlpha = 1 || raw.colorAlpha;
-                        scene.camera = entity;
-                        _this.dispatch("done", scene);
-                    });
-                    parser.parse(raw.camera);
-                };
-
-                SceneSerializer.prototype.fromGeneric = function (gen) {
-                    var _this = this;
+                    generic = generic;
                     var scene = new HG.Scenes.BaseScene();
-                    gen.entities.forEach(function (entry, index) {
-                        _this.done--;
+                    scene.color = HG.Utils.parseColor(generic.color);
+                    scene.colorAlpha = 1 || generic.colorAlpha;
+                    var allEntities = generic.entities.concat(generic.cameras);
+                    var index = 0;
+                    var nextEntity = function (entry, scene) {
                         var parser = new HG.Scenes.Serializer.EntityParser(scene, _this.loader);
                         parser.on("parsed", function (entity) {
-                            if (entry.name) {
-                                scene.add(entity, entry.name);
+                            scene.add(entity);
+                            index++;
+                            if (index < allEntities.length) {
+                                nextEntity(allEntities[index], scene);
                             } else {
-                                scene.add(entity);
-                            }
-                            _this.done++;
-                            if (_this.done === 0) {
-                                _this.parseMisc(gen, scene);
+                                scene.camera(generic.initialCamera);
+                                _this.dispatch("done", scene);
                             }
                         });
                         parser.parse(entry);
-                    });
+                    };
+                    nextEntity(allEntities[index], scene);
                 };
                 return SceneSerializer;
             })(HG.Core.EventDispatcher);
@@ -2510,8 +2597,10 @@ var HG;
 var HG;
 (function (HG) {
     (function (Sound) {
-        var Effect = (function () {
+        var Effect = (function (_super) {
+            __extends(Effect, _super);
             function Effect(ch) {
+                _super.call(this, ["playing", "done"]);
                 this.destination = ch;
                 this.rootContext = this.destination.rootContext;
                 this.gainNode = this.rootContext.createGain();
@@ -2542,6 +2631,7 @@ var HG;
             Effect.prototype.play = function () {
                 if (this.source)
                     this.source.start(0);
+                this.dispatch("playing");
             };
 
             Effect.prototype.stop = function () {
@@ -2553,7 +2643,7 @@ var HG;
                 this.gainNode.gain.value = gain;
             };
             return Effect;
-        })();
+        })(HG.Core.EventDispatcher);
         Sound.Effect = Effect;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
