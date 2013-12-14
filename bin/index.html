@@ -4,12 +4,15 @@
     <meta charset="utf-8">
     <title>HorribleGame</title>
     <link rel="stylesheet" href="style.css">
+    <script src="http://juggernaut:35729/livereload.js"></script>
     <script src="lib/dependencies/three.js"></script>
     <script src="lib/dependencies/physi.js"></script>
-    <script src="lib/dependencies/polyfill.js"></script>
     <script src="lib/dependencies/STLLoader.js"></script>
     <script src="lib/dependencies/ParticleEngine.js"></script>
-    <script src="lib/hg.js"></script>
+    <script src="lib/hg.js"></script><script>
+    	Physijs.scripts.worker = 'lib/dependencies/physijs_worker.js';
+    	Physijs.scripts.ammo = 'ammo.js';
+    </script>
   </head>
   <body>
     <div id="canvasScreen">
@@ -19,7 +22,7 @@
         <p id="frametime">{{ frametime }}</p>
         <p id="resolution">{{ resolution }}</p>
       </div>
-      <div class="canvasWrapper"></div>
+      <div id="canvasWrapper"></div>
     </div>
     <script src="game/game.js"></script>
   </body>

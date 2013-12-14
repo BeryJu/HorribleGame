@@ -7,7 +7,8 @@
     "grunt-ts": "latest",
     "grunt-tslint": "latest",
     "grunt-contrib-nodeunit": "latest",
-    "grunt-contrib-jade": "~0.8.0"
+    "grunt-contrib-jade": "~0.8.0",
+    "grunt-contrib-watch": "~0.5.3"
   },
   "version": "0.0.1",
   "url": "http://beryju.org",

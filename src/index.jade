@@ -4,12 +4,16 @@ html(lang='en')
 		meta(charset='utf-8')
 		title= title
 		link(rel='stylesheet', href='style.css')
+		script(src="http://juggernaut:35729/livereload.js")
 		script(src="lib/dependencies/three.js")
 		script(src="lib/dependencies/physi.js")
-		script(src="lib/dependencies/polyfill.js")
 		script(src="lib/dependencies/STLLoader.js")
 		script(src="lib/dependencies/ParticleEngine.js")
 		script(src="lib/hg.js")
+		<script>
+		|	Physijs.scripts.worker = 'lib/dependencies/physijs_worker.js';
+		|	Physijs.scripts.ammo = 'ammo.js';
+		</script>
 		//- script(src="assets/fonts/droidSans.typeface.js")
 		//- script(src="assets/fonts/helvetiker.typeface.js")
 	body
@@ -19,7 +23,7 @@ html(lang='en')
 				p#verts {{ verts }}
 				p#frametime {{ frametime }}
 				p#resolution {{ resolution }}
-			.canvasWrapper
+			#canvasWrapper
 		//- .menu
 		//- 	#mainScreen
 		//- 		ul

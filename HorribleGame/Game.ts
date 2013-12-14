@@ -10,6 +10,9 @@
 
 // Initialize HG
 HG.horrible();
+
+HG.log("wat does dis work? (3rd attempt)");
+
 // $ is the same as document.getElementById, just shorter
 var gameCanvas = $("canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");

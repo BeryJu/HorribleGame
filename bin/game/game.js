@@ -1,5 +1,7 @@
 HG.horrible();
 
+HG.log("wat does dis work? (3rd attempt)");
+
 var gameCanvas = $("canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);

@@ -73,6 +73,22 @@ var config = {
 			}
 		}
 	},
+	watch: {
+		hg: {
+			files: paths.hgPaths,
+			tasks: ['hg'],
+			options: {
+				livereload: true
+			}
+		},
+		game: {
+			files: paths.gamePaths,
+			tasks: ['game'],
+			options: {
+				livereload: true
+			}
+		}
+	},
 	nodeunit: {
 		hg: paths.testPaths
 	}
@@ -99,6 +115,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-tslint');
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
 	grunt.loadNpmTasks('grunt-contrib-jade');
+	grunt.loadNpmTasks('grunt-contrib-watch');
 
 	grunt.registerTask("hg", ["jade", "tslint:hg", "ts:hg", "nodeunit:hg"]);
 	grunt.registerTask("default", ["tslint:hg", "ts", "nodeunit"]);
