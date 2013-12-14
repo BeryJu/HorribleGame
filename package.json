@@ -17,6 +17,6 @@
     "url": "https://bitbucket.org/BeryJu/horriblegame.git"
   },
   "scripts": {
-    "build": "grunt all"
+    "test": "grunt all"
   }
 }
