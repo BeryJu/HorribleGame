@@ -2,7 +2,7 @@ HG.horrible();
 
 HG.log("wat does dis work? (3rd attempt)");
 
-var gameCanvas = $("canvasWrapper");
+var gameCanvas = $("#canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var mainScene = new HG.Scenes.BaseScene();
@@ -26,7 +26,8 @@ game.on("load", function () {
         game.scene(mainScene);
         game.start({
             input: true,
-            profileFrame: false
+            profileFrame: false,
+            noResize: true
         });
     });
 });
@@ -40,13 +41,13 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, function (delta) {
 });
 
 game.on(["start", "resize"], function () {
-    $("resolution").innerText = locale.debugInfo.resolution.f(game.resolution.x, game.resolution.y);
+    $("#resolution").innerText = locale.debugInfo.resolution.f(game.resolution.x, game.resolution.y);
 });
 
 game.on("render", function (delta) {
-    $("fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
-    $("verts").innerText = locale.debugInfo.verts.f(game.renderer.info.render.vertices);
-    $("frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
+    $("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
+    $("#verts").innerText = locale.debugInfo.verts.f(game.renderer.info.render.vertices);
+    $("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
 });
 
 window.onload = function () {

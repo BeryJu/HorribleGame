@@ -1,1 +1,33 @@
-{}
+{
+	"type": "material",
+	"properties": {
+		"bumpScale": {
+			"type": "f",
+			"value": 200
+		},
+		"bumpTexture": {
+			"type": "t",
+			"value": 0
+		},
+		"oceanTexture": {
+			"type": "t",
+			"value": 0
+		},
+		"sandyTexture": {
+			"type": "t",
+			"value": 0
+		},
+		"grassTexture": {
+			"type": "t",
+			"value": 0
+		},
+		"rockyTexture": {
+			"type": "t",
+			"value": 0
+		},
+		"snowyTexture": {
+			"type": "t",
+			"value": 0
+		}
+	}
+}

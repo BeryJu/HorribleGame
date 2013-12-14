@@ -1007,8 +1007,8 @@ var HG;
 
 var $;
 if (typeof document !== "undefined") {
-    $ = function (id) {
-        return document.getElementById.call(document, id);
+    $ = function (selector) {
+        return document.querySelector.call(document, selector);
     };
 }
 
@@ -1201,20 +1201,16 @@ var HG;
                 this.controls = new HG.Core.InputHandler();
                 this.pluginHost = new HG.Core.PluginHost(this);
                 this.fpsCounter = new HG.Utils.FPSCounter();
-                this.shaders = [];
 
                 this.soundMixer = new HG.Sound.Mixer();
                 this.soundMixer.volume(HG.settings.sound.masterVolume);
 
+                this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
                 for (var c in HG.settings.sound.channels) {
                     var ch = new HG.Sound.Channel(c.replace("Volume", ""));
                     ch.volume(HG.settings.sound.channels[c]);
                     this.soundMixer.addChannel(ch);
                 }
-                this.setFullScreenMode(HG.settings.graphics.fullscreen);
-
-                this.resize(HG.settings.graphics.resolution);
-                this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
                 if (HG._gl === true) {
                     this.renderer = new THREE.WebGLRenderer({
                         antialias: HG.settings.graphics.antialiasing
@@ -1287,6 +1283,10 @@ var HG;
                 var _this = this;
                 this.dispatch("start");
                 this._running = true;
+                if (params.noResize === true) {
+                    this.setFullScreenMode(HG.settings.graphics.fullscreen);
+                    this.resize(HG.settings.graphics.resolution);
+                }
                 if (params.profileFrame === true) {
                     HG.Utils.profile("HG Profiling Frame", function () {
                         return _this.render.apply(_this);
@@ -1522,7 +1522,12 @@ var HG;
                     var rawUniform = this.meta.properties[k];
                     uniforms[k] = {};
                     if (k in properties) {
-                        uniforms[k]["texture"] = THREE.ImageUtils.loadTexture(this.loader.path(properties[k]));
+                        if (typeof properties[k] === "string") {
+                            var texturePath = this.loader.path(properties[k]);
+                            uniforms[k]["value"] = THREE.ImageUtils.loadTexture(texturePath);
+                        } else if (typeof properties[k] === "number") {
+                            uniforms[k]["value"] = properties[k];
+                        }
                     }
                     uniforms[k]["type"] = rawUniform["type"];
                     uniforms[k]["value"] = rawUniform["value"];
@@ -2169,11 +2174,9 @@ var HG;
             };
 
             ResourceLoader.prototype.scene = function (path, done) {
-                var absPath = this.path(path);
-                var raw = HG.Modules.fs.readFileSync(absPath);
                 var serializer = new HG.Scenes.Serializer.SceneSerializer(this);
                 serializer.on("done", done);
-                serializer.fromGeneric(JSON.parse(raw));
+                serializer.fromGeneric(this.json(path));
             };
 
             ResourceLoader.prototype.json = function (path, data) {

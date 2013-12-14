@@ -36,8 +36,13 @@ module HG.Core {
 				var rawUniform = this.meta.properties[k];
 				uniforms[k] = {};
 				if (k in properties) {
-					uniforms[k]["texture"] = THREE.ImageUtils.
-							loadTexture(this.loader.path(properties[k]));
+					if (typeof properties[k] === "string") {
+						var texturePath = this.loader.path(properties[k]);
+						uniforms[k]["value"] = THREE.ImageUtils.
+								loadTexture(texturePath);
+					} else if (typeof properties[k] === "number") {
+						uniforms[k]["value"] = properties[k];
+					}
 				}
 				uniforms[k]["type"] = rawUniform["type"];
 				uniforms[k]["value"] = rawUniform["value"];

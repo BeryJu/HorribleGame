@@ -14,7 +14,7 @@ HG.horrible();
 HG.log("wat does dis work? (3rd attempt)");
 
 // $ is the same as document.getElementById, just shorter
-var gameCanvas = $("canvasWrapper");
+var gameCanvas = $("#canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var mainScene = new HG.Scenes.BaseScene();
@@ -42,7 +42,8 @@ game.on("load", () => {
 		game.scene(mainScene);
 		game.start({
 			input: true,
-			profileFrame: false
+			profileFrame: false,
+			noResize: true
 		});
 	});
 });
@@ -56,13 +57,13 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 });
 
 game.on(["start", "resize"], () => {
-	$("resolution").innerText = locale.debugInfo.resolution.f(game.resolution.x, game.resolution.y);
+	$("#resolution").innerText = locale.debugInfo.resolution.f(game.resolution.x, game.resolution.y);
 });
 
 game.on("render", (delta: number) => {
-	$("fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
-	$("verts").innerText = locale.debugInfo.verts.f(game.renderer.info.render.vertices);
-	$("frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
+	$("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
+	$("#verts").innerText = locale.debugInfo.verts.f(game.renderer.info.render.vertices);
+	$("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
 });
 
 window.onload = () => game.load();

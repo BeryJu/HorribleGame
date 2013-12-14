@@ -77,8 +77,8 @@ module HG {
 
 var $;
 if (typeof document !== "undefined") {
-	$ = (id: string) => {
-		return document.getElementById.call(document, id);
+	$ = (selector: string) => {
+		return document.querySelector.call(document, selector);
 	};
 }
 

@@ -15,7 +15,7 @@
 			"trace"
 		],
 		"no-construct": true,
-		"no-debugger": true,
+		"no-debugger": false,
 		"no-duplicate-key": true,
 		"no-empty": true,
 		"no-eval": true,

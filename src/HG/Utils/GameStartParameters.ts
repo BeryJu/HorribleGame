@@ -12,6 +12,7 @@ module HG.Utils {
 
 		input: boolean;
 		profileFrame: boolean;
+		noResize: boolean;
 
 	}
 

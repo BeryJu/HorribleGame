@@ -304,7 +304,6 @@ declare module HG.Core {
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
         public params: HG.Utils.GameStartParameters;
-        public shaders: Core.Shader[];
         public _running: boolean;
         public events: string[];
         constructor(container: HTMLElement);
@@ -743,5 +742,6 @@ declare module HG.Utils {
     interface GameStartParameters {
         input: boolean;
         profileFrame: boolean;
+        noResize: boolean;
     }
 }

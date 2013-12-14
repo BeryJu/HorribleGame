@@ -84,11 +84,9 @@ module HG.Resource {
 		}
 
 		scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void {
-			var absPath = this.path(path);
-			var raw = HG.Modules.fs.readFileSync(absPath);
 			var serializer =  new HG.Scenes.Serializer.SceneSerializer(this);
 			serializer.on("done", done);
-			serializer.fromGeneric(JSON.parse(raw));
+			serializer.fromGeneric(this.json<any>(path));
 		}
 
 		json<T>(path: string, data?: T): T {

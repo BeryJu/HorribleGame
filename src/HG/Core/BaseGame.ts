@@ -19,7 +19,6 @@ module HG.Core {
 		controls: HG.Core.InputHandler;
 		fpsCounter: HG.Utils.FPSCounter;
 		params: HG.Utils.GameStartParameters;
-		shaders: HG.Core.Shader[];
 
 		_running: boolean = false;
 		events: string[] =
@@ -37,20 +36,16 @@ module HG.Core {
 			this.controls = new HG.Core.InputHandler();
 			this.pluginHost = new HG.Core.PluginHost(this);
 			this.fpsCounter = new HG.Utils.FPSCounter();
-			this.shaders = [];
 
 			this.soundMixer = new HG.Sound.Mixer();
 			this.soundMixer.volume(HG.settings.sound.masterVolume);
 
+			this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			for (var c in HG.settings.sound.channels) {
 				var ch = new HG.Sound.Channel(c.replace("Volume", ""));
 				ch.volume(HG.settings.sound.channels[c]);
 				this.soundMixer.addChannel(ch);
 			}
-			this.setFullScreenMode(HG.settings.graphics.fullscreen);
-
-			this.resize(HG.settings.graphics.resolution);
-			this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			if (HG._gl === true) {
 				this.renderer = new THREE.WebGLRenderer({
 					antialias: HG.settings.graphics.antialiasing
@@ -119,6 +114,10 @@ module HG.Core {
 		start(params: HG.Utils.GameStartParameters): void {
 			this.dispatch("start");
 			this._running = true;
+			if (params.noResize === true) {
+				this.setFullScreenMode(HG.settings.graphics.fullscreen);
+				this.resize(HG.settings.graphics.resolution);
+			}
 			if (params.profileFrame === true) {
 				HG.Utils.profile("HG Profiling Frame", () => this.render.apply(this));
 			}
