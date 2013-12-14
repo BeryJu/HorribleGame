@@ -3950,7 +3950,7 @@ declare module THREE {
     export interface ShaderMaterialParameters {
         fragmentShader?: string;
         vertexShader?: string;
-        uniforms?: Uniforms;
+        uniforms?: any;
         defines?: { [label: string]: string; };
         shading?: Shading;
         blending?: Blending;

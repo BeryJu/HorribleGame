@@ -3,7 +3,7 @@
 * @Date:   2013-12-09 14:52:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-09 18:57:47
+* @Last Modified time: 2013-12-13 17:58:04
 */
 
 module HG.Scenes {
@@ -16,7 +16,7 @@ module HG.Scenes {
 		add(entity: T): void {
 			if (entity.name) {
 				if (this.named[entity.name.toLowerCase()]) {
-					HG.locale.core.errors.duplicateNameTagError.f(entity.name).error();
+					HG.locale.errors.duplicateNameTagError.f(entity.name).error();
 				} else {
 					this.named[entity.name.toLowerCase()] = entity;
 				}
@@ -48,10 +48,7 @@ module HG.Scenes {
 		}
 
 		getAll(type: any = HG.Entities.BaseEntity): any[] {
-			var es = [];
-			es.concat(this.getAllUnnamed(type));
-			es.concat(this.getAllNamed(type));
-			return es;
+			return this.getAllUnnamed(type).concat(this.getAllNamed(type));
 		}
 
 		forNamed(callback: (e: any, k: string) => any, type?: any): void {
@@ -67,6 +64,13 @@ module HG.Scenes {
 			this.unNamed.forEach((e) => {
 				if (e instanceof type) callback(e);
 			});
+		}
+
+		forEach(callback: (e: any, i: any, ...args: any[]) => any): void {
+			this.unNamed.forEach(callback);
+			for (var k in this.named) {
+				callback(this.named[k], k);
+			}
 		}
 
 		get(name: string): T {

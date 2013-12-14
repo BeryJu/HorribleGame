@@ -1,53 +1,26 @@
-<!Doctype HTML>
-<html>
-	<head>
-		<title>Horrible Game</title>
-		<style>
-		* {
-			margin: 0px;
-			font-family: sans-serif;
-		}
-
-		body {
-			overflow: hidden;
-		}
-
-		div#gameWrapper {
-			position: fixed;
-			overflow-y: hidden;
-			width: 100%;
-		}
-
-		div#info {
-			position: absolute;
-			top: 0px;
-			left: 0px;
-			z-index: 1111;
-			color: white;
-		}
-		</style>
-		<script src="lib/three.js"></script>
-		<script src="lib/physi.js"></script>
-		<script>
-		Physijs.scripts.worker = 'lib/physijs_worker.js';
-		Physijs.scripts.ammo = 'ammo.js';
-		</script>
-		<script src="lib/STLLoader.js"></script>
-		<script src="lib/ParticleEngine.js"></script>
-		<script src="lib/hg.js"></script>
-<!-- 		// <script src="assets/fonts/droidSans.typeface.js"></script>
-		// <script src="assets/fonts/helvetiker.typeface.js"></script> -->
-	</head>
-	<body>
-		<div class="game">
-			<div id="info">
-				<p id="fps"></p>
-				<p id="verts"></p>
-				<p id="frametime"></p>
-				<p id="resolution"></p>
-			</div>
-			<div id="gameWrapper"></div>
-		</div>
-		<script src="game/game.js"></script>
-	</body>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>HorribleGame</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="lib/three.js"></script>
+    <script src="lib/physi.js"></script>
+    <script src="lib/polyfill.js"></script>
+    <script src="lib/STLLoader.js"></script>
+    <script src="lib/ParticleEngine.js"></script>
+    <script src="lib/hg.js"></script>
+  </head>
+  <body>
+    <div id="canvasScreen">
+      <div id="info">
+        <p id="fps">{{ fps }}</p>
+        <p id="verts">{{ verts }}</p>
+        <p id="frametime">{{ frametime }}</p>
+        <p id="resolution">{{ resolution }}</p>
+      </div>
+      <div class="canvasWrapper"></div>
+    </div>
+    <script src="game/game.js"></script>
+  </body>
 </html>

@@ -1,0 +1,9 @@
+{
+	"type": "material",
+	"properties": {
+		"tExplosion": {
+			"type": "t",
+			"value": 0
+		}
+	}
+}

@@ -6,7 +6,7 @@
 * @Last Modified time: 2013-12-02 20:28:08
 */
 
-module.exports = function(fn) {
+module.exports = function() {
 	var vm = require("vm");
 	var fs = require("fs");
 	var execute = function(path, context) {

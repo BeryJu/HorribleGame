@@ -3,19 +3,18 @@
 * @Date:   2013-12-01 21:20:16
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-09 14:23:05
+* @Last Modified time: 2013-12-13 15:37:05
 */
 
 module HG.Locale {
 
 	export interface LocaleDefinition {
-		core: {
-			errors: {
-				notImplementedError: string;
-				nullReferenceError: string;
-				duplicateNameTagError: string;
-				defaultSettingsUsedWarning: string;
-			}
+		errors: {
+			notImplementedError: string;
+			nullReferenceError: string;
+			duplicateNameTagError: string;
+			defaultSettingsUsedWarning: string;
+			fileNotExisting: string;
 		};
 		event: {
 			eventNotAvailable: string;

@@ -68,25 +68,6 @@ module HG.Core {
 		bind = this.on;
 		addEventListener = this.on;
 
-		inject(name: any, eventHandler: Function): HG.Core.EventDispatcher {
-			if (Array.isArray(name) === true) {
-				name.forEach((n) => {
-					this.inject(n, eventHandler);
-				});
-			} else {
-				var type = this["constructor"]["name"];
-				var resolved = this.resolve(name);
-				// if no events list for name, create one
-				if (!this._events[resolved]) {
-					this._events[resolved] = [];
-				}
-				HG.locale.event.injected.format(type, name).log();
-				// actually add the eventHandler
-				this._events[resolved].splice(0, 0, eventHandler);
-				return this;
-			}
-		}
-
 		clear(name: string): HG.Core.EventDispatcher {
 			if (typeof name !== "number") name = name.toString().toLowerCase();
 			if (!this._events[name]) return;

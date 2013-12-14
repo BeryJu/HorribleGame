@@ -3,7 +3,7 @@
 * @Date:   2013-12-07 23:42:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-09 19:01:26
+* @Last Modified time: 2013-12-14 00:16:35
 */
 
 module HG.Scenes.Serializer {
@@ -25,24 +25,22 @@ module HG.Scenes.Serializer {
 		}
 
 		private parseMaterials(raw: any, scene: HG.Scenes.BaseScene): any {
-			var material;
 			if (Array.isArray(raw) === true) {
 				var materials = [];
 				raw.forEach((m) => {
 					materials.push(this.parseSingleMaterial(m, scene));
 				});
-				material = new THREE.MeshFaceMaterial(materials);
+				return new THREE.MeshFaceMaterial(materials);
 			} else {
-				material = this.parseSingleMaterial(raw, scene);
+				return this.parseSingleMaterial(raw, scene);
 			}
-			return material;
 		}
 
 		private parseGeometry(raw: HG.Scenes.Serializer.ObjectDefinition,
 				scene: HG.Scenes.BaseScene): THREE.Geometry {
 			var geometryType = THREE[raw.type];
 			var geometryProperties = this.parseProperties(raw.properties, scene);
-			var geometry = this.applyConstructor(geometryType, raw.properties);
+			var geometry = this.applyConstructor(geometryType, geometryProperties);
 			return <THREE.Geometry> geometry;
 		}
 
@@ -58,12 +56,20 @@ module HG.Scenes.Serializer {
 				materialType = THREE[raw.type];
 				material = new materialType(properties);
 			} else {
-				var map = THREE.ImageUtils.loadTexture(this.loader.resolvePath(raw.texture));
+				var map = THREE.ImageUtils.loadTexture(this.loader.path(raw.texture));
 				materialType = THREE[raw.type];
 				properties["map"] = map;
 				material = new materialType(properties);
 			}
 			return material;
+		}
+
+		private parseShader(raw: HG.Scenes.Serializer.ShaderDefinition,
+				scene: HG.Scenes.BaseScene): any {
+			var rawShader = this.loader.json<HG.Scenes.Serializer.RawShaderDefinition>(raw.type);
+			var shader = new HG.Core.Shader(rawShader, this.loader);
+			shader.parseUniforms(raw.properties);
+			return shader.toMaterial();
 		}
 
 		private parseAbilities(raw: HG.Scenes.Serializer.EntityDefinition,
@@ -161,6 +167,16 @@ module HG.Scenes.Serializer {
 					this.dispatch("parsed", entity);
 				});
 				this.loader.model(rawEntity.model, entity);
+			} else if (rawEntity.model && rawEntity.material) {
+				entity = new type();
+				if (rawEntity.name) entity.name = rawEntity.name;
+				var material = this.parseMaterials(rawEntity.material, this.scene);
+				entity.on("loaded", (geometry, material) => {
+					this.setup(rawEntity, entity);
+					this.parseAbilities(rawEntity, entity, this.scene);
+					this.dispatch("parsed", entity);
+				});
+				this.loader.model(rawEntity.model, entity, material);
 			// Entity should have material and geometry
 			// i.e. MeshPhongMaterial and CubeGeometry
 			} else if (rawEntity.material && rawEntity.geometry) {
@@ -171,6 +187,19 @@ module HG.Scenes.Serializer {
 				var geometry = this.parseGeometry(rawEntity.geometry, this.scene);
 				var mesh = new THREE.Mesh(geometry, material);
 				entity.object = mesh;
+				this.setup(rawEntity, entity);
+				this.dispatch("parsed", entity);
+			// Entity should have shader and geometry
+			// i.e. FireballShader and CubeGeometry
+			} else if (rawEntity.shader && rawEntity.geometry) {
+				entity = new type();
+				if (rawEntity.name) entity.name = rawEntity.name;
+
+				var geometry = this.parseGeometry(rawEntity.geometry, this.scene);
+				var material = this.parseShader(rawEntity.shader, this.scene);
+				var mesh = new THREE.Mesh(geometry, material);
+				entity.object = mesh;
+				this.setup(rawEntity, entity);
 				this.dispatch("parsed", entity);
 			// Entity has object
 			// i.e. PointLight
@@ -182,6 +211,7 @@ module HG.Scenes.Serializer {
 				var objectProperties = rawEntity.object.properties;
 				var object = this.applyConstructor(objectType, objectProperties);
 				entity.object = object;
+				this.setup(rawEntity, entity);
 				this.dispatch("parsed", entity);
 			// Directly call an constructor
 			// i.e. ChasingCameraEntity

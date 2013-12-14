@@ -140,6 +140,22 @@
 				"type": "AxisHelper",
 				"properties": [500]
 			}
+		},
+		{
+			"type": "BaseEntity",
+			"position": [0, 0, 0],
+			"offset": [0, -100, 0],
+			"scale": [5, 5, 5],
+			"geometry": {
+				"type": "IcosahedronGeometry",
+				"properties": [20, 4]
+			},
+			"shader": {
+				"type": "shaders/fireball.json",
+				"properties": {
+					"tExplosion": "textures/explosion.png"
+				}
+			}
 		}
 	]
 }

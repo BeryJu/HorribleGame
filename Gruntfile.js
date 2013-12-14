@@ -1,6 +1,6 @@
 var paths = {
 	gameRoot: "HorribleGame/",
-	assetsRoot: "bin/assets/",
+	assetRoot: "bin/assets/",
 	gameBin: "bin/game/game.js",
 	gamePaths: [
 		"HorribleGame/*.ts"
@@ -10,7 +10,6 @@ var paths = {
 		"src/HG/**/*.ts",
 		"src/HG/**/**/*.ts"
 	],
-	hgRef: "src/HG/HG.ref.ts",
 	libs: [
 		"src/lib/*.d.ts"
 	],
@@ -19,15 +18,30 @@ var paths = {
 		"tests/**/*.js"
 	],
 	dist: "dist/",
-	outHG: "bin/lib/hg.js",
+	hgRef: "src/HG/HG.ref.ts",
+	hgBin: "bin/lib/hg.js",
 	hgDef: "bin/lib/hg.d.ts",
 };
 
 var config = {
 	paths: paths,
+	jade: {
+		hg: {
+			options: {
+				pretty: true,
+				data: {
+					title: "HorribleGame",
+					timestamp: "<%= grunt.template.today() %>"
+				}
+			},
+			files: {
+				"bin/index.html": "src/index.jade"
+			}
+		}
+	},
 	tslint: {
 		options: {
-			configuration: require("./hg/tslint.json")
+			configuration: require("./src/tslint.json")
 		},
 		hg: {
 			src: paths.hgPaths
@@ -40,7 +54,7 @@ var config = {
 		hg: {
 			src: paths.libs.concat(paths.hgPaths),
 			reference: paths.hgRef,
-			out: paths.outHG,
+			out: paths.hgBin,
 			options: {
 				target: "es5",
 				module: "commonjs",
@@ -66,12 +80,12 @@ var config = {
 module.exports = function(grunt) {
 	grunt.initConfig(config);
 
-	var pluginPath = "hg/grunt/";
+	var pluginPath = "src/grunt/";
 	var fs = require("fs");
 	var files = fs.readdirSync(pluginPath);
 
 	var gameTasks = ["tslint:game", "ts:game"];
-	var allTasks = ["tslint", "ts", "nodeunit"];
+	var allTasks = ["jade", "tslint", "ts", "nodeunit"];
 
 	files.forEach(function (file) {
 		var plugin = require("./"+pluginPath+"/"+file);
@@ -84,8 +98,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-ts");
 	grunt.loadNpmTasks('grunt-tslint');
 	grunt.loadNpmTasks("grunt-contrib-nodeunit");
+	grunt.loadNpmTasks('grunt-contrib-jade');
 
-	grunt.registerTask("hg", ["tslint:hg", "ts:hg", "nodeunit:hg"]);
+	grunt.registerTask("hg", ["jade", "tslint:hg", "ts:hg", "nodeunit:hg"]);
 	grunt.registerTask("default", ["tslint:hg", "ts", "nodeunit"]);
 	grunt.registerTask('all', allTasks);
 

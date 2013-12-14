@@ -14,7 +14,8 @@ Archive:
 		nodeunit tests/
 	✔ Redo Map Loader (temporarily removed) @done (13-12-09 13:55) @project(HorribleGame)
 		Not needed, loaded via scenes and Serializer.
-	✔ Find a good way to have Entity:Resource Loading without headace's @done (13-12-09 13:52) @project(HorribleGame)
+	✔ Find a good way to have Entity:Resource Loading without headace's @done (13-12-09 13:52)
+		@project(HorribleGame)
 		Resource.ResourceLoader and Scene.Serializer.SceneSerializer
 	✔ Refactor, capital Folders and better module usage @done (13-11-29 19:19) @project(HorribleGame)
 	✔ Finish the Model/Audio Loader @done (13-11-22 15:51) @project(HorribleGame)

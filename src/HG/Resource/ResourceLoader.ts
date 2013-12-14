@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-10 19:09:45
+* @Last Modified time: 2013-12-13 16:24:22
 */
 
 module HG.Resource {
@@ -15,26 +15,29 @@ module HG.Resource {
 		constructor(baseDirectory: string) {
 			super();
 			this.baseDirectory = baseDirectory;
-			var suspectSettingsFile = "settings.json";
-			var settingsPath = HG.Modules.path.join(this.baseDirectory, suspectSettingsFile);
-			if (HG.Modules.fs.existsSync(settingsPath) === true) {
-				this.settings(suspectSettingsFile);
-			}
+			var settings = "settings.json";
+			HG.settings = this.json<HG.Utils.ISettings>(settings);
+			HG.locale = this.json<HG.Locale.LocaleDefinition>(HG.settings.hgLocale);
 		}
 
-		resolvePath(path: string): string {
+		path(path: string, silent?: boolean): string {
 			var absPath = HG.Modules.path.join(this.baseDirectory, path);
 			if (HG.Modules.fs.existsSync(absPath) === true) {
 				return absPath;
 			} else {
+				if (silent || silent === false) {
+					HG.locale.errors.fileNotExisting.f(path).error();
+				}
 				return "";
 			}
 		}
 
-		private load(relPath: string, namespace: any, target: HG.Resource.ILoadable): void;
-		private load(relPath: string, namespace: any, target: (data: any) => any): void;
-		private load(relPath: string, namespace: any, target?: any): void {
-			var absPath = HG.Modules.path.join(this.baseDirectory, relPath);
+		private load(relPath: string, namespace: any, target: HG.Resource.ILoadable,
+					...args: any[]): void;
+		private load(relPath: string, namespace: any, target: (data: any) => any,
+					...args: any[]): void;
+		private load(relPath: string, namespace: any, target?: any, ...args: any[]): void {
+			var absPath = this.path(relPath);
 			var extension = HG.Modules.path.extname(absPath);
 			var extensionName = extension.toUpperCase().replace(".", "");
 			var foundLoader = false;
@@ -53,7 +56,8 @@ module HG.Resource {
 						};
 					}
 					loader.on("loaded", handler);
-					loader.load(absPath);
+					var a = [absPath].concat(args);
+					loader.load.apply(loader, a);
 					foundLoader = true;
 				}
 			}
@@ -63,16 +67,12 @@ module HG.Resource {
 		}
 
 		shader(path: string): THREE.ShaderMaterial {
-			var raw = this.json<HG.Core.Shader>(path);
-			var material = new THREE.ShaderMaterial({
-				vertexShader: raw.vertex.join("\n"),
-				fragmentShader: raw.fragment.join("\n")
-			});
-			return material;
+
+			return null;
 		}
 
-		model(path: string, entitiy: HG.Entities.MeshEntity): void {
-			this.load(path, HG.Resource.Model, entitiy);
+		model(path: string, entitiy: HG.Entities.MeshEntity, ...args: any[]): void {
+			this.load(path, HG.Resource.Model, entitiy, args);
 		}
 
 		texture(path: string, entitiy: HG.Entities.BaseEntity): void {
@@ -84,36 +84,26 @@ module HG.Resource {
 		}
 
 		scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void {
-			var realPath = HG.Modules.path.join(this.baseDirectory, path);
-			if (HG.Modules.fs.existsSync(realPath) === true) {
-				var raw = HG.Modules.fs.readFileSync(realPath);
-				var serializer =  new HG.Scenes.Serializer.SceneSerializer(this);
-				serializer.on("done", done);
-				serializer.fromGeneric(JSON.parse(raw));
-			}
+			var absPath = this.path(path);
+			var raw = HG.Modules.fs.readFileSync(absPath);
+			var serializer =  new HG.Scenes.Serializer.SceneSerializer(this);
+			serializer.on("done", done);
+			serializer.fromGeneric(JSON.parse(raw));
 		}
 
 		json<T>(path: string, data?: T): T {
-			var realPath = HG.Modules.path.join(this.baseDirectory, path);
+			path = this.path(path);
 			if (data) {
 				HG.Modules.fs.writeFile(JSON.stringify(data), (err) => {
 					if (err) throw err;
 				});
 				return null;
-			} else if (HG.Modules.fs.existsSync(realPath) === true) {
-				var raw = HG.Modules.fs.readFileSync(realPath);
+			} else if (HG.Modules.fs.existsSync(path) === true) {
+				var raw = HG.Modules.fs.readFileSync(path);
 				return <T> JSON.parse(raw);
 			} else {
 				return null;
 			}
-		}
-
-		settings(path: string): void {
-			var absPath = HG.Modules.path.join(this.baseDirectory, path);
-			var raw = HG.Modules.fs.readFileSync(absPath);
-			HG.settings = <HG.Utils.ISettings> JSON.parse(raw);
-			var localePath = HG.Modules.path.join(this.baseDirectory, HG.settings.hgLocale);
-			HG.locale = JSON.parse(HG.Modules.fs.readFileSync(localePath));
 		}
 
 		directory(directory: string): Array<string> {

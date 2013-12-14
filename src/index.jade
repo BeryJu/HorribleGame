@@ -1,0 +1,38 @@
+doctype 5
+html(lang='en')
+	head
+		meta(charset='utf-8')
+		title= title
+		link(rel='stylesheet', href='style.css')
+		script(src="lib/three.js")
+		script(src="lib/physi.js")
+		script(src="lib/polyfill.js")
+		script(src="lib/STLLoader.js")
+		script(src="lib/ParticleEngine.js")
+		script(src="lib/hg.js")
+		//- script(src="assets/fonts/droidSans.typeface.js")
+		//- script(src="assets/fonts/helvetiker.typeface.js")
+	body
+		#canvasScreen
+			#info
+				p#fps {{ fps }}
+				p#verts {{ verts }}
+				p#frametime {{ frametime }}
+				p#resolution {{ resolution }}
+			.canvasWrapper
+		//- .menu
+		//- 	#mainScreen
+		//- 		ul
+		//- 			li.gameScreenButton Start game
+		//- 			li.optionsScreenButton Options
+		//- 			li#exit Exit
+		//- 	#optionsScreen
+		//- 		ul
+		//- 			li FOV
+		//- 			li Fullscreen
+		//- 	#gameScreen
+		//- 		ul
+		//- 			li.canvasScreenButton Easy
+		//- 			li.canvasScreenButton Normal
+		//- 			li.canvasScreenButton Difficult
+		script(src="game/game.js")

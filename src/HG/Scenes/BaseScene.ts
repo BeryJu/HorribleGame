@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-09 18:58:44
+* @Last Modified time: 2013-12-13 18:01:51
 */
 
 module HG.Scenes {
@@ -17,8 +17,10 @@ module HG.Scenes {
 		controls: HG.Core.InputHandler;
 		color: THREE.Color;
 		colorAlpha: number;
+		startTime: number;
 
 		constructor() {
+			this.startTime = Date.now();
 			this.controls = new HG.Core.InputHandler();
 			this.selectedCamera = "";
 			this.scene = new Physijs.Scene();
@@ -65,6 +67,14 @@ module HG.Scenes {
 		frame(delta: number): void {
 			this.controls.frame(delta);
 			this.entities.forNamed((e) => e.frame(delta));
+			this.entities.forEach((e) => {
+				if (e.object.material &&
+					e.object.material.uniforms &&
+					e.object.material.uniforms["time"]) {
+					var now = Date.now();
+					e.object.material.uniforms["time"].value = .00025 * (now - this.startTime);
+				}
+			});
 			this.cameras.forNamed((e) => e.frame(delta));
 		}
 

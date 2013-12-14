@@ -3,13 +3,15 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-09 19:56:38
+* @Last Modified time: 2013-12-13 16:03:54
 */
+
 /// <reference path="GameLocale.ts" />
+
 // Initialize HG
 HG.horrible();
 // $ is the same as document.getElementById, just shorter
-var gameCanvas = $("gameWrapper");
+var gameCanvas = $("canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var mainScene = new HG.Scenes.BaseScene();
@@ -32,9 +34,13 @@ game.on("load", () => {
 		cam.name = "workingCam";
 		cam.offset(0, 25, -25).rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782).
 			position(-27.512701511383057, 250, 211.5527195930481);
-		mainScene.camera("mainCamera");
+		mainScene.add(cam);
+		mainScene.camera("workingCam");
 		game.scene(mainScene);
-		game.start();
+		game.start({
+			input: true,
+			profileFrame: false
+		});
 	});
 });
 

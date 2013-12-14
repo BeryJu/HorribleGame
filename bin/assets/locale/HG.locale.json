@@ -1,11 +1,10 @@
 {
-	"core": {
-		"errors": {
-			"notImplementedError": "NotImplemented Error",
-			"nullReferenceError": "NullReference Error",
-			"duplicateNameTagError": "Duplicate Name Tag: ${0}",
-			"defaultSettingsUsedWarning": "Default Settings used"
-		}
+	"errors": {
+		"notImplementedError": "NotImplemented Error",
+		"nullReferenceError": "NullReference Error",
+		"duplicateNameTagError": "Duplicate Name Tag: ${0}",
+		"defaultSettingsUsedWarning": "Default Settings used",
+		"fileNotExisting": "File ${0} doesn't exist"
 	},
 	"utils": {
 		"updateChecker": {

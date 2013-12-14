@@ -3,20 +3,22 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-10 18:58:50
+* @Last Modified time: 2013-12-13 17:49:44
 */
 
 module HG.Core {
 
 	export class BaseGame extends  HG.Core.EventDispatcher  {
 
+		startTime: number = Date.now();
 		renderer: THREE.WebGLRenderer;
+		resolution: THREE.Vector2;
 		soundMixer: HG.Sound.Mixer;
 		currentScene: HG.Scenes.BaseScene;
 		pluginHost: HG.Core.PluginHost;
 		controls: HG.Core.InputHandler;
 		fpsCounter: HG.Utils.FPSCounter;
-		resolution: THREE.Vector2;
+		params: HG.Utils.GameStartParameters;
 		shaders: HG.Core.Shader[];
 
 		_running: boolean = false;
@@ -29,7 +31,7 @@ module HG.Core {
 			super();
 			if (!HG.settings) {
 				HG.settings = HG.Utils.defaultSettings;
-				HG.locale.core.errors.defaultSettingsUsedWarning.warn();
+				HG.locale.errors.defaultSettingsUsedWarning.warn();
 			}
 			new HG.Utils.UpdateChecker();
 			this.controls = new HG.Core.InputHandler();
@@ -114,18 +116,20 @@ module HG.Core {
 			whwnd.toggleFullscreen();
 		}
 
-		start(): void {
+		start(params: HG.Utils.GameStartParameters): void {
 			this.dispatch("start");
 			this._running = true;
-			if (HG.settings.debug === true) {
+			if (params.profileFrame === true) {
 				HG.Utils.profile("HG Profiling Frame", () => this.render.apply(this));
 			}
 			window.onresize = () => this.onResize.apply(this);
-			window.onkeydown = (a: any) => this.onKeyDown.apply(this, [a]);
-			window.onkeyup = (a: any) => this.onKeyUp.apply(this, [a]);
-			window.onmousemove = (a: any) => this.onMouseMove.apply(this, [a]);
-			window.onmousedown = (a: any) => this.onMouseDown.apply(this, [a]);
-			window.onmouseup = (a: any) => this.onMouseUp.apply(this, [a]);
+			if (params.input === true) {
+				window.onkeydown = (a: any) => this.onKeyDown.apply(this, [a]);
+				window.onkeyup = (a: any) => this.onKeyUp.apply(this, [a]);
+				window.onmousemove = (a: any) => this.onMouseMove.apply(this, [a]);
+				window.onmousedown = (a: any) => this.onMouseDown.apply(this, [a]);
+				window.onmouseup = (a: any) => this.onMouseUp.apply(this, [a]);
+			}
 			var render;
 			if (HG.settings.graphics.useStaticFramerate === true) {
 				render = () => { this.render.apply(this); };

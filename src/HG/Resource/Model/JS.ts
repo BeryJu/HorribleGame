@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:04:33
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:02:09
+* @Last Modified time: 2013-12-13 17:00:27
 */
 
 module HG.Resource.Model {

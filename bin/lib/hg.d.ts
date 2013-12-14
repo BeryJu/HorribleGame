@@ -15,7 +15,6 @@ declare module HG.Core {
         public on(name: any, eventHandler?: Function): EventDispatcher;
         public bind: (name: any, eventHandler?: Function) => EventDispatcher;
         public addEventListener: (name: any, eventHandler?: Function) => EventDispatcher;
-        public inject(name: any, eventHandler: Function): EventDispatcher;
         public clear(name: string): EventDispatcher;
         public dispatch(name: any, ...args: any[]): EventDispatcher;
         public emit: (name: any, ...args: any[]) => EventDispatcher;
@@ -217,6 +216,7 @@ declare module HG.Scenes {
         public controls: HG.Core.InputHandler;
         public color: THREE.Color;
         public colorAlpha: number;
+        public startTime: number;
         constructor();
         public add(entity: HG.Entities.BaseEntity): void;
         public merge(otherScene: BaseScene): void;
@@ -295,13 +295,15 @@ declare module HG.Abilities {
 }
 declare module HG.Core {
     class BaseGame extends Core.EventDispatcher {
+        public startTime: number;
         public renderer: THREE.WebGLRenderer;
+        public resolution: THREE.Vector2;
         public soundMixer: HG.Sound.Mixer;
         public currentScene: HG.Scenes.BaseScene;
         public pluginHost: Core.PluginHost;
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
-        public resolution: THREE.Vector2;
+        public params: HG.Utils.GameStartParameters;
         public shaders: Core.Shader[];
         public _running: boolean;
         public events: string[];
@@ -315,7 +317,7 @@ declare module HG.Core {
         public setFullScreenMode(state: boolean): void;
         public reload(): void;
         public toggleFullScreenMode(): void;
-        public start(): void;
+        public start(params: HG.Utils.GameStartParameters): void;
         public onKeyUp(e: KeyboardEvent): void;
         public onKeyDown(e: KeyboardEvent): void;
         public onMouseDown(e: MouseEvent): void;
@@ -358,9 +360,18 @@ declare module HG.Core {
     }
 }
 declare module HG.Core {
-    interface Shader {
-        vertex: string[];
-        fragment: string[];
+    class Shader {
+        public vertex: string;
+        public fragment: string;
+        public meta: {
+            properties: {};
+            type: string;
+        };
+        public uniforms: {};
+        public loader: HG.Resource.ResourceLoader;
+        constructor(raw: HG.Scenes.Serializer.RawShaderDefinition, loader: HG.Resource.ResourceLoader);
+        public parseUniforms(properties: {}): void;
+        public toMaterial(): THREE.ShaderMaterial;
     }
 }
 declare module HG.Entities {
@@ -481,13 +492,12 @@ declare module HG.Locale {
 }
 declare module HG.Locale {
     interface LocaleDefinition {
-        core: {
-            errors: {
-                notImplementedError: string;
-                nullReferenceError: string;
-                duplicateNameTagError: string;
-                defaultSettingsUsedWarning: string;
-            };
+        errors: {
+            notImplementedError: string;
+            nullReferenceError: string;
+            duplicateNameTagError: string;
+            defaultSettingsUsedWarning: string;
+            fileNotExisting: string;
         };
         event: {
             eventNotAvailable: string;
@@ -543,15 +553,14 @@ declare module HG.Resource {
     class ResourceLoader extends HG.Core.EventDispatcher {
         public baseDirectory: string;
         constructor(baseDirectory: string);
-        public resolvePath(path: string): string;
-        private load(relPath, namespace, target);
+        public path(path: string, silent?: boolean): string;
+        private load(relPath, namespace, target, ...args);
         public shader(path: string): THREE.ShaderMaterial;
-        public model(path: string, entitiy: HG.Entities.MeshEntity): void;
+        public model(path: string, entitiy: HG.Entities.MeshEntity, ...args: any[]): void;
         public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
         public scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void;
         public json<T>(path: string, data?: T): T;
-        public settings(path: string): void;
         public directory(directory: string): string[];
     }
 }
@@ -578,6 +587,7 @@ declare module HG.Scenes {
         public getAll(type?: any): any[];
         public forNamed(callback: (e: any, k: string) => any, type?: any): void;
         public forUnamed(callback: (e: any) => any, type?: any): void;
+        public forEach(callback: (e: any, i: any, ...args: any[]) => any): void;
         public get(name: string): T;
         public forAll(callback: (e: any) => any, type?: any): void;
     }
@@ -611,6 +621,7 @@ declare module HG.Scenes.Serializer {
         object: Serializer.ObjectDefinition;
         material?: Serializer.MaterialDefinition;
         geometry?: Serializer.ObjectDefinition;
+        shader?: Serializer.ShaderDefinition;
         name?: string;
         model?: string;
         scale?: number[];
@@ -631,6 +642,7 @@ declare module HG.Scenes.Serializer {
         private parseMaterials(raw, scene);
         private parseGeometry(raw, scene);
         private parseSingleMaterial(raw, scene);
+        private parseShader(raw, scene);
         private parseAbilities(raw, entity, scene);
         private setup(raw, entity);
         private applyConstructor(type, argArray);
@@ -654,6 +666,16 @@ declare module HG.Scenes.Serializer {
     }
 }
 declare module HG.Scenes.Serializer {
+    interface RawShaderDefinition {
+        vertex: string;
+        fragment: string;
+        meta: {
+            type: string;
+            properties: {};
+        };
+    }
+}
+declare module HG.Scenes.Serializer {
     interface SceneDefinition {
         camera: Serializer.EntityDefinition;
         color?: number[];
@@ -668,6 +690,12 @@ declare module HG.Scenes.Serializer {
         public done: number;
         constructor(loader: HG.Resource.ResourceLoader);
         public fromGeneric(generic: any): void;
+    }
+}
+declare module HG.Scenes.Serializer {
+    interface ShaderDefinition {
+        type: string;
+        properties: {};
     }
 }
 declare module HG.Sound {
@@ -709,5 +737,11 @@ declare module HG.Sound {
         constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
+    }
+}
+declare module HG.Utils {
+    interface GameStartParameters {
+        input: boolean;
+        profileFrame: boolean;
     }
 }

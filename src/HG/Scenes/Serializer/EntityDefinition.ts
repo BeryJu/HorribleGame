@@ -3,7 +3,7 @@
 * @Date:   2013-12-07 22:00:05
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 23:36:13
+* @Last Modified time: 2013-12-13 19:13:47
 */
 
 module HG.Scenes.Serializer {
@@ -15,6 +15,7 @@ module HG.Scenes.Serializer {
 		object: HG.Scenes.Serializer.ObjectDefinition;
 		material?: HG.Scenes.Serializer.MaterialDefinition;
 		geometry?: HG.Scenes.Serializer.ObjectDefinition;
+		shader?: HG.Scenes.Serializer.ShaderDefinition;
 		name?: string;
 		// for loading a model
 		model?: string;
