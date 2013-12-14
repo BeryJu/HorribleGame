@@ -13,7 +13,7 @@ module.exports = function() {
 		var data = fs.readFileSync(path);
 		vm.runInThisContext(data, path);
 	}
-	execute("bin/lib/three.js");
+	execute("bin/lib/dependencies/three.js");
 	var HG = require("../bin/lib/hg.js").horrible({
 		silent: true
 	});
