@@ -11,8 +11,6 @@
 // Initialize HG
 HG.horrible();
 
-HG.log("wat does dis work? (3rd attempt)");
-
 // $ is the same as document.getElementById, just shorter
 var gameCanvas = $("#canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
@@ -56,14 +54,11 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 	game.toggleFullScreenMode();
 });
 
-game.on(["start", "resize"], () => {
-	$("#resolution").innerText = locale.debugInfo.resolution.f(game.resolution.x, game.resolution.y);
-});
-
 game.on("render", (delta: number) => {
 	$("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
-	$("#verts").innerText = locale.debugInfo.verts.f(game.renderer.info.render.vertices);
 	$("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
+	$("#calls").innerText = HG.locale.debug.calls.f(game.renderer.info.render.calls);
+	$("#vertices").innerText = HG.locale.debug.vertices.f(game.renderer.info.render.vertices);
 });
 
 window.onload = () => game.load();

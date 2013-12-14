@@ -16,6 +16,15 @@ module HG.Locale {
 			defaultSettingsUsedWarning: string;
 			fileNotExisting: string;
 		};
+		debug: {
+			geometries: string;
+			programs: string;
+			textures: string;
+			calls: string;
+			faces: string;
+			points: string;
+			vertices: string;
+		};
 		event: {
 			eventNotAvailable: string;
 			eventAdded: string;

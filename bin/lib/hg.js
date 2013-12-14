@@ -845,6 +845,7 @@ var HG;
                 this.hosts = [];
             }
             BaseAbility.prototype.setHost = function (entity) {
+                console.log(entity["constructor"]["name"] + " got " + this["constructor"]["name"]);
                 this.hosts.push(entity);
             };
 
@@ -1148,10 +1149,6 @@ var HG;
                     host.object.translateZ(-delta * _this.baseStep);
                 });
             };
-
-            MovingAbility.prototype.frame = function (delta) {
-                return;
-            };
             return MovingAbility;
         })(HG.Abilities.BaseAbility);
         Abilities.MovingAbility = MovingAbility;
@@ -1367,11 +1364,11 @@ var HG;
             BaseGame.prototype.render = function () {
                 var delta = this.fpsCounter.frameTime / 10;
                 this.dispatch("preRender", delta);
-                this.dispatch("render", delta);
                 this.currentScene.frame(delta);
                 this.controls.frame(delta);
                 this.fpsCounter.frame(delta);
                 this.currentScene.getInternal().simulate();
+                this.dispatch("render", delta);
                 this.renderer.render(this.currentScene.getInternal(), this.currentScene.getCamera());
                 this.dispatch("postRender", delta);
                 console.timeStamp("rendered");
@@ -2466,16 +2463,36 @@ var HG;
                 };
 
                 EntityParser.prototype.setup = function (raw, entity) {
-                    var offset = (raw.offset) ? raw.offset : this.defaultOffset;
-                    var scale = (raw.scale) ? raw.scale : this.defaultScale;
-                    var rotation = (raw.rotation) ? raw.rotation : this.defaultRotation;
-                    var position = (raw.position) ? raw.position : this.defaultPosition;
+                    var offset = (raw.offset) ? this.parseArray(raw.offset, 3) : this.defaultOffset;
+                    var scale = (raw.scale) ? this.parseArray(raw.scale, 3) : this.defaultScale;
+                    var rotation = (raw.rotation) ? this.parseArray(raw.rotation, 3) : this.defaultRotation;
+                    var position = (raw.position) ? this.parseArray(raw.position, 3) : this.defaultPosition;
 
                     entity.offset.apply(entity, offset);
                     entity.scale.apply(entity, scale);
                     entity.rotate.apply(entity, rotation);
                     entity.position.apply(entity, position);
                     return entity;
+                };
+
+                EntityParser.prototype.parseArray = function (raw, length) {
+                    if (typeof length === "undefined") { length = 3; }
+                    if (Array.isArray(raw) === true) {
+                        if (raw.length < length) {
+                            for (var i = raw.length; i < length; i++) {
+                                raw.push(raw[0]);
+                            }
+                            return raw;
+                        } else {
+                            return raw;
+                        }
+                    } else if (typeof raw === "number") {
+                        var nmbs = [];
+                        for (var d = 0; d < length; d++) {
+                            nmbs.push(raw);
+                        }
+                        return nmbs;
+                    }
                 };
 
                 EntityParser.prototype.applyConstructor = function (type, argArray) {

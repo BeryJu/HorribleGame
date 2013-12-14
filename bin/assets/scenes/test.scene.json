@@ -23,7 +23,7 @@
 			"type": "MeshEntity",
 			"name": "player",
 			"model": "models/android.js",
-			"scale": [10, 10, 10],
+			"scale": 10,
 			"offset": [0, 0, 50],
 			"abilities": [
 				{
@@ -88,8 +88,8 @@
 		{
 			"type": "BaseEntity",
 			"name": "playerLight",
-			"offset": [0, 0, 0],
-			"position": [0, 0, 0],
+			"offset": 0,
+			"position": 0,
 			"object": {
 				"type": "PointLight",
 				"properties": [16777215, 3, 500]
@@ -102,7 +102,10 @@
 						"keyboard": [
 							{
 								"event": "left",
-								"action": "turnLeft"
+								"action": "turnLeft",
+								"properties": [
+									"${delta}"
+								]
 							},
 							{
 								"event": "right",
@@ -128,8 +131,8 @@
 		{
 			"type": "MeshEntity",
 			"name": "room",
-			"scale": [5, 5, 5],
-			"offset": [0, 0, 50],
+			"scale": 5,
+			"offset": [0, 50, 0],
 			"rotation": [1.5707963267948966, 0, 0],
 			"model": "models/room01.stl"
 		},
@@ -143,9 +146,9 @@
 		},
 		{
 			"type": "BaseEntity",
-			"position": [0, 0, 0],
+			"position": 0,
 			"offset": [0, -100, 0],
-			"scale": [5, 5, 5],
+			"scale": 5,
 			"geometry": {
 				"type": "IcosahedronGeometry",
 				"properties": [20, 4]
@@ -154,6 +157,28 @@
 				"type": "shaders/fireball.json",
 				"properties": {
 					"explosionTexture": "textures/explosion.png"
+				}
+			}
+		},
+		{
+			"type": "BaseEntity",
+			"position": [0, 0, 0],
+			"offset": [0, 250, 0],
+			"rotation": [-1.5707963267948966, 0, 0],
+			"geometry": {
+				"type": "PlaneGeometry",
+				"properties": [1000, 1000, 100, 100]
+			},
+			"shader": {
+				"type": "shaders/heightmap.json",
+				"properties": {
+					"bumpScale": 200,
+					"bumpTexture": "textures/map/heightmap.png",
+					"oceanTexture": "textures/map/ocean-512.jpg",
+					"sandyTexture": "textures/map/sandy-512.jpg",
+					"grassTexture": "textures/map/grass-512.jpg",
+					"rockyTexture": "textures/map/rocky-512.jpg",
+					"snowyTexture": "textures/map/snowy-512.jpg"
 				}
 			}
 		}

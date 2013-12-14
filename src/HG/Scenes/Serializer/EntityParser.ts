@@ -108,16 +108,35 @@ module HG.Scenes.Serializer {
 
 		private setup(raw: HG.Scenes.Serializer.EntityDefinition,
 				entity: HG.Entities.BaseEntity): HG.Entities.BaseEntity {
-			var offset = (raw.offset) ? raw.offset : this.defaultOffset;
-			var scale = (raw.scale) ? raw.scale : this.defaultScale;
-			var rotation = (raw.rotation) ? raw.rotation : this.defaultRotation;
-			var position = (raw.position) ? raw.position : this.defaultPosition;
+			var offset = (raw.offset) ? this.parseArray(raw.offset, 3) : this.defaultOffset;
+			var scale = (raw.scale) ? this.parseArray(raw.scale, 3) : this.defaultScale;
+			var rotation = (raw.rotation) ? this.parseArray(raw.rotation, 3) : this.defaultRotation;
+			var position = (raw.position) ? this.parseArray(raw.position, 3) : this.defaultPosition;
 			// use this so we don't have to access every single number
 			entity.offset.apply(entity, offset);
 			entity.scale.apply(entity, scale);
 			entity.rotate.apply(entity, rotation);
 			entity.position.apply(entity, position);
 			return entity;
+		}
+
+		private parseArray(raw: any, length: number = 3): any[] {
+			if (Array.isArray(raw) === true) {
+				if (raw.length < length) {
+					for (var i = raw.length; i < length; i ++) {
+						raw.push(raw[0]);
+					}
+					return raw;
+				} else {
+					return raw;
+				}
+			} else if (typeof raw === "number") {
+				var nmbs = [];
+				for (var d = 0; d < length; d ++) {
+					nmbs.push(raw);
+				}
+				return nmbs;
+			}
 		}
 
 		private applyConstructor(type: any, argArray: any[]): any {

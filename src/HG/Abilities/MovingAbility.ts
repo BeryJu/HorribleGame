@@ -59,9 +59,6 @@ module HG.Abilities {
 			});
 		}
 
-		frame(delta: number): void {
-			return;
-		}
 	}
 
 }

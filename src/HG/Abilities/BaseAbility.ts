@@ -13,6 +13,7 @@ module HG.Abilities {
 		hosts: HG.Entities.BaseEntity[] = [];
 
 		setHost(entity: HG.Entities.BaseEntity): void {
+			console.log(entity["constructor"]["name"] + " got " + this["constructor"]["name"]);
 			this.hosts.push(entity);
 		}
 

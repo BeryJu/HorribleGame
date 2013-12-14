@@ -182,11 +182,11 @@ module HG.Core {
 		render(): void {
 			var delta = this.fpsCounter.frameTime / 10;
 			this.dispatch("preRender", delta);
-			this.dispatch("render", delta);
 			this.currentScene.frame(delta);
 			this.controls.frame(delta);
 			this.fpsCounter.frame(delta);
 			this.currentScene.getInternal().simulate();
+			this.dispatch("render", delta);
 			this.renderer.render(this.currentScene.getInternal(),
 				this.currentScene.getCamera());
 			this.dispatch("postRender", delta);

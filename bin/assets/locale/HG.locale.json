@@ -6,6 +6,15 @@
 		"defaultSettingsUsedWarning": "Default Settings used",
 		"fileNotExisting": "File ${0} doesn't exist"
 	},
+	"debug": {
+		"geometries": "Geometries: ${0}",
+		"programs": "Shaders: ${0}",
+		"textures": "Textures: ${0}",
+		"calls": "Rendercalls: ${0}",
+		"faces": "Faces: ${0}",
+		"points": "Points: ${0}",
+		"vertices": "Vertices: ${0}"
+	},
 	"utils": {
 		"updateChecker": {
 			"newThree": "[UpdateChecker] New THREE.js release: ${0} (${1})",
