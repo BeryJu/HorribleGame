@@ -994,7 +994,24 @@ var HG;
             HG.log("UI not available, assuming Headless");
         }
 
-        HG.LINQ.initialize();
+        var registerFunction = function (key, type, fn) {
+            type[key] = function () {
+                var args = Array.prototype.slice.call(arguments);
+                args.splice(0, 0, this);
+                return fn.apply(this, args);
+            };
+        };
+        for (var type in HG.LINQ) {
+            if (type.toString() !== "initialize") {
+                var provider = new HG.LINQ[type]();
+                var prototype = provider._prototype;
+                for (var member in provider) {
+                    if (member !== "_prototype") {
+                        registerFunction(member, prototype, provider[member]);
+                    }
+                }
+            }
+        }
 
         HG._gl = HG.Utils.hasGL();
 
@@ -1007,7 +1024,7 @@ var HG;
 })(HG || (HG = {}));
 
 var $;
-if (typeof document !== "undefined") {
+if (typeof document !== "undefined" && $ === null) {
     $ = function (selector) {
         return document.querySelector.call(document, selector);
     };
@@ -1873,33 +1890,6 @@ var HG;
 var HG;
 (function (HG) {
     (function (LINQ) {
-        function initialize() {
-            var registerFunction = function (key, type, fn) {
-                type[key] = function () {
-                    var args = Array.prototype.slice.call(arguments);
-                    args.splice(0, 0, this);
-                    return fn.apply(this, args);
-                };
-            };
-            for (var type in HG.LINQ) {
-                if (type.toString() !== "initialize") {
-                    var provider = new HG.LINQ[type]();
-                    var prototype = provider._prototype;
-                    for (var method in provider) {
-                        if (method !== "_prototype") {
-                            registerFunction(method, prototype, provider[method]);
-                        }
-                    }
-                }
-            }
-        }
-        LINQ.initialize = initialize;
-    })(HG.LINQ || (HG.LINQ = {}));
-    var LINQ = HG.LINQ;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (LINQ) {
         var NumberProvider = (function () {
             function NumberProvider() {
                 this._prototype = Number.prototype;
@@ -2692,20 +2682,12 @@ var HG;
         var Effect = (function (_super) {
             __extends(Effect, _super);
             function Effect(ch) {
-                _super.call(this, ["playing", "done"]);
+                _super.call(this, ["playing", "stopped", "done"]);
                 this.destination = ch;
                 this.rootContext = this.destination.rootContext;
                 this.gainNode = this.rootContext.createGain();
                 this.gainNode.connect(this.rootContext.destination);
             }
-            Object.defineProperty(Effect.prototype, "gain", {
-                get: function () {
-                    return this.gainNode.gain.value || 0;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
             Effect.prototype.load = function (data) {
                 this.source = this.rootContext.createBufferSource();
                 this.buffer = data;
@@ -2713,22 +2695,17 @@ var HG;
                 this.source.connect(this.gainNode);
             };
 
-            Effect.prototype.recreate = function () {
-                this.source = this.rootContext.createBufferSource();
-                if (this.buffer !== null)
-                    this.source.buffer = this.buffer;
-                this.source.connect(this.gainNode);
-            };
-
             Effect.prototype.play = function () {
-                if (this.source)
-                    this.source.start(0);
+                this.source = this.rootContext.createBufferSource();
+                this.source.buffer = this.buffer;
+                this.source.connect(this.gainNode);
+                this.source.start(0);
                 this.dispatch("playing");
             };
 
             Effect.prototype.stop = function () {
-                if (this.source)
-                    this.source.stop(0);
+                this.source.stop(0);
+                this.dispatch("stopped");
             };
 
             Effect.prototype.volume = function (gain) {

@@ -129,14 +129,6 @@
 			]
 		},
 		{
-			"type": "MeshEntity",
-			"name": "room",
-			"scale": 5,
-			"offset": [0, 50, 0],
-			"rotation": [1.5707963267948966, 0, 0],
-			"model": "models/room01.stl"
-		},
-		{
 			"type": "BaseEntity",
 			"position": [0, 0, 0],
 			"object": {
@@ -147,7 +139,7 @@
 		{
 			"type": "BaseEntity",
 			"position": 0,
-			"offset": [0, -100, 0],
+			"offset": [0, 100, 0],
 			"scale": 5,
 			"geometry": {
 				"type": "IcosahedronGeometry",
@@ -163,7 +155,7 @@
 		{
 			"type": "BaseEntity",
 			"position": [0, 0, 0],
-			"offset": [0, 250, 0],
+			"offset": [0, 0, 0],
 			"rotation": [-1.5707963267948966, 0, 0],
 			"geometry": {
 				"type": "PlaneGeometry",

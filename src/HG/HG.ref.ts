@@ -56,7 +56,6 @@
 /// <reference path="Entities/VideoEntity.ts" />
 /// <reference path="LINQ/ArrayProvider.ts" />
 /// <reference path="LINQ/FunctionProvider.ts" />
-/// <reference path="LINQ/LINQ.ts" />
 /// <reference path="LINQ/NumberProvider.ts" />
 /// <reference path="LINQ/ObjectProvider.ts" />
 /// <reference path="LINQ/StringProvider.ts" />

@@ -31,7 +31,7 @@ var config = {
 				pretty: true,
 				data: {
 					title: "HorribleGame",
-					timestamp: "<%= grunt.template.today() %>"
+					liveReload: "http://juggernaut:35729/livereload.js"
 				}
 			},
 			files: {

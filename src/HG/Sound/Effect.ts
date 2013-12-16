@@ -3,7 +3,7 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-10 19:23:10
+* @Last Modified time: 2013-12-15 21:20:26
 */
 
 module HG.Sound {
@@ -17,12 +17,8 @@ module HG.Sound {
 		buffer: AudioBuffer;
 		rootContext: AudioContext;
 
-		get gain(): number {
-			return this.gainNode.gain.value || 0;
-		}
-
 		constructor(ch: HG.Sound.Channel) {
-			super(["playing", "done"]);
+			super(["playing", "stopped", "done"]);
 			this.destination = ch;
 			this.rootContext = this.destination.rootContext;
 			this.gainNode = this.rootContext.createGain();
@@ -36,21 +32,17 @@ module HG.Sound {
 			this.source.connect(this.gainNode);
 		}
 
-		recreate(): void {
-			this.source = this.rootContext.createBufferSource();
-			if (this.buffer !== null) this.source.buffer = this.buffer;
-			this.source.connect(this.gainNode);
-		}
-
 		play(): void {
-			if (this.source)
-				this.source.start(0);
+			this.source = this.rootContext.createBufferSource();
+			this.source.buffer = this.buffer;
+			this.source.connect(this.gainNode);
+			this.source.start(0);
 			this.dispatch("playing");
 		}
 
 		stop(): void {
-			if (this.source)
-				this.source.stop(0);
+			this.source.stop(0);
+			this.dispatch("stopped");
 		}
 
 		volume(gain: number): void {

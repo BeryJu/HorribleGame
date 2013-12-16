@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 21:20:56
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-08 03:03:00
+* @Last Modified time: 2013-12-15 13:19:41
 */
 
 module HG.Utils {
@@ -63,7 +63,24 @@ module HG {
 		// 	console.trace(err.trace);
 		// });
 		// Linq
-		HG.LINQ.initialize();
+		var registerFunction = function (key: string, type: any, fn: (...args: any[]) => any) {
+			type[key] = function () {
+				var args = Array.prototype.slice.call(arguments);
+				args.splice(0, 0, this);
+				return fn.apply(this, args);
+			};
+		};
+		for (var type in HG.LINQ) {
+			if (type.toString() !== "initialize") {
+				var provider = <HG.LINQ.IProvider> new HG.LINQ[type]();
+				var prototype = provider._prototype;
+				for (var member in provider) {
+					if (member !== "_prototype") {
+						registerFunction(member, prototype, provider[member]);
+					}
+				}
+			}
+		}
 		// GL detection
 		HG._gl = HG.Utils.hasGL();
 		// some Audio Polyfill
@@ -76,12 +93,13 @@ module HG {
 }
 
 var $;
-if (typeof document !== "undefined") {
+if (typeof document !== "undefined" && $ === null) {
 	$ = (selector: string) => {
 		return document.querySelector.call(document, selector);
 	};
 }
 
+// CommonJS/Node support
 if (typeof module !== "undefined") {
 	module.exports =  {
 		horrible: HG.horrible

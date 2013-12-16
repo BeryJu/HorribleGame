@@ -454,9 +454,6 @@ declare module HG.LINQ {
     }
 }
 declare module HG.LINQ {
-    function initialize(): void;
-}
-declare module HG.LINQ {
     class NumberProvider implements LINQ.IProvider {
         public _prototype: Number;
         public toRadian(nmb: number): number;
@@ -726,10 +723,8 @@ declare module HG.Sound {
         public source: AudioBufferSourceNode;
         public buffer: AudioBuffer;
         public rootContext: AudioContext;
-        public gain : number;
         constructor(ch: Sound.Channel);
         public load(data: AudioBuffer): void;
-        public recreate(): void;
         public play(): void;
         public stop(): void;
         public volume(gain: number): void;
