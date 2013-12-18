@@ -3,7 +3,7 @@
 * @Date:   2013-12-09 14:52:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-13 17:58:04
+* @Last Modified time: 2013-12-18 21:15:16
 */
 
 module HG.Scenes {
@@ -23,6 +23,18 @@ module HG.Scenes {
 			} else {
 				this.unNamed.push(entity);
 			}
+		}
+
+		merge(otherCollection: HG.Scenes.EntityCollection<T>): HG.Scenes.EntityCollection<T> {
+			var newCollection = new HG.Scenes.EntityCollection<T>();
+			newCollection.unNamed = this.unNamed.concat(otherCollection.unNamed);
+			for (var k in this.named) {
+				newCollection.named[k] = this.named[k];
+			}
+			for (var k in otherCollection.named) {
+				newCollection.named[k] = otherCollection.named[k];
+			}
+			return newCollection;
 		}
 
 		has(name: string): boolean {

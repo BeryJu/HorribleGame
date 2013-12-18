@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 15:17:07
+* @Last Modified time: 2013-12-18 21:19:38
 */
 
 module HG.Core {
@@ -43,6 +43,13 @@ module HG.Core {
 				this.mouse.dispatch("y", diffY, y);
 			}
 			this.mouse.dispatch("move", x, y);
+		}
+
+		merge(otherHandler: HG.Core.InputHandler): HG.Core.InputHandler {
+			var newHandler = new HG.Core.InputHandler();
+			newHandler.keyboard = this.keyboard.merge(otherHandler.keyboard);
+			newHandler.mouse = this.mouse.merge(otherHandler.mouse);
+			return newHandler;
 		}
 
 		onMouseDown(e: MouseEvent): void {

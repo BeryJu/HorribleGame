@@ -3,6 +3,7 @@ var paths = {
 	assetRoot: "bin/assets/",
 	gameBin: "bin/game/game.js",
 	gamePaths: [
+		"HorribleGame/scenes/*.ts",
 		"HorribleGame/*.ts"
 	],
 	hgPaths: [

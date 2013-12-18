@@ -3,7 +3,7 @@
 * @Date:   2013-12-10 19:19:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-14 00:46:00
+* @Last Modified time: 2013-12-16 14:41:51
 */
 
 module.exports = function (grunt) {
@@ -31,20 +31,16 @@ module.exports = function (grunt) {
 			var shaderDir = path.join(rootDir, shader);
 			var fragment = path.join(shaderDir, shader + ".frag");
 			var vertex = path.join(shaderDir, shader + ".vert");
-			var meta = path.join(shaderDir, shader + ".meta.json");
 
 			errors += checkFile(fragment);
 			errors += checkFile(vertex);
-			errors += checkFile(meta);
 
 			var fragmentContent = fs.readFileSync(fragment).toString();
 			var vertexContent = fs.readFileSync(vertex).toString();
-			var metaContent = JSON.parse(fs.readFileSync(meta).toString());
 
 			var out = {
 				fragment: fragmentContent,
-				vertex: vertexContent,
-				meta: metaContent
+				vertex: vertexContent
 			};
 
 			fs.writeFileSync(path.join(outDir, shader+".json"), JSON.stringify(out));

@@ -4,7 +4,7 @@ var HG;
         var EventDispatcher = (function () {
             function EventDispatcher(events) {
                 this._events = {};
-                this.globalEvents = [];
+                this._globalEvents = [];
                 this.events = [];
                 this.bind = this.on;
                 this.addEventListener = this.on;
@@ -19,8 +19,21 @@ var HG;
                 }
             };
 
+            EventDispatcher.prototype.merge = function (otherDispatcher) {
+                var newDispatcher = new HG.Core.EventDispatcher();
+                newDispatcher.events = this.events.concat(otherDispatcher.events);
+                for (var k in this._events) {
+                    newDispatcher._events[k] = this._events[k];
+                }
+                for (var k in otherDispatcher._events) {
+                    newDispatcher._events[k] = otherDispatcher._events[k];
+                }
+                newDispatcher._globalEvents = this._globalEvents.concat(otherDispatcher._globalEvents);
+                return newDispatcher;
+            };
+
             EventDispatcher.prototype.onAll = function (eventHandler) {
-                this.globalEvents.push(eventHandler);
+                this._globalEvents.push(eventHandler);
                 return this;
             };
 
@@ -91,7 +104,7 @@ var HG;
                     this._events[resolved].forEach(function (event) {
                         event.apply(_this, parameters);
                     });
-                    this.globalEvents.forEach(function (event) {
+                    this._globalEvents.forEach(function (event) {
                         event.apply(_this, parameters);
                     });
                     return this;
@@ -801,6 +814,9 @@ var HG;
             };
 
             BaseEntity.prototype.scale = function (x, y, z) {
+                if (!y && !z)
+                    y = x;
+                z = x;
                 this.object.scale.set(x, y, z);
                 return this;
             };
@@ -884,6 +900,14 @@ var HG;
             };
 
             BaseScene.prototype.merge = function (otherScene) {
+                var newScene = new HG.Scenes.BaseScene();
+                newScene.entities = this.entities.merge(otherScene.entities);
+                newScene.cameras = this.cameras.merge(otherScene.cameras);
+                newScene.controls = this.controls.merge(otherScene.controls);
+                newScene.color = this.color;
+                newScene.colorAlpha = this.colorAlpha;
+                newScene.selectedCamera = this.selectedCamera;
+                return newScene;
             };
 
             BaseScene.prototype.onResize = function (ratio) {
@@ -1462,6 +1486,13 @@ var HG;
                     this.mouse.dispatch("y", diffY, y);
                 }
                 this.mouse.dispatch("move", x, y);
+            };
+
+            InputHandler.prototype.merge = function (otherHandler) {
+                var newHandler = new HG.Core.InputHandler();
+                newHandler.keyboard = this.keyboard.merge(otherHandler.keyboard);
+                newHandler.mouse = this.mouse.merge(otherHandler.mouse);
+                return newHandler;
             };
 
             InputHandler.prototype.onMouseDown = function (e) {
@@ -2273,6 +2304,18 @@ var HG;
                 }
             };
 
+            EntityCollection.prototype.merge = function (otherCollection) {
+                var newCollection = new HG.Scenes.EntityCollection();
+                newCollection.unNamed = this.unNamed.concat(otherCollection.unNamed);
+                for (var k in this.named) {
+                    newCollection.named[k] = this.named[k];
+                }
+                for (var k in otherCollection.named) {
+                    newCollection.named[k] = otherCollection.named[k];
+                }
+                return newCollection;
+            };
+
             EntityCollection.prototype.has = function (name) {
                 if (!name)
                     return false;
@@ -2755,5 +2798,38 @@ var HG;
         Sound.Mixer = Mixer;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var Tween = (function () {
+            function Tween(timeArray, valueArray) {
+                this.timeArray = [];
+                this.valueArray = [];
+                if (timeArray)
+                    this.timeArray = timeArray;
+                if (valueArray)
+                    this.valueArray = valueArray;
+            }
+            Tween.prototype.lerp = function (t) {
+                var i = 0;
+                var n = this.timeArray.length;
+                while (i < n && t > this.timeArray[i])
+                    i++;
+                if (i === 0)
+                    return this.valueArray[0];
+                if (i === n)
+                    return this.valueArray[n - 1];
+                var p = (t - this.timeArray[i - 1]) / (this.timeArray[i] - this.timeArray[i - 1]);
+                if (this.valueArray[0] instanceof THREE.Vector3)
+                    return this.valueArray[i - 1].clone().lerp(this.valueArray[i], p);
+                else
+                    return this.valueArray[i - 1] + p * (this.valueArray[i] - this.valueArray[i - 1]);
+            };
+            return Tween;
+        })();
+        Utils.Tween = Tween;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
 })(HG || (HG = {}));
 //# sourceMappingURL=hg.js.map

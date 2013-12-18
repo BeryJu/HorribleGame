@@ -13,7 +13,7 @@ module HG.Core {
 		// holds all event eventHandlers like
 		private _events: {} = {};
 		// same for public events
-		private globalEvents: any[] = [];
+		private _globalEvents: any[] = [];
 		// holds events available to subscribe to
 		events: string[] = [];
 
@@ -29,8 +29,21 @@ module HG.Core {
 			}
 		}
 
+		merge(otherDispatcher: HG.Core.EventDispatcher): HG.Core.EventDispatcher {
+			var newDispatcher = new HG.Core.EventDispatcher();
+			newDispatcher.events = this.events.concat(otherDispatcher.events);
+			for (var k in this._events) {
+				newDispatcher._events[k] = this._events[k];
+			}
+			for (var k in otherDispatcher._events) {
+				newDispatcher._events[k] = otherDispatcher._events[k];
+			}
+			newDispatcher._globalEvents = this._globalEvents.concat(otherDispatcher._globalEvents);
+			return newDispatcher;
+		}
+
 		onAll(eventHandler: (...args: any[]) => any): HG.Core.EventDispatcher {
-			this.globalEvents.push(eventHandler);
+			this._globalEvents.push(eventHandler);
 			return this;
 		}
 
@@ -89,7 +102,7 @@ module HG.Core {
 				this._events[resolved].forEach((event) => {
 					event.apply(this, parameters);
 				});
-				this.globalEvents.forEach((event) => {
+				this._globalEvents.forEach((event) => {
 					event.apply(this, parameters);
 				});
 				return this;

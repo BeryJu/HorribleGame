@@ -3,11 +3,53 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 18:03:46
+* @Last Modified time: 2013-12-17 11:18:41
 */
 /// <reference path="BaseEntity.ts" />
 
 module HG.Entities {
+
+	// export class Particle {
+
+	// 	position: THREE.Vector3 = new THREE.Vector3();
+	// 	velocity: THREE.Vector3 = new THREE.Vector3();
+	// 	acceleration: THREE.Vector3 = new THREE.Vector3();
+	// 	angle: number = 0;
+	// 	angleVelocity: number = 0;
+	// 	angleAcceleration: number = 0;
+	// 	size: number = 16.0;
+	// 	color: THREE.Color = new THREE.Color();
+	// 	opacity: number = 1.0;
+	// 	age: number = 0;
+	// 	alive: number = 0;
+
+	// 	update(dt: number): void {
+	// 		this.position.add( this.velocity.clone().multiplyScalar(dt) );
+	// 		this.velocity.add( this.acceleration.clone().multiplyScalar(dt) );
+
+	// 		// convert from degrees to radians: 0.01745329251 = Math.PI/180
+	// 		this.angle         += this.angleVelocity     * 0.01745329251 * dt;
+	// 		this.angleVelocity += this.angleAcceleration * 0.01745329251 * dt;
+
+	// 		this.age += dt;
+
+	// 		// if the tween for a given attribute is nonempty,
+	// 		//  then use it to update the attribute's value
+
+	// 		if ( this.sizeTween.times.length > 0 )
+	// 			this.size = this.sizeTween.lerp( this.age );
+
+	// 		if ( this.colorTween.times.length > 0 )
+	// 		{
+	// 			var colorHSL = this.colorTween.lerp( this.age );
+	// 			this.color = new THREE.Color().setHSL( colorHSL.x, colorHSL.y, colorHSL.z );
+	// 		}
+
+	// 		if ( this.opacityTween.times.length > 0 )
+	// 			this.opacity = this.opacityTween.lerp( this.age );
+	// 	}
+
+	// }
 
 	export class ParticleEntity extends HG.Entities.BaseEntity {
 

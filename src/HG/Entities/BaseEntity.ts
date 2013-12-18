@@ -43,7 +43,8 @@ module HG.Entities {
 
 		load(data: {}): void { return; }
 
-		scale(x: number, y: number, z: number): BaseEntity {
+		scale(x: number, y?: number, z?: number): BaseEntity {
+			if (!y && !z) y = x; z = x;
 			this.object.scale.set(x, y, z);
 			return this;
 		}

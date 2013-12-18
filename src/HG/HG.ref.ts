@@ -85,4 +85,5 @@
 /// <reference path="Sound/Effect.ts" />
 /// <reference path="Sound/Mixer.ts" />
 /// <reference path="Utils/GameStartParameters.ts" />
+/// <reference path="Utils/Tween.ts" />
 //grunt-end

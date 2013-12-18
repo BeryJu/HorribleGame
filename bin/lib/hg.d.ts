@@ -7,10 +7,11 @@
 declare module HG.Core {
     class EventDispatcher {
         private _events;
-        private globalEvents;
+        private _globalEvents;
         public events: string[];
         constructor(events?: string[]);
         private resolve(raw);
+        public merge(otherDispatcher: EventDispatcher): EventDispatcher;
         public onAll(eventHandler: (...args: any[]) => any): EventDispatcher;
         public on(name: any, eventHandler?: Function): EventDispatcher;
         public bind: (name: any, eventHandler?: Function) => EventDispatcher;
@@ -192,7 +193,7 @@ declare module HG.Entities {
         public forAbilities(callback: (a: HG.Abilities.BaseAbility) => void): void;
         public offset(x: number, y: number, z: number): BaseEntity;
         public load(data: {}): void;
-        public scale(x: number, y: number, z: number): BaseEntity;
+        public scale(x: number, y?: number, z?: number): BaseEntity;
         public position(x: number, y: number, z: number): BaseEntity;
         public rotate(x: number, y: number, z: number): BaseEntity;
         public getInternal(): THREE.Object3D;
@@ -212,14 +213,14 @@ declare module HG.Scenes {
         public scene: Physijs.Scene;
         public cameras: Scenes.EntityCollection<HG.Entities.CameraEntity>;
         public entities: Scenes.EntityCollection<HG.Entities.BaseEntity>;
-        public selectedCamera: string;
         public controls: HG.Core.InputHandler;
+        public selectedCamera: string;
         public color: THREE.Color;
         public colorAlpha: number;
         public startTime: number;
         constructor();
         public add(entity: HG.Entities.BaseEntity): void;
-        public merge(otherScene: BaseScene): void;
+        public merge(otherScene: BaseScene): BaseScene;
         public onResize(ratio: number): void;
         public camera(name: string): boolean;
         public getInternal(): Physijs.Scene;
@@ -343,6 +344,7 @@ declare module HG.Core {
         public mousePosition : THREE.Vector2;
         constructor();
         public onMouseMove(e: MouseEvent): void;
+        public merge(otherHandler: InputHandler): InputHandler;
         public onMouseDown(e: MouseEvent): void;
         public onMouseUp(e: MouseEvent): void;
         public onKeyDown(e: KeyboardEvent): void;
@@ -585,6 +587,7 @@ declare module HG.Scenes {
         public named: {};
         public unNamed: T[];
         public add(entity: T): void;
+        public merge(otherCollection: EntityCollection<T>): EntityCollection<T>;
         public has(name: string): boolean;
         public getAllNamed(type?: any): any[];
         public getAllUnnamed(type?: any): any[];
@@ -747,5 +750,13 @@ declare module HG.Utils {
         input: boolean;
         profileFrame: boolean;
         noResize: boolean;
+    }
+}
+declare module HG.Utils {
+    class Tween {
+        public timeArray: any[];
+        public valueArray: any[];
+        constructor(timeArray?: any[], valueArray?: any[]);
+        public lerp(t: number): any;
     }
 }

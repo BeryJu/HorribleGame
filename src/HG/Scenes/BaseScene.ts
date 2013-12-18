@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-13 18:01:51
+* @Last Modified time: 2013-12-18 21:16:24
 */
 
 module HG.Scenes {
@@ -13,8 +13,8 @@ module HG.Scenes {
 		scene: Physijs.Scene;
 		cameras: HG.Scenes.EntityCollection<HG.Entities.CameraEntity>;
 		entities: HG.Scenes.EntityCollection<HG.Entities.BaseEntity>;
-		selectedCamera: string;
 		controls: HG.Core.InputHandler;
+		selectedCamera: string;
 		color: THREE.Color;
 		colorAlpha: number;
 		startTime: number;
@@ -37,8 +37,15 @@ module HG.Scenes {
 			}
 		}
 
-		merge(otherScene: HG.Scenes.BaseScene): void {
-			// todo
+		merge(otherScene: HG.Scenes.BaseScene): HG.Scenes.BaseScene {
+			var newScene = new HG.Scenes.BaseScene();
+			newScene.entities = this.entities.merge(otherScene.entities);
+			newScene.cameras = this.cameras.merge(otherScene.cameras);
+			newScene.controls = this.controls.merge(otherScene.controls);
+			newScene.color = this.color;
+			newScene.colorAlpha = this.colorAlpha;
+			newScene.selectedCamera = this.selectedCamera;
+			return newScene;
 		}
 
 		onResize(ratio: number): void {

@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-13 16:03:54
+* @Last Modified time: 2013-12-17 11:16:06
 */
 
 /// <reference path="GameLocale.ts" />
@@ -28,15 +28,6 @@ if (HG.settings.debug === true) {
 game.on("load", () => {
 	loader.scene("scenes/test.scene.json", (scene: HG.Scenes.BaseScene) => {
 		mainScene = scene;
-		cam = new HG.Entities.ChasingCameraEntity(
-			<HG.Entities.MeshEntity> mainScene.entities.get("player"),
-			HG.settings.graphics.fov, window.innerWidth / window.innerHeight,
-			0.1, HG.settings.graphics.viewDistance);
-		cam.name = "workingCam";
-		cam.offset(0, 25, -25).rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782).
-			position(-27.512701511383057, 250, 211.5527195930481);
-		mainScene.add(cam);
-		mainScene.camera("workingCam");
 		game.scene(mainScene);
 		game.start({
 			input: true,
