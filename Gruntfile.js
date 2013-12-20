@@ -1,27 +1,64 @@
+var fs = require("fs");
+var os = require("os");
+var path = require("path");
+
 var paths = {
-	gameRoot: "HorribleGame/",
-	assetRoot: "bin/assets/",
-	gameBin: "bin/game/game.js",
-	gamePaths: [
-		"HorribleGame/scenes/*.ts",
-		"HorribleGame/*.ts"
-	],
-	hgPaths: [
-		"src/HG/*.ts",
-		"src/HG/**/*.ts",
-		"src/HG/**/**/*.ts"
-	],
-	libs: [
-		"src/lib/*.d.ts"
-	],
-	testPaths: [
-		"tests/*.js",
-		"tests/**/*.js"
-	],
-	dist: "dist/",
-	hgRef: "src/HG/HG.ref.ts",
-	hgBin: "bin/lib/hg.js",
-	hgDef: "bin/lib/hg.d.ts",
+	meta: {
+		tslint: "src/tslint.json",
+		plugins: "src/grunt/"
+	},
+	game: {
+		root: "src/HorribleGame/",
+		bin: "bin/game/game.js",
+		assets: {
+			shaders: "shaders/",
+			textures: "textures/"
+		},
+		source: [
+			"src/HorribleGame/scenes/*.ts",
+			"src/HorribleGame/*.ts"
+		]
+	},
+	jade: {
+		root: "src/jade/"
+	},
+	build: {
+		root: "bin/",
+		assets: {
+			shaders: "assets/shaders/"
+		},
+	},
+	hg: {
+		ref: "src/HG/HG.ref.ts",
+		bin: "bin/lib/hg.js",
+		def: "bin/lib/hg.d.ts",
+		source: [
+			"src/HG/*.ts",
+			"src/HG/**/*.ts",
+			"src/HG/**/**/*.ts"
+		]
+	},
+	libs: "src/lib/*.d.ts",
+	dist: {
+		root: "dist/"
+	},
+	test: {
+		source: [
+			"tests/*.js",
+			"tests/**/*.js"
+		]
+	}
+};
+
+var createPathObject = function (root, out, extFrom, extTo) {
+	var files = fs.readdirSync(root);
+	var object = {};
+	files.forEach(function (file) {
+		var srcFile = path.join(root, file);
+		var outFile = path.join(out, file.replace(extFrom, extTo));
+		object[outFile] = srcFile;
+	});
+	return object;
 };
 
 var config = {
@@ -32,30 +69,28 @@ var config = {
 				pretty: true,
 				data: {
 					title: "HorribleGame",
-					liveReload: "http://juggernaut:35729/livereload.js"
+					liveReload: "http://"+os.hostname()+":35729/livereload.js"
 				}
 			},
-			files: {
-				"bin/index.html": "src/index.jade"
-			}
+			files: createPathObject(paths.jade.root, paths.build.root, ".jade", ".html")
 		}
 	},
 	tslint: {
 		options: {
-			configuration: require("./src/tslint.json")
+			configuration: require("./"+paths.meta.tslint)
 		},
 		hg: {
-			src: paths.hgPaths
+			src: paths.hg.source
 		},
 		game: {
-			src: paths.gamePaths
+			src: paths.game.source
 		}
 	},
 	ts: {
 		hg: {
-			src: paths.libs.concat(paths.hgPaths),
-			reference: paths.hgRef,
-			out: paths.hgBin,
+			src: [ paths.libs ].concat(paths.hg.source),
+			reference: paths.hg.ref,
+			out: paths.hg.bin,
 			options: {
 				target: "es5",
 				module: "commonjs",
@@ -65,8 +100,8 @@ var config = {
 			}
 		},
 		game: {
-			src: paths.libs.concat(paths.hgDef, paths.gamePaths),
-			out: paths.gameBin,
+			src: [ paths.libs ].concat(paths.hg.def, paths.game.source),
+			out: paths.game.bin,
 			options: {
 				target: "es5",
 				comments: true,
@@ -76,14 +111,14 @@ var config = {
 	},
 	watch: {
 		hg: {
-			files: paths.hgPaths,
+			files: paths.hg.source,
 			tasks: ['hg'],
 			options: {
 				livereload: true
 			}
 		},
 		game: {
-			files: paths.gamePaths,
+			files: paths.game.source,
 			tasks: ['game'],
 			options: {
 				livereload: true
@@ -91,23 +126,22 @@ var config = {
 		}
 	},
 	nodeunit: {
-		hg: paths.testPaths
+		hg: paths.test.source
 	}
 }
 module.exports = function(grunt) {
 	grunt.initConfig(config);
 
-	var pluginPath = "src/grunt/";
-	var fs = require("fs");
-	var files = fs.readdirSync(pluginPath);
-
 	var gameTasks = ["tslint:game", "ts:game"];
 	var allTasks = ["jade", "tslint", "ts", "nodeunit"];
 
+	var files = fs.readdirSync(paths.meta.plugins);
 	files.forEach(function (file) {
-		var plugin = require("./"+pluginPath+"/"+file);
+		var plugin = require("./"+paths.meta.plugins+"/"+file);
 		var instance = new plugin(grunt);
-		grunt.registerTask(instance.name, instance.description, instance.handler);
+		grunt.registerTask(instance.name, instance.description, function() {
+			instance.handler(paths);
+		});
 		allTasks.push(instance.name);
 		gameTasks.push(instance.name);
 	});

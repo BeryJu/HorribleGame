@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 21:20:56
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-15 13:19:41
+* @Last Modified time: 2013-12-20 11:46:40
 */
 
 module HG.Utils {
@@ -58,10 +58,6 @@ module HG {
 		} catch (e) {
 			HG.log("UI not available, assuming Headless");
 		}
-		// process.on("uncaughtException", (err) => {
-		// 	console.warn(err);
-		// 	console.trace(err.trace);
-		// });
 		// Linq
 		var registerFunction = function (key: string, type: any, fn: (...args: any[]) => any) {
 			type[key] = function () {
@@ -92,9 +88,9 @@ module HG {
 
 }
 
-var $;
-if (typeof document !== "undefined" && $ === null) {
-	$ = (selector: string) => {
+var query;
+if (typeof document !== "undefined") {
+	query = (selector: string) => {
 		return document.querySelector.call(document, selector);
 	};
 }

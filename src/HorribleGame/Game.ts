@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-17 11:16:06
+* @Last Modified time: 2013-12-20 12:27:20
 */
 
 /// <reference path="GameLocale.ts" />
@@ -11,8 +11,8 @@
 // Initialize HG
 HG.horrible();
 
-// $ is the same as document.getElementById, just shorter
-var gameCanvas = $("#canvasWrapper");
+// query is the same as document.querySelector, just shorter
+var gameCanvas = query("#canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var mainScene = new HG.Scenes.BaseScene();
@@ -46,10 +46,10 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 });
 
 game.on("render", (delta: number) => {
-	$("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
-	$("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
-	$("#calls").innerText = HG.locale.debug.calls.f(game.renderer.info.render.calls);
-	$("#vertices").innerText = HG.locale.debug.vertices.f(game.renderer.info.render.vertices);
+	query("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
+	query("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
+	query("#calls").innerText = HG.locale.debug.calls.f(game.renderer.info.render.calls);
+	query("#vertices").innerText = HG.locale.debug.vertices.f(game.renderer.info.render.vertices);
 });
 
 window.onload = () => game.load();

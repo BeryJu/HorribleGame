@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 16:34:31
+* @Last Modified time: 2013-12-18 21:51:44
 */
 
 module HG.Core {
@@ -42,7 +42,7 @@ module HG.Core {
 			return newDispatcher;
 		}
 
-		onAll(eventHandler: (...args: any[]) => any): HG.Core.EventDispatcher {
+		every(eventHandler: (...args: any[]) => any): HG.Core.EventDispatcher {
 			this._globalEvents.push(eventHandler);
 			return this;
 		}

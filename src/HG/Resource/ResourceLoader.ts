@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-13 16:24:22
+* @Last Modified time: 2013-12-20 14:05:42
 */
 
 module HG.Resource {
@@ -66,11 +66,6 @@ module HG.Resource {
 			}
 		}
 
-		shader(path: string): THREE.ShaderMaterial {
-
-			return null;
-		}
-
 		model(path: string, entitiy: HG.Entities.MeshEntity, ...args: any[]): void {
 			this.load(path, HG.Resource.Model, entitiy, args);
 		}
@@ -87,6 +82,28 @@ module HG.Resource {
 			var serializer =  new HG.Scenes.Serializer.SceneSerializer(this);
 			serializer.on("done", done);
 			serializer.fromGeneric(this.json<any>(path));
+		}
+
+		queueScene(paths: string[], done: (scenes: HG.Scenes.BaseScene[]) => void): void {
+			var fns = [];
+			paths.forEach((path) => {
+				fns.push((next: Function) => {
+					this.scene(path, (scene: HG.Scenes.BaseScene) => {
+						next(scene);
+					});
+				});
+			});
+			HG.Utils.queue(fns, done);
+		}
+
+		queueJSON<T>(paths: string[], done: (scenes: T[]) => void): void {
+			var fns = [];
+			paths.forEach((path, index) => {
+				fns.push((next: Function) => {
+					next(this.json<T>(path));
+				});
+			});
+			HG.Utils.queue(fns, done);
 		}
 
 		json<T>(path: string, data?: T): T {

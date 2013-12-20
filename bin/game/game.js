@@ -1,6 +1,6 @@
 HG.horrible();
 
-var gameCanvas = $("#canvasWrapper");
+var gameCanvas = query("#canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var mainScene = new HG.Scenes.BaseScene();
@@ -34,10 +34,10 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, function (delta) {
 });
 
 game.on("render", function (delta) {
-    $("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
-    $("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
-    $("#calls").innerText = HG.locale.debug.calls.f(game.renderer.info.render.calls);
-    $("#vertices").innerText = HG.locale.debug.vertices.f(game.renderer.info.render.vertices);
+    query("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
+    query("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
+    query("#calls").innerText = HG.locale.debug.calls.f(game.renderer.info.render.calls);
+    query("#vertices").innerText = HG.locale.debug.vertices.f(game.renderer.info.render.vertices);
 });
 
 window.onload = function () {

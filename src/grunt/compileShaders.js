@@ -3,20 +3,20 @@
 * @Date:   2013-12-10 19:19:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-16 14:41:51
+* @Last Modified time: 2013-12-19 17:34:40
 */
 
 module.exports = function (grunt) {
 	this.grunt = grunt;
 	this.name = "compileShaders";
 	this.description = "Compiles Shaders for HG";
-	this.handler = function () {
+	this.handler = function (paths) {
 		var fs = require("fs");
 		var path = require("path");
 		var errors = 0;
-		var outDir = path.join(grunt.config.data.paths.assetRoot, "shaders/");
-		var rootDir = path.join(grunt.config.data.paths.gameRoot, "shaders/");
 
+		var rootDir = path.join(paths.game.root, paths.game.assets.shaders);
+		var outDir = path.join(paths.build.root, paths.build.assets.shaders);
 		var checkFile = function(path) {
 			if (!fs.existsSync(path)) {
 				grunt.log.error("Error compiling "+path);

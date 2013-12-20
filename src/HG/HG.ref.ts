@@ -40,7 +40,6 @@
 /// <reference path="Abilities/MovingAbility.ts" />
 /// <reference path="Abilities/ScriptExecuteAbility.ts" />
 /// <reference path="Core/BaseGame.ts" />
-/// <reference path="Core/BaseServer.ts" />
 /// <reference path="Core/InputHandler.ts" />
 /// <reference path="Core/PluginHost.ts" />
 /// <reference path="Core/ServerConnection.ts" />
@@ -85,5 +84,6 @@
 /// <reference path="Sound/Effect.ts" />
 /// <reference path="Sound/Mixer.ts" />
 /// <reference path="Utils/GameStartParameters.ts" />
+/// <reference path="Utils/Queue.ts" />
 /// <reference path="Utils/Tween.ts" />
 //grunt-end

@@ -3,7 +3,7 @@
 * @Date:   2013-12-16 14:28:25
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-16 14:33:04
+* @Last Modified time: 2013-12-18 21:56:41
 */
 
 module HG.Utils {
@@ -21,15 +21,17 @@ module HG.Utils {
 		lerp(t: number): any {
 			var i = 0;
 			var n = this.timeArray.length;
-			while (i < n && t > this.timeArray[i])
+			while (i < n && t > this.timeArray[i]) {
 				i++;
+			}
 			if (i === 0) return this.valueArray[0];
 			if (i === n) return this.valueArray[n - 1];
 			var p = (t - this.timeArray[i - 1]) / (this.timeArray[i] - this.timeArray[i - 1]);
-			if (this.valueArray[0] instanceof THREE.Vector3)
+			if (this.valueArray[0] instanceof THREE.Vector3) {
 				return this.valueArray[i - 1].clone().lerp(this.valueArray[i], p);
-			else // its a float
+			} else {// its a float
 				return this.valueArray[i - 1] + p * (this.valueArray[i] - this.valueArray[i - 1]);
+			}
 		}
 
 	}

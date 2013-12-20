@@ -32,7 +32,7 @@ var HG;
                 return newDispatcher;
             };
 
-            EventDispatcher.prototype.onAll = function (eventHandler) {
+            EventDispatcher.prototype.every = function (eventHandler) {
                 this._globalEvents.push(eventHandler);
                 return this;
             };
@@ -661,11 +661,6 @@ var HG;
         }
         Utils.isFunction = isFunction;
 
-        function isUndefined(va) {
-            return (typeof va === "undefined");
-        }
-        Utils.isUndefined = isUndefined;
-
         function isNumber(va) {
             return (typeof va === "number");
         }
@@ -1047,9 +1042,9 @@ var HG;
     HG.horrible = horrible;
 })(HG || (HG = {}));
 
-var $;
-if (typeof document !== "undefined" && $ === null) {
-    $ = function (selector) {
+var query;
+if (typeof document !== "undefined") {
+    query = function (selector) {
         return document.querySelector.call(document, selector);
     };
 }
@@ -1417,36 +1412,6 @@ var HG;
             return BaseGame;
         })(HG.Core.EventDispatcher);
         Core.BaseGame = BaseGame;
-    })(HG.Core || (HG.Core = {}));
-    var Core = HG.Core;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Core) {
-        var BaseServer = (function (_super) {
-            __extends(BaseServer, _super);
-            function BaseServer(port) {
-                _super.call(this);
-                this.clients = [];
-                HG.Modules.net.createServer(this.onSocket).listen(port);
-            }
-            BaseServer.prototype.broadcast = function (message, sender) {
-                this.clients.forEach(function (client) {
-                    if (client !== sender) {
-                        client.write(message);
-                    }
-                });
-                HG.log(message);
-            };
-
-            BaseServer.prototype.onSocket = function (socket) {
-                socket.name = socket.remoteAddress + ":" + socket.remotePort;
-
-                this.clients.push(new HG.Core.ServerConnection(socket));
-            };
-            return BaseServer;
-        })(HG.Core.EventDispatcher);
-        Core.BaseServer = BaseServer;
     })(HG.Core || (HG.Core = {}));
     var Core = HG.Core;
 })(HG || (HG = {}));
@@ -2171,10 +2136,6 @@ var HG;
                 }
             };
 
-            ResourceLoader.prototype.shader = function (path) {
-                return null;
-            };
-
             ResourceLoader.prototype.model = function (path, entitiy) {
                 var args = [];
                 for (var _i = 0; _i < (arguments.length - 2); _i++) {
@@ -2195,6 +2156,30 @@ var HG;
                 var serializer = new HG.Scenes.Serializer.SceneSerializer(this);
                 serializer.on("done", done);
                 serializer.fromGeneric(this.json(path));
+            };
+
+            ResourceLoader.prototype.queueScene = function (paths, done) {
+                var _this = this;
+                var fns = [];
+                paths.forEach(function (path) {
+                    fns.push(function (next) {
+                        _this.scene(path, function (scene) {
+                            next(scene);
+                        });
+                    });
+                });
+                HG.Utils.queue(fns, done);
+            };
+
+            ResourceLoader.prototype.queueJSON = function (paths, done) {
+                var _this = this;
+                var fns = [];
+                paths.forEach(function (path, index) {
+                    fns.push(function (next) {
+                        next(_this.json(path));
+                    });
+                });
+                HG.Utils.queue(fns, done);
             };
 
             ResourceLoader.prototype.json = function (path, data) {
@@ -2802,6 +2787,32 @@ var HG;
 var HG;
 (function (HG) {
     (function (Utils) {
+        function queue(fns, done) {
+            var allData = [];
+            var next = function (index, data) {
+                if (index !== 0) {
+                    allData[index - 1] = data;
+                }
+                var func = fns[index];
+                index++;
+                if ((index - 1) < fns.length) {
+                    func(function (data) {
+                        next(index, data);
+                    });
+                } else {
+                    done(allData);
+                }
+                return index;
+            };
+            next(0);
+        }
+        Utils.queue = queue;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Utils) {
         var Tween = (function () {
             function Tween(timeArray, valueArray) {
                 this.timeArray = [];
@@ -2814,17 +2825,19 @@ var HG;
             Tween.prototype.lerp = function (t) {
                 var i = 0;
                 var n = this.timeArray.length;
-                while (i < n && t > this.timeArray[i])
+                while (i < n && t > this.timeArray[i]) {
                     i++;
+                }
                 if (i === 0)
                     return this.valueArray[0];
                 if (i === n)
                     return this.valueArray[n - 1];
                 var p = (t - this.timeArray[i - 1]) / (this.timeArray[i] - this.timeArray[i - 1]);
-                if (this.valueArray[0] instanceof THREE.Vector3)
+                if (this.valueArray[0] instanceof THREE.Vector3) {
                     return this.valueArray[i - 1].clone().lerp(this.valueArray[i], p);
-                else
+                } else {
                     return this.valueArray[i - 1] + p * (this.valueArray[i] - this.valueArray[i - 1]);
+                }
             };
             return Tween;
         })();

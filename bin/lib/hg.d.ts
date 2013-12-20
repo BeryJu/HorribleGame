@@ -12,7 +12,7 @@ declare module HG.Core {
         constructor(events?: string[]);
         private resolve(raw);
         public merge(otherDispatcher: EventDispatcher): EventDispatcher;
-        public onAll(eventHandler: (...args: any[]) => any): EventDispatcher;
+        public every(eventHandler: (...args: any[]) => any): EventDispatcher;
         public on(name: any, eventHandler?: Function): EventDispatcher;
         public bind: (name: any, eventHandler?: Function) => EventDispatcher;
         public addEventListener: (name: any, eventHandler?: Function) => EventDispatcher;
@@ -161,7 +161,6 @@ declare module HG.Utils {
     function rgbToHex(r: number, g: number, b: number): number;
     function parseColor(raw: any): THREE.Color;
     function isFunction(va: any): boolean;
-    function isUndefined(va: any): boolean;
     function isNumber(va: any): boolean;
     function devTools(): any;
     function profile(label: string, fn: () => any): void;
@@ -242,7 +241,7 @@ declare module HG {
     function log(...data: any[]): string;
     function horrible(options?: Utils.IOptions): any;
 }
-declare var $: any;
+declare var query: any;
 declare module HG.Abilities {
     class AnimationAbility extends Abilities.BaseAbility {
         public animOffset: number;
@@ -324,14 +323,6 @@ declare module HG.Core {
         public onMouseMove(e: MouseEvent): void;
         public onResize(): void;
         public render(): void;
-    }
-}
-declare module HG.Core {
-    class BaseServer extends Core.EventDispatcher {
-        public clients: Core.ServerConnection[];
-        constructor(port: number);
-        public broadcast(message: any, sender?: Core.ServerConnection): void;
-        public onSocket(socket: any): void;
     }
 }
 declare module HG.Core {
@@ -561,11 +552,12 @@ declare module HG.Resource {
         constructor(baseDirectory: string);
         public path(path: string, silent?: boolean): string;
         private load(relPath, namespace, target, ...args);
-        public shader(path: string): THREE.ShaderMaterial;
         public model(path: string, entitiy: HG.Entities.MeshEntity, ...args: any[]): void;
         public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
         public scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void;
+        public queueScene(paths: string[], done: (scenes: HG.Scenes.BaseScene[]) => void): void;
+        public queueJSON<T>(paths: string[], done: (scenes: T[]) => void): void;
         public json<T>(path: string, data?: T): T;
         public directory(directory: string): string[];
     }
@@ -751,6 +743,9 @@ declare module HG.Utils {
         profileFrame: boolean;
         noResize: boolean;
     }
+}
+declare module HG.Utils {
+    function queue<T>(fns: Function[], done: (allData: T[]) => void): void;
 }
 declare module HG.Utils {
     class Tween {
