@@ -745,7 +745,7 @@ declare module HG.Utils {
     }
 }
 declare module HG.Utils {
-    function queue<T>(fns: Function[], done: (allData: T[]) => void): void;
+    function queue<T>(functions: Function[], done: (allData: T[]) => void): void;
 }
 declare module HG.Utils {
     class Tween {

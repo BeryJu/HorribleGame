@@ -2787,15 +2787,15 @@ var HG;
 var HG;
 (function (HG) {
     (function (Utils) {
-        function queue(fns, done) {
+        function queue(functions, done) {
             var allData = [];
             var next = function (index, data) {
                 if (index !== 0) {
                     allData[index - 1] = data;
                 }
-                var func = fns[index];
-                index++;
-                if ((index - 1) < fns.length) {
+                var func = functions[index];
+                if (index < functions.length) {
+                    index++;
                     func(function (data) {
                         next(index, data);
                     });
