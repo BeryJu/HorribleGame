@@ -2160,26 +2160,29 @@ var HG;
 
             ResourceLoader.prototype.queueScene = function (paths, done) {
                 var _this = this;
-                var fns = [];
+                var queue = new HG.Utils.Queue();
                 paths.forEach(function (path) {
-                    fns.push(function (next) {
+                    queue.push(function (next) {
                         _this.scene(path, function (scene) {
                             next(scene);
                         });
                     });
                 });
-                HG.Utils.queue(fns, done);
+                queue.on("done", done);
+                queue.doAll();
             };
 
             ResourceLoader.prototype.queueJSON = function (paths, done) {
                 var _this = this;
-                var fns = [];
+                var queue = new HG.Utils.Queue();
+                ;
                 paths.forEach(function (path, index) {
-                    fns.push(function (next) {
+                    queue.push(function (next) {
                         next(_this.json(path));
                     });
                 });
-                HG.Utils.queue(fns, done);
+                queue.on("done", done);
+                queue.doAll();
             };
 
             ResourceLoader.prototype.json = function (path, data) {
@@ -2787,26 +2790,41 @@ var HG;
 var HG;
 (function (HG) {
     (function (Utils) {
-        function queue(functions, done) {
-            var allData = [];
-            var next = function (index, data) {
-                if (index !== 0) {
-                    allData[index - 1] = data;
+        var Queue = (function (_super) {
+            __extends(Queue, _super);
+            function Queue() {
+                _super.call(this, ["done"]);
+                this.functions = [];
+                this.index = 0;
+                this.data = {};
+            }
+            Queue.prototype.push = function (fn) {
+                this.functions.push(fn);
+                return this;
+            };
+
+            Queue.prototype.next = function (data) {
+                var _this = this;
+                if (this.index !== 0) {
+                    this.data[this.index - 1] = data;
                 }
-                var func = functions[index];
-                if (index < functions.length) {
-                    index++;
-                    func(function (data) {
-                        next(index, data);
+                if (this.index < this.functions.length) {
+                    this.index++;
+                    this.functions[this.index](function (data) {
+                        _this.next(data);
                     });
                 } else {
-                    done(allData);
+                    this.dispatch("done", this.data);
                 }
-                return index;
+                return this.index;
             };
-            next(0);
-        }
-        Utils.queue = queue;
+
+            Queue.prototype.doAll = function () {
+                this.next(0);
+            };
+            return Queue;
+        })(HG.Core.EventDispatcher);
+        Utils.Queue = Queue;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));

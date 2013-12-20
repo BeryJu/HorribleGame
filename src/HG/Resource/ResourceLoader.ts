@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-20 14:05:42
+* @Last Modified time: 2013-12-20 14:59:51
 */
 
 module HG.Resource {
@@ -85,25 +85,27 @@ module HG.Resource {
 		}
 
 		queueScene(paths: string[], done: (scenes: HG.Scenes.BaseScene[]) => void): void {
-			var fns = [];
+			var queue = new HG.Utils.Queue();
 			paths.forEach((path) => {
-				fns.push((next: Function) => {
+				queue.push((next: Function) => {
 					this.scene(path, (scene: HG.Scenes.BaseScene) => {
 						next(scene);
 					});
 				});
 			});
-			HG.Utils.queue(fns, done);
+			queue.on("done", done);
+			queue.doAll();
 		}
 
 		queueJSON<T>(paths: string[], done: (scenes: T[]) => void): void {
-			var fns = [];
+			var queue = new HG.Utils.Queue();;
 			paths.forEach((path, index) => {
-				fns.push((next: Function) => {
+				queue.push((next: Function) => {
 					next(this.json<T>(path));
 				});
 			});
-			HG.Utils.queue(fns, done);
+			queue.on("done", done);
+			queue.doAll();
 		}
 
 		json<T>(path: string, data?: T): T {

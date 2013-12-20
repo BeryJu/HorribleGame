@@ -3,29 +3,48 @@
 * @Date:   2013-12-20 12:33:15
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-20 14:25:20
+* @Last Modified time: 2013-12-20 15:00:52
 */
 
 module HG.Utils {
 
-	export function queue<T>(functions: Function[], done: (allData: T[]) => void) {
-		var allData: T[] = [];
-		var next = (index: number, data?: any) => {
-			if (index !== 0) {
-				allData[index - 1] = data;
+	export class Queue extends HG.Core.EventDispatcher {
+
+		functions: Function[];
+		index: number;
+		data: {};
+
+		constructor() {
+			super(["done"]);
+			this.functions = [];
+			this.index = 0;
+			this.data = {};
+		}
+
+		push(fn: Function): HG.Utils.Queue {
+			this.functions.push(fn);
+			return this;
+		}
+
+		next(data?: any): number {
+			if (this.index !== 0) {
+				this.data[this.index - 1] = data;
 			}
-			var func = functions[index];
-			if (index < functions.length) {
-				index++;
-				func((data: any) => {
-					next(index, data);
+			if (this.index < this.functions.length) {
+				this.index++;
+				this.functions[this.index]((data: any) => {
+					this.next(data);
 				});
 			} else {
-				done(allData);
+				this.dispatch("done", this.data);
 			}
-			return index;
-		};
-		next(0);
+			return this.index;
+		}
+
+		doAll(): void {
+			this.next(0);
+		}
+
 	}
 
 }

@@ -745,7 +745,15 @@ declare module HG.Utils {
     }
 }
 declare module HG.Utils {
-    function queue<T>(functions: Function[], done: (allData: T[]) => void): void;
+    class Queue extends HG.Core.EventDispatcher {
+        public functions: Function[];
+        public index: number;
+        public data: {};
+        constructor();
+        public push(fn: Function): Queue;
+        public next(data?: any): number;
+        public doAll(): void;
+    }
 }
 declare module HG.Utils {
     class Tween {
