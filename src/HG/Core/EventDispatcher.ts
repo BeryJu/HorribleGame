@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-18 21:51:44
+* @Last Modified time: 2013-12-20 21:14:36
 */
 
 module HG.Core {
@@ -32,11 +32,11 @@ module HG.Core {
 		merge(otherDispatcher: HG.Core.EventDispatcher): HG.Core.EventDispatcher {
 			var newDispatcher = new HG.Core.EventDispatcher();
 			newDispatcher.events = this.events.concat(otherDispatcher.events);
-			for (var k in this._events) {
-				newDispatcher._events[k] = this._events[k];
-			}
 			for (var k in otherDispatcher._events) {
 				newDispatcher._events[k] = otherDispatcher._events[k];
+			}
+			for (var k in this._events) {
+				newDispatcher._events[k] = this._events[k];
 			}
 			newDispatcher._globalEvents = this._globalEvents.concat(otherDispatcher._globalEvents);
 			return newDispatcher;

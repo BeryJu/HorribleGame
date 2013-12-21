@@ -3,13 +3,13 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-09 14:16:49
+* @Last Modified time: 2013-12-21 10:19:46
 */
 module HG.Entities {
 
-	export class BaseEntity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
+	export class Entity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
 
-		abilities: HG.Abilities.BaseAbility[] = [];
+		abilities: HG.Abilities.Ability[] = [];
 		object: THREE.Object3D;
 		name: string;
 		positionOffset: THREE.Vector3 = new THREE.Vector3;
@@ -23,7 +23,7 @@ module HG.Entities {
 			}
 		}
 
-		ability(a: HG.Abilities.BaseAbility): boolean {
+		ability(a: HG.Abilities.Ability): boolean {
 			var compatible = a.checkCompatibility(this);
 			if (compatible === true) {
 				a.setHost(this);
@@ -32,24 +32,24 @@ module HG.Entities {
 			return compatible;
 		}
 
-		forAbilities(callback: (a: HG.Abilities.BaseAbility) => void): void {
+		forAbilities(callback: (a: HG.Abilities.Ability) => void): void {
 			this.abilities.forEach(callback);
 		}
 
-		offset(x: number, y: number, z: number): BaseEntity {
+		offset(x: number, y: number, z: number): Entity {
 			this.positionOffset.set(x, y, z);
 			return this;
 		}
 
 		load(data: {}): void { return; }
 
-		scale(x: number, y?: number, z?: number): BaseEntity {
+		scale(x: number, y?: number, z?: number): Entity {
 			if (!y && !z) y = x; z = x;
 			this.object.scale.set(x, y, z);
 			return this;
 		}
 
-		position(x: number, y: number, z: number): BaseEntity {
+		position(x: number, y: number, z: number): Entity {
 			x = x + this.positionOffset.x;
 			y = y + this.positionOffset.y;
 			z = z + this.positionOffset.z;
@@ -57,7 +57,7 @@ module HG.Entities {
 			return this;
 		}
 
-		rotate(x: number, y: number, z: number): BaseEntity {
+		rotate(x: number, y: number, z: number): Entity {
 			this.object.rotation.set(x, y, z);
 			return this;
 		}

@@ -3,12 +3,12 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 15:55:22
+* @Last Modified time: 2013-12-21 10:19:20
 */
 
 module HG.Entities {
 
-	export class MeshEntity extends HG.Entities.BaseEntity implements HG.Resource.ILoadable {
+	export class MeshEntity extends HG.Entities.Entity implements HG.Resource.ILoadable {
 
 		object: THREE.Mesh;
 		events: string[] = ["loaded"];

@@ -14,14 +14,11 @@ if (HG.settings.debug === true) {
 }
 
 game.on("load", function () {
-    loader.scene("scenes/test.scene.json", function (scene) {
-        mainScene = scene;
-        game.scene(mainScene);
-        game.start({
-            input: true,
-            profileFrame: false,
-            noResize: true
-        });
+    game.scene(mainScene);
+    game.start({
+        input: true,
+        profileFrame: false,
+        noResize: true
     });
 });
 

@@ -22,11 +22,11 @@ var HG;
             EventDispatcher.prototype.merge = function (otherDispatcher) {
                 var newDispatcher = new HG.Core.EventDispatcher();
                 newDispatcher.events = this.events.concat(otherDispatcher.events);
-                for (var k in this._events) {
-                    newDispatcher._events[k] = this._events[k];
-                }
                 for (var k in otherDispatcher._events) {
                     newDispatcher._events[k] = otherDispatcher._events[k];
+                }
+                for (var k in this._events) {
+                    newDispatcher._events[k] = this._events[k];
                 }
                 newDispatcher._globalEvents = this._globalEvents.concat(otherDispatcher._globalEvents);
                 return newDispatcher;
@@ -773,10 +773,71 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
+    (function (Utils) {
+        function queue(functions, done) {
+            var allData = [];
+            var next = function (index, data) {
+                if (index !== 0) {
+                    allData[index - 1] = data;
+                }
+                var func = functions[index];
+                if (index < functions.length) {
+                    index++;
+                    func(function (data) {
+                        next(index, data);
+                    });
+                } else {
+                    done(allData);
+                }
+                return index;
+            };
+            next(0);
+        }
+        Utils.queue = queue;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Utils) {
+        var Tween = (function () {
+            function Tween(timeArray, valueArray) {
+                this.timeArray = [];
+                this.valueArray = [];
+                if (timeArray)
+                    this.timeArray = timeArray;
+                if (valueArray)
+                    this.valueArray = valueArray;
+            }
+            Tween.prototype.lerp = function (t) {
+                var i = 0;
+                var n = this.timeArray.length;
+                while (i < n && t > this.timeArray[i]) {
+                    i++;
+                }
+                if (i === 0)
+                    return this.valueArray[0];
+                if (i === n)
+                    return this.valueArray[n - 1];
+                var p = (t - this.timeArray[i - 1]) / (this.timeArray[i] - this.timeArray[i - 1]);
+                if (this.valueArray[0] instanceof THREE.Vector3) {
+                    return this.valueArray[i - 1].clone().lerp(this.valueArray[i], p);
+                } else {
+                    return this.valueArray[i - 1] + p * (this.valueArray[i] - this.valueArray[i - 1]);
+                }
+            };
+            return Tween;
+        })();
+        Utils.Tween = Tween;
+    })(HG.Utils || (HG.Utils = {}));
+    var Utils = HG.Utils;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
     (function (Entities) {
-        var BaseEntity = (function (_super) {
-            __extends(BaseEntity, _super);
-            function BaseEntity(object) {
+        var Entity = (function (_super) {
+            __extends(Entity, _super);
+            function Entity(object) {
                 _super.call(this);
                 this.abilities = [];
                 this.positionOffset = new THREE.Vector3;
@@ -786,7 +847,7 @@ var HG;
                     this.object = new THREE.Mesh();
                 }
             }
-            BaseEntity.prototype.ability = function (a) {
+            Entity.prototype.ability = function (a) {
                 var compatible = a.checkCompatibility(this);
                 if (compatible === true) {
                     a.setHost(this);
@@ -795,20 +856,20 @@ var HG;
                 return compatible;
             };
 
-            BaseEntity.prototype.forAbilities = function (callback) {
+            Entity.prototype.forAbilities = function (callback) {
                 this.abilities.forEach(callback);
             };
 
-            BaseEntity.prototype.offset = function (x, y, z) {
+            Entity.prototype.offset = function (x, y, z) {
                 this.positionOffset.set(x, y, z);
                 return this;
             };
 
-            BaseEntity.prototype.load = function (data) {
+            Entity.prototype.load = function (data) {
                 return;
             };
 
-            BaseEntity.prototype.scale = function (x, y, z) {
+            Entity.prototype.scale = function (x, y, z) {
                 if (!y && !z)
                     y = x;
                 z = x;
@@ -816,7 +877,7 @@ var HG;
                 return this;
             };
 
-            BaseEntity.prototype.position = function (x, y, z) {
+            Entity.prototype.position = function (x, y, z) {
                 x = x + this.positionOffset.x;
                 y = y + this.positionOffset.y;
                 z = z + this.positionOffset.z;
@@ -824,52 +885,52 @@ var HG;
                 return this;
             };
 
-            BaseEntity.prototype.rotate = function (x, y, z) {
+            Entity.prototype.rotate = function (x, y, z) {
                 this.object.rotation.set(x, y, z);
                 return this;
             };
 
-            BaseEntity.prototype.getInternal = function () {
+            Entity.prototype.getInternal = function () {
                 return this.object;
             };
 
-            BaseEntity.prototype.frame = function (delta) {
+            Entity.prototype.frame = function (delta) {
                 if (this.abilities.length > 0) {
                     this.abilities.forEach(function (ability) {
                         ability.frame(delta);
                     });
                 }
             };
-            return BaseEntity;
+            return Entity;
         })(HG.Core.EventDispatcher);
-        Entities.BaseEntity = BaseEntity;
+        Entities.Entity = Entity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
     (function (Abilities) {
-        var BaseAbility = (function (_super) {
-            __extends(BaseAbility, _super);
-            function BaseAbility() {
+        var Ability = (function (_super) {
+            __extends(Ability, _super);
+            function Ability() {
                 _super.apply(this, arguments);
                 this.hosts = [];
             }
-            BaseAbility.prototype.setHost = function (entity) {
+            Ability.prototype.setHost = function (entity) {
                 console.log(entity["constructor"]["name"] + " got " + this["constructor"]["name"]);
                 this.hosts.push(entity);
             };
 
-            BaseAbility.prototype.checkCompatibility = function (entity) {
+            Ability.prototype.checkCompatibility = function (entity) {
                 return true;
             };
 
-            BaseAbility.prototype.frame = function (delta) {
+            Ability.prototype.frame = function (delta) {
                 return;
             };
-            return BaseAbility;
+            return Ability;
         })(HG.Core.EventDispatcher);
-        Abilities.BaseAbility = BaseAbility;
+        Abilities.Ability = Ability;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
 })(HG || (HG = {}));
@@ -889,7 +950,7 @@ var HG;
                 this.scene.add(entity.getInternal());
                 if (entity instanceof HG.Entities.CameraEntity) {
                     this.cameras.add(entity);
-                } else if (entity instanceof HG.Entities.BaseEntity) {
+                } else if (entity instanceof HG.Entities.Entity) {
                     this.entities.add(entity);
                 }
             };
@@ -1102,7 +1163,7 @@ var HG;
                 }
             };
             return AnimationAbility;
-        })(HG.Abilities.BaseAbility);
+        })(HG.Abilities.Ability);
         Abilities.AnimationAbility = AnimationAbility;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
@@ -1123,7 +1184,7 @@ var HG;
                 this.audioEffect.play();
             };
             return AudioAbility;
-        })(HG.Abilities.BaseAbility);
+        })(HG.Abilities.Ability);
         Abilities.AudioAbility = AudioAbility;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
@@ -1186,7 +1247,7 @@ var HG;
                 });
             };
             return MovingAbility;
-        })(HG.Abilities.BaseAbility);
+        })(HG.Abilities.Ability);
         Abilities.MovingAbility = MovingAbility;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
@@ -1208,7 +1269,7 @@ var HG;
                 _super.prototype.frame.call(this, delta);
             };
             return ScriptExecuteAbility;
-        })(HG.Abilities.BaseAbility);
+        })(HG.Abilities.Ability);
         Abilities.ScriptExecuteAbility = ScriptExecuteAbility;
     })(HG.Abilities || (HG.Abilities = {}));
     var Abilities = HG.Abilities;
@@ -1594,7 +1655,7 @@ var HG;
                 return this.object;
             };
             return CameraEntity;
-        })(HG.Entities.BaseEntity);
+        })(HG.Entities.Entity);
         Entities.CameraEntity = CameraEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
@@ -1708,7 +1769,7 @@ var HG;
                 this.object = new THREE.Mesh(skyGeometry, skyMaterial);
             }
             return HeightMapEntity;
-        })(HG.Entities.BaseEntity);
+        })(HG.Entities.Entity);
         Entities.HeightMapEntity = HeightMapEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
@@ -1738,7 +1799,7 @@ var HG;
                 this.dispatch("loaded", data["geometry"], data["material"]);
             };
             return MeshEntity;
-        })(HG.Entities.BaseEntity);
+        })(HG.Entities.Entity);
         Entities.MeshEntity = MeshEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
@@ -1782,7 +1843,7 @@ var HG;
                 this.object = system;
             };
             return ParticleEntity;
-        })(HG.Entities.BaseEntity);
+        })(HG.Entities.Entity);
         Entities.ParticleEntity = ParticleEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
@@ -1818,7 +1879,7 @@ var HG;
                 this.object = new THREE.Sprite(spriteMaterial);
             };
             return SpriteEntity;
-        })(HG.Entities.BaseEntity);
+        })(HG.Entities.Entity);
         Entities.SpriteEntity = SpriteEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
@@ -1832,7 +1893,7 @@ var HG;
                 _super.call(this);
             }
             return VideoEntity;
-        })(HG.Entities.BaseEntity);
+        })(HG.Entities.Entity);
         Entities.VideoEntity = VideoEntity;
     })(HG.Entities || (HG.Entities = {}));
     var Entities = HG.Entities;
@@ -2160,7 +2221,7 @@ var HG;
 
             ResourceLoader.prototype.queueScene = function (paths, done) {
                 var _this = this;
-                var queue = new HG.Utils.Queue();
+                var queue = [];
                 paths.forEach(function (path) {
                     queue.push(function (next) {
                         _this.scene(path, function (scene) {
@@ -2168,21 +2229,18 @@ var HG;
                         });
                     });
                 });
-                queue.on("done", done);
-                queue.doAll();
+                HG.Utils.queue(queue, done);
             };
 
             ResourceLoader.prototype.queueJSON = function (paths, done) {
                 var _this = this;
-                var queue = new HG.Utils.Queue();
-                ;
+                var queue = [];
                 paths.forEach(function (path, index) {
                     queue.push(function (next) {
                         next(_this.json(path));
                     });
                 });
-                queue.on("done", done);
-                queue.doAll();
+                HG.Utils.queue(queue, done);
             };
 
             ResourceLoader.prototype.json = function (path, data) {
@@ -2311,7 +2369,7 @@ var HG;
             };
 
             EntityCollection.prototype.getAllNamed = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
+                if (typeof type === "undefined") { type = HG.Entities.Entity; }
                 var es = [];
                 for (var k in this.named) {
                     var v = this.named[k];
@@ -2322,7 +2380,7 @@ var HG;
             };
 
             EntityCollection.prototype.getAllUnnamed = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
+                if (typeof type === "undefined") { type = HG.Entities.Entity; }
                 var es = [];
                 this.unNamed.forEach(function (e) {
                     if (e instanceof type)
@@ -2332,13 +2390,13 @@ var HG;
             };
 
             EntityCollection.prototype.getAll = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
+                if (typeof type === "undefined") { type = HG.Entities.Entity; }
                 return this.getAllUnnamed(type).concat(this.getAllNamed(type));
             };
 
             EntityCollection.prototype.forNamed = function (callback, type) {
                 if (!type)
-                    type = HG.Entities.BaseEntity;
+                    type = HG.Entities.Entity;
                 for (var k in this.named) {
                     var ne = this.named[k];
                     if (ne instanceof type)
@@ -2348,7 +2406,7 @@ var HG;
 
             EntityCollection.prototype.forUnamed = function (callback, type) {
                 if (!type)
-                    type = HG.Entities.BaseEntity;
+                    type = HG.Entities.Entity;
                 this.unNamed.forEach(function (e) {
                     if (e instanceof type)
                         callback(e);
@@ -2368,7 +2426,7 @@ var HG;
             };
 
             EntityCollection.prototype.forAll = function (callback, type) {
-                if (typeof type === "undefined") { type = HG.Entities.BaseEntity; }
+                if (typeof type === "undefined") { type = HG.Entities.Entity; }
                 this.forNamed(callback, type);
                 this.forUnamed(callback, type);
             };
@@ -2786,81 +2844,5 @@ var HG;
         Sound.Mixer = Mixer;
     })(HG.Sound || (HG.Sound = {}));
     var Sound = HG.Sound;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Utils) {
-        var Queue = (function (_super) {
-            __extends(Queue, _super);
-            function Queue() {
-                _super.call(this, ["done"]);
-                this.functions = [];
-                this.index = 0;
-                this.data = {};
-            }
-            Queue.prototype.push = function (fn) {
-                this.functions.push(fn);
-                return this;
-            };
-
-            Queue.prototype.next = function (data) {
-                var _this = this;
-                if (this.index !== 0) {
-                    this.data[this.index - 1] = data;
-                }
-                if (this.index < this.functions.length) {
-                    this.index++;
-                    this.functions[this.index](function (data) {
-                        _this.next(data);
-                    });
-                } else {
-                    this.dispatch("done", this.data);
-                }
-                return this.index;
-            };
-
-            Queue.prototype.doAll = function () {
-                this.next(0);
-            };
-            return Queue;
-        })(HG.Core.EventDispatcher);
-        Utils.Queue = Queue;
-    })(HG.Utils || (HG.Utils = {}));
-    var Utils = HG.Utils;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Utils) {
-        var Tween = (function () {
-            function Tween(timeArray, valueArray) {
-                this.timeArray = [];
-                this.valueArray = [];
-                if (timeArray)
-                    this.timeArray = timeArray;
-                if (valueArray)
-                    this.valueArray = valueArray;
-            }
-            Tween.prototype.lerp = function (t) {
-                var i = 0;
-                var n = this.timeArray.length;
-                while (i < n && t > this.timeArray[i]) {
-                    i++;
-                }
-                if (i === 0)
-                    return this.valueArray[0];
-                if (i === n)
-                    return this.valueArray[n - 1];
-                var p = (t - this.timeArray[i - 1]) / (this.timeArray[i] - this.timeArray[i - 1]);
-                if (this.valueArray[0] instanceof THREE.Vector3) {
-                    return this.valueArray[i - 1].clone().lerp(this.valueArray[i], p);
-                } else {
-                    return this.valueArray[i - 1] + p * (this.valueArray[i] - this.valueArray[i - 1]);
-                }
-            };
-            return Tween;
-        })();
-        Utils.Tween = Tween;
-    })(HG.Utils || (HG.Utils = {}));
-    var Utils = HG.Utils;
 })(HG || (HG = {}));
 //# sourceMappingURL=hg.js.map

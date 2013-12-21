@@ -10,12 +10,14 @@ var paths = {
 	game: {
 		root: "src/HorribleGame/",
 		bin: "bin/game/game.js",
+		def: "bin/game/game.d.ts",
 		assets: {
 			shaders: "shaders/",
-			textures: "textures/"
+			textures: "textures/",
+			scenes: "scenes/",
+			models: "models"
 		},
 		source: [
-			"src/HorribleGame/scenes/*.ts",
 			"src/HorribleGame/*.ts"
 		]
 	},
@@ -25,7 +27,9 @@ var paths = {
 	build: {
 		root: "bin/",
 		assets: {
-			shaders: "assets/shaders/"
+			shaders: "assets/shaders/",
+			scenes: "assets/scenes/",
+			models: "assets/models/"
 		},
 	},
 	hg: {
@@ -60,7 +64,6 @@ var createPathObject = function (root, out, extFrom, extTo) {
 	});
 	return object;
 };
-
 var config = {
 	paths: paths,
 	jade: {
@@ -105,6 +108,17 @@ var config = {
 			options: {
 				target: "es5",
 				comments: true,
+				declaration: true,
+				sourcemap: false
+			}
+		},
+		scenes: {
+			src: [ paths.libs ].concat(paths.hg.def, paths.game.def,
+					path.join(paths.game.root, paths.game.assets.scenes)),
+			outDir: path.join(paths.build.root, paths.build.assets.scenes),
+			options: {
+				target: "es5",
+				comments: true,
 				sourcemap: false
 			}
 		}
@@ -128,7 +142,8 @@ var config = {
 	nodeunit: {
 		hg: paths.test.source
 	}
-}
+};
+
 module.exports = function(grunt) {
 	grunt.initConfig(config);
 

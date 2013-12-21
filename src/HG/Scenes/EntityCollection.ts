@@ -3,12 +3,12 @@
 * @Date:   2013-12-09 14:52:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-18 21:15:16
+* @Last Modified time: 2013-12-21 10:19:21
 */
 
 module HG.Scenes {
 
-	export class EntityCollection<T extends HG.Entities.BaseEntity> {
+	export class EntityCollection<T extends HG.Entities.Entity> {
 
 		named: {} = {};
 		unNamed: T[] = [];
@@ -42,7 +42,7 @@ module HG.Scenes {
 			return (this.named[name.toLowerCase()]) ? true : false;
 		}
 
-		getAllNamed(type: any = HG.Entities.BaseEntity): any[] {
+		getAllNamed(type: any = HG.Entities.Entity): any[] {
 			var es = [];
 			for (var k in this.named) {
 				var v = this.named[k];
@@ -51,7 +51,7 @@ module HG.Scenes {
 			return es;
 		}
 
-		getAllUnnamed(type: any = HG.Entities.BaseEntity): any[] {
+		getAllUnnamed(type: any = HG.Entities.Entity): any[] {
 			var es = [];
 			this.unNamed.forEach((e) => {
 				if (e instanceof type) es.push(e);
@@ -59,12 +59,12 @@ module HG.Scenes {
 			return es;
 		}
 
-		getAll(type: any = HG.Entities.BaseEntity): any[] {
+		getAll(type: any = HG.Entities.Entity): T[] {
 			return this.getAllUnnamed(type).concat(this.getAllNamed(type));
 		}
 
 		forNamed(callback: (e: any, k: string) => any, type?: any): void {
-			if (!type) type = HG.Entities.BaseEntity;
+			if (!type) type = HG.Entities.Entity;
 			for (var k in this.named) {
 				var ne = this.named[k];
 				if (ne instanceof type) callback(ne, k);
@@ -72,7 +72,7 @@ module HG.Scenes {
 		}
 
 		forUnamed(callback: (e: any) => any, type?: any): void {
-			if (!type) type = HG.Entities.BaseEntity;
+			if (!type) type = HG.Entities.Entity;
 			this.unNamed.forEach((e) => {
 				if (e instanceof type) callback(e);
 			});
@@ -90,7 +90,7 @@ module HG.Scenes {
 			return <T> this.named[name] || null;
 		}
 
-		forAll(callback: (e: any) => any, type: any = HG.Entities.BaseEntity): void {
+		forAll(callback: (e: any) => any, type: any = HG.Entities.Entity): void {
 			this.forNamed(callback, type);
 			this.forUnamed(callback, type);
 		}

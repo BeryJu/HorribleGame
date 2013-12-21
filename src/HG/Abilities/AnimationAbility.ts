@@ -3,12 +3,12 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-07 14:24:46
+* @Last Modified time: 2013-12-21 10:19:45
 */
 
 module HG.Abilities {
 
-	export class AnimationAbility extends HG.Abilities.BaseAbility {
+	export class AnimationAbility extends HG.Abilities.Ability {
 
 		animOffset: number = 0;
 		running: boolean = false;
@@ -34,7 +34,7 @@ module HG.Abilities {
 			this.running = true;
 		}
 
-		checkCompatibility(entity: HG.Entities.BaseEntity): boolean {
+		checkCompatibility(entity: HG.Entities.Entity): boolean {
 			return (entity instanceof HG.Entities.MeshEntity);
 		}
 

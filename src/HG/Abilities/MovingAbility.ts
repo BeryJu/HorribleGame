@@ -3,12 +3,12 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-08 14:36:30
+* @Last Modified time: 2013-12-21 10:19:46
 */
 
 module HG.Abilities {
 
-	export class MovingAbility extends HG.Abilities.BaseAbility {
+	export class MovingAbility extends HG.Abilities.Ability {
 
 		baseStep: number;
 

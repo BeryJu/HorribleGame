@@ -3,12 +3,12 @@
 * @Date:   2013-12-06 16:02:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 19:40:45
+* @Last Modified time: 2013-12-21 10:19:20
 */
 
 module HG.Entities {
 
-	export class SpriteEntity extends HG.Entities.BaseEntity {
+	export class SpriteEntity extends HG.Entities.Entity {
 
 		object: THREE.Sprite;
 		alignment: THREE.Vector2;

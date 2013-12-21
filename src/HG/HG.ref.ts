@@ -19,10 +19,13 @@
 /// <reference path="Utils/Utils.ts" />
 /// <reference path="Utils/CanvasUtils.ts" />
 /// <reference path="Utils/UpdateChecker.ts" />
+/// <reference path="Utils/GameStartParameters.ts" />
+/// <reference path="Utils/Queue.ts" />
+/// <reference path="Utils/Tween.ts" />
 
 /// Base Classes
-/// <reference path="Entities/BaseEntity.ts" />
-/// <reference path="Abilities/BaseAbility.ts" />
+/// <reference path="Entities/Entity.ts" />
+/// <reference path="Abilities/Ability.ts" />
 /// <reference path="Scenes/BaseScene.ts" />
 
 /// All the rest
@@ -83,7 +86,4 @@
 /// <reference path="Sound/Channel.ts" />
 /// <reference path="Sound/Effect.ts" />
 /// <reference path="Sound/Mixer.ts" />
-/// <reference path="Utils/GameStartParameters.ts" />
-/// <reference path="Utils/Queue.ts" />
-/// <reference path="Utils/Tween.ts" />
 //grunt-end

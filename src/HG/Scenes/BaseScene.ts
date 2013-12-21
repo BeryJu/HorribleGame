@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-19 18:35:21
+* @Last Modified time: 2013-12-21 10:19:21
 */
 
 module HG.Scenes {
@@ -12,7 +12,7 @@ module HG.Scenes {
 
 		scene: Physijs.Scene;
 		cameras: HG.Scenes.EntityCollection<HG.Entities.CameraEntity>;
-		entities: HG.Scenes.EntityCollection<HG.Entities.BaseEntity>;
+		entities: HG.Scenes.EntityCollection<HG.Entities.Entity>;
 		controls: HG.Core.InputHandler;
 		selectedCamera: string;
 		color: THREE.Color;
@@ -24,15 +24,15 @@ module HG.Scenes {
 			this.controls = new HG.Core.InputHandler();
 			this.selectedCamera = "";
 			this.scene = new Physijs.Scene();
-			this.entities = new HG.Scenes.EntityCollection<HG.Entities.BaseEntity>();
+			this.entities = new HG.Scenes.EntityCollection<HG.Entities.Entity>();
 			this.cameras = new HG.Scenes.EntityCollection<HG.Entities.CameraEntity>();
 		}
 
-		add(entity: HG.Entities.BaseEntity): void {
+		add(entity: HG.Entities.Entity): void {
 			this.scene.add(entity.getInternal());
 			if (entity instanceof HG.Entities.CameraEntity) {
 				this.cameras.add(<HG.Entities.CameraEntity> entity);
-			} else if (entity instanceof HG.Entities.BaseEntity) {
+			} else if (entity instanceof HG.Entities.Entity) {
 				this.entities.add(entity);
 			}
 		}

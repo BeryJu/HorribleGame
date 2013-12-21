@@ -181,29 +181,47 @@ declare module HG.Utils {
         public checkThree(onNew: (downloadUrl: string, version: string) => any, noNew: (version: string) => any): void;
     }
 }
+declare module HG.Utils {
+    interface GameStartParameters {
+        input: boolean;
+        profileFrame: boolean;
+        noResize: boolean;
+    }
+}
+declare module HG.Utils {
+    function queue<T>(functions: Function[], done: (allData: T[]) => void): void;
+}
+declare module HG.Utils {
+    class Tween {
+        public timeArray: any[];
+        public valueArray: any[];
+        constructor(timeArray?: any[], valueArray?: any[]);
+        public lerp(t: number): any;
+    }
+}
 declare module HG.Entities {
-    class BaseEntity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
-        public abilities: HG.Abilities.BaseAbility[];
+    class Entity extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
+        public abilities: HG.Abilities.Ability[];
         public object: THREE.Object3D;
         public name: string;
         public positionOffset: THREE.Vector3;
         constructor(object?: THREE.Object3D);
-        public ability(a: HG.Abilities.BaseAbility): boolean;
-        public forAbilities(callback: (a: HG.Abilities.BaseAbility) => void): void;
-        public offset(x: number, y: number, z: number): BaseEntity;
+        public ability(a: HG.Abilities.Ability): boolean;
+        public forAbilities(callback: (a: HG.Abilities.Ability) => void): void;
+        public offset(x: number, y: number, z: number): Entity;
         public load(data: {}): void;
-        public scale(x: number, y?: number, z?: number): BaseEntity;
-        public position(x: number, y: number, z: number): BaseEntity;
-        public rotate(x: number, y: number, z: number): BaseEntity;
+        public scale(x: number, y?: number, z?: number): Entity;
+        public position(x: number, y: number, z: number): Entity;
+        public rotate(x: number, y: number, z: number): Entity;
         public getInternal(): THREE.Object3D;
         public frame(delta: number): void;
     }
 }
 declare module HG.Abilities {
-    class BaseAbility extends HG.Core.EventDispatcher {
-        public hosts: HG.Entities.BaseEntity[];
-        public setHost(entity: HG.Entities.BaseEntity): void;
-        public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
+    class Ability extends HG.Core.EventDispatcher {
+        public hosts: HG.Entities.Entity[];
+        public setHost(entity: HG.Entities.Entity): void;
+        public checkCompatibility(entity: HG.Entities.Entity): boolean;
         public frame(delta: number): void;
     }
 }
@@ -211,14 +229,14 @@ declare module HG.Scenes {
     class BaseScene {
         public scene: Physijs.Scene;
         public cameras: Scenes.EntityCollection<HG.Entities.CameraEntity>;
-        public entities: Scenes.EntityCollection<HG.Entities.BaseEntity>;
+        public entities: Scenes.EntityCollection<HG.Entities.Entity>;
         public controls: HG.Core.InputHandler;
         public selectedCamera: string;
         public color: THREE.Color;
         public colorAlpha: number;
         public startTime: number;
         constructor();
-        public add(entity: HG.Entities.BaseEntity): void;
+        public add(entity: HG.Entities.Entity): void;
         public merge(otherScene: BaseScene): BaseScene;
         public onResize(ratio: number): void;
         public camera(name: string): boolean;
@@ -243,7 +261,7 @@ declare module HG {
 }
 declare var query: any;
 declare module HG.Abilities {
-    class AnimationAbility extends Abilities.BaseAbility {
+    class AnimationAbility extends Abilities.Ability {
         public animOffset: number;
         public running: boolean;
         public duration: number;
@@ -258,12 +276,12 @@ declare module HG.Abilities {
             keyframes: number;
         });
         public run(): void;
-        public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
+        public checkCompatibility(entity: HG.Entities.Entity): boolean;
         public frame(delta: number): void;
     }
 }
 declare module HG.Abilities {
-    class AudioAbility extends Abilities.BaseAbility {
+    class AudioAbility extends Abilities.Ability {
         public audioEffect: HG.Sound.Effect;
         constructor(options: {
             effect: HG.Sound.Effect;
@@ -272,7 +290,7 @@ declare module HG.Abilities {
     }
 }
 declare module HG.Abilities {
-    class MovingAbility extends Abilities.BaseAbility {
+    class MovingAbility extends Abilities.Ability {
         public baseStep: number;
         constructor(baseStep: number);
         public moveLeft(delta: number): void;
@@ -285,10 +303,10 @@ declare module HG.Abilities {
     }
 }
 declare module HG.Abilities {
-    class ScriptExecuteAbility extends Abilities.BaseAbility {
+    class ScriptExecuteAbility extends Abilities.Ability {
         public events: string[];
         constructor();
-        public checkCompatibility(entity: HG.Entities.BaseEntity): boolean;
+        public checkCompatibility(entity: HG.Entities.Entity): boolean;
         public frame(delta: number): void;
     }
 }
@@ -366,7 +384,7 @@ declare module HG.Core {
     }
 }
 declare module HG.Entities {
-    class CameraEntity extends Entities.BaseEntity {
+    class CameraEntity extends Entities.Entity {
         public object: THREE.PerspectiveCamera;
         constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
         public setViewDistance(distance: number): void;
@@ -398,12 +416,12 @@ declare module HG.Entities {
     }
 }
 declare module HG.Entities {
-    class HeightMapEntity extends Entities.BaseEntity {
+    class HeightMapEntity extends Entities.Entity {
         constructor(directory: string, size?: number, directions?: string[], suffix?: string);
     }
 }
 declare module HG.Entities {
-    class MeshEntity extends Entities.BaseEntity implements HG.Resource.ILoadable {
+    class MeshEntity extends Entities.Entity implements HG.Resource.ILoadable {
         public object: THREE.Mesh;
         public events: string[];
         constructor(geo?: THREE.Geometry, mat?: THREE.MeshBasicMaterial);
@@ -411,7 +429,7 @@ declare module HG.Entities {
     }
 }
 declare module HG.Entities {
-    class ParticleEntity extends Entities.BaseEntity {
+    class ParticleEntity extends Entities.Entity {
         public count: number;
         public size: number;
         public color: number;
@@ -421,7 +439,7 @@ declare module HG.Entities {
     }
 }
 declare module HG.Entities {
-    class SpriteEntity extends Entities.BaseEntity {
+    class SpriteEntity extends Entities.Entity {
         public object: THREE.Sprite;
         public alignment: THREE.Vector2;
         constructor(canvas?: HTMLCanvasElement, alignment?: THREE.Vector2);
@@ -429,7 +447,7 @@ declare module HG.Entities {
     }
 }
 declare module HG.Entities {
-    class VideoEntity extends Entities.BaseEntity {
+    class VideoEntity extends Entities.Entity {
         constructor(url?: string);
     }
 }
@@ -553,7 +571,7 @@ declare module HG.Resource {
         public path(path: string, silent?: boolean): string;
         private load(relPath, namespace, target, ...args);
         public model(path: string, entitiy: HG.Entities.MeshEntity, ...args: any[]): void;
-        public texture(path: string, entitiy: HG.Entities.BaseEntity): void;
+        public texture(path: string, entitiy: HG.Entities.Entity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
         public scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void;
         public queueScene(paths: string[], done: (scenes: HG.Scenes.BaseScene[]) => void): void;
@@ -575,7 +593,7 @@ declare module HG.Resource.Texture {
     }
 }
 declare module HG.Scenes {
-    class EntityCollection<T extends HG.Entities.BaseEntity> {
+    class EntityCollection<T extends HG.Entities.Entity> {
         public named: {};
         public unNamed: T[];
         public add(entity: T): void;
@@ -583,7 +601,7 @@ declare module HG.Scenes {
         public has(name: string): boolean;
         public getAllNamed(type?: any): any[];
         public getAllUnnamed(type?: any): any[];
-        public getAll(type?: any): any[];
+        public getAll(type?: any): T[];
         public forNamed(callback: (e: any, k: string) => any, type?: any): void;
         public forUnamed(callback: (e: any) => any, type?: any): void;
         public forEach(callback: (e: any, i: any, ...args: any[]) => any): void;
@@ -735,31 +753,5 @@ declare module HG.Sound {
         constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
-    }
-}
-declare module HG.Utils {
-    interface GameStartParameters {
-        input: boolean;
-        profileFrame: boolean;
-        noResize: boolean;
-    }
-}
-declare module HG.Utils {
-    class Queue extends HG.Core.EventDispatcher {
-        public functions: Function[];
-        public index: number;
-        public data: {};
-        constructor();
-        public push(fn: Function): Queue;
-        public next(data?: any): number;
-        public doAll(): void;
-    }
-}
-declare module HG.Utils {
-    class Tween {
-        public timeArray: any[];
-        public valueArray: any[];
-        constructor(timeArray?: any[], valueArray?: any[]);
-        public lerp(t: number): any;
     }
 }

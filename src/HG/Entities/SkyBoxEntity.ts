@@ -15,13 +15,13 @@
 //|_____/ \_____|_|  \_\/_/    \_\_|
 //
 
-// /// <reference path="BaseEntity.ts" />
+// /// <reference path="Entity.ts" />
 
 // module HG {
 
 // 	export module Entities {
 
-// 		export class SkyBoxEntity extends BaseEntity {
+// 		export class SkyBoxEntity extends Entity {
 
 // 			constructor(directory: string,
 // 					size: number = 5000,

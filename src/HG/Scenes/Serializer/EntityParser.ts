@@ -3,7 +3,7 @@
 * @Date:   2013-12-07 23:42:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-14 00:16:35
+* @Last Modified time: 2013-12-21 10:19:21
 */
 
 module HG.Scenes.Serializer {
@@ -73,7 +73,7 @@ module HG.Scenes.Serializer {
 		}
 
 		private parseAbilities(raw: HG.Scenes.Serializer.EntityDefinition,
-				entity: HG.Entities.BaseEntity,
+				entity: HG.Entities.Entity,
 				scene: HG.Scenes.BaseScene): void {
 			if (raw.abilities) {
 				raw.abilities.forEach((rawAbility) => {
@@ -107,7 +107,7 @@ module HG.Scenes.Serializer {
 		}
 
 		private setup(raw: HG.Scenes.Serializer.EntityDefinition,
-				entity: HG.Entities.BaseEntity): HG.Entities.BaseEntity {
+				entity: HG.Entities.Entity): HG.Entities.Entity {
 			var offset = (raw.offset) ? this.parseArray(raw.offset, 3) : this.defaultOffset;
 			var scale = (raw.scale) ? this.parseArray(raw.scale, 3) : this.defaultScale;
 			var rotation = (raw.rotation) ? this.parseArray(raw.rotation, 3) : this.defaultRotation;

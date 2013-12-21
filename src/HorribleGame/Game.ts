@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-20 12:27:20
+* @Last Modified time: 2013-12-21 10:18:54
 */
 
 /// <reference path="GameLocale.ts" />
@@ -26,14 +26,14 @@ if (HG.settings.debug === true) {
 }
 
 game.on("load", () => {
-	loader.scene("scenes/test.scene.json", (scene: HG.Scenes.BaseScene) => {
-		mainScene = scene;
-		game.scene(mainScene);
-		game.start({
-			input: true,
-			profileFrame: false,
-			noResize: true
-		});
+	// loader.scene("scenes/test.scene.json", (scene: HG.Scenes.BaseScene) => {
+	// 	mainScene = scene;
+	// });
+	game.scene(mainScene);
+	game.start({
+		input: true,
+		profileFrame: false,
+		noResize: true
 	});
 });
 

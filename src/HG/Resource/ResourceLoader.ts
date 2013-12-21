@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-20 14:59:51
+* @Last Modified time: 2013-12-21 10:25:38
 */
 
 module HG.Resource {
@@ -70,7 +70,7 @@ module HG.Resource {
 			this.load(path, HG.Resource.Model, entitiy, args);
 		}
 
-		texture(path: string, entitiy: HG.Entities.BaseEntity): void {
+		texture(path: string, entitiy: HG.Entities.Entity): void {
 			this.load(path, HG.Resource.Texture, entitiy);
 		}
 
@@ -85,7 +85,7 @@ module HG.Resource {
 		}
 
 		queueScene(paths: string[], done: (scenes: HG.Scenes.BaseScene[]) => void): void {
-			var queue = new HG.Utils.Queue();
+			var queue = [];
 			paths.forEach((path) => {
 				queue.push((next: Function) => {
 					this.scene(path, (scene: HG.Scenes.BaseScene) => {
@@ -93,19 +93,17 @@ module HG.Resource {
 					});
 				});
 			});
-			queue.on("done", done);
-			queue.doAll();
+			HG.Utils.queue(queue, done);
 		}
 
 		queueJSON<T>(paths: string[], done: (scenes: T[]) => void): void {
-			var queue = new HG.Utils.Queue();;
+			var queue = [];
 			paths.forEach((path, index) => {
 				queue.push((next: Function) => {
 					next(this.json<T>(path));
 				});
 			});
-			queue.on("done", done);
-			queue.doAll();
+			HG.Utils.queue(queue, done);
 		}
 
 		json<T>(path: string, data?: T): T {
