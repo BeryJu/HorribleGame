@@ -1,5 +1,5 @@
 HorribleGame:
-	☐ Finally fix the SceneSerializer Camera problem
+	✔ Finally fix the SceneSerializer Camera problem @done (13-12-22 14:13)
 	☐ Create Abilities/AudioAbility.ts
 	☐ Create Abilities/ScriptExecuteAbility.ts
 	☐ Implement Shaders

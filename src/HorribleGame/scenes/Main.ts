@@ -3,7 +3,7 @@
 * @Date:   2013-12-17 10:40:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 13:58:42
+* @Last Modified time: 2013-12-22 23:02:45
 */
 
 module MainScene {
@@ -17,8 +17,8 @@ module MainScene {
 		var skybox = MainScene.createSkyBox(loader);
 		scene.add(skybox);
 
-		var heightmap = MainScene.createHeightMap(loader);
-		scene.add(heightmap);
+		// var heightmap = MainScene.createHeightMap(loader);
+		// scene.add(heightmap);
 
 		var cam = new HG.Entities.FirstPersonCameraEntity(
 			HG.settings.graphics.fov, window.innerWidth / window.innerHeight,
@@ -27,11 +27,11 @@ module MainScene {
 		cam.offset(0, 25, -25)
 			.rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782)
 			.position(-27.512701511383057, 250, 211.5527195930481);
-
-
-		var movingAbility = new HG.Abilities.MovingAbility(3.125);
-		cam.ability(movingAbility);
 		scene.add(cam);
+		scene.controls.mouse.bind("move", (x: number, y: number) => {
+			cam.onMouseMove(x, y);
+		});
+
 		scene.camera("mainCamera");
 		return scene;
 
@@ -76,7 +76,6 @@ module MainScene {
 					snowyTexture: textures[5]
 				}
 			});
-			console.log(params);
 			var material = new THREE.ShaderMaterial(params);
 			entity.object = new THREE.Mesh(geometry, material);
 			entity.offset(0, -25, 0);

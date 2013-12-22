@@ -1762,18 +1762,11 @@ var HG;
                 _super.call(this);
                 this.PI_2 = Math.PI / 2;
                 this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
-                this.pitchObject = new THREE.Object3D();
-                this.pitchObject.add(this.object);
-                this.yawObject = new THREE.Object3D();
-                this.yawObject.position.y = 10;
-                this.yawObject.add(this.object);
                 this.velocity = new THREE.Vector3();
             }
             FirstPersonCameraEntity.prototype.onMouseMove = function (x, y) {
-                this.yawObject.rotation.y -= x * 0.002;
-                this.pitchObject.rotation.x -= y * 0.002;
-
-                this.pitchObject.rotation.x = Math.max(-this.PI_2, Math.min(this.PI_2, this.pitchObject.rotation.x));
+                this.object.rotation.x -= x * 0.000002;
+                this.object.rotation.y -= y * 0.000002;
             };
 
             FirstPersonCameraEntity.prototype.setViewDistance = function (distance) {
@@ -1782,24 +1775,9 @@ var HG;
             };
 
             FirstPersonCameraEntity.prototype.frame = function (delta) {
-                this.velocity.x += (-this.velocity.x) * 0.08 * delta;
-                this.velocity.z += (-this.velocity.z) * 0.08 * delta;
-                this.velocity.y -= 0.25 * delta;
-
-                if (this.isOnObject === true) {
-                    this.velocity.y = Math.max(0, this.velocity.y);
-                }
-
-                this.yawObject.translateX(this.velocity.x);
-                this.yawObject.translateY(this.velocity.y);
-                this.yawObject.translateZ(this.velocity.z);
-
-                if (this.yawObject.position.y < 10) {
-                    this.velocity.y = 0;
-                    this.yawObject.position.y = 10;
-
-                    this.canJump = true;
-                }
+                this.object.translateX(this.velocity.x);
+                this.object.translateY(this.velocity.y);
+                this.object.translateZ(this.velocity.z);
             };
             return FirstPersonCameraEntity;
         })(HG.Entities.CameraEntity);

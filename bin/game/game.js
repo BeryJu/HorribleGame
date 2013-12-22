@@ -9,16 +9,14 @@ var MainScene;
         var skybox = MainScene.createSkyBox(loader);
         scene.add(skybox);
 
-        var heightmap = MainScene.createHeightMap(loader);
-        scene.add(heightmap);
-
         var cam = new HG.Entities.FirstPersonCameraEntity(HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
         cam.name = "mainCamera";
         cam.offset(0, 25, -25).rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782).position(-27.512701511383057, 250, 211.5527195930481);
-
-        var movingAbility = new HG.Abilities.MovingAbility(3.125);
-        cam.ability(movingAbility);
         scene.add(cam);
+        scene.controls.mouse.bind("move", function (x, y) {
+            cam.onMouseMove(x, y);
+        });
+
         scene.camera("mainCamera");
         return scene;
     }
@@ -64,7 +62,6 @@ var MainScene;
                     snowyTexture: textures[5]
                 }
             });
-            console.log(params);
             var material = new THREE.ShaderMaterial(params);
             entity.object = new THREE.Mesh(geometry, material);
             entity.offset(0, -25, 0);

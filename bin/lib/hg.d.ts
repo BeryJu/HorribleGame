@@ -429,8 +429,6 @@ declare module HG.Entities {
         public target: THREE.Object3D;
         public isOnObject: boolean;
         public canJump: boolean;
-        public pitchObject: THREE.Object3D;
-        public yawObject: THREE.Object3D;
         public PI_2: number;
         constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
         public onMouseMove(x: number, y: number): void;
