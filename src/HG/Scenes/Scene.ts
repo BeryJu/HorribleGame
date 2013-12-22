@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 11:35:49
+* @Last Modified time: 2013-12-22 12:28:30
 */
 
 module HG.Scenes {
@@ -11,8 +11,8 @@ module HG.Scenes {
 	export class Scene {
 
 		scene: Physijs.Scene;
-		cameras: HG.Scenes.EntityCollection<HG.Entities.CameraEntity>;
-		entities: HG.Scenes.EntityCollection<HG.Entities.Entity>;
+		cameras: HG.Core.Collection<HG.Entities.CameraEntity>;
+		entities: HG.Core.Collection<HG.Entities.Entity>;
 		controls: HG.Core.InputHandler;
 		selectedCamera: string;
 		color: THREE.Color;
@@ -24,8 +24,8 @@ module HG.Scenes {
 			this.controls = new HG.Core.InputHandler();
 			this.selectedCamera = "";
 			this.scene = new Physijs.Scene();
-			this.entities = new HG.Scenes.EntityCollection<HG.Entities.Entity>();
-			this.cameras = new HG.Scenes.EntityCollection<HG.Entities.CameraEntity>();
+			this.entities = new HG.Core.Collection<HG.Entities.Entity>();
+			this.cameras = new HG.Core.Collection<HG.Entities.CameraEntity>();
 		}
 
 		add(entity: HG.Entities.Entity): void {

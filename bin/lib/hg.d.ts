@@ -35,13 +35,25 @@ declare module HG.Core {
         public paths: string[];
         public game: Core.BaseGame;
         constructor(instance: Core.BaseGame);
-        public load(path: string[], env?: {}): void;
+        public load(path: string[], env?: {
+            HG: any;
+            THREE: any;
+            game: Core.BaseGame;
+            window: Window;
+            document: Document;
+        }): void;
     }
 }
 declare module HG.Core {
     class IPlugin {
         public name: string;
-        constructor(host: Core.PluginHost, env: {});
+        constructor(host: Core.PluginHost, env: {
+            HG: any;
+            THREE: any;
+            game: Core.BaseGame;
+            window: Window;
+            document: Document;
+        });
         public frame(delta: number): void;
     }
 }
@@ -57,7 +69,7 @@ declare module HG.Resource {
 }
 declare module HG.Resource {
     interface ILoadable {
-        load(data: {}): void;
+        load(data: any): void;
     }
 }
 declare module HG.Utils {
@@ -136,8 +148,8 @@ declare module HG.Utils {
 declare module HG.Utils {
     class Map<T> {
         public data: {};
-        public set<T>(data: T, x?: number, y?: number, z?: number): boolean;
-        public get<T>(x?: number, y?: number, z?: number, fallback?: any): T;
+        public set(data: T, x?: number, y?: number, z?: number): boolean;
+        public get(x?: number, y?: number, z?: number, fallback?: any): T;
     }
 }
 declare module HG.Utils {
@@ -211,7 +223,7 @@ declare module HG.Entities {
         public ability(a: HG.Abilities.Ability): boolean;
         public forAbilities(callback: (a: HG.Abilities.Ability) => void): void;
         public offset(x: number, y: number, z: number): Entity;
-        public load(data: {}): void;
+        public load(data: any): void;
         public scale(x: number, y?: number, z?: number): Entity;
         public position(x: number, y: number, z: number): Entity;
         public rotate(x: number, y: number, z: number): Entity;
@@ -230,8 +242,8 @@ declare module HG.Abilities {
 declare module HG.Scenes {
     class Scene {
         public scene: Physijs.Scene;
-        public cameras: Scenes.EntityCollection<HG.Entities.CameraEntity>;
-        public entities: Scenes.EntityCollection<HG.Entities.Entity>;
+        public cameras: HG.Core.Collection<HG.Entities.CameraEntity>;
+        public entities: HG.Core.Collection<HG.Entities.Entity>;
         public controls: HG.Core.InputHandler;
         public selectedCamera: string;
         public color: THREE.Color;
@@ -314,7 +326,6 @@ declare module HG.Abilities {
 }
 declare module HG.Core {
     class BaseGame extends Core.EventDispatcher {
-        public startTime: number;
         public renderer: THREE.WebGLRenderer;
         public resolution: THREE.Vector2;
         public soundMixer: HG.Sound.Mixer;
@@ -323,6 +334,7 @@ declare module HG.Core {
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
         public params: HG.Utils.GameStartParameters;
+        public startTime: number;
         public _running: boolean;
         public events: string[];
         constructor(container: HTMLElement);
@@ -343,6 +355,23 @@ declare module HG.Core {
         public onMouseMove(e: MouseEvent): void;
         public onResize(): void;
         public render(): void;
+    }
+}
+declare module HG.Core {
+    class Collection<T extends { name?: string; }> {
+        public named: {};
+        public unNamed: T[];
+        public add(item: T, name?: string): void;
+        public merge(otherCollection: Collection<T>): Collection<T>;
+        public has(name: string): boolean;
+        public getAllNamed(): T[];
+        public getAllUnnamed(): T[];
+        public getAll(): T[];
+        public forNamed(callback: (e: any, k: string) => any): void;
+        public forUnamed(callback: (e: any) => any): void;
+        public forEach(callback: (e: any, i: any, ...args: any[]) => any): void;
+        public get(name: string): T;
+        public forAll(callback: (e: any) => any): void;
     }
 }
 declare module HG.Core {
@@ -419,7 +448,10 @@ declare module HG.Entities {
         public object: THREE.Mesh;
         public events: string[];
         constructor(geo?: THREE.Geometry, mat?: THREE.MeshBasicMaterial);
-        public load(data: {}): void;
+        public load(data: {
+            material: any;
+            geometry: THREE.Geometry;
+        }): void;
     }
 }
 declare module HG.Entities {
@@ -544,9 +576,11 @@ declare module HG.Locale {
     }
 }
 declare module HG.Resource {
+    class CacheFile {
+    }
     class Cache {
         public loader: Resource.ResourceLoader;
-        public files: {};
+        public files: HG.Core.Collection<CacheFile>;
         constructor(loader: Resource.ResourceLoader);
         public cache(path: string, data?: any): boolean;
     }
@@ -589,23 +623,6 @@ declare module HG.Resource.Sound {
     class WAV extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
         public load(path: string): void;
-    }
-}
-declare module HG.Scenes {
-    class EntityCollection<T extends HG.Entities.Entity> {
-        public named: {};
-        public unNamed: T[];
-        public add(entity: T): void;
-        public merge(otherCollection: EntityCollection<T>): EntityCollection<T>;
-        public has(name: string): boolean;
-        public getAllNamed(type?: any): any[];
-        public getAllUnnamed(type?: any): any[];
-        public getAll(type?: any): T[];
-        public forNamed(callback: (e: any, k: string) => any, type?: any): void;
-        public forUnamed(callback: (e: any) => any, type?: any): void;
-        public forEach(callback: (e: any, i: any, ...args: any[]) => any): void;
-        public get(name: string): T;
-        public forAll(callback: (e: any) => any, type?: any): void;
     }
 }
 declare module HG.Scenes {
@@ -744,12 +761,12 @@ declare module HG.Sound {
 }
 declare module HG.Sound {
     class Mixer {
-        public channels: {};
+        public channels: HG.Core.Collection<Sound.Channel>;
         public gainNode: GainNode;
         public context: AudioContext;
+        constructor();
         public gain : number;
         public channel(name: string): Sound.Channel;
-        constructor();
         public volume(gain: number): void;
         public addChannel(ch: Sound.Channel): void;
     }

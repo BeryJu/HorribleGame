@@ -954,8 +954,8 @@ var HG;
                 this.controls = new HG.Core.InputHandler();
                 this.selectedCamera = "";
                 this.scene = new Physijs.Scene();
-                this.entities = new HG.Scenes.EntityCollection();
-                this.cameras = new HG.Scenes.EntityCollection();
+                this.entities = new HG.Core.Collection();
+                this.cameras = new HG.Core.Collection();
             }
             Scene.prototype.add = function (entity) {
                 this.scene.add(entity.getInternal());
@@ -1291,13 +1291,12 @@ var HG;
         var BaseGame = (function (_super) {
             __extends(BaseGame, _super);
             function BaseGame(container) {
-                _super.call(this);
-                this.startTime = Date.now();
-                this._running = false;
-                this.events = [
+                _super.call(this, [
                     "load", "connected", "start", "keyup", "keydown",
                     "resize", "render", "mouseDown", "mouseUp",
-                    "mouseMove", "preRender", "postRender"];
+                    "mouseMove", "preRender", "postRender"]);
+                this.startTime = Date.now();
+                this._running = false;
                 if (!HG.settings) {
                     HG.settings = HG.Utils.defaultSettings;
                     HG.locale.errors.defaultSettingsUsedWarning.warn();
@@ -1310,12 +1309,13 @@ var HG;
                 this.soundMixer = new HG.Sound.Mixer();
                 this.soundMixer.volume(HG.settings.sound.masterVolume);
 
-                this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
                 for (var c in HG.settings.sound.channels) {
                     var ch = new HG.Sound.Channel(c.replace("Volume", ""));
                     ch.volume(HG.settings.sound.channels[c]);
                     this.soundMixer.addChannel(ch);
                 }
+
+                this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
                 if (HG._gl === true) {
                     this.renderer = new THREE.WebGLRenderer({
                         antialias: HG.settings.graphics.antialiasing
@@ -1375,7 +1375,7 @@ var HG;
             };
 
             BaseGame.prototype.reload = function () {
-                global.require.cache = {};
+                global.require.cache = null;
                 var whwnd = HG.Modules.ui.Window.get();
                 whwnd.reloadIgnoringCache();
             };
@@ -1485,6 +1485,95 @@ var HG;
             return BaseGame;
         })(HG.Core.EventDispatcher);
         Core.BaseGame = BaseGame;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Core) {
+        var Collection = (function () {
+            function Collection() {
+                this.named = {};
+                this.unNamed = [];
+            }
+            Collection.prototype.add = function (item, name) {
+                if (item.name || name) {
+                    var n = (item.name || name).toLowerCase();
+                    if (this.named[n]) {
+                        HG.locale.errors.duplicateNameTagError.f(item.name).error();
+                    } else {
+                        this.named[n] = item;
+                    }
+                } else {
+                    this.unNamed.push(item);
+                }
+            };
+
+            Collection.prototype.merge = function (otherCollection) {
+                var newCollection = new HG.Core.Collection();
+                newCollection.unNamed = this.unNamed.concat(otherCollection.unNamed);
+                for (var k in this.named) {
+                    newCollection.named[k] = this.named[k];
+                }
+                for (var k in otherCollection.named) {
+                    newCollection.named[k] = otherCollection.named[k];
+                }
+                return newCollection;
+            };
+
+            Collection.prototype.has = function (name) {
+                if (!name)
+                    return false;
+                return (this.named[name.toLowerCase()]) ? true : false;
+            };
+
+            Collection.prototype.getAllNamed = function () {
+                var es = [];
+                for (var k in this.named) {
+                    var v = this.named[k];
+                    es.push(v);
+                }
+                return es;
+            };
+
+            Collection.prototype.getAllUnnamed = function () {
+                return this.unNamed;
+            };
+
+            Collection.prototype.getAll = function () {
+                return this.getAllUnnamed().concat(this.getAllNamed());
+            };
+
+            Collection.prototype.forNamed = function (callback) {
+                for (var k in this.named) {
+                    var ne = this.named[k];
+                    callback(ne, k);
+                }
+            };
+
+            Collection.prototype.forUnamed = function (callback) {
+                this.unNamed.forEach(callback);
+            };
+
+            Collection.prototype.forEach = function (callback) {
+                this.unNamed.forEach(callback);
+                for (var k in this.named) {
+                    callback(this.named[k], k);
+                }
+            };
+
+            Collection.prototype.get = function (name) {
+                name = name.toLowerCase();
+                return this.named[name] || null;
+            };
+
+            Collection.prototype.forAll = function (callback) {
+                this.forNamed(callback);
+                this.forUnamed(callback);
+            };
+            return Collection;
+        })();
+        Core.Collection = Collection;
     })(HG.Core || (HG.Core = {}));
     var Core = HG.Core;
 })(HG || (HG = {}));
@@ -1758,17 +1847,17 @@ var HG;
                     this.object = new THREE.Mesh(geo, mat);
             }
             MeshEntity.prototype.load = function (data) {
-                var material = data["material"];
+                var material = data.material;
                 if (Array.isArray(material)) {
                     material.forEach(function (material) {
                         material.morphTargets = true;
                     });
                     var meshMaterial = new THREE.MeshFaceMaterial(material);
-                    this.object = new THREE.Mesh(data["geometry"], meshMaterial);
+                    this.object = new THREE.Mesh(data.geometry, meshMaterial);
                 } else {
-                    this.object = new THREE.Mesh(data["geometry"], material);
+                    this.object = new THREE.Mesh(data.geometry, material);
                 }
-                this.dispatch("loaded", data["geometry"], data["material"]);
+                this.dispatch("loaded", data.geometry, data.material);
             };
             return MeshEntity;
         })(HG.Entities.Entity);
@@ -2058,9 +2147,17 @@ var HG;
 var HG;
 (function (HG) {
     (function (Resource) {
+        var CacheFile = (function () {
+            function CacheFile() {
+            }
+            return CacheFile;
+        })();
+        Resource.CacheFile = CacheFile;
+
         var Cache = (function () {
             function Cache(loader) {
                 this.loader = loader;
+                this.files = new HG.Core.Collection();
             }
             Cache.prototype.cache = function (path, data) {
                 return true;
@@ -2338,112 +2435,6 @@ var HG;
         var Sound = Resource.Sound;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Scenes) {
-        var EntityCollection = (function () {
-            function EntityCollection() {
-                this.named = {};
-                this.unNamed = [];
-            }
-            EntityCollection.prototype.add = function (entity) {
-                if (entity.name) {
-                    if (this.named[entity.name.toLowerCase()]) {
-                        HG.locale.errors.duplicateNameTagError.f(entity.name).error();
-                    } else {
-                        this.named[entity.name.toLowerCase()] = entity;
-                    }
-                } else {
-                    this.unNamed.push(entity);
-                }
-            };
-
-            EntityCollection.prototype.merge = function (otherCollection) {
-                var newCollection = new HG.Scenes.EntityCollection();
-                newCollection.unNamed = this.unNamed.concat(otherCollection.unNamed);
-                for (var k in this.named) {
-                    newCollection.named[k] = this.named[k];
-                }
-                for (var k in otherCollection.named) {
-                    newCollection.named[k] = otherCollection.named[k];
-                }
-                return newCollection;
-            };
-
-            EntityCollection.prototype.has = function (name) {
-                if (!name)
-                    return false;
-                return (this.named[name.toLowerCase()]) ? true : false;
-            };
-
-            EntityCollection.prototype.getAllNamed = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.Entity; }
-                var es = [];
-                for (var k in this.named) {
-                    var v = this.named[k];
-                    if (v instanceof type)
-                        es.push(v);
-                }
-                return es;
-            };
-
-            EntityCollection.prototype.getAllUnnamed = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.Entity; }
-                var es = [];
-                this.unNamed.forEach(function (e) {
-                    if (e instanceof type)
-                        es.push(e);
-                });
-                return es;
-            };
-
-            EntityCollection.prototype.getAll = function (type) {
-                if (typeof type === "undefined") { type = HG.Entities.Entity; }
-                return this.getAllUnnamed(type).concat(this.getAllNamed(type));
-            };
-
-            EntityCollection.prototype.forNamed = function (callback, type) {
-                if (!type)
-                    type = HG.Entities.Entity;
-                for (var k in this.named) {
-                    var ne = this.named[k];
-                    if (ne instanceof type)
-                        callback(ne, k);
-                }
-            };
-
-            EntityCollection.prototype.forUnamed = function (callback, type) {
-                if (!type)
-                    type = HG.Entities.Entity;
-                this.unNamed.forEach(function (e) {
-                    if (e instanceof type)
-                        callback(e);
-                });
-            };
-
-            EntityCollection.prototype.forEach = function (callback) {
-                this.unNamed.forEach(callback);
-                for (var k in this.named) {
-                    callback(this.named[k], k);
-                }
-            };
-
-            EntityCollection.prototype.get = function (name) {
-                name = name.toLowerCase();
-                return this.named[name] || null;
-            };
-
-            EntityCollection.prototype.forAll = function (callback, type) {
-                if (typeof type === "undefined") { type = HG.Entities.Entity; }
-                this.forNamed(callback, type);
-                this.forUnamed(callback, type);
-            };
-            return EntityCollection;
-        })();
-        Scenes.EntityCollection = EntityCollection;
-    })(HG.Scenes || (HG.Scenes = {}));
-    var Scenes = HG.Scenes;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -2819,8 +2810,8 @@ var HG;
     (function (Sound) {
         var Mixer = (function () {
             function Mixer() {
-                this.channels = {};
                 this.context = new AudioContext();
+                this.channels = new HG.Core.Collection();
             }
             Object.defineProperty(Mixer.prototype, "gain", {
                 get: function () {
@@ -2832,7 +2823,7 @@ var HG;
 
             Mixer.prototype.channel = function (name) {
                 if (name in this.channels) {
-                    return this.channels[name];
+                    return this.channels.get(name);
                 } else {
                     return null;
                 }
@@ -2845,7 +2836,7 @@ var HG;
 
             Mixer.prototype.addChannel = function (ch) {
                 ch.rootContext = this.context;
-                this.channels[ch.name] = ch;
+                this.channels.add(ch);
             };
             return Mixer;
         })();

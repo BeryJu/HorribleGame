@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 14:03:53
+* @Last Modified time: 2013-12-22 12:36:15
 */
 
 module HG.Resource {
@@ -124,7 +124,7 @@ module HG.Resource {
 			extend: Function;
 		} {
 			var raw = this.json<HG.Core.Shader>(path);
-			var extend = function(d: {}) {
+			var extend = function(d: any) {
 				for (var k in d) {
 					raw[k] = d[k];
 				}

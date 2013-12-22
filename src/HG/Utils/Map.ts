@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-02 16:51:02
+* @Last Modified time: 2013-12-22 12:33:00
 */
 
 module HG.Utils {
@@ -12,7 +12,7 @@ module HG.Utils {
 
 		data: {} = {};
 
-		set<T>(data: T, x: number = 0, y: number = 0, z: number = 0): boolean {
+		set(data: T, x: number = 0, y: number = 0, z: number = 0): boolean {
 			if (!this.data[x]) this.data[x] = {};
 			if (!this.data[x][y]) this.data[x][y] = {};
 			var overwritten = false;
@@ -21,7 +21,7 @@ module HG.Utils {
 			return overwritten;
 		}
 
-		get<T>(x: number = 0, y: number = 0, z: number = 0, fallback?: any): T {
+		get(x: number = 0, y: number = 0, z: number = 0, fallback?: any): T {
 			if (!this.data[x]) {
 				return fallback;
 			} else {

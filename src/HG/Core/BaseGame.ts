@@ -3,16 +3,16 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 14:06:10
+* @Last Modified time: 2013-12-22 12:21:59
 */
 
 module HG.Core {
 
-	export class BaseGame extends  HG.Core.EventDispatcher  {
+	export class BaseGame extends HG.Core.EventDispatcher  {
 
-		startTime: number = Date.now();
 		renderer: THREE.WebGLRenderer;
 		resolution: THREE.Vector2;
+
 		soundMixer: HG.Sound.Mixer;
 		currentScene: HG.Scenes.Scene;
 		pluginHost: HG.Core.PluginHost;
@@ -20,14 +20,16 @@ module HG.Core {
 		fpsCounter: HG.Utils.FPSCounter;
 		params: HG.Utils.GameStartParameters;
 
-		_running: boolean = false;
-		events: string[] =
-			["load", "connected", "start", "keyup", "keydown",
-			"resize", "render", "mouseDown", "mouseUp",
-			"mouseMove", "preRender", "postRender"];
+		startTime: number;
+		_running: boolean;
+		events: string[];
 
 		constructor(container: HTMLElement) {
-			super();
+			super(["load", "connected", "start", "keyup", "keydown",
+				"resize", "render", "mouseDown", "mouseUp",
+				"mouseMove", "preRender", "postRender"]);
+			this.startTime = Date.now();
+			this._running = false;
 			if (!HG.settings) {
 				HG.settings = HG.Utils.defaultSettings;
 				HG.locale.errors.defaultSettingsUsedWarning.warn();
@@ -40,12 +42,13 @@ module HG.Core {
 			this.soundMixer = new HG.Sound.Mixer();
 			this.soundMixer.volume(HG.settings.sound.masterVolume);
 
-			this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			for (var c in HG.settings.sound.channels) {
 				var ch = new HG.Sound.Channel(c.replace("Volume", ""));
 				ch.volume(HG.settings.sound.channels[c]);
 				this.soundMixer.addChannel(ch);
 			}
+
+			this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			if (HG._gl === true) {
 				this.renderer = new THREE.WebGLRenderer({
 					antialias: HG.settings.graphics.antialiasing
@@ -102,7 +105,7 @@ module HG.Core {
 		}
 
 		reload(): void {
-			global.require.cache = {};
+			global.require.cache = null;
 			var whwnd = HG.Modules.ui.Window.get();
 			whwnd.reloadIgnoringCache();
 		}
