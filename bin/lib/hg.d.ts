@@ -67,6 +67,7 @@ declare module HG.Utils {
         public graphics: {
             fullscreen: boolean;
             fov: number;
+            aa: number;
             viewDistance: number;
             shadowMapSize: number;
             useStaticFramerate: boolean;
@@ -205,6 +206,7 @@ declare module HG.Entities {
         public object: THREE.Object3D;
         public name: string;
         public positionOffset: THREE.Vector3;
+        public velocity: THREE.Vector3;
         constructor(object?: THREE.Object3D);
         public ability(a: HG.Abilities.Ability): boolean;
         public forAbilities(callback: (a: HG.Abilities.Ability) => void): void;
@@ -226,7 +228,7 @@ declare module HG.Abilities {
     }
 }
 declare module HG.Scenes {
-    class BaseScene {
+    class Scene {
         public scene: Physijs.Scene;
         public cameras: Scenes.EntityCollection<HG.Entities.CameraEntity>;
         public entities: Scenes.EntityCollection<HG.Entities.Entity>;
@@ -237,7 +239,7 @@ declare module HG.Scenes {
         public startTime: number;
         constructor();
         public add(entity: HG.Entities.Entity): void;
-        public merge(otherScene: BaseScene): BaseScene;
+        public merge(otherScene: Scene): Scene;
         public onResize(ratio: number): void;
         public camera(name: string): boolean;
         public getInternal(): Physijs.Scene;
@@ -316,7 +318,7 @@ declare module HG.Core {
         public renderer: THREE.WebGLRenderer;
         public resolution: THREE.Vector2;
         public soundMixer: HG.Sound.Mixer;
-        public currentScene: HG.Scenes.BaseScene;
+        public currentScene: HG.Scenes.Scene;
         public pluginHost: Core.PluginHost;
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
@@ -325,7 +327,7 @@ declare module HG.Core {
         public events: string[];
         constructor(container: HTMLElement);
         public title : any[];
-        public scene(scene: HG.Scenes.BaseScene): void;
+        public scene(scene: HG.Scenes.Scene): void;
         public screenshot(path: string, imageType?: string): void;
         public load(): void;
         public resize(resolution: THREE.Vector2): void;
@@ -372,15 +374,6 @@ declare module HG.Core {
     class Shader {
         public vertex: string;
         public fragment: string;
-        public meta: {
-            properties: {};
-            type: string;
-        };
-        public uniforms: {};
-        public loader: HG.Resource.ResourceLoader;
-        constructor(raw: HG.Scenes.Serializer.RawShaderDefinition, loader: HG.Resource.ResourceLoader);
-        public parseUniforms(properties: {}): void;
-        public toMaterial(): THREE.ShaderMaterial;
     }
 }
 declare module HG.Entities {
@@ -404,14 +397,15 @@ declare module HG.Entities {
 declare module HG.Entities {
     class FirstPersonCameraEntity extends Entities.CameraEntity {
         public object: THREE.PerspectiveCamera;
-        public target: Entities.MeshEntity;
+        public target: THREE.Object3D;
+        public isOnObject: boolean;
+        public canJump: boolean;
         public pitchObject: THREE.Object3D;
         public yawObject: THREE.Object3D;
-        public velocity: THREE.Vector3;
         public PI_2: number;
         constructor(fov?: number, aspect?: number, zNear?: number, zFar?: number);
         public onMouseMove(x: number, y: number): void;
-        public setViewDistance(d: number): void;
+        public setViewDistance(distance: number): void;
         public frame(delta: number): void;
     }
 }
@@ -436,6 +430,11 @@ declare module HG.Entities {
         public map: string;
         constructor(map: string, count?: number, size?: number);
         public create(): void;
+    }
+}
+declare module HG.Entities {
+    class SkyBoxEntity extends Entities.Entity {
+        constructor(textures: THREE.Texture[], order?: string[], size?: number);
     }
 }
 declare module HG.Entities {
@@ -571,23 +570,23 @@ declare module HG.Resource {
         public path(path: string, silent?: boolean): string;
         private load(relPath, namespace, target, ...args);
         public model(path: string, entitiy: HG.Entities.MeshEntity, ...args: any[]): void;
-        public texture(path: string, entitiy: HG.Entities.Entity): void;
         public sound(path: string, effect: HG.Sound.Effect): void;
-        public scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void;
-        public queueScene(paths: string[], done: (scenes: HG.Scenes.BaseScene[]) => void): void;
+        public texture(path: string): THREE.Texture;
+        public queueTexture(paths: string[], done: (textures: THREE.Texture[]) => void): void;
+        public scene(path: string, done: (scene: HG.Scenes.Scene) => void): void;
+        public queueScene(paths: string[], done: (scenes: HG.Scenes.Scene[]) => void): void;
         public queueJSON<T>(paths: string[], done: (scenes: T[]) => void): void;
+        public shader(path: string): {
+            vertex: string;
+            fragment: string;
+            extend: Function;
+        };
         public json<T>(path: string, data?: T): T;
-        public directory(directory: string): string[];
+        public directory(directory: string, extension?: string): string[];
     }
 }
 declare module HG.Resource.Sound {
     class WAV extends HG.Core.EventDispatcher implements Resource.IFiletype {
-        public events: string[];
-        public load(path: string): void;
-    }
-}
-declare module HG.Resource.Texture {
-    class PNG extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
         public load(path: string): void;
     }
@@ -610,7 +609,7 @@ declare module HG.Scenes {
     }
 }
 declare module HG.Scenes {
-    class GameScene extends Scenes.BaseScene {
+    class GameScene extends Scenes.Scene {
     }
 }
 declare module HG.Scenes.Serializer {
@@ -649,13 +648,13 @@ declare module HG.Scenes.Serializer {
 }
 declare module HG.Scenes.Serializer {
     class EntityParser extends HG.Core.EventDispatcher {
-        public scene: Scenes.BaseScene;
+        public scene: Scenes.Scene;
         public loader: HG.Resource.ResourceLoader;
         public defaultPosition: number[];
         public defaultRotation: number[];
         public defaultOffset: number[];
         public defaultScale: number[];
-        constructor(scene: Scenes.BaseScene, loader: HG.Resource.ResourceLoader);
+        constructor(scene: Scenes.Scene, loader: HG.Resource.ResourceLoader);
         private parseMaterials(raw, scene);
         private parseGeometry(raw, scene);
         private parseSingleMaterial(raw, scene);

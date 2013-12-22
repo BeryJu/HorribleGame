@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 10:25:38
+* @Last Modified time: 2013-12-21 14:03:53
 */
 
 module HG.Resource {
@@ -70,25 +70,37 @@ module HG.Resource {
 			this.load(path, HG.Resource.Model, entitiy, args);
 		}
 
-		texture(path: string, entitiy: HG.Entities.Entity): void {
-			this.load(path, HG.Resource.Texture, entitiy);
-		}
-
 		sound(path: string, effect: HG.Sound.Effect): void {
 			this.load(path, HG.Resource.Sound, effect);
 		}
 
-		scene(path: string, done: (scene: HG.Scenes.BaseScene) => void): void {
+		texture(path: string): THREE.Texture {
+			var tex = THREE.ImageUtils.loadTexture(this.path(path));
+			tex.anisotropy = HG.settings.graphics.aa;
+			return tex;
+		}
+
+		queueTexture(paths: string[], done: (textures: THREE.Texture[]) => void): void {
+			var queue = [];
+			paths.forEach((path) => {
+				queue.push((next: Function) => {
+					next(this.texture(path));
+				});
+			});
+			HG.Utils.queue(queue, done);
+		}
+
+		scene(path: string, done: (scene: HG.Scenes.Scene) => void): void {
 			var serializer =  new HG.Scenes.Serializer.SceneSerializer(this);
 			serializer.on("done", done);
 			serializer.fromGeneric(this.json<any>(path));
 		}
 
-		queueScene(paths: string[], done: (scenes: HG.Scenes.BaseScene[]) => void): void {
+		queueScene(paths: string[], done: (scenes: HG.Scenes.Scene[]) => void): void {
 			var queue = [];
 			paths.forEach((path) => {
 				queue.push((next: Function) => {
-					this.scene(path, (scene: HG.Scenes.BaseScene) => {
+					this.scene(path, (scene: HG.Scenes.Scene) => {
 						next(scene);
 					});
 				});
@@ -106,6 +118,25 @@ module HG.Resource {
 			HG.Utils.queue(queue, done);
 		}
 
+		shader(path: string): {
+			vertex: string;
+			fragment: string;
+			extend: Function;
+		} {
+			var raw = this.json<HG.Core.Shader>(path);
+			var extend = function(d: {}) {
+				for (var k in d) {
+					raw[k] = d[k];
+				}
+				return raw;
+			};
+			return {
+				vertex: raw.vertex,
+				fragment: raw.fragment,
+				extend: extend
+			};
+		}
+
 		json<T>(path: string, data?: T): T {
 			path = this.path(path);
 			if (data) {
@@ -121,12 +152,14 @@ module HG.Resource {
 			}
 		}
 
-		directory(directory: string): Array<string> {
+		directory(directory: string, extension: string = ""): Array<string> {
 			var path = HG.Modules.path.join(this.baseDirectory, directory);
 			var files = HG.Modules.fs.readdirSync(path);
 			var realFiles = [];
 			files.forEach((file) => {
-				realFiles.push(HG.Modules.path.join(this.baseDirectory, directory, file));
+				if (file.indexOf(extension) !== -1) {
+					realFiles.push(HG.Modules.path.join(this.baseDirectory, directory, file));
+				}
 			});
 			return realFiles;
 		}

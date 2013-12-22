@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-13 17:49:44
+* @Last Modified time: 2013-12-21 14:06:10
 */
 
 module HG.Core {
@@ -14,7 +14,7 @@ module HG.Core {
 		renderer: THREE.WebGLRenderer;
 		resolution: THREE.Vector2;
 		soundMixer: HG.Sound.Mixer;
-		currentScene: HG.Scenes.BaseScene;
+		currentScene: HG.Scenes.Scene;
 		pluginHost: HG.Core.PluginHost;
 		controls: HG.Core.InputHandler;
 		fpsCounter: HG.Utils.FPSCounter;
@@ -50,6 +50,7 @@ module HG.Core {
 				this.renderer = new THREE.WebGLRenderer({
 					antialias: HG.settings.graphics.antialiasing
 				});
+				HG.settings.graphics.aa = this.renderer.getMaxAnisotropy();
 				this.renderer.setSize(window.innerWidth, window.innerHeight);
 				container.appendChild(this.renderer.domElement);
 			} else {
@@ -61,7 +62,7 @@ module HG.Core {
 			document.title = v.join("");
 		}
 
-		scene(scene: HG.Scenes.BaseScene): void {
+		scene(scene: HG.Scenes.Scene): void {
 			this.pluginHost.dispatch("sceneChange", scene);
 			this.renderer.setClearColor(scene.color, scene.colorAlpha);
 			this.currentScene = scene;

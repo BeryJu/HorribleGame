@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 10:19:46
+* @Last Modified time: 2013-12-21 12:34:25
 */
 module HG.Entities {
 
@@ -12,7 +12,8 @@ module HG.Entities {
 		abilities: HG.Abilities.Ability[] = [];
 		object: THREE.Object3D;
 		name: string;
-		positionOffset: THREE.Vector3 = new THREE.Vector3;
+		positionOffset: THREE.Vector3 = new THREE.Vector3();
+		velocity: THREE.Vector3 = new THREE.Vector3();
 
 		constructor(object?: THREE.Object3D) {
 			super();
@@ -67,6 +68,15 @@ module HG.Entities {
 		}
 
 		frame(delta: number): void {
+			this.velocity.x += ( - this.velocity.x ) * 0.08 * delta;
+			this.velocity.z += ( - this.velocity.z ) * 0.08 * delta;
+			this.velocity.y -= 0.25 * delta;
+
+			this.object.translateX(delta * this.velocity.x);
+			this.object.translateX(-delta * this.velocity.x);
+			this.object.translateZ(delta * this.velocity.z);
+			this.object.translateZ(-delta * this.velocity.z);
+
 			if (this.abilities.length > 0) {
 				this.abilities.forEach((ability) => {
 					ability.frame(delta);

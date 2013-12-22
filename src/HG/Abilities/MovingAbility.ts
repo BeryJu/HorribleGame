@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 10:19:46
+* @Last Modified time: 2013-12-21 12:31:41
 */
 
 module HG.Abilities {
@@ -19,13 +19,13 @@ module HG.Abilities {
 
 		moveLeft(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateX(delta * this.baseStep);
+				host.velocity.x -= 0.12 * delta * this.baseStep;
 			});
 		}
 
 		moveRight(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateX(-delta * this.baseStep);
+				host.velocity.x += 0.12 * delta * this.baseStep;
 			});
 		}
 
@@ -49,13 +49,13 @@ module HG.Abilities {
 
 		moveForward(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateZ(delta * this.baseStep);
+				host.velocity.z -= 0.12 * delta * this.baseStep;
 			});
 		}
 
 		moveBackward(delta: number): void {
 			this.hosts.forEach((host) => {
-				host.object.translateZ(-delta * this.baseStep);
+				host.velocity.z += 0.12 * delta * this.baseStep;
 			});
 		}
 

@@ -3,12 +3,12 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 10:19:21
+* @Last Modified time: 2013-12-21 11:35:49
 */
 
 module HG.Scenes {
 
-	export class BaseScene {
+	export class Scene {
 
 		scene: Physijs.Scene;
 		cameras: HG.Scenes.EntityCollection<HG.Entities.CameraEntity>;
@@ -37,8 +37,8 @@ module HG.Scenes {
 			}
 		}
 
-		merge(otherScene: HG.Scenes.BaseScene): HG.Scenes.BaseScene {
-			var newScene = new HG.Scenes.BaseScene();
+		merge(otherScene: HG.Scenes.Scene): HG.Scenes.Scene {
+			var newScene = new HG.Scenes.Scene();
 			newScene.entities = this.entities.merge(otherScene.entities);
 			newScene.cameras = this.cameras.merge(otherScene.cameras);
 			newScene.controls = this.controls.merge(otherScene.controls);

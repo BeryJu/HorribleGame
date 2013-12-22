@@ -3,10 +3,11 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 10:18:54
+* @Last Modified time: 2013-12-21 14:00:40
 */
 
 /// <reference path="GameLocale.ts" />
+/// <reference path="scenes/Main.ts" />
 
 // Initialize HG
 HG.horrible();
@@ -15,20 +16,16 @@ HG.horrible();
 var gameCanvas = query("#canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
-var mainScene = new HG.Scenes.BaseScene();
+var mainScene = new HG.Scenes.Scene();
 var locale = loader.json<GameLocale>("locale/game.locale.json");
-// var server = new HG.Core.BaseServer(9898);
-game.pluginHost.load(loader.directory("plugins"));
-var cam;
 
 if (HG.settings.debug === true) {
 	HG.Utils.devTools();
 }
 
 game.on("load", () => {
-	// loader.scene("scenes/test.scene.json", (scene: HG.Scenes.BaseScene) => {
-	// 	mainScene = scene;
-	// });
+	game.pluginHost.load(loader.directory("plugins", ".js"));
+	mainScene = MainScene.create(loader);
 	game.scene(mainScene);
 	game.start({
 		input: true,

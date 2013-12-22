@@ -1137,6 +1137,10 @@
 	{
 		"height": 210.0
 	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
 	"output.haskell_sublime_load":
 	{
 		"height": 210.0

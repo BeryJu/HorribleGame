@@ -3,7 +3,7 @@
 * @Date:   2013-12-07 11:37:00
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-10 16:25:05
+* @Last Modified time: 2013-12-21 11:35:50
 */
 
 module HG.Scenes.Serializer {
@@ -20,12 +20,12 @@ module HG.Scenes.Serializer {
 
 		fromGeneric(generic: any): void {
 			generic = <HG.Scenes.Serializer.SceneDefinition> generic;
-			var scene = new HG.Scenes.BaseScene();
+			var scene = new HG.Scenes.Scene();
 			scene.color = HG.Utils.parseColor(generic.color);
 			scene.colorAlpha = 1 || generic.colorAlpha;
 			var allEntities = generic.entities.concat(generic.cameras);
 			var index: number = 0;
-			var nextEntity = (entry: any, scene: HG.Scenes.BaseScene) => {
+			var nextEntity = (entry: any, scene: HG.Scenes.Scene) => {
 				var parser = new HG.Scenes.Serializer.EntityParser(scene, this.loader);
 				parser.on("parsed", (entity) => {
 					scene.add(entity);

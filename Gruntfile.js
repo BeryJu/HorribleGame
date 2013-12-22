@@ -14,7 +14,6 @@ var paths = {
 		assets: {
 			shaders: "shaders/",
 			textures: "textures/",
-			scenes: "scenes/",
 			models: "models"
 		},
 		source: [
@@ -111,16 +110,6 @@ var config = {
 				declaration: true,
 				sourcemap: false
 			}
-		},
-		scenes: {
-			src: [ paths.libs ].concat(paths.hg.def, paths.game.def,
-					path.join(paths.game.root, paths.game.assets.scenes)),
-			outDir: path.join(paths.build.root, paths.build.assets.scenes),
-			options: {
-				target: "es5",
-				comments: true,
-				sourcemap: false
-			}
 		}
 	},
 	watch: {
@@ -170,6 +159,6 @@ module.exports = function(grunt) {
 	grunt.registerTask("hg", ["jade", "tslint:hg", "ts:hg", "nodeunit:hg"]);
 	grunt.registerTask("default", ["tslint:hg", "ts", "nodeunit"]);
 	grunt.registerTask('all', allTasks);
-
+	grunt.registerTask('yall', allTasks);
 	grunt.registerTask("game", gameTasks);
 };
