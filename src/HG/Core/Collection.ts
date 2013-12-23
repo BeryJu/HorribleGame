@@ -13,7 +13,7 @@ module HG.Core {
 		named: {} = {};
 		unNamed: T[] = [];
 
-		add(item: T, name?: string): void {
+		push(item: T, name?: string): void {
 			if (item.name || name) {
 				var n = (item.name || name).toLowerCase();
 				if (this.named[n]) {
@@ -26,7 +26,7 @@ module HG.Core {
 			}
 		}
 
-		merge(otherCollection: HG.Core.Collection<T>): HG.Core.Collection<T> {
+		concat(otherCollection: HG.Core.Collection<T>): HG.Core.Collection<T> {
 			var newCollection = new HG.Core.Collection<T>();
 			newCollection.unNamed = this.unNamed.concat(otherCollection.unNamed);
 			for (var k in this.named) {

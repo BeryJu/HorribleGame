@@ -28,20 +28,20 @@ module HG.Scenes {
 			this.cameras = new HG.Core.Collection<HG.Entities.CameraEntity>();
 		}
 
-		add(entity: HG.Entities.Entity): void {
+		push(entity: HG.Entities.Entity): void {
 			this.scene.add(entity.getInternal());
 			if (entity instanceof HG.Entities.CameraEntity) {
-				this.cameras.add(<HG.Entities.CameraEntity> entity);
+				this.cameras.push(<HG.Entities.CameraEntity> entity);
 			} else if (entity instanceof HG.Entities.Entity) {
-				this.entities.add(entity);
+				this.entities.push(entity);
 			}
 		}
 
-		merge(otherScene: HG.Scenes.Scene): HG.Scenes.Scene {
+		concat(otherScene: HG.Scenes.Scene): HG.Scenes.Scene {
 			var newScene = new HG.Scenes.Scene();
-			newScene.entities = this.entities.merge(otherScene.entities);
-			newScene.cameras = this.cameras.merge(otherScene.cameras);
-			newScene.controls = this.controls.merge(otherScene.controls);
+			newScene.entities = this.entities.concat(otherScene.entities);
+			newScene.cameras = this.cameras.concat(otherScene.cameras);
+			newScene.controls = this.controls.concat(otherScene.controls);
 			newScene.color = this.color;
 			newScene.colorAlpha = this.colorAlpha;
 			newScene.selectedCamera = this.selectedCamera;

@@ -15,6 +15,8 @@ module HG.Locale {
 			duplicateNameTagError: string;
 			defaultSettingsUsedWarning: string;
 			fileNotExisting: string;
+			keyNotExistend: string;
+			valueNotExistend: string;
 		};
 		debug: {
 			geometries: string;

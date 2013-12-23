@@ -11,7 +11,7 @@ declare module HG.Core {
         public events: string[];
         constructor(events?: string[]);
         private resolve(raw);
-        public merge(otherDispatcher: EventDispatcher): EventDispatcher;
+        public concat(otherDispatcher: EventDispatcher): EventDispatcher;
         public every(eventHandler: (...args: any[]) => any): EventDispatcher;
         public on(name: any, eventHandler?: Function): EventDispatcher;
         public bind: (name: any, eventHandler?: Function) => EventDispatcher;
@@ -250,8 +250,8 @@ declare module HG.Scenes {
         public colorAlpha: number;
         public startTime: number;
         constructor();
-        public add(entity: HG.Entities.Entity): void;
-        public merge(otherScene: Scene): Scene;
+        public push(entity: HG.Entities.Entity): void;
+        public concat(otherScene: Scene): Scene;
         public onResize(ratio: number): void;
         public camera(name: string): boolean;
         public getInternal(): Physijs.Scene;
@@ -325,6 +325,18 @@ declare module HG.Abilities {
     }
 }
 declare module HG.Core {
+    class ArrayKey<T> {
+        private values;
+        private keys;
+        constructor();
+        public forEach(fn: (value: T, index: number, key: any) => any): void;
+        public push(item: T, key: any): void;
+        public concat(...args: ArrayKey<T>[]): ArrayKey<T>;
+        public value(v: T): any;
+        public key(k: any): T;
+    }
+}
+declare module HG.Core {
     class BaseGame extends Core.EventDispatcher {
         public renderer: THREE.WebGLRenderer;
         public resolution: THREE.Vector2;
@@ -361,8 +373,8 @@ declare module HG.Core {
     class Collection<T extends { name?: string; }> {
         public named: {};
         public unNamed: T[];
-        public add(item: T, name?: string): void;
-        public merge(otherCollection: Collection<T>): Collection<T>;
+        public push(item: T, name?: string): void;
+        public concat(otherCollection: Collection<T>): Collection<T>;
         public has(name: string): boolean;
         public getAllNamed(): T[];
         public getAllUnnamed(): T[];
@@ -384,7 +396,7 @@ declare module HG.Core {
         public mousePosition : THREE.Vector2;
         constructor();
         public onMouseMove(e: MouseEvent): void;
-        public merge(otherHandler: InputHandler): InputHandler;
+        public concat(otherHandler: InputHandler): InputHandler;
         public onMouseDown(e: MouseEvent): void;
         public onMouseUp(e: MouseEvent): void;
         public onKeyDown(e: KeyboardEvent): void;
@@ -533,6 +545,8 @@ declare module HG.Locale {
             duplicateNameTagError: string;
             defaultSettingsUsedWarning: string;
             fileNotExisting: string;
+            keyNotExistend: string;
+            valueNotExistend: string;
         };
         debug: {
             geometries: string;

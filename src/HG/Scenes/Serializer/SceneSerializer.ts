@@ -28,7 +28,7 @@ module HG.Scenes.Serializer {
 			var nextEntity = (entry: any, scene: HG.Scenes.Scene) => {
 				var parser = new HG.Scenes.Serializer.EntityParser(scene, this.loader);
 				parser.on("parsed", (entity) => {
-					scene.add(entity);
+					scene.push(entity);
 					index++;
 					if (index < allEntities.length) {
 						nextEntity(allEntities[index], scene);

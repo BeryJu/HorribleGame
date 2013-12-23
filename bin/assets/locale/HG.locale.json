@@ -4,7 +4,9 @@
 		"nullReferenceError": "NullReference Error",
 		"duplicateNameTagError": "Duplicate Name Tag: ${0}",
 		"defaultSettingsUsedWarning": "Default Settings used",
-		"fileNotExisting": "File ${0} doesn't exist"
+		"fileNotExisting": "File ${0} doesn't exist",
+		"keyNotExistend": "Key does not exist",
+		"valueNotExistend": "Value does not exist"
 	},
 	"debug": {
 		"geometries": "Geometries: ${0}",

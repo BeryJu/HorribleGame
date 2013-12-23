@@ -45,10 +45,10 @@ module HG.Core {
 			this.mouse.dispatch("move", x, y);
 		}
 
-		merge(otherHandler: HG.Core.InputHandler): HG.Core.InputHandler {
+		concat(otherHandler: HG.Core.InputHandler): HG.Core.InputHandler {
 			var newHandler = new HG.Core.InputHandler();
-			newHandler.keyboard = this.keyboard.merge(otherHandler.keyboard);
-			newHandler.mouse = this.mouse.merge(otherHandler.mouse);
+			newHandler.keyboard = this.keyboard.concat(otherHandler.keyboard);
+			newHandler.mouse = this.mouse.concat(otherHandler.mouse);
 			return newHandler;
 		}
 

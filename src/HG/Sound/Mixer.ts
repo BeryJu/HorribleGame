@@ -38,7 +38,7 @@ module HG.Sound {
 
 		addChannel(ch: HG.Sound.Channel): void {
 			ch.rootContext = this.context;
-			this.channels.add(ch);
+			this.channels.push(ch);
 		}
 
 	}

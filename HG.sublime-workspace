@@ -4,6 +4,18 @@
 		"selected_items":
 		[
 			[
+				"ke",
+				"key"
+			],
+			[
+				"arr",
+				"arrayCreateTest"
+			],
+			[
+				"ara",
+				"arrayCreateTest"
+			],
+			[
 				"Audi",
 				"AudioBuffer"
 			],
@@ -499,9 +511,17 @@
 	"build_system": "Packages/User/Build System/Grunt.sublime-build",
 	"command_palette":
 	{
-		"height": 61.0,
+		"height": 309.0,
 		"selected_items":
 		[
+			[
+				"user",
+				"Preferences: Settings - User"
+			],
+			[
+				"jac",
+				"Set Syntax: JavaScript"
+			],
 			[
 				"remove",
 				"Package Control: Remove Package"
@@ -651,10 +671,6 @@
 				"Set Syntax: JSON"
 			],
 			[
-				"jac",
-				"Set Syntax: JavaScript"
-			],
-			[
 				"javasc",
 				"Set Syntax: JavaScriptNext"
 			],
@@ -735,7 +751,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 386.0
+		"width": 633.0
 	},
 	"console":
 	{
@@ -781,6 +797,43 @@
 	},
 	"file_history":
 	[
+		"/home/beryju/dev/HorribleGame/src/HorribleGame/scenes/Main.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Core/ArrayKey.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Scenes/Serializer/SceneSerializer.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Scenes/Scene.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Core/Collection.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Sound/Mixer.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Abilities/ScriptExecuteAbility.ts",
+		"/home/beryju/dev/HorribleGame/src/grunt/scaleTextures.js",
+		"/home/beryju/dev/HorribleGame/src/HG/Core/EventDispatcher.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Core/InputHandler.ts",
+		"/home/beryju/dev/HorribleGame/src/grunt/convertModel.js",
+		"/home/beryju/dev/HorribleGame/src/grunt/compileShaders.js",
+		"/home/beryju/dev/HorribleGame/src/HG/LINQ/ObjectProvider.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Core/ServerConnection.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/LINQ/StringProvider.ts",
+		"/home/beryju/.config/sublime-text-3/Packages/User/Preferences.sublime-settings",
+		"/home/beryju/dev/HorribleGame/bin/assets/locale/HG.locale.json",
+		"/home/beryju/dev/HorribleGame/src/HorribleGame/GameLocale.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Locale/LocaleDefinition.ts",
+		"/home/beryju/dev/HorribleGame/src/HG/Locale/Locale.ts",
+		"/home/beryju/dev/HorribleGame/tests/LogTest.js",
+		"/home/beryju/dev/HorribleGame/src/HorribleGame/Game.ts",
+		"/home/beryju/dev/HorribleGame/bin/style.css",
+		"/home/beryju/dev/HorribleGame/HG.todo",
+		"/home/beryju/dev/HorribleGame/bin/HorribleGame",
+		"/home/beryju/dev/HorribleGame/to port/PointerLockControls.js",
+		"/home/beryju/dev/HorribleGame/tests/LINQArrayTest.js",
+		"/home/beryju/dev/HorribleGame/bin/assets/models/android.js",
+		"/home/beryju/dev/hashTest.js",
+		"/home/beryju/dev/HorribleGame/bin/lib/dependencies/three.js",
+		"/home/beryju/dev/HorribleGame/src/tslint.json",
+		"/home/beryju/dev/HorribleGame/tests/TestHelper.js",
+		"/home/beryju/dev/HorribleGame/src/HG/Abilities/MovingAbility.ts",
+		"/home/beryju/dev/HorribleGame/bin/game/game.js",
+		"/home/beryju/dev/HorribleGame/Gruntfile.js",
+		"/home/beryju/dev/HorribleGame/bin/package.json",
+		"/home/beryju/dev/HorribleGame/package.json",
 		"/J/projects/Editor.js/Gruntfile.js",
 		"/J/projects/WebAudio/js/main.js",
 		"/J/projects/HorribleGame/game/Game.ts",
@@ -871,54 +924,20 @@
 		"/J/projects/HorribleGame/src/engine/loaders/IFiletype.ts",
 		"/J/projects/HorribleGame/src/engine/loaders/LoadData.ts",
 		"/J/projects/HorribleGame/src/engine/loaders/Loader.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/models/JS.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/models/STL.ts",
-		"/J/projects/HorribleGame/src/engine/ServerConnection.ts",
-		"/J/projects/HorribleGame/src/engine/Shader.ts",
-		"/J/projects/HorribleGame/src/engine/utils/FPSCounter.ts",
-		"/J/projects/HorribleGame/src/engine/utils/KeyMap.ts",
-		"/J/projects/HorribleGame/src/engine/utils/Map.ts",
-		"/J/projects/HorribleGame/src/engine/utils/Noise.ts",
-		"/J/projects/HorribleGame/src/engine/utils/SettingsStructure.ts",
-		"/J/projects/HorribleGame/bin/lib/hg.d.ts",
-		"/J/projects/HorribleGame/tests/expTest.js",
-		"/J/projects/HorribleGame/bin/game/Game.ts",
-		"/J/projects/HorribleGame/src/Game.ts",
-		"/J/projects/HorribleGame/bin/game.js",
-		"/J/projects/HorribleGame/bin/assets/fonts/droidSans.typeface.js",
-		"/J/projects/HorribleGame/dist/index.html",
-		"/J/projects/HorribleGame/dist/lib/three.js",
-		"/J/projects/HorribleGame-wiki/Home.md",
-		"/C/Users/BeryJu/Desktop/start.bat",
-		"/C/Program Files/Sublime Text 3/sublime.py",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/PlainTasks.sublime-settings",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/PlainTasks/PlainTasks (Windows).sublime-settings",
-		"/J/projects/HorribleGame/testAll.js",
-		"/J/projects/HorribleGame/tests/testAll.js",
-		"/J/projects/node-browserenv/src/BrowserEnv.ts",
-		"/J/projects/node-browserenv/package.json",
-		"/J/projects/node-browserenv/gruntfile.js",
-		"/J/projects/node-browserenv/build/browserenv.js",
-		"/J/projects/node-browserenv/browserenv.js",
-		"/J/projects/HorribleGame-wiki/Plugins.md",
-		"/J/.gitignore",
-		"/J/backup.sh",
-		"/J/.bashrc",
-		"/J/projects/backup/schedule.js",
-		"/J/projects/backup/backup.sh",
-		"/D/Games/Steam/SteamApps/common/inMomentum/110400_install.vdf",
-		"/J/archey.py"
+		"/J/projects/HorribleGame/src/engine/loaders/models/JS.ts"
 	],
 	"find":
 	{
-		"height": 41.0
+		"height": 30.0
 	},
 	"find_in_files":
 	{
 		"height": 125.0,
 		"where_history":
 		[
+			"/home/beryju/dev/HorribleGame/src/HG",
+			"/home/beryju/dev/HorribleGame/src",
+			"<open folders>",
 			"J:\\projects\\HorribleGame\\src",
 			"J:\\projects\\HorribleGame",
 			"J:\\projects\\HorribleGame\\src\\engine",
@@ -935,9 +954,17 @@
 	},
 	"find_state":
 	{
-		"case_sensitive": true,
+		"case_sensitive": false,
 		"find_history":
 		[
+			"add",
+			"merge",
+			"{}",
+			"hashCreateTest",
+			"arrayCreateTest",
+			"1000",
+			"arr",
+			"array",
 			"hg",
 			"**/",
 			"outHG",
@@ -1057,15 +1084,7 @@
 			"			if (this.currentScene) {",
 			"currentScene.on",
 			"AudioBufferSourceNode ",
-			"HG.KeyMap",
-			"number",
-			"static ",
-			"static",
-			"HG.Settings.keys",
-			",",
-			"HG",
-			"number",
-			"110"
+			"HG.KeyMap"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1073,6 +1092,7 @@
 		"regex": false,
 		"replace_history":
 		[
+			"concat",
 			"console.error",
 			"console.warn",
 			"console.log",
@@ -1104,7 +1124,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 33.0
+		"height": 30.0
 	},
 	"input":
 	{
@@ -1148,7 +1168,7 @@
 	"project": "HG.sublime-project",
 	"replace":
 	{
-		"height": 62.0
+		"height": 56.0
 	},
 	"save_all_on_build": false,
 	"select_file":
@@ -1157,12 +1177,84 @@
 		"selected_items":
 		[
 			[
-				"effect",
-				"HorribleGame\\src\\engine\\sound\\Effect.ts"
+				"sceneser",
+				"src/HG/Scenes/Serializer/SceneSerializer.ts"
+			],
+			[
+				"mixe",
+				"src/HG/Sound/Mixer.ts"
+			],
+			[
+				"scene",
+				"src/HG/Scenes/Scene.ts"
+			],
+			[
+				"col",
+				"src/HG/Core/Collection.ts"
+			],
+			[
+				"compi",
+				"src/grunt/compileShaders.js"
+			],
+			[
+				"com",
+				"src/grunt/convertModel.js"
+			],
+			[
+				"scale",
+				"src/grunt/scaleTextures.js"
+			],
+			[
+				"locale",
+				"bin/assets/locale/HG.locale.json"
+			],
+			[
+				"loca",
+				"src/HG/Locale/LocaleDefinition.ts"
+			],
+			[
+				"string",
+				"src/HG/LINQ/StringProvider.ts"
+			],
+			[
+				"hg.l",
+				"bin/assets/locale/HG.locale.json"
+			],
+			[
+				"lcoale",
+				"src/HG/Locale/LocaleDefinition.ts"
+			],
+			[
+				"ara",
+				"src/HG/Core/ArrayKey.ts"
+			],
+			[
+				"game",
+				"src/HorribleGame/Game.ts"
+			],
+			[
+				"ma",
+				"src/HorribleGame/scenes/Main.ts"
+			],
+			[
+				"tree",
+				"bin/lib/dependencies/three.js"
+			],
+			[
+				"main.ts",
+				"src/HorribleGame/scenes/Main.ts"
 			],
 			[
 				"game.ts",
-				"HorribleGame\\game\\Game.ts"
+				"src/HorribleGame/Game.ts"
+			],
+			[
+				"package",
+				"bin/package.json"
+			],
+			[
+				"effect",
+				"HorribleGame\\src\\engine\\sound\\Effect.ts"
 			],
 			[
 				"base",
@@ -1293,10 +1385,6 @@
 				"src\\lib\\lib.d.ts"
 			],
 			[
-				"string",
-				"src\\engine\\linq\\StringProvider.ts"
-			],
-			[
 				"ani",
 				"src\\engine\\abilities\\AnimationAbility.ts"
 			],
@@ -1347,10 +1435,6 @@
 			[
 				"key",
 				"src\\engine\\utils\\KeyMap.ts"
-			],
-			[
-				"game",
-				"src\\engine\\BaseGame.ts"
 			],
 			[
 				"pli",
@@ -1603,70 +1687,6 @@
 			[
 				"module",
 				"src\\engine\\ModuleLoader.ts"
-			],
-			[
-				"opt",
-				"bin\\options\\options.js"
-			],
-			[
-				"ma",
-				"bin\\manifest.json"
-			],
-			[
-				"op",
-				"bin\\options\\options.js"
-			],
-			[
-				"chro",
-				"src\\lib\\chrome.d.ts"
-			],
-			[
-				"man",
-				"bin\\manifest.json"
-			],
-			[
-				"e",
-				"bin\\extension.js"
-			],
-			[
-				"chrome",
-				"src\\lib\\chrome.d.ts"
-			],
-			[
-				"ex",
-				"src\\extension\\Extension.ts"
-			],
-			[
-				"opo",
-				"bin\\popup\\popup.js"
-			],
-			[
-				"pop",
-				"bin\\popup\\index.html"
-			],
-			[
-				"exte",
-				"src\\extension\\Extension.ts"
-			],
-			[
-				"lan",
-				"src\\extension\\Language.ts"
-			],
-			[
-				"us",
-				"src\\extension\\User.ts"
-			],
-			[
-				"exten",
-				"src\\extension\\Extension.ts"
-			],
-			[
-				"au",
-				"src\\engine\\abilities\\AudioAbility.hg.ts"
-			],
-			[
-				"moe",
-				"src\\engine\\entities\\ModelEntity.hg.ts"
 			]
 		],
 		"width": 0.0
@@ -1698,7 +1718,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": false,
-	"side_bar_width": 290.0,
+	"side_bar_width": 156.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

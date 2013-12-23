@@ -42,6 +42,7 @@
 /// <reference path="Abilities/AudioAbility.ts" />
 /// <reference path="Abilities/MovingAbility.ts" />
 /// <reference path="Abilities/ScriptExecuteAbility.ts" />
+/// <reference path="Core/ArrayKey.ts" />
 /// <reference path="Core/BaseGame.ts" />
 /// <reference path="Core/Collection.ts" />
 /// <reference path="Core/InputHandler.ts" />

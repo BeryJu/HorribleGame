@@ -29,7 +29,7 @@ module HG.Core {
 			}
 		}
 
-		merge(otherDispatcher: HG.Core.EventDispatcher): HG.Core.EventDispatcher {
+		concat(otherDispatcher: HG.Core.EventDispatcher): HG.Core.EventDispatcher {
 			var newDispatcher = new HG.Core.EventDispatcher();
 			newDispatcher.events = this.events.concat(otherDispatcher.events);
 			for (var k in otherDispatcher._events) {

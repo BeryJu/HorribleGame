@@ -19,7 +19,7 @@ var HG;
                 }
             };
 
-            EventDispatcher.prototype.merge = function (otherDispatcher) {
+            EventDispatcher.prototype.concat = function (otherDispatcher) {
                 var newDispatcher = new HG.Core.EventDispatcher();
                 newDispatcher.events = this.events.concat(otherDispatcher.events);
                 for (var k in otherDispatcher._events) {
@@ -957,20 +957,20 @@ var HG;
                 this.entities = new HG.Core.Collection();
                 this.cameras = new HG.Core.Collection();
             }
-            Scene.prototype.add = function (entity) {
+            Scene.prototype.push = function (entity) {
                 this.scene.add(entity.getInternal());
                 if (entity instanceof HG.Entities.CameraEntity) {
-                    this.cameras.add(entity);
+                    this.cameras.push(entity);
                 } else if (entity instanceof HG.Entities.Entity) {
-                    this.entities.add(entity);
+                    this.entities.push(entity);
                 }
             };
 
-            Scene.prototype.merge = function (otherScene) {
+            Scene.prototype.concat = function (otherScene) {
                 var newScene = new HG.Scenes.Scene();
-                newScene.entities = this.entities.merge(otherScene.entities);
-                newScene.cameras = this.cameras.merge(otherScene.cameras);
-                newScene.controls = this.controls.merge(otherScene.controls);
+                newScene.entities = this.entities.concat(otherScene.entities);
+                newScene.cameras = this.cameras.concat(otherScene.cameras);
+                newScene.controls = this.controls.concat(otherScene.controls);
                 newScene.color = this.color;
                 newScene.colorAlpha = this.colorAlpha;
                 newScene.selectedCamera = this.selectedCamera;
@@ -1288,6 +1288,67 @@ var HG;
 var HG;
 (function (HG) {
     (function (Core) {
+        var ArrayKey = (function () {
+            function ArrayKey() {
+                this.values = [];
+                this.keys = [];
+            }
+            ArrayKey.prototype.forEach = function (fn) {
+                var _this = this;
+                this.keys.forEach(function (key, index) {
+                    fn(_this.values[index], index, key);
+                });
+            };
+
+            ArrayKey.prototype.push = function (item, key) {
+                this.values.push(item);
+                this.keys.push(key);
+            };
+
+            ArrayKey.prototype.concat = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                var _this = this;
+                args.forEach(function (other, index) {
+                    other.forEach(function (value, index, key) {
+                        if (_this.values.indexOf(value) === -1 && _this.keys.indexOf(key) === -1) {
+                            _this.push(value, key);
+                        }
+                    });
+                });
+                return this;
+            };
+
+            ArrayKey.prototype.value = function (v) {
+                var index = this.values.indexOf(v);
+                if (index !== -1) {
+                    return this.keys[index];
+                } else {
+                    HG.locale.errors.valueNotExistend.f(v).error();
+                    return null;
+                }
+            };
+
+            ArrayKey.prototype.key = function (k) {
+                var index = this.keys.indexOf(k);
+                if (index !== -1) {
+                    return this.values[index];
+                } else {
+                    HG.locale.errors.keyNotExistend.f(k).error();
+                    return null;
+                }
+            };
+            return ArrayKey;
+        })();
+        Core.ArrayKey = ArrayKey;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Core) {
         var BaseGame = (function (_super) {
             __extends(BaseGame, _super);
             function BaseGame(container) {
@@ -1496,7 +1557,7 @@ var HG;
                 this.named = {};
                 this.unNamed = [];
             }
-            Collection.prototype.add = function (item, name) {
+            Collection.prototype.push = function (item, name) {
                 if (item.name || name) {
                     var n = (item.name || name).toLowerCase();
                     if (this.named[n]) {
@@ -1509,7 +1570,7 @@ var HG;
                 }
             };
 
-            Collection.prototype.merge = function (otherCollection) {
+            Collection.prototype.concat = function (otherCollection) {
                 var newCollection = new HG.Core.Collection();
                 newCollection.unNamed = this.unNamed.concat(otherCollection.unNamed);
                 for (var k in this.named) {
@@ -1615,10 +1676,10 @@ var HG;
                 this.mouse.dispatch("move", x, y);
             };
 
-            InputHandler.prototype.merge = function (otherHandler) {
+            InputHandler.prototype.concat = function (otherHandler) {
                 var newHandler = new HG.Core.InputHandler();
-                newHandler.keyboard = this.keyboard.merge(otherHandler.keyboard);
-                newHandler.mouse = this.mouse.merge(otherHandler.mouse);
+                newHandler.keyboard = this.keyboard.concat(otherHandler.keyboard);
+                newHandler.mouse = this.mouse.concat(otherHandler.mouse);
                 return newHandler;
             };
 
@@ -2682,7 +2743,7 @@ var HG;
                     var nextEntity = function (entry, scene) {
                         var parser = new HG.Scenes.Serializer.EntityParser(scene, _this.loader);
                         parser.on("parsed", function (entity) {
-                            scene.add(entity);
+                            scene.push(entity);
                             index++;
                             if (index < allEntities.length) {
                                 nextEntity(allEntities[index], scene);
@@ -2814,7 +2875,7 @@ var HG;
 
             Mixer.prototype.addChannel = function (ch) {
                 ch.rootContext = this.context;
-                this.channels.add(ch);
+                this.channels.push(ch);
             };
             return Mixer;
         })();
