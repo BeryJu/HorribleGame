@@ -15,10 +15,10 @@ module MainScene {
 		scene.colorAlpha = .5;
 
 		var skybox = MainScene.createSkyBox(loader);
-		scene.add(skybox);
+		scene.push(skybox);
 
 		// var heightmap = MainScene.createHeightMap(loader);
-		// scene.add(heightmap);
+		// scene.push(heightmap);
 
 		var cam = new HG.Entities.FirstPersonCameraEntity(
 			HG.settings.graphics.fov, window.innerWidth / window.innerHeight,
@@ -27,7 +27,7 @@ module MainScene {
 		cam.offset(0, 25, -25)
 			.rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782)
 			.position(-27.512701511383057, 250, 211.5527195930481);
-		scene.add(cam);
+		scene.push(cam);
 		scene.controls.mouse.bind("move", (x: number, y: number) => {
 			cam.onMouseMove(x, y);
 		});

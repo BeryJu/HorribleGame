@@ -1,17 +1,3 @@
-/*
-* @Author: BeryJu
-* @Date:   2013-12-06 16:43:52
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-06 16:49:39
-*/
-/*
-* @Author: BeryJu
-* @Date:   2013-12-17 10:40:47
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 23:02:45
-*/
 var MainScene;
 (function (MainScene) {
     function create(loader) {
@@ -23,8 +9,6 @@ var MainScene;
         var skybox = MainScene.createSkyBox(loader);
         scene.add(skybox);
 
-        // var heightmap = MainScene.createHeightMap(loader);
-        // scene.add(heightmap);
         var cam = new HG.Entities.FirstPersonCameraEntity(HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
         cam.name = "mainCamera";
         cam.offset(0, 25, -25).rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782).position(-27.512701511383057, 250, 211.5527195930481);
@@ -86,19 +70,8 @@ var MainScene;
     }
     MainScene.createHeightMap = createHeightMap;
 })(MainScene || (MainScene = {}));
-/*
-* @Author: BeryJu
-* @Date:   2013-12-06 16:43:52
-* @Email:  jenslanghammer@gmail.com
-* @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 14:00:40
-*/
-/// <reference path="GameLocale.ts" />
-/// <reference path="scenes/Main.ts" />
-// Initialize HG
 HG.horrible();
 
-// query is the same as document.querySelector, just shorter
 var gameCanvas = query("#canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
