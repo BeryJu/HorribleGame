@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"loader",
+				"loaderArgs"
+			],
+			[
+				"load",
+				"loaderArgs"
+			],
+			[
 				"ke",
 				"key"
 			],
@@ -202,10 +210,6 @@
 			[
 				"curre",
 				"currentProfile"
-			],
-			[
-				"load",
-				"loader"
 			],
 			[
 				"str",
@@ -507,11 +511,35 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "src/HorribleGame/Game.ts",
+			"settings":
+			{
+				"buffer_size": 1522,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/HG/Resource/ResourceLoader.ts",
+			"settings":
+			{
+				"buffer_size": 4288,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/SledgeExtreme/scenes/Main.ts",
+			"settings":
+			{
+				"buffer_size": 3994,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "Packages/User/Build System/Grunt.sublime-build",
 	"command_palette":
 	{
-		"height": 309.0,
+		"height": 375.0,
 		"selected_items":
 		[
 			[
@@ -751,7 +779,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 633.0
+		"width": 562.0
 	},
 	"console":
 	{
@@ -797,6 +825,36 @@
 	},
 	"file_history":
 	[
+		"/J/projects/HorribleGame/src/HG/Core/EventDispatcher.ts",
+		"/J/projects/HorribleGame/tests/EventDispatcherTest.js",
+		"/J/projects/HorribleGame/src/HG/Entities/Entity.ts",
+		"/J/projects/HorribleGame/src/SledgeExtreme/models/sled.3DS",
+		"/J/projects/HorribleGame/README.md",
+		"/J/projects/HorribleGame/src/lib/lib.d.ts",
+		"/J/projects/HorribleGame/src/HorribleGame/scenes/Main.ts",
+		"/J/projects/HorribleGame/src/HG/Entities/FirstPersonCameraEntity.ts",
+		"/D/Downloads/assimp2json-2.0-win32/sled.json",
+		"/J/projects/HorribleGame/bin/assets/models/android.js",
+		"/J/projects/HorribleGame/src/HG/Entities/ChasingCameraEntity.ts",
+		"/J/projects/HorribleGame/src/HG/Entities/CameraEntity.ts",
+		"/J/projects/HorribleGame/src/HG/Resource/Cache.ts",
+		"/J/projects/HorribleGame/src/grunt/compileShaders.js",
+		"/J/projects/HorribleGame/src/HG/Core/InputHandler.ts",
+		"/J/projects/HorribleGame/src/jade/index.jade",
+		"/J/projects/HorribleGame/src/HG/Abilities/MovingAbility.ts",
+		"/J/projects/HorribleGame/src/HG/Sound/Mixer.ts",
+		"/J/projects/HorribleGame/src/HorribleGame/Game.ts",
+		"/J/projects/HorribleGame/src/HG/Core/BaseGame.ts",
+		"/J/projects/HorribleGame/src/HG/Utils/UpdateChecker.ts",
+		"/J/projects/HorribleGame/src/HG/Utils/Utils.ts",
+		"/J/projects/HorribleGame/src/HG/Utils/Modules.ts",
+		"/J/projects/HorribleGame/src/HG/Abilities/AudioAbility.ts",
+		"/J/projects/HorribleGame/bin/assets/shaders/bokeh.json",
+		"/J/projects/HorribleGame/bin/assets/plugins/test.derp",
+		"/J/projects/HorribleGame/src/HG/Locale/LocaleDefinition.ts",
+		"/J/projects/HorribleGame/bin/assets/fonts/droidSans.typeface.js",
+		"/J/projects/HorribleGame/bin/game/game.js",
+		"/J/projects/HorribleGame/Gruntfile.js",
 		"/home/beryju/dev/HorribleGame/src/HorribleGame/scenes/Main.ts",
 		"/home/beryju/dev/HorribleGame/src/HG/Core/ArrayKey.ts",
 		"/home/beryju/dev/HorribleGame/src/HG/Scenes/Serializer/SceneSerializer.ts",
@@ -873,11 +931,9 @@
 		"/J/projects/HorribleGame/bin/lib/hg.js",
 		"/J/projects/HorribleGame/src/engine/HG.ts",
 		"/J/projects/HorribleGame/src/engine/resources/sound/WAV.ts",
-		"/J/projects/HorribleGame/src/lib/lib.d.ts",
 		"/J/projects/HorribleGame/src/engine/sound/Channel.ts",
 		"/J/projects/HorribleGame/bin/assets/models/room01.stl",
 		"/J/projects/HorribleGame/node_modules/grunt-contrib-nodeunit/tasks/nodeunit.js",
-		"/J/projects/HorribleGame/bin/assets/models/android.js",
 		"/J/projects/HorribleGame/models/room01.js",
 		"/J/projects/HorribleGame/src/engine/resources/ILoadable.ts",
 		"/J/projects/HorribleGame/src/engine/sound/Mixer.ts",
@@ -895,36 +951,8 @@
 		"/J/projects/HorribleGame/bin/lib/physi.js",
 		"/J/projects/HorribleGame/gruntfile.js",
 		"/J/projects/HorribleGame/tests/ModuleLoadTest.js",
-		"/J/projects/HorribleGame/tests/EventDispatcherTest.js",
 		"/J/projects/HorribleGame/package.json",
-		"/J/projects/HorribleGame/src/engine/utils/Bootstrapper.ts",
-		"/J/projects/HorribleGame/src/engine/resources/LoadData.ts",
-		"/J/projects/HorribleGame/src/engine/ressources/Loader.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/ILoadable.ts",
-		"/J/projects/HorribleGame/HG.sublime-project",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/TypeScript/Lambda.sublime-snippet",
-		"/J/projects/HorribleGame/node_modules/grunt-contrib-nodeunit/test/nodeunit_test.js",
-		"/J/projects/HorribleGame/tests/moduleLoadTest.js",
-		"/J/projects/HorribleGame/src/engine/abilities/BaseAbility.ts",
-		"/J/projects/HorribleGame/src/engine/abilities/MovingAbility.ts",
-		"/J/projects/HorribleGame/src/engine/entities/CameraEntity.ts",
-		"/J/projects/HorribleGame/src/engine/entities/ChasingCameraEntity.ts",
-		"/J/projects/HorribleGame/src/engine/entities/HeightMapEntity.ts",
-		"/J/projects/HorribleGame/src/engine/entities/ParticleEntity.ts",
-		"/J/projects/HorribleGame/src/engine/entities/VideoEntity.ts",
-		"/J/projects/HorribleGame/src/engine/InputHandler.ts",
-		"/J/projects/HorribleGame/src/engine/IPlugin.ts",
-		"/J/projects/HorribleGame/src/engine/level/Level.ts",
-		"/J/projects/HorribleGame/src/engine/level/LevelStructure.ts",
-		"/J/projects/HorribleGame/src/engine/level/LevelStructureEntity.ts",
-		"/J/projects/HorribleGame/src/engine/linq/ArrayProvider.ts",
-		"/J/projects/HorribleGame/src/engine/linq/IProvider.ts",
-		"/J/projects/HorribleGame/src/engine/linq/NumberProvider.ts",
-		"/J/projects/HorribleGame/src/engine/linq/StringProvider.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/IFiletype.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/LoadData.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/Loader.ts",
-		"/J/projects/HorribleGame/src/engine/loaders/models/JS.ts"
+		"/J/projects/HorribleGame/src/engine/utils/Bootstrapper.ts"
 	],
 	"find":
 	{
@@ -957,6 +985,11 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"void",
+			"args",
+			"void",
+			"BeryJu",
+			"movY",
 			"add",
 			"merge",
 			"{}",
@@ -1079,12 +1112,7 @@
 			"type",
 			"splice",
 			"resolution",
-			"width",
-			"game.controls",
-			"			if (this.currentScene) {",
-			"currentScene.on",
-			"AudioBufferSourceNode ",
-			"HG.KeyMap"
+			"width"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1117,8 +1145,96 @@
 	"groups":
 	[
 		{
+			"selected": 1,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "src/HorribleGame/Game.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1522,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 300.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/HG/Resource/ResourceLoader.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4288,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1991,
+								1991
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 780.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "src/SledgeExtreme/scenes/Main.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3994,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								440,
+								440
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -1176,6 +1292,50 @@
 		"height": 0.0,
 		"selected_items":
 		[
+			[
+				"eventd",
+				"src\\HG\\Core\\EventDispatcher.ts"
+			],
+			[
+				"evnet",
+				"tests\\EventDispatcherTest.js"
+			],
+			[
+				"ent",
+				"src\\HG\\Entities\\Entity.ts"
+			],
+			[
+				"reso",
+				"src\\HG\\Resource\\ResourceLoader.ts"
+			],
+			[
+				"andro",
+				"bin\\assets\\models\\android.js"
+			],
+			[
+				"cam",
+				"src\\HG\\Entities\\FirstPersonCameraEntity.ts"
+			],
+			[
+				"inp",
+				"src\\HG\\Core\\InputHandler.ts"
+			],
+			[
+				"main.ts",
+				"src\\HorribleGame\\scenes\\Main.ts"
+			],
+			[
+				"updae",
+				"src\\HG\\Utils\\UpdateChecker.ts"
+			],
+			[
+				"base",
+				"src\\HG\\Core\\BaseGame.ts"
+			],
+			[
+				"gaem.ts",
+				"src\\HorribleGame\\Game.ts"
+			],
 			[
 				"sceneser",
 				"src/HG/Scenes/Serializer/SceneSerializer.ts"
@@ -1241,10 +1401,6 @@
 				"bin/lib/dependencies/three.js"
 			],
 			[
-				"main.ts",
-				"src/HorribleGame/scenes/Main.ts"
-			],
-			[
 				"game.ts",
 				"src/HorribleGame/Game.ts"
 			],
@@ -1255,10 +1411,6 @@
 			[
 				"effect",
 				"HorribleGame\\src\\engine\\sound\\Effect.ts"
-			],
-			[
-				"base",
-				"HorribleGame\\src\\engine\\BaseGame.ts"
 			],
 			[
 				"basesce",
@@ -1439,10 +1591,6 @@
 			[
 				"pli",
 				"src\\engine\\PluginHost.ts"
-			],
-			[
-				"inp",
-				"src\\engine\\InputHandler.ts"
 			],
 			[
 				"part",
@@ -1655,38 +1803,6 @@
 			[
 				"nb",
 				"src\\engine\\entities\\BaseEntity.hg.ts"
-			],
-			[
-				"meh",
-				"src\\engine\\entities\\MeshEntity.hg.ts"
-			],
-			[
-				"basea",
-				"src\\engine\\abilities\\BaseAbility.hg.ts"
-			],
-			[
-				"bae",
-				"src\\engine\\entities\\BaseEntity.hg.ts"
-			],
-			[
-				"color",
-				"src\\engine\\utils\\ColorTransition.hg.ts"
-			],
-			[
-				"gamt",
-				"src\\Game.ts"
-			],
-			[
-				"map",
-				"src\\engine\\utils\\Map.hg.ts"
-			],
-			[
-				"aud",
-				"src\\engine\\abilities\\AudioAbility.hg.ts"
-			],
-			[
-				"module",
-				"src\\engine\\ModuleLoader.ts"
 			]
 		],
 		"width": 0.0
@@ -1717,8 +1833,8 @@
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": false,
-	"side_bar_width": 156.0,
+	"side_bar_visible": true,
+	"side_bar_width": 242.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

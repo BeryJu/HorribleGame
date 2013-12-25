@@ -925,11 +925,10 @@ var HG;
             __extends(Ability, _super);
             function Ability() {
                 _super.apply(this, arguments);
-                this.hosts = [];
             }
             Ability.prototype.setHost = function (entity) {
                 console.log(entity["constructor"]["name"] + " got " + this["constructor"]["name"]);
-                this.hosts.push(entity);
+                this.host = entity;
             };
 
             Ability.prototype.checkCompatibility = function (entity) {
@@ -958,11 +957,13 @@ var HG;
                 this.cameras = new HG.Core.Collection();
             }
             Scene.prototype.push = function (entity) {
-                this.scene.add(entity.getInternal());
                 if (entity instanceof HG.Entities.CameraEntity) {
+                    HG.log("[Scene] Added Camera");
                     this.cameras.push(entity);
                 } else if (entity instanceof HG.Entities.Entity) {
+                    HG.log("[Scene] Added Entity");
                     this.entities.push(entity);
+                    this.scene.add(entity.getInternal());
                 }
             };
 
@@ -1154,22 +1155,19 @@ var HG;
             };
 
             AnimationAbility.prototype.frame = function (delta) {
-                var _this = this;
                 _super.prototype.frame.call(this, delta);
                 if (this.running === true) {
-                    this.hosts.forEach(function (host) {
-                        var time = new Date().getTime() % _this.duration;
-                        var keyframe = Math.floor(time / _this.interpolation) + _this.animOffset;
-                        if (keyframe !== _this.currentKeyframe) {
-                            host.object["morphTargetInfluences"][_this.lastKeyframe] = 0;
-                            host.object["morphTargetInfluences"][_this.currentKeyframe] = 1;
-                            host.object["morphTargetInfluences"][keyframe] = 0;
-                            _this.lastKeyframe = _this.currentKeyframe;
-                            _this.currentKeyframe = keyframe;
-                        }
-                        host.object["morphTargetInfluences"][keyframe] = (time % _this.interpolation) / _this.interpolation;
-                        host.object["morphTargetInfluences"][_this.lastKeyframe] = 1 - host.object["morphTargetInfluences"][keyframe];
-                    });
+                    var time = new Date().getTime() % this.duration;
+                    var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
+                    if (keyframe !== this.currentKeyframe) {
+                        this.host.object["morphTargetInfluences"][this.lastKeyframe] = 0;
+                        this.host.object["morphTargetInfluences"][this.currentKeyframe] = 1;
+                        this.host.object["morphTargetInfluences"][keyframe] = 0;
+                        this.lastKeyframe = this.currentKeyframe;
+                        this.currentKeyframe = keyframe;
+                    }
+                    this.host.object["morphTargetInfluences"][keyframe] = (time % this.interpolation) / this.interpolation;
+                    this.host.object["morphTargetInfluences"][this.lastKeyframe] = 1 - this.host.object["morphTargetInfluences"][keyframe];
                     this.running = false;
                 }
             };
@@ -1209,53 +1207,32 @@ var HG;
                 _super.call(this);
                 this.baseStep = baseStep;
             }
-            MovingAbility.prototype.moveLeft = function (delta) {
-                var _this = this;
-                this.hosts.forEach(function (host) {
-                    host.velocity.x -= 0.12 * delta * _this.baseStep;
-                });
-            };
-
-            MovingAbility.prototype.moveRight = function (delta) {
-                var _this = this;
-                this.hosts.forEach(function (host) {
-                    host.velocity.x += 0.12 * delta * _this.baseStep;
-                });
-            };
-
             MovingAbility.prototype.lower = function (delta) {
-                var _this = this;
-                this.hosts.forEach(function (host) {
-                    host.object.position.y -= (delta * _this.baseStep);
-                });
+                this.host.object.position.y -= (delta * this.baseStep);
             };
 
             MovingAbility.prototype.turnLeft = function (delta) {
-                var _this = this;
-                this.hosts.forEach(function (host) {
-                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (delta * _this.baseStep).toRadian());
-                });
+                this.host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (delta * this.baseStep).toRadian());
             };
 
             MovingAbility.prototype.turnRight = function (delta) {
-                var _this = this;
-                this.hosts.forEach(function (host) {
-                    host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (-delta * _this.baseStep).toRadian());
-                });
+                this.host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (-delta * this.baseStep).toRadian());
+            };
+
+            MovingAbility.prototype.moveLeft = function (delta) {
+                this.host.velocity.x -= 0.12 * delta * this.baseStep;
+            };
+
+            MovingAbility.prototype.moveRight = function (delta) {
+                this.host.velocity.x += 0.12 * delta * this.baseStep;
             };
 
             MovingAbility.prototype.moveForward = function (delta) {
-                var _this = this;
-                this.hosts.forEach(function (host) {
-                    host.velocity.z -= 0.12 * delta * _this.baseStep;
-                });
+                this.host.velocity.z -= 0.12 * delta * this.baseStep;
             };
 
             MovingAbility.prototype.moveBackward = function (delta) {
-                var _this = this;
-                this.hosts.forEach(function (host) {
-                    host.velocity.z += 0.12 * delta * _this.baseStep;
-                });
+                this.host.velocity.z += 0.12 * delta * this.baseStep;
             };
             return MovingAbility;
         })(HG.Abilities.Ability);
@@ -1378,6 +1355,7 @@ var HG;
 
                 this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
                 if (HG._gl === true) {
+                    this.container = container;
                     this.renderer = new THREE.WebGLRenderer({
                         antialias: HG.settings.graphics.antialiasing
                     });
@@ -1395,6 +1373,10 @@ var HG;
                 enumerable: true,
                 configurable: true
             });
+
+            BaseGame.prototype.lockMouse = function () {
+                this.container.webkitRequestPointerLock();
+            };
 
             BaseGame.prototype.scene = function (scene) {
                 this.pluginHost.dispatch("sceneChange", scene);
@@ -1645,9 +1627,10 @@ var HG;
             function InputHandler() {
                 this.keyState = [];
                 this.mouseState = [];
-                this.mouse = new HG.Core.EventDispatcher(["x", "y", "move"]);
-                this.keyboard = new HG.Core.EventDispatcher();
+                this.mouse = new HG.Core.EventDispatcher(["x", "y", "mouseAbs", "mouseRel"]);
                 this._mouse = new THREE.Vector2();
+
+                this.keyboard = new HG.Core.EventDispatcher();
                 for (var k in HG.Utils.KEY_MAP) {
                     this.keyboard.events.push(HG.Utils.KEY_MAP[k].toString());
                 }
@@ -1663,17 +1646,18 @@ var HG;
             InputHandler.prototype.onMouseMove = function (e) {
                 var x = e.x || e.clientX;
                 var y = e.y || e.clientY;
+                var movX = e.webkitMovementX;
+                var movY = e.webkitMovementY;
                 if (x !== this._mouse.x) {
-                    var diffX = this._mouse.x - x;
                     this._mouse.x = x;
-                    this.mouse.dispatch("x", diffX, x);
+                    this.mouse.dispatch("x", movX, x);
                 }
                 if (y !== this._mouse.y) {
-                    var diffY = this._mouse.y - y;
                     this._mouse.y = y;
-                    this.mouse.dispatch("y", diffY, y);
+                    this.mouse.dispatch("y", movY, y);
                 }
-                this.mouse.dispatch("move", x, y);
+                this.mouse.dispatch("mouseAbs", x, y);
+                this.mouse.dispatch("mouseRel", movX, movY);
             };
 
             InputHandler.prototype.concat = function (otherHandler) {
@@ -1826,8 +1810,10 @@ var HG;
                 this.velocity = new THREE.Vector3();
             }
             FirstPersonCameraEntity.prototype.onMouseMove = function (x, y) {
-                this.object.rotation.x -= x * 0.000002;
-                this.object.rotation.y -= y * 0.000002;
+                this.object.rotation.y -= x * 0.002;
+                this.object.rotation.x -= y * 0.002;
+
+                this.object.rotation.x = Math.max(-this.PI_2, Math.min(this.PI_2, this.object.rotation.x));
             };
 
             FirstPersonCameraEntity.prototype.setViewDistance = function (distance) {
@@ -2251,18 +2237,7 @@ var HG;
                     var loader = new THREE.STLLoader();
                     loader.addEventListener("load", function (event) {
                         var geometry = event.content;
-                        var phong = new THREE.MeshPhongMaterial({
-                            ambient: 0xff5533,
-                            color: 0xff5533,
-                            specular: 0x111111,
-                            shininess: 200
-                        });
-                        var material = new THREE.MeshFaceMaterial([phong]);
-                        var model = {
-                            geometry: geometry,
-                            material: material
-                        };
-                        _this.dispatch("loaded", model);
+                        _this.dispatch("loaded", geometry);
                     });
                     loader.load(path);
                 };
@@ -2294,54 +2269,61 @@ var HG;
                     if (silent || silent === false) {
                         HG.locale.errors.fileNotExisting.f(path).error();
                     }
-                    return "";
+                    return null;
                 }
             };
 
-            ResourceLoader.prototype.load = function (relPath, namespace, target) {
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 3); _i++) {
-                    args[_i] = arguments[_i + 3];
+            ResourceLoader.prototype.load = function (relPath, namespace) {
+                var loaderArgs = [];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    loaderArgs[_i] = arguments[_i + 2];
                 }
                 var absPath = this.path(relPath);
                 var extension = HG.Modules.path.extname(absPath);
                 var extensionName = extension.toUpperCase().replace(".", "");
-                var foundLoader = false;
-                var isOk = false;
-                for (var k in namespace) {
-                    if (k === extensionName) {
-                        var loader = new namespace[k]();
-                        var handler;
-                        if (target["load"]) {
-                            handler = function (data) {
-                                target.load(data);
-                            };
-                        } else {
-                            handler = function (data) {
-                                target(data);
-                            };
+                var dispatcher = new HG.Core.EventDispatcher(["loaded"]);
+                dispatcher["_on"] = dispatcher.on;
+                dispatcher.on = function (name, eventHandler) {
+                    dispatcher["_on"](name, eventHandler);
+                    var foundLoader = false;
+                    for (var k in namespace) {
+                        if (k === extensionName) {
+                            var loader = new namespace[k]();
+                            loader.on("loaded", function () {
+                                var args = [];
+                                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                                    args[_i] = arguments[_i + 0];
+                                }
+                                args.splice(0, 0, "loaded");
+                                dispatcher.dispatch.apply(dispatcher, args);
+                            });
+                            loaderArgs.splice(0, 0, absPath);
+                            loader.load.apply(loader, loaderArgs);
+                            foundLoader = true;
                         }
-                        loader.on("loaded", handler);
-                        var a = [absPath].concat(args);
-                        loader.load.apply(loader, a);
-                        foundLoader = true;
                     }
-                }
-                if (foundLoader === false) {
-                    HG.locale.resource.noLoader.f(extension).error();
-                }
+                    if (foundLoader === false) {
+                        HG.locale.resource.noLoader.f(extension).error();
+                    }
+                    return dispatcher;
+                };
+                return dispatcher;
             };
 
-            ResourceLoader.prototype.model = function (path, entitiy) {
+            ResourceLoader.prototype.model = function (path) {
                 var args = [];
-                for (var _i = 0; _i < (arguments.length - 2); _i++) {
-                    args[_i] = arguments[_i + 2];
+                for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                    args[_i] = arguments[_i + 1];
                 }
-                this.load(path, HG.Resource.Model, entitiy, args);
+                return this.load(path, HG.Resource.Model, args);
             };
 
-            ResourceLoader.prototype.sound = function (path, effect) {
-                this.load(path, HG.Resource.Sound, effect);
+            ResourceLoader.prototype.sound = function (path) {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                    args[_i] = arguments[_i + 1];
+                }
+                return this.load(path, HG.Resource.Sound, args);
             };
 
             ResourceLoader.prototype.texture = function (path) {

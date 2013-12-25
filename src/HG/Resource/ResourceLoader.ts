@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 12:36:15
+* @Last Modified time: 2013-12-25 01:55:59
 */
 
 module HG.Resource {
@@ -28,50 +28,46 @@ module HG.Resource {
 				if (silent || silent === false) {
 					HG.locale.errors.fileNotExisting.f(path).error();
 				}
-				return "";
+				return null;
 			}
 		}
 
-		private load(relPath: string, namespace: any, target: HG.Resource.ILoadable,
-					...args: any[]): void;
-		private load(relPath: string, namespace: any, target: (data: any) => any,
-					...args: any[]): void;
-		private load(relPath: string, namespace: any, target?: any, ...args: any[]): void {
+		private load(relPath: string, namespace: any, ...loaderArgs: any[]):
+				HG.Core.EventDispatcher {
 			var absPath = this.path(relPath);
 			var extension = HG.Modules.path.extname(absPath);
 			var extensionName = extension.toUpperCase().replace(".", "");
-			var foundLoader = false;
-			var isOk = false;
-			for (var k in namespace) {
-				if (k === extensionName) {
-					var loader = new namespace[k]();
-					var handler;
-					if (target["load"]) {
-						handler = (data) => {
-							target.load(data);
-						};
-					} else {
-						handler = (data) => {
-							target(data);
-						};
+			var dispatcher = new HG.Core.EventDispatcher(["loaded"]);
+			dispatcher["_on"] = dispatcher.on;
+			dispatcher.on = (name: any, eventHandler?: Function): HG.Core.EventDispatcher => {
+				dispatcher["_on"](name, eventHandler);
+				var foundLoader = false;
+				for (var k in namespace) {
+					if (k === extensionName) {
+						var loader = new namespace[k]();
+						loader.on("loaded", (...args: any[]) => {
+							args.splice(0, 0, "loaded");
+							dispatcher.dispatch.apply(dispatcher, args);
+						});
+						loaderArgs.splice(0, 0, absPath);
+						loader.load.apply(loader, loaderArgs);
+						foundLoader = true;
 					}
-					loader.on("loaded", handler);
-					var a = [absPath].concat(args);
-					loader.load.apply(loader, a);
-					foundLoader = true;
 				}
-			}
-			if (foundLoader === false) {
-				HG.locale.resource.noLoader.f(extension).error();
-			}
+				if (foundLoader === false) {
+					HG.locale.resource.noLoader.f(extension).error();
+				}
+				return dispatcher;
+			};
+			return dispatcher;
 		}
 
-		model(path: string, entitiy: HG.Entities.MeshEntity, ...args: any[]): void {
-			this.load(path, HG.Resource.Model, entitiy, args);
+		model(path: string, ...args: any[]): HG.Core.EventDispatcher {
+			return this.load(path, HG.Resource.Model, args);
 		}
 
-		sound(path: string, effect: HG.Sound.Effect): void {
-			this.load(path, HG.Resource.Sound, effect);
+		sound(path: string, ...args: any[]): HG.Core.EventDispatcher {
+			return this.load(path, HG.Resource.Sound, args);
 		}
 
 		texture(path: string): THREE.Texture {

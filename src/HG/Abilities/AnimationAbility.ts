@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 10:19:45
+* @Last Modified time: 2013-12-25 02:13:19
 */
 
 module HG.Abilities {
@@ -41,21 +41,19 @@ module HG.Abilities {
 		frame(delta: number): void {
 			super.frame(delta);
 			if (this.running === true) {
-				this.hosts.forEach((host) => {
-					var time = new Date().getTime() % this.duration;
-					var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
-					if (keyframe !== this.currentKeyframe ) {
-						host.object["morphTargetInfluences"][this.lastKeyframe] = 0;
-						host.object["morphTargetInfluences"][this.currentKeyframe] = 1;
-						host.object["morphTargetInfluences"][keyframe] = 0;
-						this.lastKeyframe = this.currentKeyframe;
-						this.currentKeyframe = keyframe;
-					}
-					host.object["morphTargetInfluences"][keyframe] =
-						(time % this.interpolation) / this.interpolation;
-					host.object["morphTargetInfluences"][this.lastKeyframe] =
-						1 - host.object["morphTargetInfluences"][keyframe];
-				});
+				var time = new Date().getTime() % this.duration;
+				var keyframe = Math.floor(time / this.interpolation) + this.animOffset;
+				if (keyframe !== this.currentKeyframe ) {
+					this.host.object["morphTargetInfluences"][this.lastKeyframe] = 0;
+					this.host.object["morphTargetInfluences"][this.currentKeyframe] = 1;
+					this.host.object["morphTargetInfluences"][keyframe] = 0;
+					this.lastKeyframe = this.currentKeyframe;
+					this.currentKeyframe = keyframe;
+				}
+				this.host.object["morphTargetInfluences"][keyframe] =
+					(time % this.interpolation) / this.interpolation;
+				this.host.object["morphTargetInfluences"][this.lastKeyframe] =
+					1 - this.host.object["morphTargetInfluences"][keyframe];
 				this.running = false;
 			}
 		}

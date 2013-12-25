@@ -8,7 +8,7 @@ var paths = {
 		plugins: "src/grunt/"
 	},
 	game: {
-		root: "src/HorribleGame/",
+		root: "src/SledgeExtreme/",
 		bin: "bin/game/game.js",
 		def: "bin/game/game.d.ts",
 		assets: {
@@ -17,7 +17,8 @@ var paths = {
 			models: "models"
 		},
 		source: [
-			"src/HorribleGame/*.ts"
+			"src/SledgeExtreme/scenes/*.ts",
+			"src/SledgeExtreme/*.ts"
 		]
 	},
 	jade: {
@@ -70,7 +71,7 @@ var config = {
 			options: {
 				pretty: true,
 				data: {
-					title: "HorribleGame",
+					title: "SledgeExtreme",
 					liveReload: "http://"+os.hostname()+":35729/livereload.js"
 				}
 			},
@@ -115,14 +116,14 @@ var config = {
 	watch: {
 		hg: {
 			files: paths.hg.source,
-			tasks: ['hg'],
+			tasks: ['ts:hg'],
 			options: {
 				livereload: true
 			}
 		},
 		game: {
 			files: paths.game.source,
-			tasks: ['game'],
+			tasks: ['ts:game'],
 			options: {
 				livereload: true
 			}

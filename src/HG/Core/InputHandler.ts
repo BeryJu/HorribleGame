@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-18 21:19:38
+* @Last Modified time: 2013-12-25 01:21:35
 */
 
 module HG.Core {
@@ -21,9 +21,10 @@ module HG.Core {
 		}
 
 		constructor() {
-			this.mouse = new HG.Core.EventDispatcher(["x", "y", "move"]);
-			this.keyboard = new HG.Core.EventDispatcher();
+			this.mouse = new HG.Core.EventDispatcher(["x", "y", "mouseAbs", "mouseRel"]);
 			this._mouse = new THREE.Vector2();
+
+			this.keyboard = new HG.Core.EventDispatcher();
 			for (var k in HG.Utils.KEY_MAP) {
 				this.keyboard.events.push(HG.Utils.KEY_MAP[k].toString());
 			}
@@ -32,17 +33,18 @@ module HG.Core {
 		onMouseMove(e: MouseEvent): void {
 			var x = e.x || e.clientX;
 			var y = e.y || e.clientY;
+			var movX = e.webkitMovementX;
+			var movY = e.webkitMovementY;
 			if (x !== this._mouse.x) {
-				var diffX = this._mouse.x - x;
 				this._mouse.x = x;
-				this.mouse.dispatch("x", diffX, x);
+				this.mouse.dispatch("x", movX, x);
 			}
 			if (y !== this._mouse.y) {
-				var diffY = this._mouse.y - y;
 				this._mouse.y = y;
-				this.mouse.dispatch("y", diffY, y);
+				this.mouse.dispatch("y", movY, y);
 			}
-			this.mouse.dispatch("move", x, y);
+			this.mouse.dispatch("mouseAbs", x, y);
+			this.mouse.dispatch("mouseRel", movX, movY);
 		}
 
 		concat(otherHandler: HG.Core.InputHandler): HG.Core.InputHandler {

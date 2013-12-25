@@ -233,7 +233,7 @@ declare module HG.Entities {
 }
 declare module HG.Abilities {
     class Ability extends HG.Core.EventDispatcher {
-        public hosts: HG.Entities.Entity[];
+        public host: HG.Entities.Entity;
         public setHost(entity: HG.Entities.Entity): void;
         public checkCompatibility(entity: HG.Entities.Entity): boolean;
         public frame(delta: number): void;
@@ -307,11 +307,11 @@ declare module HG.Abilities {
     class MovingAbility extends Abilities.Ability {
         public baseStep: number;
         constructor(baseStep: number);
-        public moveLeft(delta: number): void;
-        public moveRight(delta: number): void;
         public lower(delta: number): void;
         public turnLeft(delta: number): void;
         public turnRight(delta: number): void;
+        public moveLeft(delta: number): void;
+        public moveRight(delta: number): void;
         public moveForward(delta: number): void;
         public moveBackward(delta: number): void;
     }
@@ -346,11 +346,13 @@ declare module HG.Core {
         public controls: Core.InputHandler;
         public fpsCounter: HG.Utils.FPSCounter;
         public params: HG.Utils.GameStartParameters;
+        public container: HTMLElement;
         public startTime: number;
         public _running: boolean;
         public events: string[];
         constructor(container: HTMLElement);
         public title : any[];
+        public lockMouse(): void;
         public scene(scene: HG.Scenes.Scene): void;
         public screenshot(path: string, imageType?: string): void;
         public load(): void;
@@ -614,9 +616,9 @@ declare module HG.Resource {
         public baseDirectory: string;
         constructor(baseDirectory: string);
         public path(path: string, silent?: boolean): string;
-        private load(relPath, namespace, target, ...args);
-        public model(path: string, entitiy: HG.Entities.MeshEntity, ...args: any[]): void;
-        public sound(path: string, effect: HG.Sound.Effect): void;
+        private load(relPath, namespace, ...loaderArgs);
+        public model(path: string, ...args: any[]): HG.Core.EventDispatcher;
+        public sound(path: string, ...args: any[]): HG.Core.EventDispatcher;
         public texture(path: string): THREE.Texture;
         public queueTexture(paths: string[], done: (textures: THREE.Texture[]) => void): void;
         public scene(path: string, done: (scene: HG.Scenes.Scene) => void): void;

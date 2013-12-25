@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 14:00:40
+* @Last Modified time: 2013-12-25 02:01:50
 */
 
 /// <reference path="GameLocale.ts" />
@@ -16,7 +16,6 @@ HG.horrible();
 var gameCanvas = query("#canvasWrapper");
 var loader = new HG.Resource.ResourceLoader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
-var mainScene = new HG.Scenes.Scene();
 var locale = loader.json<GameLocale>("locale/game.locale.json");
 
 if (HG.settings.debug === true) {
@@ -25,12 +24,15 @@ if (HG.settings.debug === true) {
 
 game.on("load", () => {
 	game.pluginHost.load(loader.directory("plugins", ".js"));
-	mainScene = MainScene.create(loader);
-	game.scene(mainScene);
-	game.start({
-		input: true,
-		profileFrame: false,
-		noResize: true
+	MainScene.create(loader, (scene: HG.Scenes.Scene) => {
+		game.scene(scene);
+		scene.camera("mainCamera");
+		game.lockMouse();
+		game.start({
+			input: true,
+			profileFrame: false,
+			noResize: true
+		});
 	});
 });
 

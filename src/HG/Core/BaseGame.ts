@@ -20,6 +20,7 @@ module HG.Core {
 		fpsCounter: HG.Utils.FPSCounter;
 		params: HG.Utils.GameStartParameters;
 
+		container: HTMLElement;
 		startTime: number;
 		_running: boolean;
 		events: string[];
@@ -50,6 +51,7 @@ module HG.Core {
 
 			this.resolution = new THREE.Vector2(window.innerWidth, window.innerHeight);
 			if (HG._gl === true) {
+				this.container = container;
 				this.renderer = new THREE.WebGLRenderer({
 					antialias: HG.settings.graphics.antialiasing
 				});
@@ -63,6 +65,10 @@ module HG.Core {
 
 		set title(v: any[]) {
 			document.title = v.join("");
+		}
+
+		lockMouse(): void {
+			this.container.webkitRequestPointerLock();
 		}
 
 		scene(scene: HG.Scenes.Scene): void {

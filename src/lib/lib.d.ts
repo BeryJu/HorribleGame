@@ -2785,6 +2785,8 @@ interface MouseEvent extends UIEvent {
     offsetX: number;
     screenX: number;
     clientY: number;
+    webkitMovementY: number;
+    webkitMovementX: number;
     shiftKey: boolean;
     layerX: number;
     screenY: number;
@@ -10147,6 +10149,7 @@ declare var HTMLBGSoundElement: {
 
 interface HTMLElement extends Element, ElementCSSInlineStyle, MSEventAttachmentTarget, MSNodeExtensions {
     onmouseleave: (ev: MouseEvent) => any;
+    webkitRequestPointerLock: () => any;
     addEventListener(type: "mouseleave", listener: (ev: MouseEvent) => any, useCapture?: boolean): void;
     onbeforecut: (ev: DragEvent) => any;
     addEventListener(type: "beforecut", listener: (ev: DragEvent) => any, useCapture?: boolean): void;

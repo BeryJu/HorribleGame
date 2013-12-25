@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 12:28:30
+* @Last Modified time: 2013-12-25 02:06:14
 */
 
 module HG.Scenes {
@@ -29,11 +29,13 @@ module HG.Scenes {
 		}
 
 		push(entity: HG.Entities.Entity): void {
-			this.scene.add(entity.getInternal());
 			if (entity instanceof HG.Entities.CameraEntity) {
+				HG.log("[Scene] Added Camera");
 				this.cameras.push(<HG.Entities.CameraEntity> entity);
 			} else if (entity instanceof HG.Entities.Entity) {
+				HG.log("[Scene] Added Entity");
 				this.entities.push(entity);
+				this.scene.add(entity.getInternal());
 			}
 		}
 

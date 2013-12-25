@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 23:03:42
+* @Last Modified time: 2013-12-25 00:27:13
 */
 
 module HG.Entities {
@@ -24,11 +24,10 @@ module HG.Entities {
 		}
 
 		onMouseMove(x: number, y: number): void {
-			this.object.rotation.x -= x * 0.000002;
-			this.object.rotation.y -= y * 0.000002;
+			this.object.rotation.y -= x * 0.002;
+			this.object.rotation.x -= y * 0.002;
 
-			// this.object.rotation.x = Math.max(-(this.PI_2),
-			// 	Math.min((this.PI_2), this.object.rotation.x));
+			this.object.rotation.x = Math.max( - this.PI_2, Math.min( this.PI_2, this.object.rotation.x ) );
 		}
 
 		setViewDistance(distance: number): void {
