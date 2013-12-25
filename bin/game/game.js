@@ -17,7 +17,6 @@ var MainScene;
             e.ability(moving);
 
             scene.controls.keyboard.bind(HG.settings.keys.forward, function (delta) {
-                console.log('kk');
                 moving.moveForward(delta);
             });
 

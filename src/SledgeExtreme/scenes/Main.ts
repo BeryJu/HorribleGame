@@ -3,7 +3,7 @@
 * @Date:   2013-12-17 10:40:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-25 02:18:16
+* @Last Modified time: 2013-12-25 12:20:03
 */
 
 module MainScene {
@@ -26,7 +26,6 @@ module MainScene {
 			e.ability(moving);
 
 			scene.controls.keyboard.bind(HG.settings.keys.forward, (delta: number) => {
-				console.log('kk');
 				moving.moveForward(delta);
 			});
 
