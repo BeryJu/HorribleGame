@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 12:21:59
+* @Last Modified time: 2013-12-26 12:23:12
 */
 
 module HG.Core {
@@ -14,7 +14,7 @@ module HG.Core {
 		resolution: THREE.Vector2;
 
 		soundMixer: HG.Sound.Mixer;
-		currentScene: HG.Scenes.Scene;
+		currentScene: HG.Core.Scene;
 		pluginHost: HG.Core.PluginHost;
 		controls: HG.Core.InputHandler;
 		fpsCounter: HG.Utils.FPSCounter;
@@ -71,7 +71,7 @@ module HG.Core {
 			this.container.webkitRequestPointerLock();
 		}
 
-		scene(scene: HG.Scenes.Scene): void {
+		scene(scene: HG.Core.Scene): void {
 			this.pluginHost.dispatch("sceneChange", scene);
 			this.renderer.setClearColor(scene.color, scene.colorAlpha);
 			this.currentScene = scene;

@@ -3,10 +3,10 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-25 02:06:14
+* @Last Modified time: 2013-12-26 12:25:24
 */
 
-module HG.Scenes {
+module HG.Core {
 
 	export class Scene {
 
@@ -30,17 +30,17 @@ module HG.Scenes {
 
 		push(entity: HG.Entities.Entity): void {
 			if (entity instanceof HG.Entities.CameraEntity) {
-				HG.log("[Scene] Added Camera");
+				HG.log("[Scene] Added Camera " + entity.name);
 				this.cameras.push(<HG.Entities.CameraEntity> entity);
 			} else if (entity instanceof HG.Entities.Entity) {
-				HG.log("[Scene] Added Entity");
+				HG.log("[Scene] Added Entity " + entity.name);
 				this.entities.push(entity);
 				this.scene.add(entity.getInternal());
 			}
 		}
 
-		concat(otherScene: HG.Scenes.Scene): HG.Scenes.Scene {
-			var newScene = new HG.Scenes.Scene();
+		concat(otherScene: HG.Core.Scene): HG.Core.Scene {
+			var newScene = new HG.Core.Scene();
 			newScene.entities = this.entities.concat(otherScene.entities);
 			newScene.cameras = this.cameras.concat(otherScene.cameras);
 			newScene.controls = this.controls.concat(otherScene.controls);
@@ -75,16 +75,16 @@ module HG.Scenes {
 
 		frame(delta: number): void {
 			this.controls.frame(delta);
-			this.entities.forNamed((e) => e.frame(delta));
-			this.entities.forEach((e) => {
-				if (e.object.material &&
-					e.object.material.uniforms &&
-					e.object.material.uniforms["time"]) {
-					var now = Date.now();
-					e.object.material.uniforms["time"].value = .00025 * (now - this.startTime);
-				}
-			});
 			this.cameras.forNamed((e) => e.frame(delta));
+			this.entities.forNamed((e) => e.frame(delta));
+			// this.entities.forEach((e) => {
+			// 	if (e.object.material &&
+			// 		e.object.material.uniforms &&
+			// 		e.object.material.uniforms["time"]) {
+			// 		var now = Date.now();
+			// 		e.object.material.uniforms["time"].value = .00025 * (now - this.startTime);
+			// 	}
+			// });
 		}
 
 	}

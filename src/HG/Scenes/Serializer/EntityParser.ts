@@ -3,28 +3,28 @@
 * @Date:   2013-12-07 23:42:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 11:55:46
+* @Last Modified time: 2013-12-26 12:23:13
 */
 
-module HG.Scenes.Serializer {
+module HG.Core.Serializer {
 
 	export class EntityParser extends HG.Core.EventDispatcher {
 
-		scene: HG.Scenes.Scene;
+		scene: HG.Core.Scene;
 		loader: HG.Resource.ResourceLoader;
 		defaultPosition: number[] = [0, 0, 0];
 		defaultRotation: number[] = [0, 0, 0];
 		defaultOffset: number[] = [0, 0, 0];
 		defaultScale: number[] = [1, 1, 1];
 
-		constructor(scene: HG.Scenes.Scene,
+		constructor(scene: HG.Core.Scene,
 				loader: HG.Resource.ResourceLoader) {
 			super(["parsed", "entitiesParsed", "done"]);
 			this.scene = scene;
 			this.loader = loader;
 		}
 
-		private parseMaterials(raw: any, scene: HG.Scenes.Scene): any {
+		private parseMaterials(raw: any, scene: HG.Core.Scene): any {
 			if (Array.isArray(raw) === true) {
 				var materials = [];
 				raw.forEach((m) => {
@@ -36,16 +36,16 @@ module HG.Scenes.Serializer {
 			}
 		}
 
-		private parseGeometry(raw: HG.Scenes.Serializer.ObjectDefinition,
-				scene: HG.Scenes.Scene): THREE.Geometry {
+		private parseGeometry(raw: HG.Core.Serializer.ObjectDefinition,
+				scene: HG.Core.Scene): THREE.Geometry {
 			var geometryType = THREE[raw.type];
 			var geometryProperties = this.parseProperties(raw.properties, scene);
 			var geometry = this.applyConstructor(geometryType, geometryProperties);
 			return <THREE.Geometry> geometry;
 		}
 
-		private parseSingleMaterial(raw: HG.Scenes.Serializer.MaterialDefinition,
-				scene: HG.Scenes.Scene): any {
+		private parseSingleMaterial(raw: HG.Core.Serializer.MaterialDefinition,
+				scene: HG.Core.Scene): any {
 			var material;
 			var materialType;
 			if (raw.properties[0]["color"]) {
@@ -64,18 +64,18 @@ module HG.Scenes.Serializer {
 			return material;
 		}
 
-		private parseShader(raw: HG.Scenes.Serializer.ShaderDefinition,
-				scene: HG.Scenes.Scene): any {
-			var rawShader = this.loader.json<HG.Scenes.Serializer.RawShaderDefinition>(raw.type);
+		private parseShader(raw: HG.Core.Serializer.ShaderDefinition,
+				scene: HG.Core.Scene): any {
+			var rawShader = this.loader.json<HG.Core.Serializer.RawShaderDefinition>(raw.type);
 			// var shader = new HG.Core.Shader(rawShader, this.loader);
 			// shader.parseUniforms(raw.properties);
 			// return shader.toMaterial();
 			return null;
 		}
 
-		private parseAbilities(raw: HG.Scenes.Serializer.EntityDefinition,
+		private parseAbilities(raw: HG.Core.Serializer.EntityDefinition,
 				entity: HG.Entities.Entity,
-				scene: HG.Scenes.Scene): void {
+				scene: HG.Core.Scene): void {
 			if (raw.abilities) {
 				raw.abilities.forEach((rawAbility) => {
 					// get the ability type
@@ -107,7 +107,7 @@ module HG.Scenes.Serializer {
 			}
 		}
 
-		private setup(raw: HG.Scenes.Serializer.EntityDefinition,
+		private setup(raw: HG.Core.Serializer.EntityDefinition,
 				entity: HG.Entities.Entity): HG.Entities.Entity {
 			var offset = (raw.offset) ? this.parseArray(raw.offset, 3) : this.defaultOffset;
 			var scale = (raw.scale) ? this.parseArray(raw.scale, 3) : this.defaultScale;
@@ -146,7 +146,7 @@ module HG.Scenes.Serializer {
 			return new instance();
 		}
 
-		private parseProperties(raw: any, scene: HG.Scenes.Scene): any {
+		private parseProperties(raw: any, scene: HG.Core.Scene): any {
 			var props = [];
 			raw.forEach((prop) => {
 				props.push(this.parseProperty(prop, scene));
@@ -154,7 +154,7 @@ module HG.Scenes.Serializer {
 			return props;
 		}
 
-		private parseProperty(raw: any, scene: HG.Scenes.Scene): any {
+		private parseProperty(raw: any, scene: HG.Core.Scene): any {
 			if (typeof raw === "string") {
 				if (raw.substring(0, 8) === "${scene:") {
 					var entity = scene.entities.get(raw.replace("${scene:", "").replace("}", ""));
@@ -171,7 +171,7 @@ module HG.Scenes.Serializer {
 			}
 		}
 
-		parse(rawEntity: HG.Scenes.Serializer.EntityDefinition): void {
+		parse(rawEntity: HG.Core.Serializer.EntityDefinition): void {
 			var type = HG.Entities[rawEntity.type];
 			var entity;
 

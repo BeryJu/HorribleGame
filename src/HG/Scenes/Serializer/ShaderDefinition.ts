@@ -3,10 +3,10 @@
 * @Date:   2013-12-07 22:00:05
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-13 19:18:29
+* @Last Modified time: 2013-12-26 12:23:14
 */
 
-module HG.Scenes.Serializer {
+module HG.Core.Serializer {
 
 	export interface ShaderDefinition {
 		type: string;

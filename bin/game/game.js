@@ -1,7 +1,7 @@
 var MainScene;
 (function (MainScene) {
     function create(loader, done) {
-        var scene = new HG.Scenes.Scene();
+        var scene = new HG.Core.Scene();
 
         scene.color = new THREE.Color(12307677);
         scene.colorAlpha = .5;
@@ -17,12 +17,24 @@ var MainScene;
             e.ability(moving);
 
             scene.controls.keyboard.bind(HG.settings.keys.forward, function (delta) {
-                moving.moveForward(delta);
+                e.object.translateX(delta * 3.125);
+            });
+
+            scene.controls.keyboard.bind(HG.settings.keys.backward, function (delta) {
+                e.object.translateX(-(delta * 3.125));
+            });
+
+            scene.controls.keyboard.bind(HG.settings.keys.left, function (delta) {
+                moving.turnLeft(delta);
+            });
+
+            scene.controls.keyboard.bind(HG.settings.keys.right, function (delta) {
+                moving.turnRight(delta);
             });
 
             var cam = new HG.Entities.ChasingCameraEntity(e, HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
             cam.name = "mainCamera";
-            cam.offset(0, 25, -25).rotate(-0.9631355494204247, -0.5329935895199441, -0.6309911466206782).position(-27.512701511383057, 250, 211.5527195930481);
+            cam.offset(0, 25, -25);
             scene.push(cam);
             done(scene);
         });
@@ -30,24 +42,21 @@ var MainScene;
     MainScene.create = create;
 
     function createSkyBox(loader, done) {
-        var textures = [
+        loader.queueTexture([
             "textures/skybox/xpos.png",
             "textures/skybox/xneg.png",
             "textures/skybox/ypos.png",
             "textures/skybox/yneg.png",
             "textures/skybox/zpos.png",
             "textures/skybox/zneg.png"
-        ];
-        var entity;
-        loader.queueTexture(textures, function (textures) {
-            entity = new HG.Entities.SkyBoxEntity(textures);
+        ], function (textures) {
+            var entity = new HG.Entities.SkyBoxEntity(textures);
             done(entity);
         });
     }
     MainScene.createSkyBox = createSkyBox;
 
     function createPlayer(loader, done) {
-        var entity = new HG.Entities.MeshEntity();
         loader.model("models/sledge.stl").on("loaded", function (geometry) {
             var phong = new THREE.MeshPhongMaterial({
                 ambient: 0xff5533,
@@ -56,9 +65,9 @@ var MainScene;
                 shininess: 200
             });
             var material = new THREE.MeshFaceMaterial([phong]);
+            var entity = new HG.Entities.MeshEntity();
             entity.object = new THREE.Mesh(geometry, material);
-            entity.rotate((45).toRadian(), 0, 0);
-
+            entity.name = "player";
             done(entity);
         });
     }

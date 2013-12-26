@@ -897,15 +897,6 @@ var HG;
             };
 
             Entity.prototype.frame = function (delta) {
-                this.velocity.x += (-this.velocity.x) * 0.08 * delta;
-                this.velocity.z += (-this.velocity.z) * 0.08 * delta;
-                this.velocity.y -= 0.25 * delta;
-
-                this.object.translateX(delta * this.velocity.x);
-                this.object.translateX(-delta * this.velocity.x);
-                this.object.translateZ(delta * this.velocity.z);
-                this.object.translateZ(-delta * this.velocity.z);
-
                 if (this.abilities.length > 0) {
                     this.abilities.forEach(function (ability) {
                         ability.frame(delta);
@@ -946,7 +937,7 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    (function (Scenes) {
+    (function (Core) {
         var Scene = (function () {
             function Scene() {
                 this.startTime = Date.now();
@@ -958,17 +949,17 @@ var HG;
             }
             Scene.prototype.push = function (entity) {
                 if (entity instanceof HG.Entities.CameraEntity) {
-                    HG.log("[Scene] Added Camera");
+                    HG.log("[Scene] Added Camera " + entity.name);
                     this.cameras.push(entity);
                 } else if (entity instanceof HG.Entities.Entity) {
-                    HG.log("[Scene] Added Entity");
+                    HG.log("[Scene] Added Entity " + entity.name);
                     this.entities.push(entity);
                     this.scene.add(entity.getInternal());
                 }
             };
 
             Scene.prototype.concat = function (otherScene) {
-                var newScene = new HG.Scenes.Scene();
+                var newScene = new HG.Core.Scene();
                 newScene.entities = this.entities.concat(otherScene.entities);
                 newScene.cameras = this.cameras.concat(otherScene.cameras);
                 newScene.controls = this.controls.concat(otherScene.controls);
@@ -1003,26 +994,19 @@ var HG;
             };
 
             Scene.prototype.frame = function (delta) {
-                var _this = this;
                 this.controls.frame(delta);
-                this.entities.forNamed(function (e) {
+                this.cameras.forNamed(function (e) {
                     return e.frame(delta);
                 });
-                this.entities.forEach(function (e) {
-                    if (e.object.material && e.object.material.uniforms && e.object.material.uniforms["time"]) {
-                        var now = Date.now();
-                        e.object.material.uniforms["time"].value = .00025 * (now - _this.startTime);
-                    }
-                });
-                this.cameras.forNamed(function (e) {
+                this.entities.forNamed(function (e) {
                     return e.frame(delta);
                 });
             };
             return Scene;
         })();
-        Scenes.Scene = Scene;
-    })(HG.Scenes || (HG.Scenes = {}));
-    var Scenes = HG.Scenes;
+        Core.Scene = Scene;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
 })(HG || (HG = {}));
 
 var HG;
@@ -1207,6 +1191,14 @@ var HG;
                 _super.call(this);
                 this.baseStep = baseStep;
             }
+            MovingAbility.prototype.moveLeft = function (delta) {
+                this.host.object.translateX(delta * this.baseStep);
+            };
+
+            MovingAbility.prototype.moveRight = function (delta) {
+                this.host.object.translateX(-delta * this.baseStep);
+            };
+
             MovingAbility.prototype.lower = function (delta) {
                 this.host.object.position.y -= (delta * this.baseStep);
             };
@@ -1219,20 +1211,12 @@ var HG;
                 this.host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (-delta * this.baseStep).toRadian());
             };
 
-            MovingAbility.prototype.moveLeft = function (delta) {
-                this.host.velocity.x -= 0.12 * delta * this.baseStep;
-            };
-
-            MovingAbility.prototype.moveRight = function (delta) {
-                this.host.velocity.x += 0.12 * delta * this.baseStep;
-            };
-
             MovingAbility.prototype.moveForward = function (delta) {
-                this.host.velocity.z -= 0.12 * delta * this.baseStep;
+                this.host.object.translateZ(delta * this.baseStep);
             };
 
             MovingAbility.prototype.moveBackward = function (delta) {
-                this.host.velocity.z += 0.12 * delta * this.baseStep;
+                this.host.object.translateZ(-delta * this.baseStep);
             };
             return MovingAbility;
         })(HG.Abilities.Ability);
@@ -2002,9 +1986,47 @@ var HG;
     (function (Entities) {
         var VideoEntity = (function (_super) {
             __extends(VideoEntity, _super);
-            function VideoEntity(url) {
+            function VideoEntity(domElement, size) {
                 _super.call(this);
+                this.domElement = domElement;
+                var videoImage = document.createElement("canvas");
+                videoImage.width = size.x;
+                videoImage.height = size.y;
+
+                var videoImageContext = videoImage.getContext("2d");
+
+                videoImageContext.fillStyle = "#000000";
+                videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
+
+                var videoTexture = new THREE.Texture(videoImage);
+                videoTexture.minFilter = THREE.LinearFilter;
+                videoTexture.magFilter = THREE.LinearFilter;
+
+                var movieMaterial = new THREE.MeshBasicMaterial({
+                    map: videoTexture,
+                    overdraw: true,
+                    side: THREE.DoubleSide
+                });
+
+                var movieGeometry = new THREE.PlaneGeometry(size.x, size.y, 4, 4);
+                this.object = new THREE.Mesh(movieGeometry, movieMaterial);
             }
+            VideoEntity.prototype.play = function () {
+                this.domElement.play();
+            };
+
+            VideoEntity.prototype.pause = function () {
+                this.domElement.pause();
+            };
+
+            VideoEntity.prototype.stop = function () {
+                this.domElement.pause();
+                this.domElement.currentTime = 0;
+            };
+
+            VideoEntity.prototype.rewind = function () {
+                this.domElement.currentTime = 0;
+            };
             return VideoEntity;
         })(HG.Entities.Entity);
         Entities.VideoEntity = VideoEntity;
@@ -2273,11 +2295,7 @@ var HG;
                 }
             };
 
-            ResourceLoader.prototype.load = function (relPath, namespace) {
-                var loaderArgs = [];
-                for (var _i = 0; _i < (arguments.length - 2); _i++) {
-                    loaderArgs[_i] = arguments[_i + 2];
-                }
+            ResourceLoader.prototype.load = function (relPath, namespace, loaderArgs) {
                 var absPath = this.path(relPath);
                 var extension = HG.Modules.path.extname(absPath);
                 var extensionName = extension.toUpperCase().replace(".", "");
@@ -2326,6 +2344,14 @@ var HG;
                 return this.load(path, HG.Resource.Sound, args);
             };
 
+            ResourceLoader.prototype.video = function (path) {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                    args[_i] = arguments[_i + 1];
+                }
+                return this.load(path, HG.Resource.Video, args);
+            };
+
             ResourceLoader.prototype.texture = function (path) {
                 var tex = THREE.ImageUtils.loadTexture(this.path(path));
                 tex.anisotropy = HG.settings.graphics.aa;
@@ -2344,7 +2370,7 @@ var HG;
             };
 
             ResourceLoader.prototype.scene = function (path, done) {
-                var serializer = new HG.Scenes.Serializer.SceneSerializer(this);
+                var serializer = new HG.Core.Serializer.SceneSerializer(this);
                 serializer.on("done", done);
                 serializer.fromGeneric(this.json(path));
             };
@@ -2459,21 +2485,35 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    (function (Scenes) {
-        var GameScene = (function (_super) {
-            __extends(GameScene, _super);
-            function GameScene() {
-                _super.apply(this, arguments);
-            }
-            return GameScene;
-        })(HG.Scenes.Scene);
-        Scenes.GameScene = GameScene;
-    })(HG.Scenes || (HG.Scenes = {}));
-    var Scenes = HG.Scenes;
+    (function (Resource) {
+        (function (_Video) {
+            var Video = (function (_super) {
+                __extends(Video, _super);
+                function Video() {
+                    _super.apply(this, arguments);
+                    this.events = ["loaded"];
+                }
+                Video.prototype.load = function (path) {
+                    var domElement = document.createElement("video");
+                    domElement.src = path;
+                    domElement.load();
+                    var size = new THREE.Vector2(domElement.videoHeight, domElement.videoWidth);
+
+                    var entity = new HG.Entities.VideoEntity(domElement, size);
+
+                    this.dispatch("loaded", entity);
+                };
+                return Video;
+            })(HG.Core.EventDispatcher);
+            _Video.Video = Video;
+        })(Resource.Video || (Resource.Video = {}));
+        var Video = Resource.Video;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    (function (Scenes) {
+    (function (Core) {
         (function (Serializer) {
             var EntityParser = (function (_super) {
                 __extends(EntityParser, _super);
@@ -2698,14 +2738,14 @@ var HG;
                 return EntityParser;
             })(HG.Core.EventDispatcher);
             Serializer.EntityParser = EntityParser;
-        })(Scenes.Serializer || (Scenes.Serializer = {}));
-        var Serializer = Scenes.Serializer;
-    })(HG.Scenes || (HG.Scenes = {}));
-    var Scenes = HG.Scenes;
+        })(Core.Serializer || (Core.Serializer = {}));
+        var Serializer = Core.Serializer;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
-    (function (Scenes) {
+    (function (Core) {
         (function (Serializer) {
             var SceneSerializer = (function (_super) {
                 __extends(SceneSerializer, _super);
@@ -2717,13 +2757,13 @@ var HG;
                 SceneSerializer.prototype.fromGeneric = function (generic) {
                     var _this = this;
                     generic = generic;
-                    var scene = new HG.Scenes.Scene();
+                    var scene = new HG.Core.Scene();
                     scene.color = HG.Utils.parseColor(generic.color);
                     scene.colorAlpha = 1 || generic.colorAlpha;
                     var allEntities = generic.entities.concat(generic.cameras);
                     var index = 0;
                     var nextEntity = function (entry, scene) {
-                        var parser = new HG.Scenes.Serializer.EntityParser(scene, _this.loader);
+                        var parser = new HG.Core.Serializer.EntityParser(scene, _this.loader);
                         parser.on("parsed", function (entity) {
                             scene.push(entity);
                             index++;
@@ -2741,10 +2781,10 @@ var HG;
                 return SceneSerializer;
             })(HG.Core.EventDispatcher);
             Serializer.SceneSerializer = SceneSerializer;
-        })(Scenes.Serializer || (Scenes.Serializer = {}));
-        var Serializer = Scenes.Serializer;
-    })(HG.Scenes || (HG.Scenes = {}));
-    var Scenes = HG.Scenes;
+        })(Core.Serializer || (Core.Serializer = {}));
+        var Serializer = Core.Serializer;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {

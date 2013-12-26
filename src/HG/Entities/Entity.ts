@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 12:37:51
+* @Last Modified time: 2013-12-25 13:46:08
 */
 module HG.Entities {
 
@@ -68,14 +68,18 @@ module HG.Entities {
 		}
 
 		frame(delta: number): void {
-			this.velocity.x += ( - this.velocity.x ) * 0.08 * delta;
-			this.velocity.z += ( - this.velocity.z ) * 0.08 * delta;
-			this.velocity.y -= 0.25 * delta;
+			// this.velocity.x += ( - this.velocity.x ) * 0.08 * delta;
+			// this.velocity.z += ( - this.velocity.z ) * 0.08 * delta;
+			// this.velocity.y -= 0.25 * delta;
 
-			this.object.translateX(delta * this.velocity.x);
-			this.object.translateX(-delta * this.velocity.x);
-			this.object.translateZ(delta * this.velocity.z);
-			this.object.translateZ(-delta * this.velocity.z);
+			// console.log(("{x}, {y}, {z}".f({
+			// 	x: this.object.position.x,
+			// 	y: this.object.position.y,
+			// 	z: this.object.position.z
+			// })));
+			// this.object.position.x = this.positionOffset.x + this.velocity.x;
+			// this.object.position.y = this.positionOffset.x + this.velocity.y;
+			// this.object.position.z = this.positionOffset.x + this.velocity.z;
 
 			if (this.abilities.length > 0) {
 				this.abilities.forEach((ability) => {

@@ -26,7 +26,7 @@
 /// Base Classes
 /// <reference path="Entities/Entity.ts" />
 /// <reference path="Abilities/Ability.ts" />
-/// <reference path="Scenes/Scene.ts" />
+/// <reference path="Core/Scene.ts" />
 
 /// All the rest
 /// This is auto generated
@@ -71,8 +71,7 @@
 /// <reference path="Resource/ResourceLoader.ts" />
 /// <reference path="Resource/Shaders/Shader.ts" />
 /// <reference path="Resource/Sound/WAV.ts" />
-/// <reference path="Scenes/GameScene.ts" />
-/// <reference path="Scenes/MapScene.ts" />
+/// <reference path="Resource/Video/Video.ts" />
 /// <reference path="Scenes/Serializer/AbilityDefinition.ts" />
 /// <reference path="Scenes/Serializer/BindingDefinition.ts" />
 /// <reference path="Scenes/Serializer/EntityDefinition.ts" />

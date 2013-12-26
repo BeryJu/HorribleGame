@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-25 02:01:50
+* @Last Modified time: 2013-12-26 12:23:11
 */
 
 /// <reference path="GameLocale.ts" />
@@ -24,7 +24,7 @@ if (HG.settings.debug === true) {
 
 game.on("load", () => {
 	game.pluginHost.load(loader.directory("plugins", ".js"));
-	MainScene.create(loader, (scene: HG.Scenes.Scene) => {
+	MainScene.create(loader, (scene: HG.Core.Scene) => {
 		game.scene(scene);
 		scene.camera("mainCamera");
 		game.lockMouse();

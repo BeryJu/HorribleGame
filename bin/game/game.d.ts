@@ -1,6 +1,6 @@
 declare module MainScene {
-    function create(loader: HG.Resource.ResourceLoader, done: (scene: HG.Scenes.Scene) => any): void;
-    function createSkyBox(loader: HG.Resource.ResourceLoader, done: (e: HG.Entities.MeshEntity) => any): void;
+    function create(loader: HG.Resource.ResourceLoader, done: (scene: HG.Core.Scene) => any): void;
+    function createSkyBox(loader: HG.Resource.ResourceLoader, done: (e: HG.Entities.SkyBoxEntity) => any): void;
     function createPlayer(loader: HG.Resource.ResourceLoader, done: (e: HG.Entities.MeshEntity) => any): void;
 }
 interface GameLocale {
