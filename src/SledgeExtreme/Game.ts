@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 15:24:29
+* @Last Modified time: 2013-12-26 16:40:07
 */
 
 /// <reference path="GameLocale.ts" />
@@ -45,7 +45,7 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 });
 
 game.on("render", (delta: number) => {
-	game.title = game.fpsCounter.FPS + " "+game.fpsCounter.frameTime;
+	game.title = game.fpsCounter.FPS + " " + game.fpsCounter.frameTime;
 });
 
 window.onload = () => game.load();
