@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-25 13:46:08
+* @Last Modified time: 2013-12-26 14:38:59
 */
 module HG.Entities {
 
@@ -50,7 +50,8 @@ module HG.Entities {
 			return this;
 		}
 
-		position(x: number, y: number, z: number): Entity {
+		position(x: number, y?: number, z?: number): Entity {
+			if (!y && !z) y = x; z = x;
 			x = x + this.positionOffset.x;
 			y = y + this.positionOffset.y;
 			z = z + this.positionOffset.z;

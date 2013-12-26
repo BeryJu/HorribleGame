@@ -2508,8 +2508,8 @@ declare module THREE {
          */
         getPositionFromMatrix(m: Matrix4): Vector3;
 
-        setEulerFromRotationMatrix(m: Matrix4, order: string): Vector3;
-
+        setEulerFromRotationMatrix(m: Matrix4, order?: string): Vector3;
+        setFromRotationMatrix(m: Matrix4): any;
         setEulerFromQuaternion(q: Quaternion, order: string): Vector3;
 
         /**

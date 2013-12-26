@@ -1,1 +1,1 @@
-"src/lib/LINQ.d.ts" "src/lib/lib.d.ts" "src/lib/node.d.ts" "src/lib/physijs.d.ts" "src/lib/three.d.ts" "src/lib/waa.d.ts" "bin/lib/hg.d.ts" "src/SledgeExtreme/scenes/Main.ts" "src/SledgeExtreme/Game.ts" "src/SledgeExtreme/GameLocale.ts" --declaration --removeComments --target ES5 --module amd --out bin/game/game.js
+"/srvroot/projects/HorribleGame/src/HG/HG.ref.ts" --sourcemap --declaration --removeComments --target ES5 --module commonjs --out bin/lib/hg.js

@@ -225,7 +225,7 @@ declare module HG.Entities {
         public offset(x: number, y: number, z: number): Entity;
         public load(data: any): void;
         public scale(x: number, y?: number, z?: number): Entity;
-        public position(x: number, y: number, z: number): Entity;
+        public position(x: number, y?: number, z?: number): Entity;
         public rotate(x: number, y: number, z: number): Entity;
         public getInternal(): THREE.Object3D;
         public frame(delta: number): void;
@@ -353,7 +353,7 @@ declare module HG.Core {
         public _running: boolean;
         public events: string[];
         constructor(container: HTMLElement);
-        public title : any[];
+        public title : any;
         public lockMouse(): void;
         public scene(scene: Core.Scene): void;
         public screenshot(path: string, imageType?: string): void;
@@ -433,8 +433,8 @@ declare module HG.Entities {
 declare module HG.Entities {
     class ChasingCameraEntity extends Entities.CameraEntity {
         public object: THREE.PerspectiveCamera;
-        public target: Entities.MeshEntity;
-        public lookAt: boolean;
+        public _target: Entities.MeshEntity;
+        public target : Entities.MeshEntity;
         constructor(target: Entities.MeshEntity, fov?: number, aspect?: number, zNear?: number, zFar?: number);
         public frame(delta: number): void;
     }

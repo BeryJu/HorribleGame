@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 14:08:37
+* @Last Modified time: 2013-12-26 15:24:29
 */
 
 /// <reference path="GameLocale.ts" />
@@ -45,10 +45,7 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 });
 
 game.on("render", (delta: number) => {
-	query("#fps").innerText = "FPS: " + game.fpsCounter.FPS;
-	query("#frametime").innerText = "Frametime: " + game.fpsCounter.frameTime;
-	query("#calls").innerText = "Calls: " + game.renderer.info.render.calls;
-	query("#vertices").innerText = "Vertices: " + game.renderer.info.render.vertices;
+	game.title = game.fpsCounter.FPS + " "+game.fpsCounter.frameTime;
 });
 
 window.onload = () => game.load();

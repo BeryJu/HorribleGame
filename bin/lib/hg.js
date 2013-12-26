@@ -880,6 +880,9 @@ var HG;
             };
 
             Entity.prototype.position = function (x, y, z) {
+                if (!y && !z)
+                    y = x;
+                z = x;
                 x = x + this.positionOffset.x;
                 y = y + this.positionOffset.y;
                 z = z + this.positionOffset.z;
@@ -1366,7 +1369,7 @@ var HG;
             }
             Object.defineProperty(BaseGame.prototype, "title", {
                 set: function (v) {
-                    document.title = v.join("");
+                    document.title = v.toString();
                 },
                 enumerable: true,
                 configurable: true
@@ -1771,20 +1774,25 @@ var HG;
                 if (typeof zNear === "undefined") { zNear = 0.1; }
                 if (typeof zFar === "undefined") { zFar = 10000; }
                 _super.call(this);
-                this.lookAt = true;
                 if (target === null) {
                     HG.locale.errors.nullReferenceError.error();
                 }
                 this.target = target;
                 this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
             }
+            Object.defineProperty(ChasingCameraEntity.prototype, "target", {
+                set: function (t) {
+                    this._target = t;
+                    this._target.object.add(this.object);
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             ChasingCameraEntity.prototype.frame = function (delta) {
-                var cameraOffset = this.positionOffset.clone().applyMatrix4(this.target.object.matrixWorld);
-                this.object.position.x = cameraOffset.x;
-                this.object.position.y = cameraOffset.y;
-                this.object.position.z = cameraOffset.z;
-                if (this.lookAt)
-                    this.object.lookAt(this.target.object.position);
+                var cameraOffset = this.positionOffset.clone().applyMatrix4(this._target.object.matrixWorld);
+                this.object.position = cameraOffset;
+                this.object.lookAt(this._target.object.position);
             };
             return ChasingCameraEntity;
         })(HG.Entities.CameraEntity);

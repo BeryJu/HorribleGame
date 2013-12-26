@@ -10,6 +10,10 @@ var MainScene;
             scene.push(skybox);
         });
 
+        var te = new HG.Entities.TextEntity("derp");
+        te.position(10);
+        scene.push(te);
+
         loader.video("videos/sintel.ogv").on("loaded", function (domElement) {
             var entity = new HG.Entities.VideoEntity(domElement);
             entity.position(500, 0, 0);
@@ -24,11 +28,12 @@ var MainScene;
             e.ability(moving);
 
             scene.controls.keyboard.bind(HG.settings.keys.forward, function (delta) {
-                e.object.position.x += delta;
+                console.log(delta);
+                moving.moveForward(delta);
             });
 
             scene.controls.keyboard.bind(HG.settings.keys.backward, function (delta) {
-                e.object.position.x += delta;
+                moving.moveBackward(delta);
             });
 
             scene.controls.keyboard.bind(HG.settings.keys.left, function (delta) {
@@ -114,10 +119,7 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, function (delta) {
 });
 
 game.on("render", function (delta) {
-    query("#fps").innerText = "FPS: " + game.fpsCounter.FPS;
-    query("#frametime").innerText = "Frametime: " + game.fpsCounter.frameTime;
-    query("#calls").innerText = "Calls: " + game.renderer.info.render.calls;
-    query("#vertices").innerText = "Vertices: " + game.renderer.info.render.vertices;
+    game.title = game.fpsCounter.FPS + " " + game.fpsCounter.frameTime;
 });
 
 window.onload = function () {
