@@ -776,16 +776,16 @@ var HG;
 (function (HG) {
     (function (Utils) {
         function queue(functions, done) {
-            var allData = [];
-            var next = function (index, data) {
+            var allData = new HG.Core.Hash();
+            var next = function (index, data, key) {
                 if (index !== 0) {
-                    allData[index - 1] = data;
+                    allData.push(key, data);
                 }
-                var func = functions[index];
+                var args = functions.index(index);
                 if (index < functions.length) {
                     index++;
-                    func(function (data) {
-                        next(index, data);
+                    args.value(function (data) {
+                        next(index, data, args.key);
                     });
                 } else {
                     done(allData);
@@ -1252,81 +1252,6 @@ var HG;
 var HG;
 (function (HG) {
     (function (Core) {
-        var ArrayKey = (function () {
-            function ArrayKey() {
-                this.values = [];
-                this.keys = [];
-            }
-            ArrayKey.prototype.forEach = function (fn) {
-                var _this = this;
-                this.keys.forEach(function (key, index) {
-                    fn(_this.values[index], index, key);
-                });
-            };
-
-            ArrayKey.prototype.push = function (key, value) {
-                this.values.push(value);
-                this.keys.push(key);
-            };
-
-            ArrayKey.prototype.set = function (key, value) {
-                var index = this.keys.indexOf(key);
-                if (index !== -1) {
-                    this.values[index] = value;
-                    return true;
-                } else {
-                    return false;
-                }
-            };
-
-            ArrayKey.prototype.has = function (key) {
-                return (this.keys.indexOf(key) !== -1) ? true : false;
-            };
-
-            ArrayKey.prototype.concat = function () {
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                    args[_i] = arguments[_i + 0];
-                }
-                var _this = this;
-                args.forEach(function (other, index) {
-                    other.forEach(function (value, index, key) {
-                        if (_this.values.indexOf(value) === -1 && _this.keys.indexOf(key) === -1) {
-                            _this.push(key, value);
-                        }
-                    });
-                });
-                return this;
-            };
-
-            ArrayKey.prototype.value = function (v) {
-                var index = this.values.indexOf(v);
-                if (index !== -1) {
-                    return this.keys[index];
-                } else {
-                    HG.locale.errors.valueNotExistend.f(v).error();
-                    return null;
-                }
-            };
-
-            ArrayKey.prototype.key = function (k) {
-                var index = this.keys.indexOf(k);
-                if (index !== -1) {
-                    return this.values[index];
-                } else {
-                    HG.locale.errors.keyNotExistend.f(k).error();
-                    return null;
-                }
-            };
-            return ArrayKey;
-        })();
-        Core.ArrayKey = ArrayKey;
-    })(HG.Core || (HG.Core = {}));
-    var Core = HG.Core;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Core) {
         var BaseGame = (function (_super) {
             __extends(BaseGame, _super);
             function BaseGame(container) {
@@ -1624,6 +1549,104 @@ var HG;
 var HG;
 (function (HG) {
     (function (Core) {
+        var Hash = (function () {
+            function Hash() {
+                this.values = [];
+                this.keys = [];
+            }
+            Object.defineProperty(Hash.prototype, "length", {
+                get: function () {
+                    return this.values.length;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Hash.prototype.forEach = function (fn) {
+                var _this = this;
+                this.keys.forEach(function (key, index) {
+                    fn(key, _this.values[index], index);
+                });
+            };
+
+            Hash.prototype.push = function (key, value) {
+                this.values.push(value);
+                this.keys.push(key);
+            };
+
+            Hash.prototype.toValueArray = function () {
+                return this.values;
+            };
+
+            Hash.prototype.toKeyArray = function () {
+                return this.keys;
+            };
+
+            Hash.prototype.set = function (key, value) {
+                var index = this.keys.indexOf(key);
+                if (index !== -1) {
+                    this.values[index] = value;
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+
+            Hash.prototype.indexOf = function (key) {
+                return this.keys.indexOf(key);
+            };
+
+            Hash.prototype.concat = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                var _this = this;
+                args.forEach(function (other, index) {
+                    other.forEach(function (key, value, index) {
+                        if (_this.values.indexOf(value) === -1 && _this.keys.indexOf(key) === -1) {
+                            _this.push(key, value);
+                        }
+                    });
+                });
+                return this;
+            };
+
+            Hash.prototype.index = function (index) {
+                return {
+                    key: this.keys[index],
+                    value: this.values[index]
+                };
+            };
+
+            Hash.prototype.value = function (v) {
+                var index = this.values.indexOf(v);
+                if (index !== -1) {
+                    return this.keys[index];
+                } else {
+                    HG.locale.errors.valueNotExistend.f(v).error();
+                    return null;
+                }
+            };
+
+            Hash.prototype.key = function (k) {
+                var index = this.keys.indexOf(k);
+                if (index !== -1) {
+                    return this.values[index];
+                } else {
+                    HG.locale.errors.keyNotExistend.f(k).error();
+                    return null;
+                }
+            };
+            return Hash;
+        })();
+        Core.Hash = Hash;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Core) {
         var InputHandler = (function () {
             function InputHandler() {
                 this.keyState = [];
@@ -1721,10 +1744,43 @@ var HG;
 (function (HG) {
     (function (Core) {
         var Shader = (function () {
-            function Shader() {
-                this.vertex = "";
-                this.fragment = "";
+            function Shader(vertex, fragment) {
+                this.vertex = vertex;
+                this.fragment = fragment;
+                this.uniforms = new HG.Core.Hash();
             }
+            Shader.prototype.toMaterial = function () {
+                var material = new THREE.ShaderMaterial({
+                    vertex: this.vertex,
+                    fragment: this.fragment,
+                    uniforms: this.uniforms
+                });
+                return material;
+            };
+
+            Shader.prototype.set = function (key, data) {
+                this.uniforms.set(key, data);
+                return this;
+            };
+
+            Shader.prototype.extend = function (obj) {
+                var _this = this;
+                obj.forEach(function (k, v) {
+                    _this[k] = v;
+                });
+                return this;
+            };
+
+            Shader.prototype.extendTexture = function (textures) {
+                var _this = this;
+                textures.forEach(function (k, v) {
+                    _this.uniforms.set(k, {
+                        type: "t",
+                        value: v
+                    });
+                });
+                return this;
+            };
             return Shader;
         })();
         Core.Shader = Shader;
@@ -1841,39 +1897,14 @@ var HG;
 var HG;
 (function (HG) {
     (function (Entities) {
-        var HeightMapEntity = (function (_super) {
-            __extends(HeightMapEntity, _super);
-            function HeightMapEntity(directory, size, directions, suffix) {
-                if (typeof size === "undefined") { size = 5000; }
-                if (typeof directions === "undefined") { directions = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
-                if (typeof suffix === "undefined") { suffix = ".png"; }
-                _super.call(this);
-                var skyGeometry = new THREE.CubeGeometry(size, size, size);
-
-                var materialArray = [];
-                directions.forEach(function (d) {
-                    materialArray.push(new THREE.MeshBasicMaterial({
-                        map: THREE.ImageUtils.loadTexture(directory + d + suffix),
-                        side: THREE.BackSide
-                    }));
-                });
-                var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
-                this.object = new THREE.Mesh(skyGeometry, skyMaterial);
-            }
-            return HeightMapEntity;
-        })(HG.Entities.Entity);
-        Entities.HeightMapEntity = HeightMapEntity;
-    })(HG.Entities || (HG.Entities = {}));
-    var Entities = HG.Entities;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Entities) {
         var MeshEntity = (function (_super) {
             __extends(MeshEntity, _super);
-            function MeshEntity() {
-                _super.apply(this, arguments);
+            function MeshEntity(geometry, material) {
+                _super.call(this);
                 this.events = ["loaded"];
+                if (geometry && material) {
+                    this.object = new THREE.Mesh(geometry, material);
+                }
             }
             MeshEntity.prototype.load = function (data) {
                 var material = data.material;
@@ -2296,10 +2327,10 @@ var HG;
         var Cache = (function () {
             function Cache(loader) {
                 this.loader = loader;
-                this.files = new HG.Core.ArrayKey();
+                this.files = new HG.Core.Hash();
             }
             Cache.prototype.cache = function (path, data) {
-                if (this.files.has(path) === true) {
+                if (this.files.indexOf(path) !== -1) {
                     var oldData = this.files.key(path);
                     if (oldData === data) {
                         return 1 /* AlreadyExists */;
@@ -2460,35 +2491,20 @@ var HG;
             };
 
             ResourceLoader.prototype.texture = function (path) {
-                var tex = THREE.ImageUtils.loadTexture(this.path(path));
-                tex.anisotropy = HG.settings.graphics.aa;
-                return tex;
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 1); _i++) {
+                    args[_i] = arguments[_i + 1];
+                }
+                return this.load(path, HG.Resource.Texture, args);
             };
 
             ResourceLoader.prototype.queueTexture = function (paths, done) {
                 var _this = this;
-                var queue = [];
+                var queue = new HG.Core.Hash();
                 paths.forEach(function (path) {
-                    queue.push(function (next) {
-                        next(_this.texture(path));
-                    });
-                });
-                HG.Utils.queue(queue, done);
-            };
-
-            ResourceLoader.prototype.scene = function (path, done) {
-                var serializer = new HG.Core.Serializer.SceneSerializer(this);
-                serializer.on("done", done);
-                serializer.fromGeneric(this.json(path));
-            };
-
-            ResourceLoader.prototype.queueScene = function (paths, done) {
-                var _this = this;
-                var queue = [];
-                paths.forEach(function (path) {
-                    queue.push(function (next) {
-                        _this.scene(path, function (scene) {
-                            next(scene);
+                    queue.push(path, function (next) {
+                        _this.texture(path).on("loaded", function (texture) {
+                            next(texture);
                         });
                     });
                 });
@@ -2497,9 +2513,9 @@ var HG;
 
             ResourceLoader.prototype.queueJSON = function (paths, done) {
                 var _this = this;
-                var queue = [];
-                paths.forEach(function (path, index) {
-                    queue.push(function (next) {
+                var queue = new HG.Core.Hash();
+                paths.forEach(function (path) {
+                    queue.push(path, function (next) {
                         next(_this.json(path));
                     });
                 });
@@ -2508,17 +2524,7 @@ var HG;
 
             ResourceLoader.prototype.shader = function (path) {
                 var raw = this.json(path);
-                var extend = function (d) {
-                    for (var k in d) {
-                        raw[k] = d[k];
-                    }
-                    return raw;
-                };
-                return {
-                    vertex: raw.vertex,
-                    fragment: raw.fragment,
-                    extend: extend
-                };
+                return new HG.Core.Shader(raw.vertex, raw.fragment);
             };
 
             ResourceLoader.prototype.json = function (path, data) {
@@ -2587,6 +2593,48 @@ var HG;
             Sound.WAV = WAV;
         })(Resource.Sound || (Resource.Sound = {}));
         var Sound = Resource.Sound;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Resource) {
+        (function (Texture) {
+            var JPG = (function (_super) {
+                __extends(JPG, _super);
+                function JPG() {
+                    _super.apply(this, arguments);
+                    this.events = ["loaded"];
+                }
+                JPG.prototype.load = function (path) {
+                    this.dispatch("loaded", THREE.ImageUtils.loadTexture(path));
+                };
+                return JPG;
+            })(HG.Core.EventDispatcher);
+            Texture.JPG = JPG;
+        })(Resource.Texture || (Resource.Texture = {}));
+        var Texture = Resource.Texture;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Resource) {
+        (function (Texture) {
+            var PNG = (function (_super) {
+                __extends(PNG, _super);
+                function PNG() {
+                    _super.apply(this, arguments);
+                    this.events = ["loaded"];
+                }
+                PNG.prototype.load = function (path) {
+                    this.dispatch("loaded", THREE.ImageUtils.loadTexture(path));
+                };
+                return PNG;
+            })(HG.Core.EventDispatcher);
+            Texture.PNG = PNG;
+        })(Resource.Texture || (Resource.Texture = {}));
+        var Texture = Resource.Texture;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
 })(HG || (HG = {}));

@@ -3,7 +3,7 @@
 * @Date:   2013-12-17 10:40:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 14:51:41
+* @Last Modified time: 2013-12-26 18:19:31
 */
 
 module MainScene {
@@ -72,9 +72,34 @@ module MainScene {
 			"textures/skybox/yneg.png",
 			"textures/skybox/zpos.png",
 			"textures/skybox/zneg.png"
-		], (textures: THREE.Texture[]) => {
-			var entity = new HG.Entities.SkyBoxEntity(textures);
+		], (textures: HG.Core.Hash<string, THREE.Texture>) => {
+			var entity = new HG.Entities.SkyBoxEntity(textures.toValueArray());
 			done(entity);
+		});
+	}
+
+	export function createMap(loader: HG.Resource.ResourceLoader,
+						done: (e: HG.Entities.MeshEntity) => any): void {
+		loader.texture("textures/heightmap.png").on("loaded", (texture: THREE.Texture) => {
+			var paths = [
+				"textures/map/ocean.jpg",
+				"textures/map/sandy.jpg",
+				"textures/map/grass.jpg",
+				"textures/map/rocky.jpg",
+				"textures/map/snowy.jpg"
+			];
+			var shader = loader.shader("shaders/heightmap.json");
+			loader.queueTexture(paths, (textures: HG.Core.Hash<string, THREE.Texture>) => {
+				shader.extendTexture(textures);
+				shader.set("bumpScale", {
+					type: "f",
+					value: 200
+				});
+				var material = shader.toMaterial();
+				var geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
+				var entity = new HG.Entities.MeshEntity(geometry, material);
+				done(entity);
+			});
 		});
 	}
 

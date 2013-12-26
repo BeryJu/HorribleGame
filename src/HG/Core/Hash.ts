@@ -3,30 +3,42 @@
 * @Date:   2013-12-26 13:18:30
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 13:31:41
+* @Last Modified time: 2013-12-26 18:17:12
 */
 
 module HG.Core {
 
-	export class ArrayKey<K, T> {
+	export class Hash<K, T> {
 
-		private values: T[];
 		private keys: K[];
+		private values: T[];
 
 		constructor() {
 			this.values = [];
 			this.keys = [];
 		}
 
-		forEach(fn: (value: T, index: number, key: K) => any): void {
+		get length (): number {
+			return this.values.length;
+		}
+
+		forEach(fn: (key: K, value: T, index: number) => any): void {
 			this.keys.forEach((key, index) => {
-				fn(this.values[index], index, key);
+				fn(key, this.values[index], index);
 			});
 		}
 
 		push(key: K, value: T): void {
 			this.values.push(value);
 			this.keys.push(key);
+		}
+
+		toValueArray(): T[] {
+			return this.values;
+		}
+
+		toKeyArray(): K[] {
+			return this.keys;
 		}
 
 		set(key: K, value: T): boolean {
@@ -39,13 +51,13 @@ module HG.Core {
 			}
 		}
 
-		has(key: K): boolean {
-			return (this.keys.indexOf(key) !== -1) ? true : false;
+		indexOf(key: K): number {
+			return this.keys.indexOf(key);
 		}
 
-		concat(...args: Array<HG.Core.ArrayKey<K, T>>): HG.Core.ArrayKey<K, T> {
+		concat(...args: Array<HG.Core.Hash<K, T>>): HG.Core.Hash<K, T> {
 			args.forEach((other, index) => {
-				other.forEach((value, index, key) => {
+				other.forEach((key, value, index) => {
 					if (this.values.indexOf(value) === -1 &&
 						this.keys.indexOf(key) === -1) {
 						this.push(key, value);
@@ -53,6 +65,16 @@ module HG.Core {
 				});
 			});
 			return this;
+		}
+
+		index(index: number): {
+			key: K;
+			value: T;
+		} {
+			return {
+				key: this.keys[index],
+				value: this.values[index]
+			};
 		}
 
 		value(v: T): K {

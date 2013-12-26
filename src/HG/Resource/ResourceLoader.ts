@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 13:31:22
+* @Last Modified time: 2013-12-26 18:07:29
 */
 
 module HG.Resource {
@@ -76,67 +76,36 @@ module HG.Resource {
 			return this.load(path, HG.Resource.Video, args);
 		}
 
-		texture(path: string): THREE.Texture {
-			var tex = THREE.ImageUtils.loadTexture(this.path(path));
-			tex.anisotropy = HG.settings.graphics.aa;
-			return tex;
+		texture(path: string, ...args: any[]): HG.Core.EventDispatcher {
+			return this.load(path, HG.Resource.Texture, args);
 		}
 
-		queueTexture(paths: string[], done: (textures: THREE.Texture[]) => void): void {
-			var queue = [];
+		queueTexture(paths: string[], done: (textures: HG.Core.Hash<string, THREE.Texture>) => void):
+			void {
+			var queue = new HG.Core.Hash<string, Function>();
 			paths.forEach((path) => {
-				queue.push((next: Function) => {
-					next(this.texture(path));
-				});
-			});
-			HG.Utils.queue(queue, done);
-		}
-
-		scene(path: string, done: (scene: HG.Core.Scene) => void): void {
-			var serializer =  new HG.Core.Serializer.SceneSerializer(this);
-			serializer.on("done", done);
-			serializer.fromGeneric(this.json<any>(path));
-		}
-
-		queueScene(paths: string[], done: (scenes: HG.Core.Scene[]) => void): void {
-			var queue = [];
-			paths.forEach((path) => {
-				queue.push((next: Function) => {
-					this.scene(path, (scene: HG.Core.Scene) => {
-						next(scene);
+				queue.push(path, (next: Function) => {
+					this.texture(path).on("loaded", (texture: THREE.Texture) => {
+						next(texture);
 					});
 				});
 			});
-			HG.Utils.queue(queue, done);
+			HG.Utils.queue<string, THREE.Texture>(queue, done);
 		}
 
-		queueJSON<T>(paths: string[], done: (scenes: T[]) => void): void {
-			var queue = [];
-			paths.forEach((path, index) => {
-				queue.push((next: Function) => {
+		queueJSON<T>(paths: string[], done: (jsons: HG.Core.Hash<string, T>) => void): void {
+			var queue = new HG.Core.Hash<string, Function>();
+			paths.forEach((path) => {
+				queue.push(path, (next: Function) => {
 					next(this.json<T>(path));
 				});
 			});
-			HG.Utils.queue(queue, done);
+			HG.Utils.queue<string, T>(queue, done);
 		}
 
-		shader(path: string): {
-			vertex: string;
-			fragment: string;
-			extend: Function;
-		} {
+		shader(path: string): HG.Core.Shader {
 			var raw = this.json<HG.Core.Shader>(path);
-			var extend = function(d: any) {
-				for (var k in d) {
-					raw[k] = d[k];
-				}
-				return raw;
-			};
-			return {
-				vertex: raw.vertex,
-				fragment: raw.fragment,
-				extend: extend
-			};
+			return new HG.Core.Shader(raw.vertex, raw.fragment);
 		}
 
 		json<T>(path: string, data?: T): T {

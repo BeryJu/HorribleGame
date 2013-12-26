@@ -4019,6 +4019,7 @@ declare module THREE {
     }
 
     export class Mesh extends Object3D {
+        constructor(geometry?: Geometry, material?: Material);
         constructor(geometry?: Geometry, material?: MeshBasicMaterial);
         constructor(geometry?: Geometry, material?: MeshDepthMaterial);
         constructor(geometry?: Geometry, material?: MeshFaceMaterial);

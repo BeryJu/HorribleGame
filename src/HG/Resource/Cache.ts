@@ -3,7 +3,7 @@
 * @Date:   2013-12-09 13:05:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 13:30:55
+* @Last Modified time: 2013-12-26 17:56:16
 */
 
 module HG.Resource {
@@ -18,15 +18,15 @@ module HG.Resource {
 	export class Cache {
 
 		loader: HG.Resource.ResourceLoader;
-		files: HG.Core.ArrayKey<any, string>;
+		files: HG.Core.Hash<any, string>;
 
 		constructor(loader: HG.Resource.ResourceLoader) {
 			this.loader = loader;
-			this.files = new HG.Core.ArrayKey<any, string>();
+			this.files = new HG.Core.Hash<any, string>();
 		}
 
 		cache(path: string, data?: any): HG.Resource.CacheResults {
-			if (this.files.has(path) === true) {
+			if (this.files.indexOf(path) !== -1) {
 				var oldData = this.files.key(path);
 				if (oldData === data) {
 					return HG.Resource.CacheResults.AlreadyExists;

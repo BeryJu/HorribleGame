@@ -202,7 +202,7 @@ declare module HG.Utils {
     }
 }
 declare module HG.Utils {
-    function queue<T>(functions: Function[], done: (allData: T[]) => void): void;
+    function queue<K, T>(functions: HG.Core.Hash<K, Function>, done: (data: HG.Core.Hash<K, T>) => void): void;
 }
 declare module HG.Utils {
     class Tween {
@@ -325,20 +325,6 @@ declare module HG.Abilities {
     }
 }
 declare module HG.Core {
-    class ArrayKey<K, T> {
-        private values;
-        private keys;
-        constructor();
-        public forEach(fn: (value: T, index: number, key: K) => any): void;
-        public push(key: K, value: T): void;
-        public set(key: K, value: T): boolean;
-        public has(key: K): boolean;
-        public concat(...args: ArrayKey<K, T>[]): ArrayKey<K, T>;
-        public value(v: T): K;
-        public key(k: K): T;
-    }
-}
-declare module HG.Core {
     class BaseGame extends Core.EventDispatcher {
         public renderer: THREE.WebGLRenderer;
         public resolution: THREE.Vector2;
@@ -391,6 +377,27 @@ declare module HG.Core {
     }
 }
 declare module HG.Core {
+    class Hash<K, T> {
+        private keys;
+        private values;
+        constructor();
+        public length : number;
+        public forEach(fn: (key: K, value: T, index: number) => any): void;
+        public push(key: K, value: T): void;
+        public toValueArray(): T[];
+        public toKeyArray(): K[];
+        public set(key: K, value: T): boolean;
+        public indexOf(key: K): number;
+        public concat(...args: Hash<K, T>[]): Hash<K, T>;
+        public index(index: number): {
+            key: K;
+            value: T;
+        };
+        public value(v: T): K;
+        public key(k: K): T;
+    }
+}
+declare module HG.Core {
     class InputHandler {
         public mouse: Core.EventDispatcher;
         public keyboard: Core.EventDispatcher;
@@ -419,6 +426,12 @@ declare module HG.Core {
     class Shader {
         public vertex: string;
         public fragment: string;
+        public uniforms: Core.Hash<string, any>;
+        constructor(vertex: string, fragment: string);
+        public toMaterial(): THREE.ShaderMaterial;
+        public set(key: string, data: any): Shader;
+        public extend(obj: Core.Hash<string, any>): Shader;
+        public extendTexture(textures: Core.Hash<string, THREE.Texture>): Shader;
     }
 }
 declare module HG.Entities {
@@ -453,14 +466,10 @@ declare module HG.Entities {
     }
 }
 declare module HG.Entities {
-    class HeightMapEntity extends Entities.Entity {
-        constructor(directory: string, size?: number, directions?: string[], suffix?: string);
-    }
-}
-declare module HG.Entities {
     class MeshEntity extends Entities.Entity implements HG.Resource.ILoadable {
         public object: THREE.Mesh;
         public events: string[];
+        constructor(geometry?: THREE.Geometry, material?: THREE.Material);
         public load(data: {
             material: any;
             geometry: THREE.Geometry;
@@ -622,7 +631,7 @@ declare module HG.Resource {
     }
     class Cache {
         public loader: Resource.ResourceLoader;
-        public files: HG.Core.ArrayKey<any, string>;
+        public files: HG.Core.Hash<any, string>;
         constructor(loader: Resource.ResourceLoader);
         public cache(path: string, data?: any): CacheResults;
     }
@@ -649,22 +658,28 @@ declare module HG.Resource {
         public model(path: string, ...args: any[]): HG.Core.EventDispatcher;
         public sound(path: string, ...args: any[]): HG.Core.EventDispatcher;
         public video(path: string, ...args: any[]): HG.Core.EventDispatcher;
-        public texture(path: string): THREE.Texture;
-        public queueTexture(paths: string[], done: (textures: THREE.Texture[]) => void): void;
-        public scene(path: string, done: (scene: HG.Core.Scene) => void): void;
-        public queueScene(paths: string[], done: (scenes: HG.Core.Scene[]) => void): void;
-        public queueJSON<T>(paths: string[], done: (scenes: T[]) => void): void;
-        public shader(path: string): {
-            vertex: string;
-            fragment: string;
-            extend: Function;
-        };
+        public texture(path: string, ...args: any[]): HG.Core.EventDispatcher;
+        public queueTexture(paths: string[], done: (textures: HG.Core.Hash<string, THREE.Texture>) => void): void;
+        public queueJSON<T>(paths: string[], done: (jsons: HG.Core.Hash<string, T>) => void): void;
+        public shader(path: string): HG.Core.Shader;
         public json<T>(path: string, data?: T): T;
         public directory(directory: string, extension?: string): string[];
     }
 }
 declare module HG.Resource.Sound {
     class WAV extends HG.Core.EventDispatcher implements Resource.IFiletype {
+        public events: string[];
+        public load(path: string): void;
+    }
+}
+declare module HG.Resource.Texture {
+    class JPG extends HG.Core.EventDispatcher implements Resource.IFiletype {
+        public events: string[];
+        public load(path: string): void;
+    }
+}
+declare module HG.Resource.Texture {
+    class PNG extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
         public load(path: string): void;
     }
