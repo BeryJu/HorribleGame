@@ -18,5 +18,7 @@ else
 	cd "node-webkit-v0.8.3-linux-x64"
 	mv * ..
 	cd ..
-	./nw ../../bin
+	rm -rf "node-webkit-v0.8.3-linux-x64"
+	cd ../..
+	nw/linux-64/nw bin/
 fi
