@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 13:00:02
+* @Last Modified time: 2013-12-26 13:31:22
 */
 
 module HG.Resource {
@@ -11,10 +11,12 @@ module HG.Resource {
 	export class ResourceLoader extends HG.Core.EventDispatcher {
 
 		baseDirectory: string;
+		cache: HG.Resource.Cache;
 
 		constructor(baseDirectory: string) {
 			super();
 			this.baseDirectory = baseDirectory;
+			this.cache = new HG.Resource.Cache(this);
 			var settings = "settings.json";
 			HG.settings = this.json<HG.Utils.ISettings>(settings);
 			HG.locale = this.json<HG.Locale.LocaleDefinition>(HG.settings.hgLocale);

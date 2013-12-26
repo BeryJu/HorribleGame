@@ -3,7 +3,7 @@
 * @Date:   2013-12-17 10:40:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 12:23:11
+* @Last Modified time: 2013-12-26 13:56:58
 */
 
 module MainScene {
@@ -19,6 +19,13 @@ module MainScene {
 			scene.push(skybox);
 		});
 
+		loader.video("videos/sintel.ogv").on("loaded", (domElement: HTMLVideoElement) => {
+			var entity = new HG.Entities.VideoEntity(domElement);
+			entity.position(500, 0, 0);
+			scene.push(entity);
+			entity.play();
+		});
+
 		MainScene.createPlayer(loader, (e: HG.Entities.MeshEntity) => {
 			scene.push(e);
 
@@ -26,11 +33,13 @@ module MainScene {
 			e.ability(moving);
 
 			scene.controls.keyboard.bind(HG.settings.keys.forward, (delta: number) => {
-				e.object.translateX(delta * 3.125);
+				// e.object.translateX(delta * 3.125);
+				e.object.position.x += delta;
 			});
 
 			scene.controls.keyboard.bind(HG.settings.keys.backward, (delta: number) => {
-				e.object.translateX(-(delta * 3.125));
+				// e.object.translateX(-(delta * 3.125));
+				e.object.position.x += delta;
 			});
 
 			scene.controls.keyboard.bind(HG.settings.keys.left, (delta: number) => {

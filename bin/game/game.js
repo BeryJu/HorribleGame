@@ -10,6 +10,13 @@ var MainScene;
             scene.push(skybox);
         });
 
+        loader.video("videos/sintel.ogv").on("loaded", function (domElement) {
+            var entity = new HG.Entities.VideoEntity(domElement);
+            entity.position(500, 0, 0);
+            scene.push(entity);
+            entity.play();
+        });
+
         MainScene.createPlayer(loader, function (e) {
             scene.push(e);
 
@@ -17,11 +24,11 @@ var MainScene;
             e.ability(moving);
 
             scene.controls.keyboard.bind(HG.settings.keys.forward, function (delta) {
-                e.object.translateX(delta * 3.125);
+                e.object.position.x += delta;
             });
 
             scene.controls.keyboard.bind(HG.settings.keys.backward, function (delta) {
-                e.object.translateX(-(delta * 3.125));
+                e.object.position.x += delta;
             });
 
             scene.controls.keyboard.bind(HG.settings.keys.left, function (delta) {
@@ -107,10 +114,10 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, function (delta) {
 });
 
 game.on("render", function (delta) {
-    query("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
-    query("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
-    query("#calls").innerText = HG.locale.debug.calls.f(game.renderer.info.render.calls);
-    query("#vertices").innerText = HG.locale.debug.vertices.f(game.renderer.info.render.vertices);
+    query("#fps").innerText = "FPS: " + game.fpsCounter.FPS;
+    query("#frametime").innerText = "Frametime: " + game.fpsCounter.frameTime;
+    query("#calls").innerText = "Calls: " + game.renderer.info.render.calls;
+    query("#vertices").innerText = "Vertices: " + game.renderer.info.render.vertices;
 });
 
 window.onload = function () {

@@ -325,15 +325,17 @@ declare module HG.Abilities {
     }
 }
 declare module HG.Core {
-    class ArrayKey<T> {
+    class ArrayKey<K, T> {
         private values;
         private keys;
         constructor();
-        public forEach(fn: (value: T, index: number, key: any) => any): void;
-        public push(item: T, key: any): void;
-        public concat(...args: ArrayKey<T>[]): ArrayKey<T>;
-        public value(v: T): any;
-        public key(k: any): T;
+        public forEach(fn: (value: T, index: number, key: K) => any): void;
+        public push(key: K, value: T): void;
+        public set(key: K, value: T): boolean;
+        public has(key: K): boolean;
+        public concat(...args: ArrayKey<K, T>[]): ArrayKey<K, T>;
+        public value(v: T): K;
+        public key(k: K): T;
     }
 }
 declare module HG.Core {
@@ -459,7 +461,6 @@ declare module HG.Entities {
     class MeshEntity extends Entities.Entity implements HG.Resource.ILoadable {
         public object: THREE.Mesh;
         public events: string[];
-        constructor(geo?: THREE.Geometry, mat?: THREE.MeshBasicMaterial);
         public load(data: {
             material: any;
             geometry: THREE.Geometry;
@@ -490,13 +491,31 @@ declare module HG.Entities {
     }
 }
 declare module HG.Entities {
+    class TextEntity extends Entities.Entity {
+        public object: THREE.Mesh;
+        public texture: THREE.Texture;
+        public _text: string;
+        public _font: string;
+        public _fillStyle: string;
+        public context: CanvasRenderingContext2D;
+        public text : string;
+        public font : string;
+        public fillStyle : string;
+        constructor(text?: string);
+        public reDraw(): void;
+    }
+}
+declare module HG.Entities {
     class VideoEntity extends Entities.Entity {
         public domElement: HTMLVideoElement;
-        constructor(domElement: HTMLVideoElement, size: THREE.Vector2);
+        public videoTexture: THREE.Texture;
+        public videoImageContext: CanvasRenderingContext2D;
+        constructor(domElement: HTMLVideoElement);
         public play(): void;
         public pause(): void;
         public stop(): void;
         public rewind(): void;
+        public frame(delta: number): void;
     }
 }
 declare module HG.LINQ {
@@ -595,13 +614,17 @@ declare module HG.Locale {
     }
 }
 declare module HG.Resource {
-    class CacheFile {
+    enum CacheResults {
+        Added = 0,
+        AlreadyExists = 1,
+        Updated = 2,
+        Failure = 3,
     }
     class Cache {
         public loader: Resource.ResourceLoader;
-        public files: HG.Core.Collection<CacheFile>;
+        public files: HG.Core.ArrayKey<any, string>;
         constructor(loader: Resource.ResourceLoader);
-        public cache(path: string, data?: any): boolean;
+        public cache(path: string, data?: any): CacheResults;
     }
 }
 declare module HG.Resource.Model {
@@ -619,6 +642,7 @@ declare module HG.Resource.Model {
 declare module HG.Resource {
     class ResourceLoader extends HG.Core.EventDispatcher {
         public baseDirectory: string;
+        public cache: Resource.Cache;
         constructor(baseDirectory: string);
         public path(path: string, silent?: boolean): string;
         private load(relPath, namespace, loaderArgs);
@@ -646,7 +670,7 @@ declare module HG.Resource.Sound {
     }
 }
 declare module HG.Resource.Video {
-    class Video extends HG.Core.EventDispatcher implements Resource.IFiletype {
+    class OGV extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
         public load(path: string): void;
     }

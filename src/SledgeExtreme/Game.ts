@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 12:23:11
+* @Last Modified time: 2013-12-26 14:08:37
 */
 
 /// <reference path="GameLocale.ts" />
@@ -45,10 +45,10 @@ game.controls.keyboard.bind(HG.settings.keys.fullscreen, (delta: number) => {
 });
 
 game.on("render", (delta: number) => {
-	query("#fps").innerText = locale.debugInfo.fps.f(game.fpsCounter.FPS);
-	query("#frametime").innerText = locale.debugInfo.frametime.f(game.fpsCounter.frameTime);
-	query("#calls").innerText = HG.locale.debug.calls.f(game.renderer.info.render.calls);
-	query("#vertices").innerText = HG.locale.debug.vertices.f(game.renderer.info.render.vertices);
+	query("#fps").innerText = "FPS: " + game.fpsCounter.FPS;
+	query("#frametime").innerText = "Frametime: " + game.fpsCounter.frameTime;
+	query("#calls").innerText = "Calls: " + game.renderer.info.render.calls;
+	query("#vertices").innerText = "Vertices: " + game.renderer.info.render.vertices;
 });
 
 window.onload = () => game.load();

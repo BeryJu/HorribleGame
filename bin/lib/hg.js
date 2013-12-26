@@ -1261,9 +1261,23 @@ var HG;
                 });
             };
 
-            ArrayKey.prototype.push = function (item, key) {
-                this.values.push(item);
+            ArrayKey.prototype.push = function (key, value) {
+                this.values.push(value);
                 this.keys.push(key);
+            };
+
+            ArrayKey.prototype.set = function (key, value) {
+                var index = this.keys.indexOf(key);
+                if (index !== -1) {
+                    this.values[index] = value;
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+
+            ArrayKey.prototype.has = function (key) {
+                return (this.keys.indexOf(key) !== -1) ? true : false;
             };
 
             ArrayKey.prototype.concat = function () {
@@ -1275,7 +1289,7 @@ var HG;
                 args.forEach(function (other, index) {
                     other.forEach(function (value, index, key) {
                         if (_this.values.indexOf(value) === -1 && _this.keys.indexOf(key) === -1) {
-                            _this.push(value, key);
+                            _this.push(key, value);
                         }
                     });
                 });
@@ -1849,11 +1863,9 @@ var HG;
     (function (Entities) {
         var MeshEntity = (function (_super) {
             __extends(MeshEntity, _super);
-            function MeshEntity(geo, mat) {
-                _super.call(this);
+            function MeshEntity() {
+                _super.apply(this, arguments);
                 this.events = ["loaded"];
-                if (geo && mat)
-                    this.object = new THREE.Mesh(geo, mat);
             }
             MeshEntity.prototype.load = function (data) {
                 var material = data.material;
@@ -1984,26 +1996,90 @@ var HG;
 var HG;
 (function (HG) {
     (function (Entities) {
+        var TextEntity = (function (_super) {
+            __extends(TextEntity, _super);
+            function TextEntity(text) {
+                _super.call(this);
+                var canvas = document.createElement("canvas");
+                this.texture = new THREE.Texture(canvas);
+                this.texture.needsUpdate = true;
+                this.context = canvas.getContext("2d");
+                this._text = text;
+                this._fillStyle = "rgba(255,0,0,1)";
+                this._font = "14px Arial";
+                this.reDraw();
+                var material = new THREE.MeshBasicMaterial({
+                    map: this.texture,
+                    side: THREE.DoubleSide
+                });
+                material.transparent = true;
+                var geometry = new THREE.PlaneGeometry(canvas.width, canvas.height);
+                this.object = new THREE.Mesh(geometry, material);
+            }
+            Object.defineProperty(TextEntity.prototype, "text", {
+                set: function (v) {
+                    this._text = v;
+                    this.reDraw();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Object.defineProperty(TextEntity.prototype, "font", {
+                set: function (v) {
+                    this._font = v;
+                    this.reDraw();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Object.defineProperty(TextEntity.prototype, "fillStyle", {
+                set: function (v) {
+                    this._fillStyle = v;
+                    this.reDraw();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            TextEntity.prototype.reDraw = function () {
+                var size = new THREE.Vector2(this.context.canvas.width, this.context.canvas.height);
+                this.context.clearRect(0, 0, size.x, size.y);
+                this.context.font = this._font;
+                this.context.fillStyle = this._fillStyle;
+                this.context.fillText(this._text, 0, 0);
+            };
+            return TextEntity;
+        })(HG.Entities.Entity);
+        Entities.TextEntity = TextEntity;
+    })(HG.Entities || (HG.Entities = {}));
+    var Entities = HG.Entities;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Entities) {
         var VideoEntity = (function (_super) {
             __extends(VideoEntity, _super);
-            function VideoEntity(domElement, size) {
+            function VideoEntity(domElement) {
                 _super.call(this);
+                var size = new THREE.Vector2(domElement.videoHeight, domElement.videoWidth);
                 this.domElement = domElement;
                 var videoImage = document.createElement("canvas");
                 videoImage.width = size.x;
                 videoImage.height = size.y;
 
-                var videoImageContext = videoImage.getContext("2d");
+                this.videoImageContext = videoImage.getContext("2d");
 
-                videoImageContext.fillStyle = "#000000";
-                videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
+                this.videoImageContext.fillStyle = "#000000";
+                this.videoImageContext.fillRect(0, 0, videoImage.width, videoImage.height);
 
-                var videoTexture = new THREE.Texture(videoImage);
-                videoTexture.minFilter = THREE.LinearFilter;
-                videoTexture.magFilter = THREE.LinearFilter;
+                this.videoTexture = new THREE.Texture(videoImage);
+                this.videoTexture.minFilter = THREE.LinearFilter;
+                this.videoTexture.magFilter = THREE.LinearFilter;
 
                 var movieMaterial = new THREE.MeshBasicMaterial({
-                    map: videoTexture,
+                    map: this.videoTexture,
                     overdraw: true,
                     side: THREE.DoubleSide
                 });
@@ -2026,6 +2102,13 @@ var HG;
 
             VideoEntity.prototype.rewind = function () {
                 this.domElement.currentTime = 0;
+            };
+
+            VideoEntity.prototype.frame = function (delta) {
+                if (this.domElement.readyState === this.domElement.HAVE_ENOUGH_DATA) {
+                    this.videoImageContext.drawImage(this.domElement, 0, 0);
+                    this.videoTexture.needsUpdate = true;
+                }
             };
             return VideoEntity;
         })(HG.Entities.Entity);
@@ -2194,20 +2277,35 @@ var HG;
 var HG;
 (function (HG) {
     (function (Resource) {
-        var CacheFile = (function () {
-            function CacheFile() {
-            }
-            return CacheFile;
-        })();
-        Resource.CacheFile = CacheFile;
+        (function (CacheResults) {
+            CacheResults[CacheResults["Added"] = 0] = "Added";
+            CacheResults[CacheResults["AlreadyExists"] = 1] = "AlreadyExists";
+            CacheResults[CacheResults["Updated"] = 2] = "Updated";
+            CacheResults[CacheResults["Failure"] = 3] = "Failure";
+        })(Resource.CacheResults || (Resource.CacheResults = {}));
+        var CacheResults = Resource.CacheResults;
 
         var Cache = (function () {
             function Cache(loader) {
                 this.loader = loader;
-                this.files = new HG.Core.Collection();
+                this.files = new HG.Core.ArrayKey();
             }
             Cache.prototype.cache = function (path, data) {
-                return true;
+                if (this.files.has(path) === true) {
+                    var oldData = this.files.key(path);
+                    if (oldData === data) {
+                        return 1 /* AlreadyExists */;
+                    } else {
+                        if (this.files.set(path, data) === true) {
+                            return 2 /* Updated */;
+                        } else {
+                            return 3 /* Failure */;
+                        }
+                    }
+                } else {
+                    this.files.push(path, data);
+                    return 0 /* Added */;
+                }
             };
             return Cache;
         })();
@@ -2279,6 +2377,7 @@ var HG;
             function ResourceLoader(baseDirectory) {
                 _super.call(this);
                 this.baseDirectory = baseDirectory;
+                this.cache = new HG.Resource.Cache(this);
                 var settings = "settings.json";
                 HG.settings = this.json(settings);
                 HG.locale = this.json(HG.settings.hgLocale);
@@ -2486,26 +2585,23 @@ var HG;
 var HG;
 (function (HG) {
     (function (Resource) {
-        (function (_Video) {
-            var Video = (function (_super) {
-                __extends(Video, _super);
-                function Video() {
+        (function (Video) {
+            var OGV = (function (_super) {
+                __extends(OGV, _super);
+                function OGV() {
                     _super.apply(this, arguments);
                     this.events = ["loaded"];
                 }
-                Video.prototype.load = function (path) {
+                OGV.prototype.load = function (path) {
                     var domElement = document.createElement("video");
                     domElement.src = path;
                     domElement.load();
-                    var size = new THREE.Vector2(domElement.videoHeight, domElement.videoWidth);
 
-                    var entity = new HG.Entities.VideoEntity(domElement, size);
-
-                    this.dispatch("loaded", entity);
+                    this.dispatch("loaded", domElement);
                 };
-                return Video;
+                return OGV;
             })(HG.Core.EventDispatcher);
-            _Video.Video = Video;
+            Video.OGV = OGV;
         })(Resource.Video || (Resource.Video = {}));
         var Video = Resource.Video;
     })(HG.Resource || (HG.Resource = {}));
