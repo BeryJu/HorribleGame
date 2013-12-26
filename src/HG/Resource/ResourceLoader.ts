@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 18:07:29
+* @Last Modified time: 2013-12-26 20:50:05
 */
 
 module HG.Resource {
@@ -22,20 +22,18 @@ module HG.Resource {
 			HG.locale = this.json<HG.Locale.LocaleDefinition>(HG.settings.hgLocale);
 		}
 
-		path(path: string, silent?: boolean): string {
+		path(path: string): string {
 			var absPath = HG.Modules.path.join(this.baseDirectory, path);
 			if (HG.Modules.fs.existsSync(absPath) === true) {
 				return absPath;
 			} else {
-				if (silent || silent === false) {
-					HG.locale.errors.fileNotExisting.f(path).error();
-				}
+				HG.locale.errors.fileNotExisting.f(path).error();
 				return null;
 			}
 		}
 
 		private load(relPath: string, namespace: any, loaderArgs: any[]):
-				HG.Core.EventDispatcher {
+					HG.Core.EventDispatcher {
 			var absPath = this.path(relPath);
 			var extension = HG.Modules.path.extname(absPath);
 			var extensionName = extension.toUpperCase().replace(".", "");
@@ -57,7 +55,7 @@ module HG.Resource {
 					}
 				}
 				if (foundLoader === false) {
-					HG.locale.resource.noLoader.f(extension).error();
+						HG.locale.resource.noLoader.f(extension).error();
 				}
 				return dispatcher;
 			};
@@ -84,7 +82,7 @@ module HG.Resource {
 			void {
 			var queue = new HG.Core.Hash<string, Function>();
 			paths.forEach((path) => {
-				queue.push(path, (next: Function) => {
+				queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), (next: Function) => {
 					this.texture(path).on("loaded", (texture: THREE.Texture) => {
 						next(texture);
 					});

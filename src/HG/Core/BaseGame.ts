@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 14:43:41
+* @Last Modified time: 2013-12-26 20:00:02
 */
 
 module HG.Core {
@@ -55,7 +55,6 @@ module HG.Core {
 				this.renderer = new THREE.WebGLRenderer({
 					antialias: HG.settings.graphics.antialiasing
 				});
-				HG.settings.graphics.aa = this.renderer.getMaxAnisotropy();
 				this.renderer.setSize(window.innerWidth, window.innerHeight);
 				container.appendChild(this.renderer.domElement);
 			} else {

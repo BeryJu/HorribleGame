@@ -4,6 +4,7 @@
 	"graphics": {
 		"fullscreen": false,
 		"fov": 110,
+		"anisotropy": 16,
 		"viewDistance": 5000,
 		"shadowMapSize": 2048,
 		"useStaticFramerate": false,

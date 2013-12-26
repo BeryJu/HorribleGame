@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:04:33
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 17:58:50
+* @Last Modified time: 2013-12-26 19:59:19
 */
 
 module HG.Resource.Texture {
@@ -13,7 +13,9 @@ module HG.Resource.Texture {
 		events: string[] = ["loaded"];
 
 		load(path: string) {
-			this.dispatch("loaded", THREE.ImageUtils.loadTexture(path));
+			var texture = THREE.ImageUtils.loadTexture(path);
+			texture.anisotropy = HG.settings.graphics.anisotropy;
+			this.dispatch("loaded", texture);
 		}
 
 	}

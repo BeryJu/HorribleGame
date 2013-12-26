@@ -1,9 +1,0 @@
-{
-	"type": "material",
-	"properties": {
-		"explosionTexture": {
-			"type": "t",
-			"value": 0
-		}
-	}
-}

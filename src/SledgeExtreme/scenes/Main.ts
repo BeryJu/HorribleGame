@@ -3,7 +3,7 @@
 * @Date:   2013-12-17 10:40:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 18:19:31
+* @Last Modified time: 2013-12-26 21:41:33
 */
 
 module MainScene {
@@ -15,9 +15,9 @@ module MainScene {
 		scene.color = new THREE.Color(12307677);
 		scene.colorAlpha = .5;
 
-		MainScene.createSkyBox(loader, (skybox: HG.Entities.MeshEntity) => {
-			scene.push(skybox);
-		});
+		// MainScene.createSkyBox(loader, (skybox: HG.Entities.MeshEntity) => {
+		// 	scene.push(skybox);
+		// });
 
 		var te = new HG.Entities.TextEntity("derp");
 		te.position(10);
@@ -30,14 +30,25 @@ module MainScene {
 			entity.play();
 		});
 
+		MainScene.createMap(loader, (e: HG.Entities.MeshEntity) => {
+			scene.push(e);
+		});
+
+		MainScene.createExplosion(loader, (e: HG.Entities.MeshEntity) => {
+			scene.push(e);
+		});
+
 		MainScene.createPlayer(loader, (e: HG.Entities.MeshEntity) => {
 			scene.push(e);
 
 			var moving = new HG.Abilities.MovingAbility(3.125);
 			e.ability(moving);
 
+			scene.controls.keyboard.bind(HG.settings.keys.jump, (delta: number) => {
+				moving.jump(delta);
+			});
+
 			scene.controls.keyboard.bind(HG.settings.keys.forward, (delta: number) => {
-				console.log(delta);
 				moving.moveForward(delta);
 			});
 
@@ -74,32 +85,49 @@ module MainScene {
 			"textures/skybox/zneg.png"
 		], (textures: HG.Core.Hash<string, THREE.Texture>) => {
 			var entity = new HG.Entities.SkyBoxEntity(textures.toValueArray());
+			entity.name = "skybox";
 			done(entity);
 		});
 	}
 
 	export function createMap(loader: HG.Resource.ResourceLoader,
 						done: (e: HG.Entities.MeshEntity) => any): void {
-		loader.texture("textures/heightmap.png").on("loaded", (texture: THREE.Texture) => {
-			var paths = [
-				"textures/map/ocean.jpg",
-				"textures/map/sandy.jpg",
-				"textures/map/grass.jpg",
-				"textures/map/rocky.jpg",
-				"textures/map/snowy.jpg"
-			];
+		var paths = [
+			"textures/map/bump.png",
+			"textures/map/ocean.jpg",
+			"textures/map/sandy.jpg",
+			"textures/map/grass.jpg",
+			"textures/map/rocky.jpg",
+			"textures/map/snowy.jpg"
+		];
+		loader.queueTexture(paths, (textures: HG.Core.Hash<string, THREE.Texture>) => {
 			var shader = loader.shader("shaders/heightmap.json");
-			loader.queueTexture(paths, (textures: HG.Core.Hash<string, THREE.Texture>) => {
-				shader.extendTexture(textures);
-				shader.set("bumpScale", {
-					type: "f",
-					value: 200
-				});
-				var material = shader.toMaterial();
-				var geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
-				var entity = new HG.Entities.MeshEntity(geometry, material);
-				done(entity);
+
+			shader.extendTexture(textures).set("bumpScale", {
+				type: "f",
+				value: 200.0
 			});
+			var material = shader.toMaterial();
+			var geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
+			var entity = new HG.Entities.MeshEntity(geometry, material);
+			entity.position(0, -100, 0).
+					rotate((-Math.PI / 2), 0, 0);
+			done(entity);
+		});
+	}
+
+	export function createExplosion(loader: HG.Resource.ResourceLoader,
+						done: (e: HG.Entities.MeshEntity) => any): void {
+		loader.texture("textures/explosion.png").on("loaded", (texture: THREE.Texture) => {
+			var shader = loader.shader("shaders/fireball.json");
+			var textures = new HG.Core.Hash<string, THREE.Texture>();
+			textures.push("explosion", texture);
+			shader.extendTexture(textures);
+			var material = shader.toMaterial();
+			var geometry =  new THREE.IcosahedronGeometry(20, 4);
+			var entity = new HG.Entities.MeshEntity(geometry, material);
+			entity.position(0, 10, 0);
+			done(entity);
 		});
 	}
 

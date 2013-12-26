@@ -3,7 +3,7 @@
 * @Date:   2013-11-11 12:15:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-21 14:03:18
+* @Last Modified time: 2013-12-26 19:58:55
 */
 
 module HG {
@@ -20,7 +20,7 @@ module HG.Utils {
 		graphics: {
 			fullscreen: false,
 			fov: 110,
-			aa: 16,
+			anisotropy: 16,
 			viewDistance: 5000,
 			shadowMapSize: 2048,
 			useStaticFramerate: false,

@@ -6,10 +6,6 @@ var MainScene;
         scene.color = new THREE.Color(12307677);
         scene.colorAlpha = .5;
 
-        MainScene.createSkyBox(loader, function (skybox) {
-            scene.push(skybox);
-        });
-
         var te = new HG.Entities.TextEntity("derp");
         te.position(10);
         scene.push(te);
@@ -21,14 +17,25 @@ var MainScene;
             entity.play();
         });
 
+        MainScene.createMap(loader, function (e) {
+            scene.push(e);
+        });
+
+        MainScene.createExplosion(loader, function (e) {
+            scene.push(e);
+        });
+
         MainScene.createPlayer(loader, function (e) {
             scene.push(e);
 
             var moving = new HG.Abilities.MovingAbility(3.125);
             e.ability(moving);
 
+            scene.controls.keyboard.bind(HG.settings.keys.jump, function (delta) {
+                moving.jump(delta);
+            });
+
             scene.controls.keyboard.bind(HG.settings.keys.forward, function (delta) {
-                console.log(delta);
                 moving.moveForward(delta);
             });
 
@@ -63,35 +70,51 @@ var MainScene;
             "textures/skybox/zneg.png"
         ], function (textures) {
             var entity = new HG.Entities.SkyBoxEntity(textures.toValueArray());
+            entity.name = "skybox";
             done(entity);
         });
     }
     MainScene.createSkyBox = createSkyBox;
 
     function createMap(loader, done) {
-        loader.texture("textures/heightmap.png").on("loaded", function (texture) {
-            var paths = [
-                "textures/map/ocean.jpg",
-                "textures/map/sandy.jpg",
-                "textures/map/grass.jpg",
-                "textures/map/rocky.jpg",
-                "textures/map/snowy.jpg"
-            ];
+        var paths = [
+            "textures/map/bump.png",
+            "textures/map/ocean.jpg",
+            "textures/map/sandy.jpg",
+            "textures/map/grass.jpg",
+            "textures/map/rocky.jpg",
+            "textures/map/snowy.jpg"
+        ];
+        loader.queueTexture(paths, function (textures) {
             var shader = loader.shader("shaders/heightmap.json");
-            loader.queueTexture(paths, function (textures) {
-                shader.extendTexture(textures);
-                shader.set("bumpScale", {
-                    type: "f",
-                    value: 200
-                });
-                var material = shader.toMaterial();
-                var geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
-                var entity = new HG.Entities.MeshEntity(geometry, material);
-                done(entity);
+
+            shader.extendTexture(textures).set("bumpScale", {
+                type: "f",
+                value: 200.0
             });
+            var material = shader.toMaterial();
+            var geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
+            var entity = new HG.Entities.MeshEntity(geometry, material);
+            entity.position(0, -100, 0).rotate((-Math.PI / 2), 0, 0);
+            done(entity);
         });
     }
     MainScene.createMap = createMap;
+
+    function createExplosion(loader, done) {
+        loader.texture("textures/explosion.png").on("loaded", function (texture) {
+            var shader = loader.shader("shaders/fireball.json");
+            var textures = new HG.Core.Hash();
+            textures.push("explosion", texture);
+            shader.extendTexture(textures);
+            var material = shader.toMaterial();
+            var geometry = new THREE.IcosahedronGeometry(20, 4);
+            var entity = new HG.Entities.MeshEntity(geometry, material);
+            entity.position(0, 10, 0);
+            done(entity);
+        });
+    }
+    MainScene.createExplosion = createExplosion;
 
     function createPlayer(loader, done) {
         loader.model("models/sledge.stl").on("loaded", function (geometry) {

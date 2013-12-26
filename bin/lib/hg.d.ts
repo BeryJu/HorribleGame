@@ -79,7 +79,7 @@ declare module HG.Utils {
         public graphics: {
             fullscreen: boolean;
             fov: number;
-            aa: number;
+            anisotropy: number;
             viewDistance: number;
             shadowMapSize: number;
             useStaticFramerate: boolean;
@@ -310,6 +310,7 @@ declare module HG.Abilities {
         public moveLeft(delta: number): void;
         public moveRight(delta: number): void;
         public lower(delta: number): void;
+        public jump(delta: number): void;
         public turnLeft(delta: number): void;
         public turnRight(delta: number): void;
         public moveForward(delta: number): void;
@@ -386,6 +387,7 @@ declare module HG.Core {
         public push(key: K, value: T): void;
         public toValueArray(): T[];
         public toKeyArray(): K[];
+        public toNativeHash(): {};
         public set(key: K, value: T): boolean;
         public indexOf(key: K): number;
         public concat(...args: Hash<K, T>[]): Hash<K, T>;
@@ -653,7 +655,7 @@ declare module HG.Resource {
         public baseDirectory: string;
         public cache: Resource.Cache;
         constructor(baseDirectory: string);
-        public path(path: string, silent?: boolean): string;
+        public path(path: string): string;
         private load(relPath, namespace, loaderArgs);
         public model(path: string, ...args: any[]): HG.Core.EventDispatcher;
         public sound(path: string, ...args: any[]): HG.Core.EventDispatcher;

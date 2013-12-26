@@ -3,7 +3,7 @@
 * @Date:   2013-12-26 13:18:30
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 18:17:12
+* @Last Modified time: 2013-12-26 19:07:40
 */
 
 module HG.Core {
@@ -29,8 +29,12 @@ module HG.Core {
 		}
 
 		push(key: K, value: T): void {
-			this.values.push(value);
-			this.keys.push(key);
+			if (this.indexOf(key) === -1) {
+				this.values.push(value);
+				this.keys.push(key);
+			} else {
+				this.set(key, value);
+			}
 		}
 
 		toValueArray(): T[] {
@@ -39,6 +43,14 @@ module HG.Core {
 
 		toKeyArray(): K[] {
 			return this.keys;
+		}
+
+		toNativeHash(): {} {
+			var base = {};
+			this.forEach((k, v) => {
+				base[k.toString()] = v;
+			});
+			return base;
 		}
 
 		set(key: K, value: T): boolean {

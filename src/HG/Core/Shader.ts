@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 18:12:25
+* @Last Modified time: 2013-12-26 21:34:43
 */
 
 module HG.Core {
@@ -21,29 +21,37 @@ module HG.Core {
 		}
 
 		toMaterial(): THREE.ShaderMaterial {
-			var material = new THREE.ShaderMaterial({
-				vertex: this.vertex,
-				fragment: this.fragment,
-				uniforms: this.uniforms
-			});
+			if (this.uniforms.indexOf("time") === -1) {
+				this.set("time", {
+					type: "f",
+					value: 0.0
+				});
+			}
+			var params = {
+				vertexShader: this.vertex,
+				fragmentShader: this.fragment,
+				uniforms: this.uniforms.toNativeHash()
+			};
+			var material = new THREE.ShaderMaterial(params);
 			return material;
 		}
 
 		set(key: string, data: any): HG.Core.Shader {
-			this.uniforms.set(key, data);
+			this.uniforms.push(key, data);
 			return this;
 		}
 
 		extend(obj: HG.Core.Hash<string, any>): HG.Core.Shader {
 			obj.forEach((k, v) => {
-				this[k] = v;
+				this.uniforms.push(k,v);
 			});
 			return this;
 		}
 
 		extendTexture(textures: HG.Core.Hash<string, THREE.Texture>): HG.Core.Shader {
 			textures.forEach((k: string, v: THREE.Texture) => {
-				this.uniforms.set(k, {
+				v.wrapS = v.wrapT = THREE.RepeatWrapping;
+				this.uniforms.push(k + "Texture", {
 					type: "t",
 					value: v
 				});

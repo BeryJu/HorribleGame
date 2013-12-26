@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 12:11:21
+* @Last Modified time: 2013-12-26 18:24:05
 */
 
 module HG.Abilities {
@@ -27,6 +27,10 @@ module HG.Abilities {
 
 		lower(delta: number): void {
 			this.host.object.position.y -= (delta * this.baseStep);
+		}
+
+		jump(delta: number): void {
+			this.host.object.position.y += (delta * this.baseStep);
 		}
 
 		turnLeft(delta: number): void {

@@ -598,7 +598,7 @@ var HG;
             graphics: {
                 fullscreen: false,
                 fov: 110,
-                aa: 16,
+                anisotropy: 16,
                 viewDistance: 5000,
                 shadowMapSize: 2048,
                 useStaticFramerate: false,
@@ -880,9 +880,6 @@ var HG;
             };
 
             Entity.prototype.position = function (x, y, z) {
-                if (!y && !z)
-                    y = x;
-                z = x;
                 x = x + this.positionOffset.x;
                 y = y + this.positionOffset.y;
                 z = z + this.positionOffset.z;
@@ -997,12 +994,19 @@ var HG;
             };
 
             Scene.prototype.frame = function (delta) {
+                var _this = this;
                 this.controls.frame(delta);
                 this.cameras.forNamed(function (e) {
                     return e.frame(delta);
                 });
                 this.entities.forNamed(function (e) {
                     return e.frame(delta);
+                });
+                this.entities.forEach(function (e) {
+                    if (e.object.material && e.object.material.uniforms) {
+                        if (e.object.material.uniforms["time"])
+                            e.object.material.uniforms["time"].value = .00025 * (Date.now() - _this.startTime);
+                    }
                 });
             };
             return Scene;
@@ -1206,6 +1210,10 @@ var HG;
                 this.host.object.position.y -= (delta * this.baseStep);
             };
 
+            MovingAbility.prototype.jump = function (delta) {
+                this.host.object.position.y += (delta * this.baseStep);
+            };
+
             MovingAbility.prototype.turnLeft = function (delta) {
                 this.host.object.rotateOnAxis(new THREE.Vector3(0, 1, 0), (delta * this.baseStep).toRadian());
             };
@@ -1285,7 +1293,6 @@ var HG;
                     this.renderer = new THREE.WebGLRenderer({
                         antialias: HG.settings.graphics.antialiasing
                     });
-                    HG.settings.graphics.aa = this.renderer.getMaxAnisotropy();
                     this.renderer.setSize(window.innerWidth, window.innerHeight);
                     container.appendChild(this.renderer.domElement);
                 } else {
@@ -1570,8 +1577,12 @@ var HG;
             };
 
             Hash.prototype.push = function (key, value) {
-                this.values.push(value);
-                this.keys.push(key);
+                if (this.indexOf(key) === -1) {
+                    this.values.push(value);
+                    this.keys.push(key);
+                } else {
+                    this.set(key, value);
+                }
             };
 
             Hash.prototype.toValueArray = function () {
@@ -1580,6 +1591,14 @@ var HG;
 
             Hash.prototype.toKeyArray = function () {
                 return this.keys;
+            };
+
+            Hash.prototype.toNativeHash = function () {
+                var base = {};
+                this.forEach(function (k, v) {
+                    base[k.toString()] = v;
+                });
+                return base;
             };
 
             Hash.prototype.set = function (key, value) {
@@ -1750,23 +1769,30 @@ var HG;
                 this.uniforms = new HG.Core.Hash();
             }
             Shader.prototype.toMaterial = function () {
-                var material = new THREE.ShaderMaterial({
-                    vertex: this.vertex,
-                    fragment: this.fragment,
-                    uniforms: this.uniforms
-                });
+                if (this.uniforms.indexOf("time") === -1) {
+                    this.set("time", {
+                        type: "f",
+                        value: 0.0
+                    });
+                }
+                var params = {
+                    vertexShader: this.vertex,
+                    fragmentShader: this.fragment,
+                    uniforms: this.uniforms.toNativeHash()
+                };
+                var material = new THREE.ShaderMaterial(params);
                 return material;
             };
 
             Shader.prototype.set = function (key, data) {
-                this.uniforms.set(key, data);
+                this.uniforms.push(key, data);
                 return this;
             };
 
             Shader.prototype.extend = function (obj) {
                 var _this = this;
                 obj.forEach(function (k, v) {
-                    _this[k] = v;
+                    _this.uniforms.push(k, v);
                 });
                 return this;
             };
@@ -1774,7 +1800,8 @@ var HG;
             Shader.prototype.extendTexture = function (textures) {
                 var _this = this;
                 textures.forEach(function (k, v) {
-                    _this.uniforms.set(k, {
+                    v.wrapS = v.wrapT = THREE.RepeatWrapping;
+                    _this.uniforms.push(k + "Texture", {
                         type: "t",
                         value: v
                     });
@@ -2421,14 +2448,12 @@ var HG;
                 HG.settings = this.json(settings);
                 HG.locale = this.json(HG.settings.hgLocale);
             }
-            ResourceLoader.prototype.path = function (path, silent) {
+            ResourceLoader.prototype.path = function (path) {
                 var absPath = HG.Modules.path.join(this.baseDirectory, path);
                 if (HG.Modules.fs.existsSync(absPath) === true) {
                     return absPath;
                 } else {
-                    if (silent || silent === false) {
-                        HG.locale.errors.fileNotExisting.f(path).error();
-                    }
+                    HG.locale.errors.fileNotExisting.f(path).error();
                     return null;
                 }
             };
@@ -2502,7 +2527,7 @@ var HG;
                 var _this = this;
                 var queue = new HG.Core.Hash();
                 paths.forEach(function (path) {
-                    queue.push(path, function (next) {
+                    queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), function (next) {
                         _this.texture(path).on("loaded", function (texture) {
                             next(texture);
                         });
@@ -2607,7 +2632,9 @@ var HG;
                     this.events = ["loaded"];
                 }
                 JPG.prototype.load = function (path) {
-                    this.dispatch("loaded", THREE.ImageUtils.loadTexture(path));
+                    var texture = THREE.ImageUtils.loadTexture(path);
+                    texture.anisotropy = HG.settings.graphics.anisotropy;
+                    this.dispatch("loaded", texture);
                 };
                 return JPG;
             })(HG.Core.EventDispatcher);
@@ -2628,7 +2655,9 @@ var HG;
                     this.events = ["loaded"];
                 }
                 PNG.prototype.load = function (path) {
-                    this.dispatch("loaded", THREE.ImageUtils.loadTexture(path));
+                    var texture = THREE.ImageUtils.loadTexture(path);
+                    texture.anisotropy = HG.settings.graphics.anisotropy;
+                    this.dispatch("loaded", texture);
                 };
                 return PNG;
             })(HG.Core.EventDispatcher);
