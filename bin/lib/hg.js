@@ -2,7 +2,7 @@ var HG;
 (function (HG) {
     (function (Core) {
         var EventDispatcher = (function () {
-            function EventDispatcher(events) {
+            function EventDispatcher(events, silent) {
                 this._events = {};
                 this._globalEvents = [];
                 this.events = [];
@@ -10,6 +10,7 @@ var HG;
                 this.addEventListener = this.on;
                 this.emit = this.dispatch;
                 this.events = events || [];
+                this.silent = silent || false;
             }
             EventDispatcher.prototype.resolve = function (raw) {
                 if (HG.Utils.isNumber(raw) === true) {
@@ -47,10 +48,12 @@ var HG;
                     var type = this["constructor"]["name"];
                     var resolved = this.resolve(name);
 
-                    if (this.events.indexOf(resolved) === -1) {
-                        HG.locale.event.eventNotAvailable.format(type, name).warn();
-                    } else {
-                        HG.locale.event.eventAdded.format(type, name).log();
+                    if (this.silent === false) {
+                        if (this.events.indexOf(resolved) === -1) {
+                            HG.locale.event.eventNotAvailable.format(type, name).warn();
+                        } else {
+                            HG.locale.event.eventAdded.format(type, name).log();
+                        }
                     }
 
                     if (!this._events[resolved]) {
@@ -121,9 +124,7 @@ var HG;
     (function (Modules) {
         Modules.fs = require("fs");
         Modules.path = require("path");
-        Modules.http = require("http");
         Modules.ui;
-        Modules.net = require("net");
     })(HG.Modules || (HG.Modules = {}));
     var Modules = HG.Modules;
 })(HG || (HG = {}));
@@ -947,6 +948,14 @@ var HG;
                 this.entities = new HG.Core.Collection();
                 this.cameras = new HG.Core.Collection();
             }
+            Object.defineProperty(Scene.prototype, "fog", {
+                set: function (v) {
+                    this.scene.fog = v;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             Scene.prototype.push = function (entity) {
                 if (entity instanceof HG.Entities.CameraEntity) {
                     HG.log("[Scene] Added Camera " + entity.name);
@@ -1593,6 +1602,14 @@ var HG;
                 return this.keys;
             };
 
+            Hash.fromNative = function (native) {
+                var hash = new HG.Core.Hash();
+                for (var prop in native) {
+                    hash.push(prop, native[prop]);
+                }
+                return hash;
+            };
+
             Hash.prototype.toNativeHash = function () {
                 var base = {};
                 this.forEach(function (k, v) {
@@ -1873,6 +1890,7 @@ var HG;
             });
 
             ChasingCameraEntity.prototype.frame = function (delta) {
+                this._target.object.updateMatrixWorld(true);
                 var cameraOffset = this.positionOffset.clone().applyMatrix4(this._target.object.matrixWorld);
                 this.object.position = cameraOffset;
                 this.object.lookAt(this._target.object.position);
@@ -2001,9 +2019,9 @@ var HG;
     (function (Entities) {
         var SkyBoxEntity = (function (_super) {
             __extends(SkyBoxEntity, _super);
-            function SkyBoxEntity(textures, order, size) {
-                if (typeof order === "undefined") { order = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
+            function SkyBoxEntity(textures, size, order) {
                 if (typeof size === "undefined") { size = 5000; }
+                if (typeof order === "undefined") { order = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
                 _super.call(this);
                 var skyGeometry = new THREE.CubeGeometry(size, size, size);
 
@@ -2458,11 +2476,11 @@ var HG;
                 }
             };
 
-            ResourceLoader.prototype.load = function (relPath, namespace, loaderArgs) {
+            ResourceLoader.prototype.load = function (relPath, namespace, silent, loaderArgs) {
                 var absPath = this.path(relPath);
                 var extension = HG.Modules.path.extname(absPath);
                 var extensionName = extension.toUpperCase().replace(".", "");
-                var dispatcher = new HG.Core.EventDispatcher(["loaded"]);
+                var dispatcher = new HG.Core.EventDispatcher(["loaded"], silent);
                 dispatcher["_on"] = dispatcher.on;
                 dispatcher.on = function (name, eventHandler) {
                     dispatcher["_on"](name, eventHandler);
@@ -2491,36 +2509,40 @@ var HG;
                 return dispatcher;
             };
 
-            ResourceLoader.prototype.model = function (path) {
+            ResourceLoader.prototype.model = function (path, silent) {
+                if (typeof silent === "undefined") { silent = false; }
                 var args = [];
-                for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                    args[_i] = arguments[_i + 1];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
                 }
-                return this.load(path, HG.Resource.Model, args);
+                return this.load(path, HG.Resource.Model, silent, args);
             };
 
-            ResourceLoader.prototype.sound = function (path) {
+            ResourceLoader.prototype.sound = function (path, silent) {
+                if (typeof silent === "undefined") { silent = false; }
                 var args = [];
-                for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                    args[_i] = arguments[_i + 1];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
                 }
-                return this.load(path, HG.Resource.Sound, args);
+                return this.load(path, HG.Resource.Sound, silent, args);
             };
 
-            ResourceLoader.prototype.video = function (path) {
+            ResourceLoader.prototype.video = function (path, silent) {
+                if (typeof silent === "undefined") { silent = false; }
                 var args = [];
-                for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                    args[_i] = arguments[_i + 1];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
                 }
-                return this.load(path, HG.Resource.Video, args);
+                return this.load(path, HG.Resource.Video, silent, args);
             };
 
-            ResourceLoader.prototype.texture = function (path) {
+            ResourceLoader.prototype.texture = function (path, silent) {
+                if (typeof silent === "undefined") { silent = false; }
                 var args = [];
-                for (var _i = 0; _i < (arguments.length - 1); _i++) {
-                    args[_i] = arguments[_i + 1];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
                 }
-                return this.load(path, HG.Resource.Texture, args);
+                return this.load(path, HG.Resource.Texture, silent, args);
             };
 
             ResourceLoader.prototype.queueTexture = function (paths, done) {
@@ -2528,7 +2550,7 @@ var HG;
                 var queue = new HG.Core.Hash();
                 paths.forEach(function (path) {
                     queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), function (next) {
-                        _this.texture(path).on("loaded", function (texture) {
+                        _this.texture(path, true).on("loaded", function (texture) {
                             next(texture);
                         });
                     });

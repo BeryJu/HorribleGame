@@ -11,8 +11,8 @@ module HG.Entities {
 	export class SkyBoxEntity extends HG.Entities.Entity {
 
 		constructor(textures: THREE.Texture[],
-					order: string[] = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"],
-					size: number = 5000) {
+					size: number = 5000,
+					order: string[] = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]) {
 			super();
 			var skyGeometry = new THREE.CubeGeometry(size, size, size);
 

@@ -24,19 +24,8 @@ html(lang='en')
 			//- 	p#calls {{ calls }}
 			//- 	p#vertices {{ vertices }}
 			#canvasWrapper
-		//- .menu
-		//- 	#mainScreen
-		//- 		ul
-		//- 			li.gameScreenButton Start game
-		//- 			li.optionsScreenButton Options
-		//- 			li#exit Exit
-		//- 	#optionsScreen
-		//- 		ul
-		//- 			li FOV
-		//- 			li Fullscreen
-		//- 	#gameScreen
-		//- 		ul
-		//- 			li.canvasScreenButton Easy
-		//- 			li.canvasScreenButton Normal
-		//- 			li.canvasScreenButton Difficult
+		#menu
+			#mainMenuNode
+			#playMenuNode
+			#optionsMenuNode
 		script(src="game/game.js")

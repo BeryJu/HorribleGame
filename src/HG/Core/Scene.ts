@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 21:40:55
+* @Last Modified time: 2013-12-27 20:50:07
 */
 
 module HG.Core {
@@ -18,6 +18,10 @@ module HG.Core {
 		color: THREE.Color;
 		colorAlpha: number;
 		startTime: number;
+
+		set fog(v: THREE.Fog) {
+			this.scene.fog = v;
+		}
 
 		constructor() {
 			this.startTime = Date.now();

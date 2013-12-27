@@ -3,10 +3,12 @@
 * @Date:   2013-12-17 10:40:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 21:41:33
+* @Last Modified time: 2013-12-27 21:20:44
 */
 
 module MainScene {
+
+	export var WORLD_SIZE: number = 5000;
 
 	export function create(loader: HG.Resource.ResourceLoader,
 						done: (scene: HG.Core.Scene) => any): void {
@@ -15,28 +17,32 @@ module MainScene {
 		scene.color = new THREE.Color(12307677);
 		scene.colorAlpha = .5;
 
-		// MainScene.createSkyBox(loader, (skybox: HG.Entities.MeshEntity) => {
-		// 	scene.push(skybox);
-		// });
+		// var fog = new THREE.Fog(0xffffff, 10, 60);
+		// fog.color.setHSL( 0.51, 0.6, 0.6 );
+		// scene.fog = fog;
+
+		MainScene.createSkyBox(loader, (skybox: HG.Entities.MeshEntity) => {
+			scene.push(skybox);
+		});
 
 		var te = new HG.Entities.TextEntity("derp");
 		te.position(10);
 		scene.push(te);
 
-		loader.video("videos/sintel.ogv").on("loaded", (domElement: HTMLVideoElement) => {
-			var entity = new HG.Entities.VideoEntity(domElement);
-			entity.position(500, 0, 0);
-			scene.push(entity);
-			entity.play();
-		});
-
 		MainScene.createMap(loader, (e: HG.Entities.MeshEntity) => {
 			scene.push(e);
 		});
 
-		MainScene.createExplosion(loader, (e: HG.Entities.MeshEntity) => {
-			scene.push(e);
-		});
+		// loader.video("videos/sintel.ogv").on("loaded", (domElement: HTMLVideoElement) => {
+		// 	var entity = new HG.Entities.VideoEntity(domElement);
+		// 	entity.position(500, 0, 0);
+		// 	scene.push(entity);
+		// 	entity.play();
+		// });
+
+		// MainScene.createExplosion(loader, (e: HG.Entities.MeshEntity) => {
+		// 	scene.push(e);
+		// });
 
 		MainScene.createPlayer(loader, (e: HG.Entities.MeshEntity) => {
 			scene.push(e);
@@ -84,7 +90,7 @@ module MainScene {
 			"textures/skybox/zpos.png",
 			"textures/skybox/zneg.png"
 		], (textures: HG.Core.Hash<string, THREE.Texture>) => {
-			var entity = new HG.Entities.SkyBoxEntity(textures.toValueArray());
+			var entity = new HG.Entities.SkyBoxEntity(textures.toValueArray(), MainScene.WORLD_SIZE);
 			entity.name = "skybox";
 			done(entity);
 		});
@@ -108,7 +114,8 @@ module MainScene {
 				value: 200.0
 			});
 			var material = shader.toMaterial();
-			var geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
+			var geometry = new THREE.PlaneGeometry(MainScene.WORLD_SIZE, MainScene.WORLD_SIZE,
+					MainScene.WORLD_SIZE / 10, MainScene.WORLD_SIZE / 10);
 			var entity = new HG.Entities.MeshEntity(geometry, material);
 			entity.position(0, -100, 0).
 					rotate((-Math.PI / 2), 0, 0);
@@ -149,82 +156,3 @@ module MainScene {
 	}
 
 }
-
-
-// export function createPlayer(loader: HG.Resource.ResourceLoader): HG.Entities.MeshEntity {
-// 	var
-
-// 	var entity = new HG.Entities.MeshEntity();
-// 	entity.name = "player";
-// 	entity.on("loaded", () => {
-// 		entity.scale(10).
-// 				offset(0, 0, 50);
-// 	});
-// 	loader.model("models/android.js", entity);
-// 	return entity;
-
-// 	"type": "MeshEntity",
-// 	"name": "player",
-// 	"model": "models/android.js",
-// 	"scale": 10,
-// 	"offset": [0, 0, 50],
-// 	"abilities": [
-// 		{
-// 			"type": "MovingAbility",
-// 			"properties": [3.125],
-// 			"bindings": {
-// 				"keyboard": [
-// 					{
-// 						"event": "left",
-// 						"action": "turnLeft",
-// 						"properties": [
-// 							"${delta}"
-// 						]
-// 					},
-// 					{
-// 						"event": "right",
-// 						"action": "turnRight"
-// 					},
-// 					{
-// 						"event": "forward",
-// 						"action": "moveForward"
-// 					},
-// 					{
-// 						"event": "backward",
-// 						"action": "moveBackward"
-// 					},
-// 					{
-// 						"event": "lower",
-// 						"action": "lower"
-// 					}
-// 				]
-// 			}
-// 		},
-// 		{
-// 			"type": "AnimationAbility",
-// 			"properties": [
-// 				{
-// 					"offset": 0,
-// 					"duration": 1000,
-// 					"keyframes": 20
-// 				}
-// 			],
-// 			"bindings": {
-// 				"keyboard": [
-// 					{
-// 						"event": "forward",
-// 						"action": "run"
-// 					},
-// 					{
-// 						"event": "backward",
-// 						"action": "run"
-// 					},
-// 					{
-// 						"event": "lower",
-// 						"action": "run"
-// 					}
-// 				]
-// 			}
-// 		}
-// 	]
-// }

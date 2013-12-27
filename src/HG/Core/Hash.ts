@@ -3,7 +3,7 @@
 * @Date:   2013-12-26 13:18:30
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 19:07:40
+* @Last Modified time: 2013-12-27 11:01:30
 */
 
 module HG.Core {
@@ -43,6 +43,14 @@ module HG.Core {
 
 		toKeyArray(): K[] {
 			return this.keys;
+		}
+
+		static fromNative<NK, NT>(native: {}): HG.Core.Hash<NK, NT> {
+			var hash = new HG.Core.Hash<NK, NT>();
+			for (var prop in native) {
+				hash.push(<NK> prop, <NT> native[prop]);
+			}
+			return hash;
 		}
 
 		toNativeHash(): {} {

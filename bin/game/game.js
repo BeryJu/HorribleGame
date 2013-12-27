@@ -1,27 +1,26 @@
 var MainScene;
 (function (MainScene) {
+    MainScene.WORLD_SIZE = 5000;
+
     function create(loader, done) {
         var scene = new HG.Core.Scene();
 
         scene.color = new THREE.Color(12307677);
         scene.colorAlpha = .5;
 
+        var fog = new THREE.Fog(0xffffff, 10, 60);
+        fog.color.setHSL(0.51, 0.6, 0.6);
+        scene.fog = fog;
+
+        MainScene.createSkyBox(loader, function (skybox) {
+            scene.push(skybox);
+        });
+
         var te = new HG.Entities.TextEntity("derp");
         te.position(10);
         scene.push(te);
 
-        loader.video("videos/sintel.ogv").on("loaded", function (domElement) {
-            var entity = new HG.Entities.VideoEntity(domElement);
-            entity.position(500, 0, 0);
-            scene.push(entity);
-            entity.play();
-        });
-
         MainScene.createMap(loader, function (e) {
-            scene.push(e);
-        });
-
-        MainScene.createExplosion(loader, function (e) {
             scene.push(e);
         });
 
@@ -69,7 +68,7 @@ var MainScene;
             "textures/skybox/zpos.png",
             "textures/skybox/zneg.png"
         ], function (textures) {
-            var entity = new HG.Entities.SkyBoxEntity(textures.toValueArray());
+            var entity = new HG.Entities.SkyBoxEntity(textures.toValueArray(), MainScene.WORLD_SIZE);
             entity.name = "skybox";
             done(entity);
         });
@@ -93,7 +92,7 @@ var MainScene;
                 value: 200.0
             });
             var material = shader.toMaterial();
-            var geometry = new THREE.PlaneGeometry(1000, 1000, 100, 100);
+            var geometry = new THREE.PlaneGeometry(MainScene.WORLD_SIZE, MainScene.WORLD_SIZE, MainScene.WORLD_SIZE / 10, MainScene.WORLD_SIZE / 10);
             var entity = new HG.Entities.MeshEntity(geometry, material);
             entity.position(0, -100, 0).rotate((-Math.PI / 2), 0, 0);
             done(entity);

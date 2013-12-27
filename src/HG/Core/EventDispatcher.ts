@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 12:23:26
+* @Last Modified time: 2013-12-27 20:54:42
 */
 
 module HG.Core {
@@ -17,8 +17,11 @@ module HG.Core {
 		// holds events available to subscribe to
 		events: string[] = [];
 
-		constructor(events?: string[]) {
+		silent: boolean;
+
+		constructor(events?: string[], silent?: boolean) {
 			this.events = events || [];
+			this.silent = silent || false;
 		}
 
 		private resolve(raw: any): string {
@@ -54,10 +57,12 @@ module HG.Core {
 				var type = this["constructor"]["name"];
 				var resolved = this.resolve(name);
 				// if not in .events, warn; else just log
-				if (this.events.indexOf(resolved) === -1) {
-					HG.locale.event.eventNotAvailable.format(type, name).warn();
-				} else {
-					HG.locale.event.eventAdded.format(type, name).log();
+				if (this.silent === false) {
+					if (this.events.indexOf(resolved) === -1) {
+						HG.locale.event.eventNotAvailable.format(type, name).warn();
+					} else {
+						HG.locale.event.eventAdded.format(type, name).log();
+					}
 				}
 				// if no events list for name, create one
 				if (!this._events[resolved]) {

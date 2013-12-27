@@ -32,6 +32,7 @@
 /// This is auto generated
 //grunt-start
 /// <reference path="../lib/LINQ.d.ts" />
+/// <reference path="../lib/WebGL.d.ts" />
 /// <reference path="../lib/lib.d.ts" />
 /// <reference path="../lib/node.d.ts" />
 /// <reference path="../lib/physijs.d.ts" />
@@ -65,6 +66,8 @@
 /// <reference path="LINQ/StringProvider.ts" />
 /// <reference path="Locale/Locale.ts" />
 /// <reference path="Locale/LocaleDefinition.ts" />
+/// <reference path="Platform/IPlatform.ts" />
+/// <reference path="Platform/NodeWebkitPlatform.ts" />
 /// <reference path="Resource/Cache.ts" />
 /// <reference path="Resource/Model/JS.ts" />
 /// <reference path="Resource/Model/STL.ts" />

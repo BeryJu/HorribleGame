@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 20:50:05
+* @Last Modified time: 2013-12-27 20:52:47
 */
 
 module HG.Resource {
@@ -32,12 +32,12 @@ module HG.Resource {
 			}
 		}
 
-		private load(relPath: string, namespace: any, loaderArgs: any[]):
+		private load(relPath: string, namespace: any, silent: boolean, loaderArgs: any[]):
 					HG.Core.EventDispatcher {
 			var absPath = this.path(relPath);
 			var extension = HG.Modules.path.extname(absPath);
 			var extensionName = extension.toUpperCase().replace(".", "");
-			var dispatcher = new HG.Core.EventDispatcher(["loaded"]);
+			var dispatcher = new HG.Core.EventDispatcher(["loaded"], silent);
 			dispatcher["_on"] = dispatcher.on;
 			dispatcher.on = (name: any, eventHandler?: Function): HG.Core.EventDispatcher => {
 				dispatcher["_on"](name, eventHandler);
@@ -62,20 +62,20 @@ module HG.Resource {
 			return dispatcher;
 		}
 
-		model(path: string, ...args: any[]): HG.Core.EventDispatcher {
-			return this.load(path, HG.Resource.Model, args);
+		model(path: string, silent: boolean = false, ...args: any[]): HG.Core.EventDispatcher {
+			return this.load(path, HG.Resource.Model, silent, args);
 		}
 
-		sound(path: string, ...args: any[]): HG.Core.EventDispatcher {
-			return this.load(path, HG.Resource.Sound, args);
+		sound(path: string, silent: boolean = false, ...args: any[]): HG.Core.EventDispatcher {
+			return this.load(path, HG.Resource.Sound, silent, args);
 		}
 
-		video(path: string, ...args: any[]): HG.Core.EventDispatcher {
-			return this.load(path, HG.Resource.Video, args);
+		video(path: string, silent: boolean = false, ...args: any[]): HG.Core.EventDispatcher {
+			return this.load(path, HG.Resource.Video, silent, args);
 		}
 
-		texture(path: string, ...args: any[]): HG.Core.EventDispatcher {
-			return this.load(path, HG.Resource.Texture, args);
+		texture(path: string, silent: boolean = false, ...args: any[]): HG.Core.EventDispatcher {
+			return this.load(path, HG.Resource.Texture, silent, args);
 		}
 
 		queueTexture(paths: string[], done: (textures: HG.Core.Hash<string, THREE.Texture>) => void):
@@ -83,7 +83,7 @@ module HG.Resource {
 			var queue = new HG.Core.Hash<string, Function>();
 			paths.forEach((path) => {
 				queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), (next: Function) => {
-					this.texture(path).on("loaded", (texture: THREE.Texture) => {
+					this.texture(path, true).on("loaded", (texture: THREE.Texture) => {
 						next(texture);
 					});
 				});
