@@ -3,7 +3,7 @@
 * @Date:   2013-12-07 23:42:37
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 12:23:13
+* @Last Modified time: 2013-12-30 20:34:51
 */
 
 module HG.Core.Serializer {
@@ -11,14 +11,14 @@ module HG.Core.Serializer {
 	export class EntityParser extends HG.Core.EventDispatcher {
 
 		scene: HG.Core.Scene;
-		loader: HG.Resource.ResourceLoader;
+		loader: HG.Resource.Loader;
 		defaultPosition: number[] = [0, 0, 0];
 		defaultRotation: number[] = [0, 0, 0];
 		defaultOffset: number[] = [0, 0, 0];
 		defaultScale: number[] = [1, 1, 1];
 
 		constructor(scene: HG.Core.Scene,
-				loader: HG.Resource.ResourceLoader) {
+				loader: HG.Resource.Loader) {
 			super(["parsed", "entitiesParsed", "done"]);
 			this.scene = scene;
 			this.loader = loader;

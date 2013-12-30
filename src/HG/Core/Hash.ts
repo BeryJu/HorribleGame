@@ -3,7 +3,7 @@
 * @Date:   2013-12-26 13:18:30
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-27 11:01:30
+* @Last Modified time: 2013-12-30 22:35:05
 */
 
 module HG.Core {
@@ -22,19 +22,21 @@ module HG.Core {
 			return this.values.length;
 		}
 
-		forEach(fn: (key: K, value: T, index: number) => any): void {
+		forEach(fn: (value: T, key: K, index: number) => any): HG.Core.Hash<K, T> {
 			this.keys.forEach((key, index) => {
-				fn(key, this.values[index], index);
+				fn(this.values[index], key, index);
 			});
+			return this;
 		}
 
-		push(key: K, value: T): void {
+		push(key: K, value: T): HG.Core.Hash<K, T> {
 			if (this.indexOf(key) === -1) {
 				this.values.push(value);
 				this.keys.push(key);
 			} else {
 				this.set(key, value);
 			}
+			return this;
 		}
 
 		toValueArray(): T[] {
@@ -55,7 +57,7 @@ module HG.Core {
 
 		toNativeHash(): {} {
 			var base = {};
-			this.forEach((k, v) => {
+			this.forEach((v: T, k: K, i: number) => {
 				base[k.toString()] = v;
 			});
 			return base;
@@ -75,9 +77,13 @@ module HG.Core {
 			return this.keys.indexOf(key);
 		}
 
+		has(key: K): boolean {
+			return (this.keys.indexOf(key) === -1) ? false : true;
+		}
+
 		concat(...args: Array<HG.Core.Hash<K, T>>): HG.Core.Hash<K, T> {
 			args.forEach((other, index) => {
-				other.forEach((key, value, index) => {
+				other.forEach((value: T, key: K, index: number) => {
 					if (this.values.indexOf(value) === -1 &&
 						this.keys.indexOf(key) === -1) {
 						this.push(key, value);

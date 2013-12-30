@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 20:00:02
+* @Last Modified time: 2013-12-30 20:42:42
 */
 
 module HG.Core {
@@ -16,7 +16,7 @@ module HG.Core {
 		soundMixer: HG.Sound.Mixer;
 		currentScene: HG.Core.Scene;
 		pluginHost: HG.Core.PluginHost;
-		controls: HG.Core.InputHandler;
+		controls: HG.Input.Handler;
 		fpsCounter: HG.Utils.FPSCounter;
 		params: HG.Utils.GameStartParameters;
 
@@ -36,7 +36,7 @@ module HG.Core {
 				HG.locale.errors.defaultSettingsUsedWarning.warn();
 			}
 			new HG.Utils.UpdateChecker();
-			this.controls = new HG.Core.InputHandler();
+			this.controls = new HG.Input.Handler();
 			this.pluginHost = new HG.Core.PluginHost(this);
 			this.fpsCounter = new HG.Utils.FPSCounter();
 
@@ -126,6 +126,9 @@ module HG.Core {
 			if (params.noResize === true) {
 				this.setFullScreenMode(HG.settings.graphics.fullscreen);
 				this.resize(HG.settings.graphics.resolution);
+			}
+			if (params.mouseLock === true) {
+				this.lockMouse();
 			}
 			if (params.profileFrame === true) {
 				HG.Utils.profile("HG Profiling Frame", () => this.render.apply(this));

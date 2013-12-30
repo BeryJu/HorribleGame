@@ -3,7 +3,7 @@
 * @Date:   2013-12-09 13:05:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 17:56:16
+* @Last Modified time: 2013-12-30 20:34:53
 */
 
 module HG.Resource {
@@ -17,10 +17,10 @@ module HG.Resource {
 
 	export class Cache {
 
-		loader: HG.Resource.ResourceLoader;
+		loader: HG.Resource.Loader;
 		files: HG.Core.Hash<any, string>;
 
-		constructor(loader: HG.Resource.ResourceLoader) {
+		constructor(loader: HG.Resource.Loader) {
 			this.loader = loader;
 			this.files = new HG.Core.Hash<any, string>();
 		}

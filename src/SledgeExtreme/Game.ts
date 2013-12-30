@@ -3,18 +3,13 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-27 13:06:57
+* @Last Modified time: 2013-12-30 21:33:05
 */
-
 /// <reference path="GameLocale.ts" />
 /// <reference path="scenes/Main.ts" />
-
-// Initialize HG
 HG.horrible();
-
-// query is the same as document.querySelector, just shorter
 var gameCanvas = query("#canvasWrapper");
-var loader = new HG.Resource.ResourceLoader("assets/");
+var loader = new HG.Resource.Loader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var locale = loader.json<GameLocale>("locale/game.locale.json");
 
@@ -24,11 +19,11 @@ if (HG.settings.debug === true) {
 
 game.on("load", () => {
 	game.pluginHost.load(loader.directory("plugins", ".js"));
-	MainScene.create(loader, (scene: HG.Core.Scene) => {
+	MainScene.create(game, loader, (scene: HG.Core.Scene) => {
 		game.scene(scene);
 		scene.camera("mainCamera");
-		game.lockMouse();
 		game.start({
+			mouseLock: true,
 			input: true,
 			profileFrame: false,
 			noResize: true

@@ -42,7 +42,7 @@ var paths = {
 			"src/HG/**/**/*.ts"
 		]
 	},
-	libs: "src/lib/*.d.ts",
+	libs: "src/defs/*.d.ts",
 	dist: {
 		root: "dist/"
 	},

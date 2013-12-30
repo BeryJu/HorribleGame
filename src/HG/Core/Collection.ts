@@ -3,14 +3,14 @@
 * @Date:   2013-12-22 12:16:02
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 12:40:40
+* @Last Modified time: 2013-12-30 22:26:40
 */
 
 module HG.Core {
 
 	export class Collection<T extends { name?: string }> {
 
-		named: {} = {};
+		named: HG.Core.Hash<string, T> = new HG.Core.Hash<string, T>();
 		unNamed: T[] = [];
 
 		push(item: T, name?: string): void {
@@ -19,7 +19,7 @@ module HG.Core {
 				if (this.named[n]) {
 					HG.locale.errors.duplicateNameTagError.f(item.name).error();
 				} else {
-					this.named[n] = item;
+					this.named.push(n, item);
 				}
 			} else {
 				this.unNamed.push(item);
@@ -40,16 +40,11 @@ module HG.Core {
 
 		has(name: string): boolean {
 			if (!name) return false;
-			return (this.named[name.toLowerCase()]) ? true : false;
+			return (this.named.has(name.toLowerCase())) ? true : false;
 		}
 
 		getAllNamed(): T[] {
-			var es: T[] = [];
-			for (var k in this.named) {
-				var v = this.named[k];
-				es.push(v);
-			}
-			return es;
+			return this.named.toValueArray();
 		}
 
 		getAllUnnamed(): T[] {
@@ -60,27 +55,22 @@ module HG.Core {
 			return <T[]> this.getAllUnnamed().concat(this.getAllNamed());
 		}
 
-		forNamed(callback: (e: any, k: string) => any): void {
-			for (var k in this.named) {
-				var ne = this.named[k];
-				callback(ne, k);
-			}
+		forNamed(callback: (v: T, k?: any, i?: any) => any): void {
+			this.named.forEach(callback);
 		}
 
-		forUnamed(callback: (e: any) => any): void {
+		forUnamed(callback: (v: T, k?: any, i?: any) => any): void {
 			this.unNamed.forEach(callback);
 		}
 
-		forEach(callback: (e: any, i: any, ...args: any[]) => any): void {
+		forEach(callback: (v: T, k?: any, i?: any) => any): void {
 			this.unNamed.forEach(callback);
-			for (var k in this.named) {
-				callback(this.named[k], k);
-			}
+			this.named.forEach(callback);
 		}
 
 		get(name: string): T {
 			name = name.toLowerCase();
-			return <T> this.named[name] || null;
+			return <T> this.named.key(name) || null;
 		}
 
 		forAll(callback: (e: any) => any): void {

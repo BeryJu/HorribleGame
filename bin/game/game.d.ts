@@ -1,10 +1,11 @@
 declare module MainScene {
     var WORLD_SIZE: number;
-    function create(loader: HG.Resource.ResourceLoader, done: (scene: HG.Core.Scene) => any): void;
-    function createSkyBox(loader: HG.Resource.ResourceLoader, done: (e: HG.Entities.SkyBoxEntity) => any): void;
-    function createMap(loader: HG.Resource.ResourceLoader, done: (e: HG.Entities.MeshEntity) => any): void;
-    function createExplosion(loader: HG.Resource.ResourceLoader, done: (e: HG.Entities.MeshEntity) => any): void;
-    function createPlayer(loader: HG.Resource.ResourceLoader, done: (e: HG.Entities.MeshEntity) => any): void;
+    function create(game: HG.Core.BaseGame, loader: HG.Resource.Loader, done: (scene: HG.Core.Scene) => any): void;
+    function createSkyBox(loader: HG.Resource.Loader, done: (e: HG.Entities.SkyBoxEntity) => any): void;
+    function createHeightMap(loader: HG.Resource.Loader, done: (e: HG.Entities.MeshEntity) => any): void;
+    function createMap(loader: HG.Resource.Loader, done: (e: HG.Entities.MeshEntity) => any): void;
+    function createExplosion(loader: HG.Resource.Loader, done: (e: HG.Entities.MeshEntity) => any): void;
+    function createPlayer(loader: HG.Resource.Loader, done: (e: HG.Entities.MeshEntity) => any): void;
 }
 interface GameLocale {
     debugInfo: {
@@ -15,6 +16,6 @@ interface GameLocale {
     };
 }
 declare var gameCanvas: any;
-declare var loader: HG.Resource.ResourceLoader;
+declare var loader: HG.Resource.Loader;
 declare var game: HG.Core.BaseGame;
 declare var locale: GameLocale;

@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-27 20:50:07
+* @Last Modified time: 2013-12-30 22:20:59
 */
 
 module HG.Core {
@@ -13,11 +13,12 @@ module HG.Core {
 		scene: Physijs.Scene;
 		cameras: HG.Core.Collection<HG.Entities.CameraEntity>;
 		entities: HG.Core.Collection<HG.Entities.Entity>;
-		controls: HG.Core.InputHandler;
+		controls: HG.Input.Handler;
 		selectedCamera: string;
 		color: THREE.Color;
 		colorAlpha: number;
 		startTime: number;
+		unnamedCount: number;
 
 		set fog(v: THREE.Fog) {
 			this.scene.fog = v;
@@ -25,14 +26,16 @@ module HG.Core {
 
 		constructor() {
 			this.startTime = Date.now();
-			this.controls = new HG.Core.InputHandler();
+			this.controls = new HG.Input.Handler();
 			this.selectedCamera = "";
+			this.unnamedCount = 0;
 			this.scene = new Physijs.Scene();
 			this.entities = new HG.Core.Collection<HG.Entities.Entity>();
 			this.cameras = new HG.Core.Collection<HG.Entities.CameraEntity>();
 		}
 
 		push(entity: HG.Entities.Entity): void {
+			if (!entity.name) entity.name = "unnamed" + (this.unnamedCount++);
 			if (entity instanceof HG.Entities.CameraEntity) {
 				HG.log("[Scene] Added Camera " + entity.name);
 				this.cameras.push(<HG.Entities.CameraEntity> entity);
@@ -47,7 +50,7 @@ module HG.Core {
 			var newScene = new HG.Core.Scene();
 			newScene.entities = this.entities.concat(otherScene.entities);
 			newScene.cameras = this.cameras.concat(otherScene.cameras);
-			newScene.controls = this.controls.concat(otherScene.controls);
+			// newScene.controls = this.controls.concat(otherScene.controls);
 			newScene.color = this.color;
 			newScene.colorAlpha = this.colorAlpha;
 			newScene.selectedCamera = this.selectedCamera;
@@ -82,9 +85,9 @@ module HG.Core {
 			this.cameras.forNamed((e) => e.frame(delta));
 			this.entities.forNamed((e) => e.frame(delta));
 			this.entities.forEach((e) => {
-				if (e.object.material && e.object.material.uniforms) {
-					if (e.object.material.uniforms["time"])
-						e.object.material.uniforms["time"].value = .00025 * (Date.now() - this.startTime);
+				if (e["object"]["material"] && e["object"]["material"]["uniforms"]) {
+					if (e["object"]["material"]["uniforms"]["time"])
+						e["object"]["material"]["uniforms"]["time"].value = .00025 * (Date.now() - this.startTime);
 				}
 			});
 		}

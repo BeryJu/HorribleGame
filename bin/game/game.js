@@ -2,25 +2,17 @@ var MainScene;
 (function (MainScene) {
     MainScene.WORLD_SIZE = 5000;
 
-    function create(loader, done) {
+    function create(game, loader, done) {
         var scene = new HG.Core.Scene();
 
         scene.color = new THREE.Color(12307677);
         scene.colorAlpha = .5;
 
-        var fog = new THREE.Fog(0xffffff, 10, 60);
-        fog.color.setHSL(0.51, 0.6, 0.6);
-        scene.fog = fog;
-
-        MainScene.createSkyBox(loader, function (skybox) {
-            scene.push(skybox);
-        });
-
         var te = new HG.Entities.TextEntity("derp");
         te.position(10);
         scene.push(te);
 
-        MainScene.createMap(loader, function (e) {
+        MainScene.createHeightMap(loader, function (e) {
             scene.push(e);
         });
 
@@ -61,21 +53,21 @@ var MainScene;
 
     function createSkyBox(loader, done) {
         loader.queueTexture([
-            "textures/skybox/xpos.png",
-            "textures/skybox/xneg.png",
-            "textures/skybox/ypos.png",
-            "textures/skybox/yneg.png",
-            "textures/skybox/zpos.png",
-            "textures/skybox/zneg.png"
+            "textures/skyboxes/1/skyrender0001.png",
+            "textures/skyboxes/1/skyrender0002.png",
+            "textures/skyboxes/1/skyrender0003.png",
+            "textures/skyboxes/1/skyrender0004.png",
+            "textures/skyboxes/1/skyrender0005.png"
         ], function (textures) {
-            var entity = new HG.Entities.SkyBoxEntity(textures.toValueArray(), MainScene.WORLD_SIZE);
+            console.log(textures.toValueArray());
+            var entity = new HG.Entities.SkyBoxEntity(textures, MainScene.WORLD_SIZE);
             entity.name = "skybox";
             done(entity);
         });
     }
     MainScene.createSkyBox = createSkyBox;
 
-    function createMap(loader, done) {
+    function createHeightMap(loader, done) {
         var paths = [
             "textures/map/bump.png",
             "textures/map/ocean.jpg",
@@ -98,14 +90,37 @@ var MainScene;
             done(entity);
         });
     }
+    MainScene.createHeightMap = createHeightMap;
+
+    function createMap(loader, done) {
+        var paths = [
+            "textures/map/bump.png",
+            "textures/map/ocean.jpg",
+            "textures/map/sandy.jpg",
+            "textures/map/grass.jpg",
+            "textures/map/rocky.jpg",
+            "textures/map/snowy.jpg"
+        ];
+        loader.queueTexture(paths, function (textures) {
+            var shader = loader.shader("shaders/heightmap.json");
+
+            shader.extendTexture(textures).set("bumpScale", {
+                type: "f",
+                value: 200.0
+            });
+            var material = shader.toMaterial();
+            var geometry = new THREE.PlaneGeometry(MainScene.WORLD_SIZE, MainScene.WORLD_SIZE);
+            var entity = new HG.Entities.MeshEntity(geometry, material);
+            entity.position(0, -100, 0).rotate((-Math.PI / 2), 0, 0);
+            done(entity);
+        });
+    }
     MainScene.createMap = createMap;
 
     function createExplosion(loader, done) {
         loader.texture("textures/explosion.png").on("loaded", function (texture) {
             var shader = loader.shader("shaders/fireball.json");
-            var textures = new HG.Core.Hash();
-            textures.push("explosion", texture);
-            shader.extendTexture(textures);
+            shader.extendTexture(new HG.Core.Hash().push("explosion", texture));
             var material = shader.toMaterial();
             var geometry = new THREE.IcosahedronGeometry(20, 4);
             var entity = new HG.Entities.MeshEntity(geometry, material);
@@ -133,9 +148,8 @@ var MainScene;
     MainScene.createPlayer = createPlayer;
 })(MainScene || (MainScene = {}));
 HG.horrible();
-
 var gameCanvas = query("#canvasWrapper");
-var loader = new HG.Resource.ResourceLoader("assets/");
+var loader = new HG.Resource.Loader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var locale = loader.json("locale/game.locale.json");
 
@@ -145,11 +159,11 @@ if (HG.settings.debug === true) {
 
 game.on("load", function () {
     game.pluginHost.load(loader.directory("plugins", ".js"));
-    MainScene.create(loader, function (scene) {
+    MainScene.create(game, loader, function (scene) {
         game.scene(scene);
         scene.camera("mainCamera");
-        game.lockMouse();
         game.start({
+            mouseLock: true,
             input: true,
             profileFrame: false,
             noResize: true

@@ -3,10 +3,18 @@
 * @Date:   2013-11-11 17:37:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-22 12:26:53
+* @Last Modified time: 2013-12-29 18:08:57
 */
 
 module HG.Core {
+
+	export interface PluginEnv {
+		HG: any;
+		THREE: any;
+		game: HG.Core.BaseGame;
+		window: Window;
+		document: Document;
+	}
 
 	export class PluginHost extends HG.Core.EventDispatcher {
 
@@ -20,13 +28,7 @@ module HG.Core {
 			this.game = instance;
 		}
 
-		load(path: string[], env?: {
-			HG: any;
-			THREE: any;
-			game: HG.Core.BaseGame;
-			window: Window;
-			document: Document;
-		}): void {
+		load(path: string[], env?: HG.Core.PluginEnv): void {
 			env = {
 				HG: HG,
 				THREE: THREE,

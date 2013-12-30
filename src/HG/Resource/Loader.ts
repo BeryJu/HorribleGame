@@ -3,12 +3,12 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-27 20:52:47
+* @Last Modified time: 2013-12-30 20:34:51
 */
 
 module HG.Resource {
 
-	export class ResourceLoader extends HG.Core.EventDispatcher {
+	export class Loader extends HG.Core.EventDispatcher {
 
 		baseDirectory: string;
 		cache: HG.Resource.Cache;

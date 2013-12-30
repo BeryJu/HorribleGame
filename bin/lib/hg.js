@@ -128,47 +128,6 @@ var HG;
     })(HG.Modules || (HG.Modules = {}));
     var Modules = HG.Modules;
 })(HG || (HG = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var HG;
-(function (HG) {
-    (function (Core) {
-        var PluginHost = (function (_super) {
-            __extends(PluginHost, _super);
-            function PluginHost(instance) {
-                _super.call(this);
-                this.events = ["load", "sceneChange"];
-                this.plugins = [];
-                this.paths = [];
-                this.game = instance;
-            }
-            PluginHost.prototype.load = function (path, env) {
-                var _this = this;
-                env = {
-                    HG: HG,
-                    THREE: THREE,
-                    game: this.game,
-                    window: window,
-                    document: document
-                } || env;
-                path.forEach(function (file) {
-                    var plugin = require("./" + file);
-                    var instance = new plugin(_this, env);
-                    HG.locale.pluginHost.success.f(instance.name).log();
-                    _this.plugins.push(instance);
-                    _this.paths.push(file);
-                });
-            };
-            return PluginHost;
-        })(HG.Core.EventDispatcher);
-        Core.PluginHost = PluginHost;
-    })(HG.Core || (HG.Core = {}));
-    var Core = HG.Core;
-})(HG || (HG = {}));
 var HG;
 (function (HG) {
     (function (Core) {
@@ -834,6 +793,12 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -942,8 +907,9 @@ var HG;
         var Scene = (function () {
             function Scene() {
                 this.startTime = Date.now();
-                this.controls = new HG.Core.InputHandler();
+                this.controls = new HG.Input.Handler();
                 this.selectedCamera = "";
+                this.unnamedCount = 0;
                 this.scene = new Physijs.Scene();
                 this.entities = new HG.Core.Collection();
                 this.cameras = new HG.Core.Collection();
@@ -957,6 +923,8 @@ var HG;
             });
 
             Scene.prototype.push = function (entity) {
+                if (!entity.name)
+                    entity.name = "unnamed" + (this.unnamedCount++);
                 if (entity instanceof HG.Entities.CameraEntity) {
                     HG.log("[Scene] Added Camera " + entity.name);
                     this.cameras.push(entity);
@@ -971,7 +939,7 @@ var HG;
                 var newScene = new HG.Core.Scene();
                 newScene.entities = this.entities.concat(otherScene.entities);
                 newScene.cameras = this.cameras.concat(otherScene.cameras);
-                newScene.controls = this.controls.concat(otherScene.controls);
+
                 newScene.color = this.color;
                 newScene.colorAlpha = this.colorAlpha;
                 newScene.selectedCamera = this.selectedCamera;
@@ -1012,9 +980,9 @@ var HG;
                     return e.frame(delta);
                 });
                 this.entities.forEach(function (e) {
-                    if (e.object.material && e.object.material.uniforms) {
-                        if (e.object.material.uniforms["time"])
-                            e.object.material.uniforms["time"].value = .00025 * (Date.now() - _this.startTime);
+                    if (e["object"]["material"] && e["object"]["material"]["uniforms"]) {
+                        if (e["object"]["material"]["uniforms"]["time"])
+                            e["object"]["material"]["uniforms"]["time"].value = .00025 * (Date.now() - _this.startTime);
                     }
                 });
             };
@@ -1180,27 +1148,6 @@ var HG;
 var HG;
 (function (HG) {
     (function (Abilities) {
-        var AudioAbility = (function (_super) {
-            __extends(AudioAbility, _super);
-            function AudioAbility(options) {
-                _super.call(this);
-                this.audioEffect = options.effect;
-                if (this.audioEffect === null) {
-                    HG.locale.errors.nullReferenceError.error();
-                }
-            }
-            AudioAbility.prototype.play = function () {
-                this.audioEffect.play();
-            };
-            return AudioAbility;
-        })(HG.Abilities.Ability);
-        Abilities.AudioAbility = AudioAbility;
-    })(HG.Abilities || (HG.Abilities = {}));
-    var Abilities = HG.Abilities;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Abilities) {
         var MovingAbility = (function (_super) {
             __extends(MovingAbility, _super);
             function MovingAbility(baseStep) {
@@ -1283,7 +1230,7 @@ var HG;
                     HG.locale.errors.defaultSettingsUsedWarning.warn();
                 }
                 new HG.Utils.UpdateChecker();
-                this.controls = new HG.Core.InputHandler();
+                this.controls = new HG.Input.Handler();
                 this.pluginHost = new HG.Core.PluginHost(this);
                 this.fpsCounter = new HG.Utils.FPSCounter();
 
@@ -1377,6 +1324,9 @@ var HG;
                 if (params.noResize === true) {
                     this.setFullScreenMode(HG.settings.graphics.fullscreen);
                     this.resize(HG.settings.graphics.resolution);
+                }
+                if (params.mouseLock === true) {
+                    this.lockMouse();
                 }
                 if (params.profileFrame === true) {
                     HG.Utils.profile("HG Profiling Frame", function () {
@@ -1478,7 +1428,7 @@ var HG;
     (function (Core) {
         var Collection = (function () {
             function Collection() {
-                this.named = {};
+                this.named = new HG.Core.Hash();
                 this.unNamed = [];
             }
             Collection.prototype.push = function (item, name) {
@@ -1487,7 +1437,7 @@ var HG;
                     if (this.named[n]) {
                         HG.locale.errors.duplicateNameTagError.f(item.name).error();
                     } else {
-                        this.named[n] = item;
+                        this.named.push(n, item);
                     }
                 } else {
                     this.unNamed.push(item);
@@ -1509,16 +1459,11 @@ var HG;
             Collection.prototype.has = function (name) {
                 if (!name)
                     return false;
-                return (this.named[name.toLowerCase()]) ? true : false;
+                return (this.named.has(name.toLowerCase())) ? true : false;
             };
 
             Collection.prototype.getAllNamed = function () {
-                var es = [];
-                for (var k in this.named) {
-                    var v = this.named[k];
-                    es.push(v);
-                }
-                return es;
+                return this.named.toValueArray();
             };
 
             Collection.prototype.getAllUnnamed = function () {
@@ -1530,10 +1475,7 @@ var HG;
             };
 
             Collection.prototype.forNamed = function (callback) {
-                for (var k in this.named) {
-                    var ne = this.named[k];
-                    callback(ne, k);
-                }
+                this.named.forEach(callback);
             };
 
             Collection.prototype.forUnamed = function (callback) {
@@ -1542,14 +1484,12 @@ var HG;
 
             Collection.prototype.forEach = function (callback) {
                 this.unNamed.forEach(callback);
-                for (var k in this.named) {
-                    callback(this.named[k], k);
-                }
+                this.named.forEach(callback);
             };
 
             Collection.prototype.get = function (name) {
                 name = name.toLowerCase();
-                return this.named[name] || null;
+                return this.named.key(name) || null;
             };
 
             Collection.prototype.forAll = function (callback) {
@@ -1581,8 +1521,9 @@ var HG;
             Hash.prototype.forEach = function (fn) {
                 var _this = this;
                 this.keys.forEach(function (key, index) {
-                    fn(key, _this.values[index], index);
+                    fn(_this.values[index], key, index);
                 });
+                return this;
             };
 
             Hash.prototype.push = function (key, value) {
@@ -1592,6 +1533,7 @@ var HG;
                 } else {
                     this.set(key, value);
                 }
+                return this;
             };
 
             Hash.prototype.toValueArray = function () {
@@ -1612,7 +1554,7 @@ var HG;
 
             Hash.prototype.toNativeHash = function () {
                 var base = {};
-                this.forEach(function (k, v) {
+                this.forEach(function (v, k, i) {
                     base[k.toString()] = v;
                 });
                 return base;
@@ -1632,6 +1574,10 @@ var HG;
                 return this.keys.indexOf(key);
             };
 
+            Hash.prototype.has = function (key) {
+                return (this.keys.indexOf(key) === -1) ? false : true;
+            };
+
             Hash.prototype.concat = function () {
                 var args = [];
                 for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -1639,7 +1585,7 @@ var HG;
                 }
                 var _this = this;
                 args.forEach(function (other, index) {
-                    other.forEach(function (key, value, index) {
+                    other.forEach(function (value, key, index) {
                         if (_this.values.indexOf(value) === -1 && _this.keys.indexOf(key) === -1) {
                             _this.push(key, value);
                         }
@@ -1683,80 +1629,35 @@ var HG;
 var HG;
 (function (HG) {
     (function (Core) {
-        var InputHandler = (function () {
-            function InputHandler() {
-                this.keyState = [];
-                this.mouseState = [];
-                this.mouse = new HG.Core.EventDispatcher(["x", "y", "mouseAbs", "mouseRel"]);
-                this._mouse = new THREE.Vector2();
-
-                this.keyboard = new HG.Core.EventDispatcher();
-                for (var k in HG.Utils.KEY_MAP) {
-                    this.keyboard.events.push(HG.Utils.KEY_MAP[k].toString());
-                }
+        var PluginHost = (function (_super) {
+            __extends(PluginHost, _super);
+            function PluginHost(instance) {
+                _super.call(this);
+                this.events = ["load", "sceneChange"];
+                this.plugins = [];
+                this.paths = [];
+                this.game = instance;
             }
-            Object.defineProperty(InputHandler.prototype, "mousePosition", {
-                get: function () {
-                    return this._mouse;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            InputHandler.prototype.onMouseMove = function (e) {
-                var x = e.x || e.clientX;
-                var y = e.y || e.clientY;
-                var movX = e.webkitMovementX;
-                var movY = e.webkitMovementY;
-                if (x !== this._mouse.x) {
-                    this._mouse.x = x;
-                    this.mouse.dispatch("x", movX, x);
-                }
-                if (y !== this._mouse.y) {
-                    this._mouse.y = y;
-                    this.mouse.dispatch("y", movY, y);
-                }
-                this.mouse.dispatch("mouseAbs", x, y);
-                this.mouse.dispatch("mouseRel", movX, movY);
-            };
-
-            InputHandler.prototype.concat = function (otherHandler) {
-                var newHandler = new HG.Core.InputHandler();
-                newHandler.keyboard = this.keyboard.concat(otherHandler.keyboard);
-                newHandler.mouse = this.mouse.concat(otherHandler.mouse);
-                return newHandler;
-            };
-
-            InputHandler.prototype.onMouseDown = function (e) {
-                this.mouseState[e.button] = 1;
-            };
-
-            InputHandler.prototype.onMouseUp = function (e) {
-                this.mouseState[e.button] = 0;
-            };
-
-            InputHandler.prototype.onKeyDown = function (e) {
-                this.keyState[e.keyCode] = 1;
-            };
-
-            InputHandler.prototype.onKeyUp = function (e) {
-                this.keyState[e.keyCode] = 0;
-            };
-
-            InputHandler.prototype.frame = function (delta) {
+            PluginHost.prototype.load = function (path, env) {
                 var _this = this;
-                this.keyState.forEach(function (s, i) {
-                    if (s === 1)
-                        _this.keyboard.dispatch(i, delta);
-                });
-                this.mouseState.forEach(function (s, i) {
-                    if (s === 1)
-                        _this.mouse.dispatch(i, delta);
+                env = {
+                    HG: HG,
+                    THREE: THREE,
+                    game: this.game,
+                    window: window,
+                    document: document
+                } || env;
+                path.forEach(function (file) {
+                    var plugin = require("./" + file);
+                    var instance = new plugin(_this, env);
+                    HG.locale.pluginHost.success.f(instance.name).log();
+                    _this.plugins.push(instance);
+                    _this.paths.push(file);
                 });
             };
-            return InputHandler;
-        })();
-        Core.InputHandler = InputHandler;
+            return PluginHost;
+        })(HG.Core.EventDispatcher);
+        Core.PluginHost = PluginHost;
     })(HG.Core || (HG.Core = {}));
     var Core = HG.Core;
 })(HG || (HG = {}));
@@ -1786,7 +1687,7 @@ var HG;
                 this.uniforms = new HG.Core.Hash();
             }
             Shader.prototype.toMaterial = function () {
-                if (this.uniforms.indexOf("time") === -1) {
+                if (this.uniforms.has("time")) {
                     this.set("time", {
                         type: "f",
                         value: 0.0
@@ -1808,7 +1709,7 @@ var HG;
 
             Shader.prototype.extend = function (obj) {
                 var _this = this;
-                obj.forEach(function (k, v) {
+                obj.forEach(function (v, k) {
                     _this.uniforms.push(k, v);
                 });
                 return this;
@@ -1816,7 +1717,7 @@ var HG;
 
             Shader.prototype.extendTexture = function (textures) {
                 var _this = this;
-                textures.forEach(function (k, v) {
+                textures.forEach(function (v, k) {
                     v.wrapS = v.wrapT = THREE.RepeatWrapping;
                     _this.uniforms.push(k + "Texture", {
                         type: "t",
@@ -2019,17 +1920,16 @@ var HG;
     (function (Entities) {
         var SkyBoxEntity = (function (_super) {
             __extends(SkyBoxEntity, _super);
-            function SkyBoxEntity(textures, size, order) {
+            function SkyBoxEntity(textures, size) {
                 if (typeof size === "undefined") { size = 5000; }
-                if (typeof order === "undefined") { order = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]; }
                 _super.call(this);
                 var skyGeometry = new THREE.CubeGeometry(size, size, size);
 
                 var materialArray = [];
-                order.forEach(function (d, i) {
+                textures.forEach(function (texture, key) {
+                    console.log(texture);
                     materialArray.push(new THREE.MeshBasicMaterial({
-                        map: textures[i],
-                        side: THREE.BackSide
+                        map: texture
                     }));
                 });
                 var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
@@ -2202,6 +2102,170 @@ var HG;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
+    (function (Input) {
+        var GamepadDevice = (function (_super) {
+            __extends(GamepadDevice, _super);
+            function GamepadDevice(id) {
+                _super.call(this);
+                this.id = id;
+            }
+            GamepadDevice.prototype.frame = function (delta) {
+                if (this.raw === undefined)
+                    return;
+                if (this.last === null)
+                    this.last = this.raw;
+
+                this.last = this.raw;
+            };
+            return GamepadDevice;
+        })(HG.Core.EventDispatcher);
+        Input.GamepadDevice = GamepadDevice;
+    })(HG.Input || (HG.Input = {}));
+    var Input = HG.Input;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Input) {
+        (function (DEVICE) {
+            DEVICE[DEVICE["KEYBOARD"] = 0] = "KEYBOARD";
+            DEVICE[DEVICE["MOUSE"] = 1] = "MOUSE";
+            DEVICE[DEVICE["GAMEPAD"] = 3] = "GAMEPAD";
+        })(Input.DEVICE || (Input.DEVICE = {}));
+        var DEVICE = Input.DEVICE;
+
+        var Binding = (function () {
+            function Binding() {
+            }
+            return Binding;
+        })();
+        Input.Binding = Binding;
+
+        var Handler = (function () {
+            function Handler() {
+                this.mouse = new HG.Input.MouseDevice();
+                this.keyboard = new HG.Input.KeyboardDevice();
+                for (var id = 0; id < 4; id++) {
+                    this.gamepad.push(new HG.Input.GamepadDevice(id));
+                }
+            }
+            Handler.prototype.frame = function (delta) {
+                this.keyboard.frame(delta);
+                this.mouse.frame(delta);
+                var gamepads = navigator.webkitGetGamepads();
+                for (var pad = 0; pad < gamepads.length; pad++) {
+                    this.gamepad[pad].raw = gamepads[pad];
+                    this.gamepad[pad].frame(delta);
+                }
+            };
+
+            Handler.prototype.onMouseMove = function (e) {
+                this.mouse.onMouseMove(e);
+            };
+
+            Handler.prototype.onMouseDown = function (e) {
+                this.mouse.onMouseDown(e);
+            };
+
+            Handler.prototype.onMouseUp = function (e) {
+                this.mouse.onMouseUp(e);
+            };
+
+            Handler.prototype.onKeyDown = function (e) {
+                this.keyboard.onKeyDown(e);
+            };
+
+            Handler.prototype.onKeyUp = function (e) {
+                this.keyboard.onKeyUp(e);
+            };
+            return Handler;
+        })();
+        Input.Handler = Handler;
+    })(HG.Input || (HG.Input = {}));
+    var Input = HG.Input;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Input) {
+        var KeyboardDevice = (function (_super) {
+            __extends(KeyboardDevice, _super);
+            function KeyboardDevice() {
+                _super.call(this);
+                this.keyState = [];
+                for (var k in HG.Utils.KEY_MAP) {
+                    this.events.push(HG.Utils.KEY_MAP[k].toString());
+                }
+            }
+            KeyboardDevice.prototype.onKeyDown = function (e) {
+                this.keyState[e.keyCode] = 1;
+            };
+
+            KeyboardDevice.prototype.onKeyUp = function (e) {
+                this.keyState[e.keyCode] = 0;
+            };
+
+            KeyboardDevice.prototype.frame = function (delta) {
+                var _this = this;
+                this.keyState.forEach(function (s, i) {
+                    if (s === 1)
+                        _this.dispatch(i, delta);
+                });
+            };
+            return KeyboardDevice;
+        })(HG.Core.EventDispatcher);
+        Input.KeyboardDevice = KeyboardDevice;
+    })(HG.Input || (HG.Input = {}));
+    var Input = HG.Input;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Input) {
+        var MouseDevice = (function (_super) {
+            __extends(MouseDevice, _super);
+            function MouseDevice() {
+                _super.call(this);
+                this.cursorPosition = new THREE.Vector2();
+                this.mouseState = [];
+            }
+            MouseDevice.prototype.onMouseMove = function (e) {
+                var x = e.x || e.clientX;
+                var y = e.y || e.clientY;
+                var movX = e.webkitMovementX;
+                var movY = e.webkitMovementY;
+                if (x !== this.cursorPosition.x) {
+                    this.cursorPosition.x = x;
+                    this.dispatch("x", movX, x);
+                }
+                if (y !== this.cursorPosition.y) {
+                    this.cursorPosition.y = y;
+                    this.dispatch("y", movY, y);
+                }
+                this.dispatch("mouseAbs", x, y);
+                this.dispatch("mouseRel", movX, movY);
+            };
+
+            MouseDevice.prototype.onMouseDown = function (e) {
+                this.mouseState[e.button] = 1;
+            };
+
+            MouseDevice.prototype.onMouseUp = function (e) {
+                this.mouseState[e.button] = 0;
+            };
+
+            MouseDevice.prototype.frame = function (delta) {
+                var _this = this;
+                this.mouseState.forEach(function (s, i) {
+                    if (s === 1)
+                        _this.dispatch(i, delta);
+                });
+            };
+            return MouseDevice;
+        })(HG.Core.EventDispatcher);
+        Input.MouseDevice = MouseDevice;
+    })(HG.Input || (HG.Input = {}));
+    var Input = HG.Input;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
     (function (LINQ) {
         var ArrayProvider = (function () {
             function ArrayProvider() {
@@ -2298,8 +2362,14 @@ var HG;
                         context = context.replaceAll("${" + (index + 1) + "}", arg);
                     });
                 } else {
-                    for (var k in arg1) {
-                        context = context.replaceAll("${" + k + "}", arg1[k]);
+                    if (arg1 instanceof HG.Core.Hash) {
+                        arg1.forEach(function (k, v) {
+                            context = context.replaceAll("${" + k + "}", v);
+                        });
+                    } else {
+                        for (var k in arg1) {
+                            context = context.replaceAll("${" + k + "}", arg1[k]);
+                        }
                     }
                 }
                 return context;
@@ -2315,6 +2385,10 @@ var HG;
 
             StringProvider.prototype.error = function (context) {
                 throw new Error(context);
+            };
+
+            StringProvider.prototype.contains = function (context, contains) {
+                return (context.indexOf(contains) === -1) ? false : true;
             };
 
             StringProvider.prototype.lengthen = function (context, length, filler) {
@@ -2344,19 +2418,6 @@ var HG;
 var HG;
 (function (HG) {
     HG.locale;
-})(HG || (HG = {}));
-
-var HG;
-(function (HG) {
-    (function (_Locale) {
-        var Locale = (function () {
-            function Locale() {
-            }
-            return Locale;
-        })();
-        _Locale.Locale = Locale;
-    })(HG.Locale || (HG.Locale = {}));
-    var Locale = HG.Locale;
 })(HG || (HG = {}));
 var HG;
 (function (HG) {
@@ -2394,6 +2455,162 @@ var HG;
             return Cache;
         })();
         Resource.Cache = Cache;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Resource) {
+        var Loader = (function (_super) {
+            __extends(Loader, _super);
+            function Loader(baseDirectory) {
+                _super.call(this);
+                this.baseDirectory = baseDirectory;
+                this.cache = new HG.Resource.Cache(this);
+                var settings = "settings.json";
+                HG.settings = this.json(settings);
+                HG.locale = this.json(HG.settings.hgLocale);
+            }
+            Loader.prototype.path = function (path) {
+                var absPath = HG.Modules.path.join(this.baseDirectory, path);
+                if (HG.Modules.fs.existsSync(absPath) === true) {
+                    return absPath;
+                } else {
+                    HG.locale.errors.fileNotExisting.f(path).error();
+                    return null;
+                }
+            };
+
+            Loader.prototype.load = function (relPath, namespace, silent, loaderArgs) {
+                var absPath = this.path(relPath);
+                var extension = HG.Modules.path.extname(absPath);
+                var extensionName = extension.toUpperCase().replace(".", "");
+                var dispatcher = new HG.Core.EventDispatcher(["loaded"], silent);
+                dispatcher["_on"] = dispatcher.on;
+                dispatcher.on = function (name, eventHandler) {
+                    dispatcher["_on"](name, eventHandler);
+                    var foundLoader = false;
+                    for (var k in namespace) {
+                        if (k === extensionName) {
+                            var loader = new namespace[k]();
+                            loader.on("loaded", function () {
+                                var args = [];
+                                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                                    args[_i] = arguments[_i + 0];
+                                }
+                                args.splice(0, 0, "loaded");
+                                dispatcher.dispatch.apply(dispatcher, args);
+                            });
+                            loaderArgs.splice(0, 0, absPath);
+                            loader.load.apply(loader, loaderArgs);
+                            foundLoader = true;
+                        }
+                    }
+                    if (foundLoader === false) {
+                        HG.locale.resource.noLoader.f(extension).error();
+                    }
+                    return dispatcher;
+                };
+                return dispatcher;
+            };
+
+            Loader.prototype.model = function (path, silent) {
+                if (typeof silent === "undefined") { silent = false; }
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
+                }
+                return this.load(path, HG.Resource.Model, silent, args);
+            };
+
+            Loader.prototype.sound = function (path, silent) {
+                if (typeof silent === "undefined") { silent = false; }
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
+                }
+                return this.load(path, HG.Resource.Sound, silent, args);
+            };
+
+            Loader.prototype.video = function (path, silent) {
+                if (typeof silent === "undefined") { silent = false; }
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
+                }
+                return this.load(path, HG.Resource.Video, silent, args);
+            };
+
+            Loader.prototype.texture = function (path, silent) {
+                if (typeof silent === "undefined") { silent = false; }
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 2); _i++) {
+                    args[_i] = arguments[_i + 2];
+                }
+                return this.load(path, HG.Resource.Texture, silent, args);
+            };
+
+            Loader.prototype.queueTexture = function (paths, done) {
+                var _this = this;
+                var queue = new HG.Core.Hash();
+                paths.forEach(function (path) {
+                    queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), function (next) {
+                        _this.texture(path, true).on("loaded", function (texture) {
+                            next(texture);
+                        });
+                    });
+                });
+                HG.Utils.queue(queue, done);
+            };
+
+            Loader.prototype.queueJSON = function (paths, done) {
+                var _this = this;
+                var queue = new HG.Core.Hash();
+                paths.forEach(function (path) {
+                    queue.push(path, function (next) {
+                        next(_this.json(path));
+                    });
+                });
+                HG.Utils.queue(queue, done);
+            };
+
+            Loader.prototype.shader = function (path) {
+                var raw = this.json(path);
+                return new HG.Core.Shader(raw.vertex, raw.fragment);
+            };
+
+            Loader.prototype.json = function (path, data) {
+                path = this.path(path);
+                if (data) {
+                    HG.Modules.fs.writeFile(JSON.stringify(data), function (err) {
+                        if (err)
+                            throw err;
+                    });
+                    return null;
+                } else if (HG.Modules.fs.existsSync(path) === true) {
+                    var raw = HG.Modules.fs.readFileSync(path);
+                    return JSON.parse(raw);
+                } else {
+                    return null;
+                }
+            };
+
+            Loader.prototype.directory = function (directory, extension) {
+                if (typeof extension === "undefined") { extension = ""; }
+                var _this = this;
+                var path = HG.Modules.path.join(this.baseDirectory, directory);
+                var files = HG.Modules.fs.readdirSync(path);
+                var realFiles = [];
+                files.forEach(function (file) {
+                    if (file.indexOf(extension) !== -1) {
+                        realFiles.push(HG.Modules.path.join(_this.baseDirectory, directory, file));
+                    }
+                });
+                return realFiles;
+            };
+            return Loader;
+        })(HG.Core.EventDispatcher);
+        Resource.Loader = Loader;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
 })(HG || (HG = {}));
@@ -2450,162 +2667,6 @@ var HG;
             Model.STL = STL;
         })(Resource.Model || (Resource.Model = {}));
         var Model = Resource.Model;
-    })(HG.Resource || (HG.Resource = {}));
-    var Resource = HG.Resource;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Resource) {
-        var ResourceLoader = (function (_super) {
-            __extends(ResourceLoader, _super);
-            function ResourceLoader(baseDirectory) {
-                _super.call(this);
-                this.baseDirectory = baseDirectory;
-                this.cache = new HG.Resource.Cache(this);
-                var settings = "settings.json";
-                HG.settings = this.json(settings);
-                HG.locale = this.json(HG.settings.hgLocale);
-            }
-            ResourceLoader.prototype.path = function (path) {
-                var absPath = HG.Modules.path.join(this.baseDirectory, path);
-                if (HG.Modules.fs.existsSync(absPath) === true) {
-                    return absPath;
-                } else {
-                    HG.locale.errors.fileNotExisting.f(path).error();
-                    return null;
-                }
-            };
-
-            ResourceLoader.prototype.load = function (relPath, namespace, silent, loaderArgs) {
-                var absPath = this.path(relPath);
-                var extension = HG.Modules.path.extname(absPath);
-                var extensionName = extension.toUpperCase().replace(".", "");
-                var dispatcher = new HG.Core.EventDispatcher(["loaded"], silent);
-                dispatcher["_on"] = dispatcher.on;
-                dispatcher.on = function (name, eventHandler) {
-                    dispatcher["_on"](name, eventHandler);
-                    var foundLoader = false;
-                    for (var k in namespace) {
-                        if (k === extensionName) {
-                            var loader = new namespace[k]();
-                            loader.on("loaded", function () {
-                                var args = [];
-                                for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                                    args[_i] = arguments[_i + 0];
-                                }
-                                args.splice(0, 0, "loaded");
-                                dispatcher.dispatch.apply(dispatcher, args);
-                            });
-                            loaderArgs.splice(0, 0, absPath);
-                            loader.load.apply(loader, loaderArgs);
-                            foundLoader = true;
-                        }
-                    }
-                    if (foundLoader === false) {
-                        HG.locale.resource.noLoader.f(extension).error();
-                    }
-                    return dispatcher;
-                };
-                return dispatcher;
-            };
-
-            ResourceLoader.prototype.model = function (path, silent) {
-                if (typeof silent === "undefined") { silent = false; }
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 2); _i++) {
-                    args[_i] = arguments[_i + 2];
-                }
-                return this.load(path, HG.Resource.Model, silent, args);
-            };
-
-            ResourceLoader.prototype.sound = function (path, silent) {
-                if (typeof silent === "undefined") { silent = false; }
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 2); _i++) {
-                    args[_i] = arguments[_i + 2];
-                }
-                return this.load(path, HG.Resource.Sound, silent, args);
-            };
-
-            ResourceLoader.prototype.video = function (path, silent) {
-                if (typeof silent === "undefined") { silent = false; }
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 2); _i++) {
-                    args[_i] = arguments[_i + 2];
-                }
-                return this.load(path, HG.Resource.Video, silent, args);
-            };
-
-            ResourceLoader.prototype.texture = function (path, silent) {
-                if (typeof silent === "undefined") { silent = false; }
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 2); _i++) {
-                    args[_i] = arguments[_i + 2];
-                }
-                return this.load(path, HG.Resource.Texture, silent, args);
-            };
-
-            ResourceLoader.prototype.queueTexture = function (paths, done) {
-                var _this = this;
-                var queue = new HG.Core.Hash();
-                paths.forEach(function (path) {
-                    queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), function (next) {
-                        _this.texture(path, true).on("loaded", function (texture) {
-                            next(texture);
-                        });
-                    });
-                });
-                HG.Utils.queue(queue, done);
-            };
-
-            ResourceLoader.prototype.queueJSON = function (paths, done) {
-                var _this = this;
-                var queue = new HG.Core.Hash();
-                paths.forEach(function (path) {
-                    queue.push(path, function (next) {
-                        next(_this.json(path));
-                    });
-                });
-                HG.Utils.queue(queue, done);
-            };
-
-            ResourceLoader.prototype.shader = function (path) {
-                var raw = this.json(path);
-                return new HG.Core.Shader(raw.vertex, raw.fragment);
-            };
-
-            ResourceLoader.prototype.json = function (path, data) {
-                path = this.path(path);
-                if (data) {
-                    HG.Modules.fs.writeFile(JSON.stringify(data), function (err) {
-                        if (err)
-                            throw err;
-                    });
-                    return null;
-                } else if (HG.Modules.fs.existsSync(path) === true) {
-                    var raw = HG.Modules.fs.readFileSync(path);
-                    return JSON.parse(raw);
-                } else {
-                    return null;
-                }
-            };
-
-            ResourceLoader.prototype.directory = function (directory, extension) {
-                if (typeof extension === "undefined") { extension = ""; }
-                var _this = this;
-                var path = HG.Modules.path.join(this.baseDirectory, directory);
-                var files = HG.Modules.fs.readdirSync(path);
-                var realFiles = [];
-                files.forEach(function (file) {
-                    if (file.indexOf(extension) !== -1) {
-                        realFiles.push(HG.Modules.path.join(_this.baseDirectory, directory, file));
-                    }
-                });
-                return realFiles;
-            };
-            return ResourceLoader;
-        })(HG.Core.EventDispatcher);
-        Resource.ResourceLoader = ResourceLoader;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
 })(HG || (HG = {}));
@@ -2679,6 +2740,7 @@ var HG;
                 PNG.prototype.load = function (path) {
                     var texture = THREE.ImageUtils.loadTexture(path);
                     texture.anisotropy = HG.settings.graphics.anisotropy;
+                    texture.wrapT = texture.wrapS = THREE.RepeatWrapping;
                     this.dispatch("loaded", texture);
                 };
                 return PNG;
@@ -3040,7 +3102,7 @@ var HG;
                 this.gainNode = this.rootContext.createGain();
                 this.gainNode.connect(this.rootContext.destination);
             }
-            Effect.prototype.load = function (data) {
+            Effect.prototype.create = function (data) {
                 this.source = this.rootContext.createBufferSource();
                 this.buffer = data;
                 this.source.buffer = data;

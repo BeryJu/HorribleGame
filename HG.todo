@@ -1,5 +1,4 @@
 HorribleGame:
-	✔ Finally fix the SceneSerializer Camera problem @done (13-12-22 14:13)
 	☐ Create Abilities/AudioAbility.ts
 	☐ Create Abilities/ScriptExecuteAbility.ts
 	☐ Implement Shaders
@@ -10,6 +9,7 @@ HorribleGame:
 	☐ Finish physijs.d.ts
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+	✔ Finally fix the SceneSerializer Camera problem @done (13-12-22 14:13) @project(HorribleGame)
 	✔ Create some unit tests @done (13-12-09 13:56) @project(HorribleGame)
 		nodeunit tests/
 	✔ Redo Map Loader (temporarily removed) @done (13-12-09 13:55) @project(HorribleGame)

@@ -3,13 +3,13 @@
 * @Date:   2013-11-18 19:57:17
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-05 19:55:01
+* @Last Modified time: 2013-12-30 20:44:36
 */
 exports.eventDispatcherTest = function (test) {
 	test.expect(3);
 	var hgLoader = require("./TestHelper.js");
 	var HG = hgLoader();
-	var loader = new HG.Resource.ResourceLoader("bin/assets/");
+	var loader = new HG.Resource.Loader("bin/assets/");
 	var disp = new HG.Core.EventDispatcher(['event1', 'event2']);
 	disp.on("event1", function () {
 		test.ok(true);

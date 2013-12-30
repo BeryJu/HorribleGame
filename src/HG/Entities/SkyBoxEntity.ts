@@ -10,17 +10,16 @@ module HG.Entities {
 
 	export class SkyBoxEntity extends HG.Entities.Entity {
 
-		constructor(textures: THREE.Texture[],
-					size: number = 5000,
-					order: string[] = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"]) {
+		constructor(textures: HG.Core.Hash<string, THREE.Texture>,
+					size: number = 5000) {
 			super();
 			var skyGeometry = new THREE.CubeGeometry(size, size, size);
 
 			var materialArray = [];
-			order.forEach((d, i) => {
+			textures.forEach((texture: THREE.Texture, key: string) => {
+				console.log(texture);
 				materialArray.push(new THREE.MeshBasicMaterial({
-					map: textures[i],
-					side: THREE.BackSide
+					map: texture
 				}));
 			});
 			var skyMaterial = new THREE.MeshFaceMaterial(materialArray);

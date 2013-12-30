@@ -3,17 +3,17 @@
 * @Date:   2013-12-07 11:37:00
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 12:23:14
+* @Last Modified time: 2013-12-30 20:34:52
 */
 
 module HG.Core.Serializer {
 
 	export class SceneSerializer extends HG.Core.EventDispatcher {
 
-		loader: HG.Resource.ResourceLoader;
+		loader: HG.Resource.Loader;
 		done: number = 0;
 
-		constructor(loader: HG.Resource.ResourceLoader) {
+		constructor(loader: HG.Resource.Loader) {
 			super(["done"]);
 			this.loader = loader;
 		}

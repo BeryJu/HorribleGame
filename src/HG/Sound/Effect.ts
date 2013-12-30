@@ -3,12 +3,12 @@
 * @Date:   2013-11-09 15:07:32
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-15 21:20:26
+* @Last Modified time: 2013-12-30 16:57:11
 */
 
 module HG.Sound {
 
-	export class Effect extends HG.Core.EventDispatcher implements HG.Resource.ILoadable {
+	export class Effect extends HG.Core.EventDispatcher {
 
 		name: string;
 		gainNode: GainNode;
@@ -25,7 +25,7 @@ module HG.Sound {
 			this.gainNode.connect(this.rootContext.destination);
 		}
 
-		load(data: AudioBuffer): void {
+		create(data: AudioBuffer): void {
 			this.source = this.rootContext.createBufferSource();
 			this.buffer = data;
 			this.source.buffer = data;
