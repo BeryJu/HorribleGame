@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 22:20:59
+* @Last Modified time: 2013-12-31 16:19:47
 */
 
 module HG.Core {
@@ -37,10 +37,8 @@ module HG.Core {
 		push(entity: HG.Entities.Entity): void {
 			if (!entity.name) entity.name = "unnamed" + (this.unnamedCount++);
 			if (entity instanceof HG.Entities.CameraEntity) {
-				HG.log("[Scene] Added Camera " + entity.name);
 				this.cameras.push(<HG.Entities.CameraEntity> entity);
 			} else if (entity instanceof HG.Entities.Entity) {
-				HG.log("[Scene] Added Entity " + entity.name);
 				this.entities.push(entity);
 				this.scene.add(entity.getInternal());
 			}

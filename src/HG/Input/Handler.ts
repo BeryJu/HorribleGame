@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-31 00:37:49
+* @Last Modified time: 2013-12-31 13:08:55
 */
 
 module HG.Input {
@@ -37,8 +37,6 @@ module HG.Input {
 				this.gamepad.push(new HG.Input.GamepadDevice(id));
 			}
 		}
-
-		bindMouse()
 
 		frame(delta: number): void {
 			this.keyboard.frame(delta);

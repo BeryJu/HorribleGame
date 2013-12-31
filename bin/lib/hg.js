@@ -2151,6 +2151,7 @@ var HG;
             Handler.prototype.frame = function (delta) {
                 this.keyboard.frame(delta);
                 this.mouse.frame(delta);
+                this.gamepad = [];
                 var gamepads = navigator.webkitGetGamepads();
                 for (var pad = 0; pad < gamepads.length; pad++) {
                     this.gamepad[pad].raw = gamepads[pad];
