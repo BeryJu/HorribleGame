@@ -12,7 +12,7 @@
     "grunt-conventional-changelog": "~1.0.0",
     "grunt-bump": "0.0.13"
   },
-  "version": "0.0.2",
+  "version": "0.0.3",
   "url": "http://beryju.org",
   "developedBy": "BeryJu jenslanghammer@gmail.com",
   "repository": {
