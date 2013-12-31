@@ -64,6 +64,7 @@ var createPathObject = function (root, out, extFrom, extTo) {
 	});
 	return object;
 };
+var pkg = require("./package.json");
 var config = {
 	paths: paths,
 	jade: {

@@ -1218,7 +1218,7 @@ var HG;
             __extends(BaseGame, _super);
             function BaseGame(container) {
                 _super.call(this, [
-                    "load", "connected", "start", "keyup", "keydown",
+                    "loaded", "connected", "start", "keyup", "keydown",
                     "resize", "render", "mouseDown", "mouseUp",
                     "mouseMove", "preRender", "postRender"]);
                 this.startTime = Date.now();
@@ -1280,7 +1280,7 @@ var HG;
             };
 
             BaseGame.prototype.load = function () {
-                this.dispatch("load");
+                this.dispatch("loaded");
             };
 
             BaseGame.prototype.resize = function (resolution) {

@@ -157,7 +157,7 @@ if (HG.settings.debug === true) {
     HG.Utils.devTools();
 }
 
-game.on("load", function () {
+game.on("loaded", function () {
     game.pluginHost.load(loader.directory("plugins", ".js"));
     MainScene.create(game, loader, function (scene) {
         game.scene(scene);

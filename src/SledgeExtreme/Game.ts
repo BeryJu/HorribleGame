@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 21:33:05
+* @Last Modified time: 2013-12-31 17:36:12
 */
 /// <reference path="GameLocale.ts" />
 /// <reference path="scenes/Main.ts" />
@@ -17,7 +17,7 @@ if (HG.settings.debug === true) {
 	HG.Utils.devTools();
 }
 
-game.on("load", () => {
+game.on("loaded", () => {
 	game.pluginHost.load(loader.directory("plugins", ".js"));
 	MainScene.create(game, loader, (scene: HG.Core.Scene) => {
 		game.scene(scene);

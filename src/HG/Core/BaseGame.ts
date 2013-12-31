@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 20:42:42
+* @Last Modified time: 2013-12-31 17:36:21
 */
 
 module HG.Core {
@@ -26,7 +26,7 @@ module HG.Core {
 		events: string[];
 
 		constructor(container: HTMLElement) {
-			super(["load", "connected", "start", "keyup", "keydown",
+			super(["loaded", "connected", "start", "keyup", "keydown",
 				"resize", "render", "mouseDown", "mouseUp",
 				"mouseMove", "preRender", "postRender"]);
 			this.startTime = Date.now();
@@ -85,7 +85,7 @@ module HG.Core {
 		}
 
 		load(): void {
-			this.dispatch("load");
+			this.dispatch("loaded");
 		}
 
 		resize(resolution: THREE.Vector2): void {

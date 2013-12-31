@@ -8,11 +8,9 @@
     "grunt-tslint": "latest",
     "grunt-contrib-nodeunit": "latest",
     "grunt-contrib-jade": "latest",
-    "grunt-contrib-watch": "latest",
-    "grunt-conventional-changelog": "~1.0.0",
-    "grunt-bump": "0.0.13"
+    "grunt-contrib-watch": "latest"
   },
-  "version": "0.0.3",
+  "version": "0.0.7",
   "url": "http://beryju.org",
   "developedBy": "BeryJu jenslanghammer@gmail.com",
   "repository": {
