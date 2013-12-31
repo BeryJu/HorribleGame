@@ -48,7 +48,6 @@
 /// <reference path="Core/Collection.ts" />
 /// <reference path="Core/Hash.ts" />
 /// <reference path="Core/PluginHost.ts" />
-/// <reference path="Core/ServerConnection.ts" />
 /// <reference path="Core/Shader.ts" />
 /// <reference path="Entities/CameraEntity.ts" />
 /// <reference path="Entities/ChasingCameraEntity.ts" />

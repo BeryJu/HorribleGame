@@ -926,10 +926,8 @@ var HG;
                 if (!entity.name)
                     entity.name = "unnamed" + (this.unnamedCount++);
                 if (entity instanceof HG.Entities.CameraEntity) {
-                    HG.log("[Scene] Added Camera " + entity.name);
                     this.cameras.push(entity);
                 } else if (entity instanceof HG.Entities.Entity) {
-                    HG.log("[Scene] Added Entity " + entity.name);
                     this.entities.push(entity);
                     this.scene.add(entity.getInternal());
                 }
@@ -1658,22 +1656,6 @@ var HG;
             return PluginHost;
         })(HG.Core.EventDispatcher);
         Core.PluginHost = PluginHost;
-    })(HG.Core || (HG.Core = {}));
-    var Core = HG.Core;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Core) {
-        var ServerConnection = (function (_super) {
-            __extends(ServerConnection, _super);
-            function ServerConnection(socket) {
-                _super.call(this);
-                this.write = this.socket.write;
-                this.socket = socket;
-            }
-            return ServerConnection;
-        })(HG.Core.EventDispatcher);
-        Core.ServerConnection = ServerConnection;
     })(HG.Core || (HG.Core = {}));
     var Core = HG.Core;
 })(HG || (HG = {}));

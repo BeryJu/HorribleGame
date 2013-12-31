@@ -392,13 +392,6 @@ declare module HG.Core {
     }
 }
 declare module HG.Core {
-    class ServerConnection extends Core.EventDispatcher {
-        public socket: any;
-        constructor(socket: any);
-        public write: any;
-    }
-}
-declare module HG.Core {
     class Shader {
         public vertex: string;
         public fragment: string;
