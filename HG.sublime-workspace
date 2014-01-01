@@ -519,6 +519,22 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "src/SledgeExtreme/Game.ts",
+			"settings":
+			{
+				"buffer_size": 1181,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/SledgeExtreme/scenes/Main.ts",
+			"settings":
+			{
+				"buffer_size": 5885,
+				"line_ending": "Windows"
+			}
+		}
 	],
 	"build_system": "Packages/User/Build System/Grunt.sublime-build",
 	"command_palette":
@@ -861,19 +877,34 @@
 	},
 	"file_history":
 	[
+		"/J/projects/HorribleGame/src/SledgeExtreme/scenes/Main.js",
+		"/J/projects/HorribleGame/src/SledgeExtreme/scenes/Main.ts",
+		"/J/projects/HorribleGame/src/HG/Input/GamepadDevice.ts",
+		"/J/projects/HorribleGame/src/SledgeExtreme/Game.ts",
 		"/J/projects/HorribleGame/Gruntfile.js",
+		"/J/projects/HorribleGame/src/HG/Core/EventDispatcher.ts",
+		"/J/projects/HorribleGame/src/grunt/convertModel.js",
+		"/J/projects/HorribleGame/src/HG/Core/Collection.ts",
+		"/J/projects/HorribleGame/src/HG/Entities/ChasingCameraEntity.ts",
+		"/J/projects/HorribleGame/src/HG/Entities/Entity.ts",
+		"/J/projects/HorribleGame/bin/hg/Core/EventDispatcher.js",
+		"/J/documentRoot/stuff/Folder Open with.reg",
+		"/J/projects/HorribleGame/bin/package.json",
 		"/J/projects/HorribleGame/package.json",
 		"/J/projects/HorribleGame/src/HG/Resource/Texture/PNG.ts",
+		"/D/Downloads/JetBrains-phpstorm-webstorm-serials-CYBER.txt",
+		"/J/projects/HorribleGame/src/tests/TestHelper.js",
+		"/J/projects/HorribleGame/src/HG/HG.ref.ts",
+		"/J/projects/HorribleGame/src/tests/EventDispatcherTest.ts",
+		"/J/projects/HorribleGame/src/tests/EventDispatcherTest.js",
+		"/J/projects/HorribleGame/src/HG/HG.ts",
+		"/J/projects/HorribleGame/HG.todo",
 		"/J/projects/HorribleGame/src/HG/Input/KeyboardDevice.ts",
-		"/J/projects/HorribleGame/src/SledgeExtreme/Game.ts",
 		"/J/projects/HorribleGame/src/HG/Core/BaseGame.ts",
 		"/J/projects/HorribleGame/README.md",
-		"/J/projects/HorribleGame/src/HG/HG.ref.ts",
 		"/C/Program Files (x86)/Steam/SteamApps/common/dota 2 beta/dota/cfg/autoexec.cfg",
-		"/J/projects/HorribleGame/src/HG/Input/GamepadDevice.ts",
 		"/J/projects/HorribleGame/src/HG/Entities/FirstPersonCameraEntity.ts",
 		"/J/projects/HorribleGame/src/HG/Sound/Effect.ts",
-		"/J/projects/HorribleGame/src/HG/Entities/Entity.ts",
 		"/J/projects/HorribleGame/src/HG/LINQ/FunctionProvider.ts",
 		"/J/projects/HorribleGame/src/HG/Utils/FPSCounter.ts",
 		"/J/projects/HorribleGame/src/SledgeExtreme/shaders/fireball/fireball.frag",
@@ -884,7 +915,6 @@
 		"/J/projects/HorribleGame/tests/TestHelper.js",
 		"/J/projects/HorribleGame/tests/EventDispatcherTest.js",
 		"/J/projects/HorribleGame/src/HG/Entities/TextEntity.ts",
-		"/J/projects/HorribleGame/HG.todo",
 		"/J/projects/HorribleGame/src/jade/index.jade",
 		"/J/projects/exception-system/Server/CommonReferences/mongodb.d.ts",
 		"/J/projects/exception-system/Server/ExceptionServer/ExceptionServer/app.ts",
@@ -908,21 +938,17 @@
 		"/J/projects/HorribleGame/src/HG/Platform/IPlatform.ts",
 		"/J/projects/HorribleGame/to port/PointerLockControls.js",
 		"/J/projects/HorribleGame/src/HG/Core/Hash.ts",
-		"/J/projects/HorribleGame/src/HG/HG.ts",
 		"/J/projects/HorribleGame/src/HG/Input/Handler.ts",
 		"/J/projects/HorribleGame/src/HG/Input/MouseDeivce.ts",
-		"/J/projects/HorribleGame/src/SledgeExtreme/scenes/Main.ts",
 		"/J/projects/HorribleGame/src/defs/gamepad.d.ts",
 		"/J/projects/HorribleGame/src/HG/Utils/GameStartParameters.ts",
 		"/J/projects/HorribleGame/src/HG/Input/IDevice.ts",
 		"/J/projects/HorribleGame/src/HG/Utils/KeyMap.ts",
 		"/J/projects/HorribleGame/src/HG/Resource/Texture/JPG.ts",
-		"/J/projects/HorribleGame/src/HG/Core/Collection.ts",
 		"/F/jugg/build_all.js",
 		"/J/zs",
 		"/J/projects/HorribleGame/src/defs/three.d.ts",
 		"/J/projects/HorribleGame/bin/lib/dependencies/three.js",
-		"/J/projects/HorribleGame/src/HG/Entities/ChasingCameraEntity.ts",
 		"/J/projects/HorribleGame/src/HG/Core/IPlugin.ts",
 		"/J/projects/HorribleGame/bin/game/game.d.ts",
 		"/J/projects/HorribleGame/src/defs/lib.d.ts",
@@ -936,7 +962,6 @@
 		"/J/projects/HorribleGame/src/HG/Input/Gamepad.ts",
 		"/J/projects/HorribleGame/bin/assets/locale/game.locale.json",
 		"/J/projects/HorribleGame/src/lib/lib.d.ts",
-		"/J/projects/HorribleGame/src/HG/Core/EventDispatcher.ts",
 		"/J/projects/HorribleGame/src/HG/Input/InputHandler.ts",
 		"/J/projects/HorribleGame/src/HG/Resource/Model/JS.ts",
 		"/J/projects/HorribleGame/tests/hashTest.js",
@@ -979,16 +1004,7 @@
 		"/D/Documents/Stundenplan.xls",
 		"/D/Documents/k.txt",
 		"/D/Documents/LOLZ mit Fabi.txt",
-		"/D/dev/NodeJS/Geme/geme.html",
-		"/D/dev/Proxy/Proxy.js",
-		"/C/Users/BeryJu/Desktop/setup.sh",
-		"/C/Program Files (x86)/Steam/SteamApps/common/dota 2 beta/570_install.vdf",
-		"/D/Games/Steam/steamapps/common/dota 2 beta/installscript.vdf",
-		"/C/Program Files (x86)/Steam/SteamApps/common/dota 2 beta/debug.log",
-		"/C/Program Files (x86)/Steam/SteamApps/common/dota 2 beta/installscript.vdf",
-		"/J/projects/HorribleGame/bin/lib/dependencies/ParticleEngine.js",
-		"/J/projects/HorribleGame/bin/assets/shaders/particles.json",
-		"/D/twatch/deqrwerq.xspf"
+		"/D/dev/NodeJS/Geme/geme.html"
 	],
 	"find":
 	{
@@ -1023,6 +1039,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"function",
 			"		    ",
 			"load",
 			"dependencies",
@@ -1149,8 +1166,7 @@
 			"PS1",
 			"/home/krg85/stackoverflow/",
 			"Play",
-			"play",
-			"Play"
+			"play"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1187,8 +1203,67 @@
 	"groups":
 	[
 		{
+			"selected": 1,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "src/SledgeExtreme/Game.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1181,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/SledgeExtreme/scenes/Main.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5885,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -1247,12 +1322,40 @@
 		"selected_items":
 		[
 			[
-				"packa",
-				"package.json"
+				"main.ts",
+				"src\\SledgeExtreme\\scenes\\Main.ts"
+			],
+			[
+				"game.ts",
+				"src\\SledgeExtreme\\Game.ts"
+			],
+			[
+				"core",
+				"src\\HG\\Core\\EventDispatcher.ts"
+			],
+			[
+				"pak",
+				"bin\\package.json"
+			],
+			[
+				"gaem.ts",
+				"src\\SledgeExtreme\\Game.ts"
+			],
+			[
+				"gru",
+				"Gruntfile.js"
+			],
+			[
+				"gaemts",
+				"src\\SledgeExtreme\\Game.ts"
 			],
 			[
 				"grunt",
 				"Gruntfile.js"
+			],
+			[
+				"packa",
+				"package.json"
 			],
 			[
 				"read",
@@ -1261,10 +1364,6 @@
 			[
 				"basegasm",
 				"src\\HG\\Core\\BaseGame.ts"
-			],
-			[
-				"game.ts",
-				"src\\SledgeExtreme\\Game.ts"
 			],
 			[
 				"tets",
@@ -1567,10 +1666,6 @@
 				"tests\\ModuleLoadTest.js"
 			],
 			[
-				"gaemts",
-				"src\\SledgeExtreme\\Game.ts"
-			],
-			[
 				"locade",
 				"src\\HG\\Locale\\LocaleDefinition.ts"
 			],
@@ -1727,10 +1822,6 @@
 				"launch_linux.sh"
 			],
 			[
-				"gaem.ts",
-				"src\\SledgeExtreme\\Game.ts"
-			],
-			[
 				"chasing",
 				"src\\HG\\Entities\\ChasingCameraEntity.ts"
 			],
@@ -1741,22 +1832,6 @@
 			[
 				"movi",
 				"src\\HG\\Abilities\\MovingAbility.ts"
-			],
-			[
-				"index",
-				"src\\jade\\index.jade"
-			],
-			[
-				"b",
-				"src\\HG\\Core\\BaseGame.ts"
-			],
-			[
-				"mes",
-				"src\\HG\\Entities\\MeshEntity.ts"
-			],
-			[
-				"gameloca",
-				"src\\SledgeExtreme\\GameLocale.ts"
 			]
 		],
 		"width": 0.0

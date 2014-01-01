@@ -1,4 +1,4 @@
-var HG;
+﻿var HG;
 (function (HG) {
     (function (Core) {
         var EventDispatcher = (function () {

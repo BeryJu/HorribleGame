@@ -1,4 +1,4 @@
-var MainScene;
+﻿var MainScene;
 (function (MainScene) {
     MainScene.WORLD_SIZE = 5000;
 

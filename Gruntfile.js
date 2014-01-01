@@ -48,8 +48,8 @@ var paths = {
 	},
 	test: {
 		source: [
-			"tests/*.js",
-			"tests/**/*.js"
+			"src/tests/*.js",
+			"src/tests/**/*.js"
 		]
 	}
 };

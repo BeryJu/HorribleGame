@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 19:57:17
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 20:44:36
+* @Last Modified time: 2014-01-01 03:30:25
 */
 exports.eventDispatcherTest = function (test) {
 	test.expect(3);

@@ -3,8 +3,9 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-31 17:36:12
+* @Last Modified time: 2014-01-01 03:30:54
 */
+
 /// <reference path="GameLocale.ts" />
 /// <reference path="scenes/Main.ts" />
 HG.horrible();

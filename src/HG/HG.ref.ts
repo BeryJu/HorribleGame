@@ -37,6 +37,7 @@
 /// <reference path="../defs/gamepad.d.ts" />
 /// <reference path="../defs/lib.d.ts" />
 /// <reference path="../defs/node.d.ts" />
+/// <reference path="../defs/nodeunit.d.ts" />
 /// <reference path="../defs/physijs.d.ts" />
 /// <reference path="../defs/three.d.ts" />
 /// <reference path="../defs/waa.d.ts" />

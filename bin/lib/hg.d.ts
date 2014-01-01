@@ -3,6 +3,7 @@
 /// <reference path="../../src/defs/gamepad.d.ts" />
 /// <reference path="../../src/defs/lib.d.ts" />
 /// <reference path="../../src/defs/node.d.ts" />
+/// <reference path="../../src/defs/nodeunit.d.ts" />
 /// <reference path="../../src/defs/physijs.d.ts" />
 /// <reference path="../../src/defs/three.d.ts" />
 /// <reference path="../../src/defs/waa.d.ts" />
