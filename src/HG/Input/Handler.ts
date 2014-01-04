@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-31 13:08:55
+* @Last Modified time: 2014-01-04 02:31:07
 */
 
 module HG.Input {
@@ -33,20 +33,21 @@ module HG.Input {
 		constructor() {
 			this.mouse = new HG.Input.MouseDevice();
 			this.keyboard = new HG.Input.KeyboardDevice();
-			for (var id = 0; id < 4; id ++) {
-				this.gamepad.push(new HG.Input.GamepadDevice(id));
-			}
+			// this.gamepad = [];
+			// for (var id = 0; id < 4; id ++) {
+			// 	this.gamepad.push(new HG.Input.GamepadDevice(id));
+			// }
 		}
 
 		frame(delta: number): void {
 			this.keyboard.frame(delta);
 			this.mouse.frame(delta);
-			this.gamepad = [];
-			var gamepads = navigator.webkitGetGamepads();
-			for (var pad = 0; pad < gamepads.length; pad++) {
-				this.gamepad[pad].raw =  gamepads[pad];
-				this.gamepad[pad].frame(delta);
-			}
+			// this.gamepad = [];
+			// var gamepads = navigator.webkitGetGamepads();
+			// this.gamepad.forEach((pad, index) => {
+			// 	pad.raw = gamepads[index];
+			// 	pad.frame(delta);
+			// });
 		}
 
 		onMouseMove(e: MouseEvent): void {

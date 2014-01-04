@@ -131,8 +131,10 @@ var HG;
         var Queue = (function (_super) {
             __extends(Queue, _super);
             function Queue() {
-                _super.call(this, ["done"]);
-                this.index = 0;
+                _super.call(this, ["done", "progress"]);
+                this.progress = 1;
+                this.total = 0;
+                this.percentage = 0;
                 this.entries = new HG.Core.Hash();
                 this.result = new HG.Core.Hash();
             }
@@ -146,9 +148,13 @@ var HG;
             Queue.prototype.next = function () {
                 var _this = this;
                 var entry = this.entries.shift();
+
                 if (entry.value !== null && entry.value !== undefined) {
                     entry.value(function (data) {
                         _this.result.push(entry.key, data);
+                        _this.progress++;
+                        _this.percentage = Math.round((100 / _this.total) * _this.progress);
+                        _this.dispatch("progress", _this);
                         _this.next();
                     });
                 } else {
@@ -157,6 +163,8 @@ var HG;
             };
 
             Queue.prototype.start = function () {
+                this.total = this.entries.length + 1;
+                this.dispatch("progress", this);
                 this.next();
                 return this;
             };
@@ -1111,7 +1119,6 @@ var HG;
                 _super.apply(this, arguments);
             }
             Ability.prototype.setHost = function (entity) {
-                console.log(entity["constructor"]["name"] + " got " + this["constructor"]["name"]);
                 this.host = entity;
             };
 
@@ -1222,6 +1229,7 @@ var HG;
 (function (HG) {
     HG._start = 0;
     HG._gl = false;
+    HG._logStyle = "font-size: 1,3em;";
     HG._options = {
         silent: false
     };
@@ -1232,10 +1240,10 @@ var HG;
             data[_i] = arguments[_i + 0];
         }
         var time = new Date().getTime() - HG._start;
-        var timeString = (time + "");
+        var timeString = new String(time).lengthen(9);
         var output = "[" + timeString + "] " + data.join("");
         if (HG._options.silent === false) {
-            console.warn(output);
+            console.warn("%c" + output, HG._logStyle);
         }
         return data.join("");
     }
@@ -1247,9 +1255,9 @@ var HG;
             data[_i] = arguments[_i + 0];
         }
         var time = new Date().getTime() - HG._start;
-        var timeString = (time + "");
+        var timeString = new String(time).lengthen(9);
         var output = "[" + timeString + "] " + data.join("");
-        console.log(output);
+        console.log("%c" + output, HG._logStyle);
         return data.join("");
     }
     HG.forceLog = forceLog;
@@ -1260,10 +1268,10 @@ var HG;
             data[_i] = arguments[_i + 0];
         }
         var time = new Date().getTime() - HG._start;
-        var timeString = (time + "");
+        var timeString = new String(time).lengthen(9);
         var output = "[" + timeString + "] " + data.join("");
         if (HG._options.silent === false) {
-            console.log(output);
+            console.log("%c" + output, HG._logStyle);
         }
         return data.join("");
     }
@@ -1276,7 +1284,9 @@ var HG;
         try  {
             HG.Modules.ui = require("nw.gui");
         } catch (e) {
-            HG.log("UI not available, assuming Headless");
+            if (HG._options.silent === false) {
+                console.log("UI not available, assuming Headless");
+            }
         }
 
         var registerFunction = function (key, type, fn) {
@@ -2150,19 +2160,10 @@ var HG;
             function Handler() {
                 this.mouse = new HG.Input.MouseDevice();
                 this.keyboard = new HG.Input.KeyboardDevice();
-                for (var id = 0; id < 4; id++) {
-                    this.gamepad.push(new HG.Input.GamepadDevice(id));
-                }
             }
             Handler.prototype.frame = function (delta) {
                 this.keyboard.frame(delta);
                 this.mouse.frame(delta);
-                this.gamepad = [];
-                var gamepads = navigator.webkitGetGamepads();
-                for (var pad = 0; pad < gamepads.length; pad++) {
-                    this.gamepad[pad].raw = gamepads[pad];
-                    this.gamepad[pad].frame(delta);
-                }
             };
 
             Handler.prototype.onMouseMove = function (e) {
@@ -2369,14 +2370,8 @@ var HG;
                         context = context.replaceAll("${" + (index + 1) + "}", arg);
                     });
                 } else {
-                    if (arg1 instanceof HG.Core.Hash) {
-                        arg1.forEach(function (k, v) {
-                            context = context.replaceAll("${" + k + "}", v);
-                        });
-                    } else {
-                        for (var k in arg1) {
-                            context = context.replaceAll("${" + k + "}", arg1[k]);
-                        }
+                    for (var k in arg1) {
+                        context = context.replaceAll("${" + k + "}", arg1[k]);
                     }
                 }
                 return context;
@@ -2398,14 +2393,8 @@ var HG;
                 return (context.indexOf(contains) === -1) ? false : true;
             };
 
-            StringProvider.prototype.lengthen = function (context, length, filler) {
-                filler = filler || " ";
-                var diff = length - context.length;
-                HG.log(diff);
-                for (var i = 0; i < diff; i++) {
-                    context += filler;
-                }
-                return context;
+            StringProvider.prototype.lengthen = function (context, length, character) {
+                return context + new Array(length - context.length + 1).join(character || " ");
             };
 
             StringProvider.prototype.replaceAll = function (context, find, replace) {
@@ -2676,6 +2665,61 @@ var HG;
             Model.STL = STL;
         })(Resource.Model || (Resource.Model = {}));
         var Model = Resource.Model;
+    })(HG.Resource || (HG.Resource = {}));
+    var Resource = HG.Resource;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Resource) {
+        var SceneLoader = (function (_super) {
+            __extends(SceneLoader, _super);
+            function SceneLoader() {
+                var _this = this;
+                _super.call(this, ["done", "progress"]);
+                this.scene = new HG.Core.Scene();
+                this.queue = new HG.Core.Queue();
+                this.queue.on("progress", function (queue) {
+                    _this.dispatch("progress", queue);
+                });
+                this.queue.on("done", function (result) {
+                    result.forEach(function (v) {
+                        _this.scene.push(v);
+                    });
+                    var now = new Date().getTime();
+                    var diff = new Date(now - _this.startTime);
+                    _this.dispatch("done", _this.scene, diff);
+                });
+                this.callIndex = 0;
+            }
+            Object.defineProperty(SceneLoader.prototype, "color", {
+                set: function (color) {
+                    this.scene.color = color;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Object.defineProperty(SceneLoader.prototype, "colorAlpha", {
+                set: function (alpha) {
+                    this.scene.colorAlpha = alpha;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            SceneLoader.prototype.step = function (fn) {
+                this.queue.call(this.callIndex, fn);
+                this.callIndex++;
+                return this;
+            };
+
+            SceneLoader.prototype.start = function () {
+                this.startTime = new Date().getTime();
+                this.queue.start();
+            };
+            return SceneLoader;
+        })(HG.Core.EventDispatcher);
+        Resource.SceneLoader = SceneLoader;
     })(HG.Resource || (HG.Resource = {}));
     var Resource = HG.Resource;
 })(HG || (HG = {}));

@@ -20,7 +20,7 @@
 			"info",
 			"trace"
 		],
-		"no-construct": true,
+		"no-construct": false,
 		"no-debugger": false,
 		"no-duplicate-key": true,
 		"no-empty": true,

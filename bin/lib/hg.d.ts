@@ -27,9 +27,11 @@ declare module HG.Core {
 }
 declare module HG.Core {
     class Queue<K, T> extends Core.EventDispatcher {
-        public index: number;
         public entries: Core.Hash<K, Function>;
         public result: Core.Hash<K, T>;
+        public progress: number;
+        public total: number;
+        public percentage: number;
         constructor();
         public call(name: K, fn: Function): Queue<K, T>;
         private next();
@@ -303,6 +305,7 @@ declare module HG.Utils {
 declare module HG {
     var _start: number;
     var _gl: boolean;
+    var _logStyle: string;
     var _options: Utils.IOptions;
     function warn(...data: any[]): string;
     function forceLog(...data: any[]): string;
@@ -606,7 +609,7 @@ declare module HG.LINQ {
         public warn(context: string): void;
         public error(context: string): void;
         public contains(context: string, contains: string): boolean;
-        public lengthen(context: string, length: number, filler?: string): string;
+        public lengthen(context: string, length: number, character?: string): string;
         public replaceAll(context: string, find: RegExp, replace: string): string;
         public replaceAll(context: string, find: string, replace: string): string;
     }
@@ -1204,6 +1207,19 @@ declare module HG.Resource.Model {
     class STL extends HG.Core.EventDispatcher implements Resource.IFiletype {
         public events: string[];
         public load(path: string, material?: THREE.MeshFaceMaterial): void;
+    }
+}
+declare module HG.Resource {
+    class SceneLoader extends HG.Core.EventDispatcher {
+        public scene: HG.Core.Scene;
+        public queue: HG.Core.Queue<number, HG.Entities.Entity>;
+        public callIndex: number;
+        public startTime: number;
+        public color : THREE.Color;
+        public colorAlpha : number;
+        constructor();
+        public step(fn: (done: (data: HG.Entities.Entity) => any) => any): SceneLoader;
+        public start(): void;
     }
 }
 declare module HG.Resource.Sound {

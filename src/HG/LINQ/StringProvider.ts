@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 20:23:22
+* @Last Modified time: 2014-01-04 17:23:16
 */
 
 module HG.LINQ {
@@ -19,14 +19,8 @@ module HG.LINQ {
 					context = context.replaceAll("${" + (index + 1) + "}", arg);
 				});
 			} else {
-				if (arg1 instanceof HG.Core.Hash) {
-					arg1.forEach((k: any, v: any) => {
-						context = context.replaceAll("${" + k + "}", v);
-					});
-				} else {
-					for (var k in arg1) {
-						context = context.replaceAll("${" + k + "}", arg1[k]);
-					}
+				for (var k in arg1) {
+					context = context.replaceAll("${" + k + "}", arg1[k]);
 				}
 			}
 			return context;
@@ -50,14 +44,8 @@ module HG.LINQ {
 			return (context.indexOf(contains) === -1) ? false : true;
 		}
 
-		lengthen(context: string, length: number, filler?: string): string {
-			filler = filler || " ";
-			var diff = length - context.length;
-			HG.log(diff);
-			for (var i = 0; i < diff; i++) {
-				context += filler;
-			}
-			return context;
+		lengthen(context: string, length: number, character?: string): string {
+			return context + new Array(length - context.length + 1).join(character || " ");
 		}
 
 		replaceAll(context: string, find: RegExp, replace: string): string;

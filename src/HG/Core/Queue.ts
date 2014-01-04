@@ -3,41 +3,24 @@
 * @Date:   2013-12-20 12:33:15
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-04 02:08:44
+* @Last Modified time: 2014-01-04 17:33:00
 */
 
 module HG.Core {
 
-	// export function queue<K, T>(functions: HG.Core.Hash<K, Function>,
-	// 			done: (data: HG.Core.Hash<K, T>) => void) {
-	// 	var allData = new HG.Core.Hash<K, T>();
-	// 	var next = (index: number, data?: T, key?: K) => {
-	// 		if (index !== 0) {
-	// 			allData.push(key, data);
-	// 		}
-	// 		var args = functions.index(index);
-	// 		if (index < functions.length) {
-	// 			index++;
-	// 			args.value((data: T) => {
-	// 				next(index, data, args.key);
-	// 			});
-	// 		} else {
-	// 			done(allData);
-	// 		}
-	// 		return index;
-	// 	};
-	// 	next(0);
-	// }
-
 	export class Queue<K, T> extends HG.Core.EventDispatcher {
 
-		index: number;
 		entries: HG.Core.Hash<K, Function>;
 		result: HG.Core.Hash<K, T>;
+		progress: number;
+		total: number;
+		percentage: number;
 
 		constructor() {
-			super(["done"]);
-			this.index = 0;
+			super(["done", "progress"]);
+			this.progress = 1;
+			this.total = 0;
+			this.percentage = 0;
 			this.entries = new HG.Core.Hash<K, Function>();
 			this.result = new HG.Core.Hash<K, T>();
 		}
@@ -51,9 +34,16 @@ module HG.Core {
 
 		private next(): void {
 			var entry = this.entries.shift();
+			// entry: {
+			//		key: K,
+			//		value: Function
+			// }
 			if (entry.value !== null && entry.value !== undefined) {
 				entry.value((data: T) => {
 					this.result.push(entry.key, data);
+					this.progress++;
+					this.percentage = Math.round((100 / this.total) * this.progress);
+					this.dispatch("progress", this);
 					this.next();
 				});
 			} else {
@@ -62,6 +52,8 @@ module HG.Core {
 		}
 
 		start(): HG.Core.Queue<K, T> {
+			this.total = this.entries.length + 1;
+			this.dispatch("progress", this);
 			this.next();
 			return this;
 		}

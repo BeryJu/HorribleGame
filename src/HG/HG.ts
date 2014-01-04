@@ -3,7 +3,7 @@
 * @Date:   2013-11-18 21:20:56
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-20 11:46:40
+* @Last Modified time: 2014-01-04 14:19:19
 */
 
 module HG.Utils {
@@ -18,34 +18,35 @@ module HG {
 
 	export var _start: number = 0;
 	export var _gl: boolean = false;
+	export var _logStyle: string = "font-size: 1,3em;";
 	export var _options: HG.Utils.IOptions = {
 		silent: false
 	};
 
 	export function warn(...data: any[]): string {
 		var time = new Date().getTime() - HG._start;
-		var timeString = (time + "");
+		var timeString = new String(time).lengthen(9);
 		var output = "[" + timeString + "] " + data.join("");
 		if (HG._options.silent === false) {
-			console.warn(output);
+			console.warn("%c" + output, HG._logStyle);
 		}
 		return data.join("");
 	}
 
 	export function forceLog(...data: any[]): string {
 		var time = new Date().getTime() - HG._start;
-		var timeString = (time + "");
+		var timeString = new String(time).lengthen(9);
 		var output = "[" + timeString + "] " + data.join("");
-		console.log(output);
+		console.log("%c" + output, HG._logStyle);
 		return data.join("");
 	}
 
 	export function log(...data: any[]): string {
 		var time = new Date().getTime() - HG._start;
-		var timeString = (time + "");
+		var timeString = new String(time).lengthen(9);
 		var output = "[" + timeString + "] " + data.join("");
 		if (HG._options.silent === false) {
-			console.log(output);
+			console.log("%c" + output, HG._logStyle);
 		}
 		return data.join("");
 	}
@@ -56,7 +57,9 @@ module HG {
 		try {
 			HG.Modules.ui = require("nw.gui");
 		} catch (e) {
-			HG.log("UI not available, assuming Headless");
+			if (HG._options.silent === false) {
+				console.log("UI not available, assuming Headless");
+			}
 		}
 		// Linq
 		var registerFunction = function (key: string, type: any, fn: (...args: any[]) => any) {

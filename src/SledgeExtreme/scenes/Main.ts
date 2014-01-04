@@ -3,7 +3,7 @@
 * @Date:   2013-12-17 10:40:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 20:34:50
+* @Last Modified time: 2014-01-04 17:40:08
 */
 
 module MainScene {
@@ -13,26 +13,74 @@ module MainScene {
 	export function create(game: HG.Core.BaseGame,
 						loader: HG.Resource.Loader,
 						done: (scene: HG.Core.Scene) => any): void {
-		var scene = new HG.Core.Scene();
+		var sceneLoader = new HG.Resource.SceneLoader();
+		sceneLoader.color = new THREE.Color(12307677);
+		sceneLoader.colorAlpha = .5;
 
-		scene.color = new THREE.Color(12307677);
-		scene.colorAlpha = .5;
-
-		// var fog = new THREE.Fog(0xffffff, 10, 60);
-		// fog.color.setHSL( 0.51, 0.6, 0.6 );
-		// scene.fog = fog;
-
-		// MainScene.createSkyBox(loader, (skybox: HG.Entities.MeshEntity) => {
-		// 	scene.push(skybox);
+		// sceneLoader.step((done: Function) => {
+		// 	MainScene.createSkyBox(loader, (skybox: HG.Entities.MeshEntity) => {
+		// 		done(skybox);
+		// 	});
 		// });
 
-		var te = new HG.Entities.TextEntity("derp");
-		te.position(10);
-		scene.push(te);
-
-		MainScene.createHeightMap(loader, (e: HG.Entities.MeshEntity) => {
-			scene.push(e);
+		sceneLoader.step((done: Function) => {
+			MainScene.createHeightMap(loader, (e: HG.Entities.MeshEntity) => {
+				done(e);
+			});
 		});
+
+		var player: HG.Entities.MeshEntity;
+
+		sceneLoader.step((done: Function) => {
+			MainScene.createPlayer(loader, (e: HG.Entities.MeshEntity) => {
+				player = e;
+				var moving = new HG.Abilities.MovingAbility(3.125);
+				e.ability(moving);
+
+				sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.jump, (delta: number) => {
+					moving.jump(delta);
+				});
+
+				sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.forward, (delta: number) => {
+					moving.moveForward(delta);
+					// playerSound.play();
+				});
+
+				sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.backward, (delta: number) => {
+					moving.moveBackward(delta);
+				});
+
+				sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.left, (delta: number) => {
+					moving.turnLeft(delta);
+				});
+
+				sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.right, (delta: number) => {
+					moving.turnRight(delta);
+				});
+
+
+				var cam = new HG.Entities.ChasingCameraEntity(
+					player, HG.settings.graphics.fov, window.innerWidth / window.innerHeight,
+					0.1, HG.settings.graphics.viewDistance);
+				cam.name = "mainCamera";
+				cam.offset(0, 25, -25);
+
+				sceneLoader.scene.push(cam);
+
+				done(player);
+			});
+		});
+
+		sceneLoader.on("progress", (queue: HG.Core.Queue<number, HG.Entities.Entity>) => {
+			"${0}% loaded".f(queue.percentage).log();
+		});
+
+		sceneLoader.on("done", (scene: HG.Core.Scene, duration: Date) => {
+			"Loading duration: ${0}:${1} mins".
+				f(duration.getMinutes(), duration.getSeconds()).log();
+			done(scene);
+		});
+		sceneLoader.start();
 
 		// loader.video("videos/sintel.ogv").on("loaded", (domElement: HTMLVideoElement) => {
 		// 	var entity = new HG.Entities.VideoEntity(domElement);
@@ -46,46 +94,6 @@ module MainScene {
 		// });
 
 		// var fxChannel = game.soundMixer.channel("effectsEnv");
-
-		MainScene.createPlayer(loader, (e: HG.Entities.MeshEntity) => {
-			scene.push(e);
-			// var playerSound = new HG.Sound.Effect(fxChannel);
-			// loader.sound("sounds/001.wav").on("loaded", (buffer) => {
-			// 	playerSound.create(buffer);
-			// });
-
-			var moving = new HG.Abilities.MovingAbility(3.125);
-			e.ability(moving);
-
-			scene.controls.keyboard.bind(HG.settings.keys.jump, (delta: number) => {
-				moving.jump(delta);
-			});
-
-			scene.controls.keyboard.bind(HG.settings.keys.forward, (delta: number) => {
-				moving.moveForward(delta);
-				// playerSound.play();
-			});
-
-			scene.controls.keyboard.bind(HG.settings.keys.backward, (delta: number) => {
-				moving.moveBackward(delta);
-			});
-
-			scene.controls.keyboard.bind(HG.settings.keys.left, (delta: number) => {
-				moving.turnLeft(delta);
-			});
-
-			scene.controls.keyboard.bind(HG.settings.keys.right, (delta: number) => {
-				moving.turnRight(delta);
-			});
-
-			var cam = new HG.Entities.ChasingCameraEntity(
-				e, HG.settings.graphics.fov, window.innerWidth / window.innerHeight,
-				0.1, HG.settings.graphics.viewDistance);
-			cam.name = "mainCamera";
-			cam.offset(0, 25, -25);
-			scene.push(cam);
-			done(scene);
-		});
 	}
 
 	export function createSkyBox(loader: HG.Resource.Loader,

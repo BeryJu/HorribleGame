@@ -3,51 +3,63 @@
     MainScene.WORLD_SIZE = 5000;
 
     function create(game, loader, done) {
-        var scene = new HG.Core.Scene();
+        var sceneLoader = new HG.Resource.SceneLoader();
+        sceneLoader.color = new THREE.Color(12307677);
+        sceneLoader.colorAlpha = .5;
 
-        scene.color = new THREE.Color(12307677);
-        scene.colorAlpha = .5;
-
-        var te = new HG.Entities.TextEntity("derp");
-        te.position(10);
-        scene.push(te);
-
-        MainScene.createHeightMap(loader, function (e) {
-            scene.push(e);
+        sceneLoader.step(function (done) {
+            MainScene.createHeightMap(loader, function (e) {
+                done(e);
+            });
         });
 
-        MainScene.createPlayer(loader, function (e) {
-            scene.push(e);
+        var player;
 
-            var moving = new HG.Abilities.MovingAbility(3.125);
-            e.ability(moving);
+        sceneLoader.step(function (done) {
+            MainScene.createPlayer(loader, function (e) {
+                player = e;
+                var moving = new HG.Abilities.MovingAbility(3.125);
+                e.ability(moving);
 
-            scene.controls.keyboard.bind(HG.settings.keys.jump, function (delta) {
-                moving.jump(delta);
+                sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.jump, function (delta) {
+                    moving.jump(delta);
+                });
+
+                sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.forward, function (delta) {
+                    moving.moveForward(delta);
+                });
+
+                sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.backward, function (delta) {
+                    moving.moveBackward(delta);
+                });
+
+                sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.left, function (delta) {
+                    moving.turnLeft(delta);
+                });
+
+                sceneLoader.scene.controls.keyboard.bind(HG.settings.keys.right, function (delta) {
+                    moving.turnRight(delta);
+                });
+
+                var cam = new HG.Entities.ChasingCameraEntity(player, HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
+                cam.name = "mainCamera";
+                cam.offset(0, 25, -25);
+
+                sceneLoader.scene.push(cam);
+
+                done(player);
             });
+        });
 
-            scene.controls.keyboard.bind(HG.settings.keys.forward, function (delta) {
-                moving.moveForward(delta);
-            });
+        sceneLoader.on("progress", function (queue) {
+            "${0}% loaded".f(queue.percentage).log();
+        });
 
-            scene.controls.keyboard.bind(HG.settings.keys.backward, function (delta) {
-                moving.moveBackward(delta);
-            });
-
-            scene.controls.keyboard.bind(HG.settings.keys.left, function (delta) {
-                moving.turnLeft(delta);
-            });
-
-            scene.controls.keyboard.bind(HG.settings.keys.right, function (delta) {
-                moving.turnRight(delta);
-            });
-
-            var cam = new HG.Entities.ChasingCameraEntity(e, HG.settings.graphics.fov, window.innerWidth / window.innerHeight, 0.1, HG.settings.graphics.viewDistance);
-            cam.name = "mainCamera";
-            cam.offset(0, 25, -25);
-            scene.push(cam);
+        sceneLoader.on("done", function (scene, duration) {
+            "Loading duration: ${0}:${1} mins".f(duration.getMinutes(), duration.getSeconds()).log();
             done(scene);
         });
+        sceneLoader.start();
     }
     MainScene.create = create;
 

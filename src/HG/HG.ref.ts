@@ -77,6 +77,7 @@
 /// <reference path="Resource/Loader.ts" />
 /// <reference path="Resource/Model/JS.ts" />
 /// <reference path="Resource/Model/STL.ts" />
+/// <reference path="Resource/SceneLoader.ts" />
 /// <reference path="Resource/Shaders/Shader.ts" />
 /// <reference path="Resource/Sound/WAV.ts" />
 /// <reference path="Resource/Texture/JPG.ts" />
