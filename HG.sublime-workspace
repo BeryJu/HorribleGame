@@ -4,6 +4,34 @@
 		"selected_items":
 		[
 			[
+				"frame",
+				"frameTarget"
+			],
+			[
+				"fie",
+				"fields"
+			],
+			[
+				"Ani",
+				"Antiframe"
+			],
+			[
+				"fil",
+				"filedIncrements"
+			],
+			[
+				"ste",
+				"stepIndex"
+			],
+			[
+				"step",
+				"stepIndex"
+			],
+			[
+				"file",
+				"fields"
+			],
+			[
 				"lin",
 				"linux"
 			],
@@ -486,53 +514,42 @@
 			[
 				"A",
 				"AnimationAbility"
-			],
-			[
-				"Moving",
-				"MovingAbility"
-			],
-			[
-				"an",
-				"animationAbility"
-			],
-			[
-				"ep",
-				"expclasss	Export Class with Super"
-			],
-			[
-				"root",
-				"rootEntity"
-			],
-			[
-				"roo",
-				"rootEntity"
-			],
-			[
-				"log",
-				"log	Print a log Statement"
-			],
-			[
-				"event",
-				"eventsAvailable"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "src/SledgeExtreme/Game.ts",
+			"file": "/J/projects/antiframe.js/main.ts",
 			"settings":
 			{
-				"buffer_size": 1181,
+				"buffer_size": 510,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "src/SledgeExtreme/scenes/Main.ts",
+			"file": "/J/projects/antiframe.js/antiframe.ts",
 			"settings":
 			{
-				"buffer_size": 5885,
+				"buffer_size": 2017,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/J/projects/antiframe.js/main.lua",
+			"settings":
+			{
+				"buffer_size": 567,
 				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/J/projects/antiframe.js/antiframe.lua",
+			"settings":
+			{
+				"buffer_size": 6497,
+				"line_ending": "Windows",
+				"name": "--[["
 			}
 		}
 	],
@@ -542,6 +559,46 @@
 		"height": 400.0,
 		"selected_items":
 		[
+			[
+				"lua",
+				"Set Syntax: Lua"
+			],
+			[
+				"lay",
+				"Layout: Columns: 2"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"user",
+				"Preferences: Settings - User"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"uni",
+				"Line Endings: Unix"
+			],
+			[
+				"reindn",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"c#",
+				"Set Syntax: C#"
+			],
+			[
+				"rein",
+				"Indentation: Reindent Lines"
+			],
 			[
 				"indn",
 				"Indentation: Convert to Tabs"
@@ -555,19 +612,11 @@
 				"ANF: Rename File"
 			],
 			[
-				"remove",
-				"Package Control: Remove Package"
-			],
-			[
 				"instal",
 				"Package Control: Install Package"
 			],
 			[
 				"un",
-				"Line Endings: Unix"
-			],
-			[
-				"uni",
 				"Line Endings: Unix"
 			],
 			[
@@ -581,10 +630,6 @@
 			[
 				"typesc",
 				"Set Syntax: TypeScript"
-			],
-			[
-				"user",
-				"Preferences: Settings - User"
 			],
 			[
 				"packa",
@@ -643,10 +688,6 @@
 				"Grunt"
 			],
 			[
-				"install",
-				"Package Control: Install Package"
-			],
-			[
 				"re",
 				"Package Control: Remove Package"
 			],
@@ -699,10 +740,6 @@
 				"Markdown Preview: Github Flavored Markdown: Preview in Browser"
 			],
 			[
-				"insta",
-				"Package Control: Install Package"
-			],
-			[
 				"remov",
 				"Package Control: Remove Package"
 			],
@@ -743,10 +780,6 @@
 				"Trimmer: Trim trailing whitespace."
 			],
 			[
-				"c#",
-				"Set Syntax: C#"
-			],
-			[
 				"mark",
 				"Set Syntax: Markdown"
 			],
@@ -765,10 +798,6 @@
 			[
 				"ssjs",
 				"Set Syntax: JavaScript (Rails)"
-			],
-			[
-				"reindn",
-				"Indentation: Reindent Lines"
 			],
 			[
 				"inden",
@@ -877,11 +906,27 @@
 	},
 	"file_history":
 	[
-		"/J/projects/HorribleGame/src/SledgeExtreme/scenes/Main.js",
+		"/J/projects/antiframe.js/antiframe.ts",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/TypeScript/TypeScript.tmLanguage",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
+		"/J/projects/antiframe.js/antiframe.js",
+		"/J/projects/HorribleGame/src/HG/Core/BaseGame.ts",
 		"/J/projects/HorribleGame/src/SledgeExtreme/scenes/Main.ts",
-		"/J/projects/HorribleGame/src/HG/Input/GamepadDevice.ts",
 		"/J/projects/HorribleGame/src/SledgeExtreme/Game.ts",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Package Control/Package Control.sublime-settings",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Package Control.sublime-settings",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/J/projects/HorribleGame/bin/assets/plugins/test.derp",
+		"/J/projects/HorribleGame/src/HG/Input/GamepadDevice.ts",
 		"/J/projects/HorribleGame/Gruntfile.js",
+		"/J/projects/HorribleGame/src/HG/Input/MouseDeivce.ts",
+		"/J/projects/HorribleGame/bin/assets/fonts/droidSans.typeface.js",
+		"/J/projects/HorribleGame/src/HG/Utils/Settings.ts",
+		"/J/projects/HorribleGame/src/HG/Utils/UpdateChecker.ts",
+		"/J/projects/HorribleGame/src/tslint.json",
+		"/J/projects/lastb/lastb.js",
+		"/J/projects/fritz-box-reconnecter/example.cs",
+		"/J/projects/HorribleGame/src/SledgeExtreme/scenes/Main.js",
 		"/J/projects/HorribleGame/src/HG/Core/EventDispatcher.ts",
 		"/J/projects/HorribleGame/src/grunt/convertModel.js",
 		"/J/projects/HorribleGame/src/HG/Core/Collection.ts",
@@ -900,7 +945,6 @@
 		"/J/projects/HorribleGame/src/HG/HG.ts",
 		"/J/projects/HorribleGame/HG.todo",
 		"/J/projects/HorribleGame/src/HG/Input/KeyboardDevice.ts",
-		"/J/projects/HorribleGame/src/HG/Core/BaseGame.ts",
 		"/J/projects/HorribleGame/README.md",
 		"/C/Program Files (x86)/Steam/SteamApps/common/dota 2 beta/dota/cfg/autoexec.cfg",
 		"/J/projects/HorribleGame/src/HG/Entities/FirstPersonCameraEntity.ts",
@@ -908,7 +952,6 @@
 		"/J/projects/HorribleGame/src/HG/LINQ/FunctionProvider.ts",
 		"/J/projects/HorribleGame/src/HG/Utils/FPSCounter.ts",
 		"/J/projects/HorribleGame/src/SledgeExtreme/shaders/fireball/fireball.frag",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Users/BeryJu/AppData/Local/Temp/Rar$DRa0.504/Glacier.sublime-theme",
 		"/J/projects/HorribleGame/launch_linux.sh",
 		"/J/projects/HorribleGame/launch.js",
@@ -922,10 +965,8 @@
 		"/J/projects/exception-system/Server/CommonReferences/node.d.ts",
 		"/J/projects/HorribleGame/nw/linux-64/nw.pak",
 		"/J/projects/HorribleGame/src/HG/Entities/ParticleEntity.ts",
-		"/J/projects/HorribleGame/src/HG/Utils/UpdateChecker.ts",
 		"/J/projects/HorribleGame/src/HG/Utils/Utils.ts",
 		"/J/projects/HorribleGame/bin/lib/hg.d.ts",
-		"/J/projects/HorribleGame/bin/assets/plugins/test.derp",
 		"/J/projects/HorribleGame/launch_windows.bat",
 		"/J/projects/HorribleGame/src/HG/Utils/CanvasUtils.ts",
 		"/J/projects/HorribleGame/src/HG/Abilities/MovingAbility.ts",
@@ -939,7 +980,6 @@
 		"/J/projects/HorribleGame/to port/PointerLockControls.js",
 		"/J/projects/HorribleGame/src/HG/Core/Hash.ts",
 		"/J/projects/HorribleGame/src/HG/Input/Handler.ts",
-		"/J/projects/HorribleGame/src/HG/Input/MouseDeivce.ts",
 		"/J/projects/HorribleGame/src/defs/gamepad.d.ts",
 		"/J/projects/HorribleGame/src/HG/Utils/GameStartParameters.ts",
 		"/J/projects/HorribleGame/src/HG/Input/IDevice.ts",
@@ -977,12 +1017,10 @@
 		"/J/projects/HorribleGame/tests/LINQArrayTest.js",
 		"/J/projects/HorribleGame/src/HG/LINQ/StringProvider.ts",
 		"/J/projects/HorribleGame/src/HG/Resource/Model/STL.ts",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/TypeScript/TypeScript.tmLanguage",
 		"/J/projects/HorribleGame/src/HG/Entities/CameraEntity.ts",
 		"/J/projects/HorribleGame/bin/game/game.js.map",
 		"/J/projects/HorribleGame/bin/game/game.js",
 		"/J/projects/HorribleGame/bin/assets/settings.json",
-		"/J/projects/HorribleGame/src/HG/Utils/Settings.ts",
 		"/J/projects/HorribleGame/src/HG/Sound/Mixer.ts",
 		"/J/projects/HorribleGame/src/HG/Resource/ILoadable.ts",
 		"/J/projects/HorribleGame/src/HG/Abilities/AudioAbility.ts",
@@ -995,16 +1033,7 @@
 		"/J/projects/HorribleGame/src/HG/Scenes/Serializer/RawShaderDefinition.ts",
 		"/J/projects/JavaScript.tmLanguage",
 		"/J/projects/HorribleGame/src/HG/Locale/LocaleDefinition.ts",
-		"/J/projects/HorribleGame/bin/assets/fonts/droidSans.typeface.js",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/PlainTasks/Default (Windows).sublime-keymap",
-		"/J/dooger/buid_test.sh",
-		"/J/dooger/build_all.js",
-		"/J/dooger/buid_test",
-		"/D/Documents/Stundenplan.xls",
-		"/D/Documents/k.txt",
-		"/D/Documents/LOLZ mit Fabi.txt",
-		"/D/dev/NodeJS/Geme/geme.html"
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/PlainTasks/Default (Windows).sublime-keymap"
 	],
 	"find":
 	{
@@ -1039,6 +1068,18 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"done",
+			"loop",
+			"modgen",
+			"fsum",
+			";\n",
+			"paued",
+			"1.0",
+			"alt",
+			"setmetatable",
+			"operator",
+			"Class",
+			"[",
 			"function",
 			"		    ",
 			"load",
@@ -1154,19 +1195,7 @@
 			"IPlatformGLObject",
 			"WebGL",
 			"interface",
-			"{",
-			"WebGLObject",
-			"collapse_pwd",
-			"'",
-			"Default",
-			"Mouse4",
-			"stirng",
-			"children",
-			"'",
-			"PS1",
-			"/home/krg85/stackoverflow/",
-			"Play",
-			"play"
+			"{"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1208,25 +1237,24 @@
 			[
 				{
 					"buffer": 0,
-					"file": "src/SledgeExtreme/Game.ts",
+					"file": "/J/projects/antiframe.js/main.ts",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1181,
+						"buffer_size": 510,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								510,
+								510
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -1237,19 +1265,19 @@
 				},
 				{
 					"buffer": 1,
-					"file": "src/SledgeExtreme/scenes/Main.ts",
+					"file": "/J/projects/antiframe.js/antiframe.ts",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5885,
+						"buffer_size": 2017,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1222,
+								1222
 							]
 						],
 						"settings":
@@ -1258,10 +1286,74 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 540.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 2,
+					"file": "/J/projects/antiframe.js/main.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 567,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								567,
+								567
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/J/projects/antiframe.js/antiframe.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6497,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4553,
+								4553
+							]
+						],
+						"settings":
+						{
+							"auto_name": "--[[",
+							"syntax": "Packages/Lua/Lua.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 2167.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -1284,11 +1376,18 @@
 				0,
 				1,
 				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
+			0.519270833333,
 			1.0
 		],
 		"rows":
@@ -1322,12 +1421,20 @@
 		"selected_items":
 		[
 			[
+				"basega",
+				"src\\HG\\Core\\BaseGame.ts"
+			],
+			[
 				"main.ts",
 				"src\\SledgeExtreme\\scenes\\Main.ts"
 			],
 			[
 				"game.ts",
 				"src\\SledgeExtreme\\Game.ts"
+			],
+			[
+				"derp",
+				"bin\\assets\\plugins\\test.derp"
 			],
 			[
 				"core",
@@ -1540,10 +1647,6 @@
 			[
 				"mixer",
 				"src\\HG\\Sound\\Mixer.ts"
-			],
-			[
-				"basega",
-				"src\\HG\\Core\\BaseGame.ts"
 			],
 			[
 				"iload",
@@ -1828,10 +1931,6 @@
 			[
 				"tr",
 				"bin\\lib\\dependencies\\three.js"
-			],
-			[
-				"movi",
-				"src\\HG\\Abilities\\MovingAbility.ts"
 			]
 		],
 		"width": 0.0
@@ -1862,7 +1961,7 @@
 	"show_minimap": true,
 	"show_open_files": false,
 	"show_tabs": true,
-	"side_bar_visible": true,
+	"side_bar_visible": false,
 	"side_bar_width": 294.0,
 	"status_bar_visible": true,
 	"template_settings":

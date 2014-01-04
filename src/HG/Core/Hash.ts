@@ -3,7 +3,7 @@
 * @Date:   2013-12-26 13:18:30
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 22:35:05
+* @Last Modified time: 2014-01-03 21:36:58
 */
 
 module HG.Core {
@@ -53,6 +53,18 @@ module HG.Core {
 				hash.push(<NK> prop, <NT> native[prop]);
 			}
 			return hash;
+		}
+
+		shift(): {
+			key: K;
+			value: T;
+		} {
+			var k = this.keys.shift();
+			var v = this.values.shift();
+			return {
+				key: k,
+				value: v
+			};
 		}
 
 		toNativeHash(): {} {

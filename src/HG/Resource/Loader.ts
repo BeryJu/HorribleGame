@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 20:34:51
+* @Last Modified time: 2014-01-04 02:05:43
 */
 
 module HG.Resource {
@@ -78,27 +78,47 @@ module HG.Resource {
 			return this.load(path, HG.Resource.Texture, silent, args);
 		}
 
-		queueTexture(paths: string[], done: (textures: HG.Core.Hash<string, THREE.Texture>) => void):
-			void {
-			var queue = new HG.Core.Hash<string, Function>();
+		queueTexture(paths: string[],
+			done: (textures: HG.Core.Hash<string, THREE.Texture>) => void): void {
+			// var queue = new HG.Core.Hash<string, Function>();
+			// paths.forEach((path) => {
+			// 	queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)),
+			//		(next: Function) => {
+			// 		this.texture(path, true).on("loaded", (texture: THREE.Texture) => {
+			// 			next(texture);
+			// 		});
+			// 	});
+			// });
+			// HG.Core.Queue<string, THREE.Texture>(queue, done);
+			var queue = new HG.Core.Queue<string, THREE.Texture>();
 			paths.forEach((path) => {
-				queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), (next: Function) => {
-					this.texture(path, true).on("loaded", (texture: THREE.Texture) => {
-						next(texture);
+				queue.call(HG.Modules.path.basename(path, HG.Modules.path.extname(path)),
+					(next: Function) => {
+						this.texture(path, true).on("loaded", (texture: THREE.Texture) => {
+							next(texture);
+						});
 					});
-				});
 			});
-			HG.Utils.queue<string, THREE.Texture>(queue, done);
+			queue.on("done", done);
+			queue.start();
 		}
 
 		queueJSON<T>(paths: string[], done: (jsons: HG.Core.Hash<string, T>) => void): void {
-			var queue = new HG.Core.Hash<string, Function>();
+			// var queue = new HG.Core.Hash<string, Function>();
+			// paths.forEach((path) => {
+			// 	queue.push(path, (next: Function) => {
+			// 		next(this.json<T>(path));
+			// 	});
+			// });
+			// HG.Core.Queue<string, T>(queue, done);
+			var queue = new HG.Core.Queue<string, T>();
 			paths.forEach((path) => {
-				queue.push(path, (next: Function) => {
+				queue.call(path, (next: Function) => {
 					next(this.json<T>(path));
 				});
 			});
-			HG.Utils.queue<string, T>(queue, done);
+			queue.on("done", done);
+			queue.start();
 		}
 
 		shader(path: string): HG.Core.Shader {

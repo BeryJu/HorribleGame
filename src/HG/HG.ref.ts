@@ -1,6 +1,9 @@
 
 /// EventDispatcher, main class of a lot
 /// <reference path="Core/EventDispatcher.ts" />
+/// <reference path="Core/Queue.ts" />
+/// <reference path="Core/Collection.ts" />
+/// <reference path="Core/Hash.ts" />
 /// Modules, like fs or path
 /// <reference path="Utils/Modules.ts" />
 
@@ -21,7 +24,6 @@
 /// <reference path="Utils/CanvasUtils.ts" />
 /// <reference path="Utils/UpdateChecker.ts" />
 /// <reference path="Utils/GameStartParameters.ts" />
-/// <reference path="Utils/Queue.ts" />
 /// <reference path="Utils/Tween.ts" />
 
 /// Base Classes
@@ -46,8 +48,6 @@
 /// <reference path="Abilities/MovingAbility.ts" />
 /// <reference path="Abilities/ScriptExecuteAbility.ts" />
 /// <reference path="Core/BaseGame.ts" />
-/// <reference path="Core/Collection.ts" />
-/// <reference path="Core/Hash.ts" />
 /// <reference path="Core/PluginHost.ts" />
 /// <reference path="Core/Shader.ts" />
 /// <reference path="Entities/CameraEntity.ts" />

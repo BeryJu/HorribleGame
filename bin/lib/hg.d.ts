@@ -25,6 +25,62 @@ declare module HG.Core {
         public emit: (name: any, ...args: any[]) => EventDispatcher;
     }
 }
+declare module HG.Core {
+    class Queue<K, T> extends Core.EventDispatcher {
+        public index: number;
+        public entries: Core.Hash<K, Function>;
+        public result: Core.Hash<K, T>;
+        constructor();
+        public call(name: K, fn: Function): Queue<K, T>;
+        private next();
+        public start(): Queue<K, T>;
+    }
+}
+declare module HG.Core {
+    class Collection<T extends { name?: string; }> {
+        public named: Core.Hash<string, T>;
+        public unNamed: T[];
+        public push(item: T, name?: string): void;
+        public concat(otherCollection: Collection<T>): Collection<T>;
+        public has(name: string): boolean;
+        public getAllNamed(): T[];
+        public getAllUnnamed(): T[];
+        public getAll(): T[];
+        public forNamed(callback: (v: T, k?: any, i?: any) => any): void;
+        public forUnamed(callback: (v: T, k?: any, i?: any) => any): void;
+        public forEach(callback: (v: T, k?: any, i?: any) => any): void;
+        public get(name: string): T;
+        public forAll(callback: (e: any) => any): void;
+    }
+}
+declare module HG.Core {
+    class Hash<K, T> {
+        private keys;
+        private values;
+        constructor();
+        public length : number;
+        public forEach(fn: (value: T, key: K, index: number) => any): Hash<K, T>;
+        public push(key: K, value: T): Hash<K, T>;
+        public toValueArray(): T[];
+        public toKeyArray(): K[];
+        static fromNative<NK, NT>(native: {}): Hash<NK, NT>;
+        public shift(): {
+            key: K;
+            value: T;
+        };
+        public toNativeHash(): {};
+        public set(key: K, value: T): boolean;
+        public indexOf(key: K): number;
+        public has(key: K): boolean;
+        public concat(...args: Hash<K, T>[]): Hash<K, T>;
+        public index(index: number): {
+            key: K;
+            value: T;
+        };
+        public value(v: T): K;
+        public key(k: K): T;
+    }
+}
 declare module HG.Modules {
     var fs: any;
     var path: any;
@@ -183,9 +239,6 @@ declare module HG.Utils {
     }
 }
 declare module HG.Utils {
-    function queue<K, T>(functions: HG.Core.Hash<K, Function>, done: (data: HG.Core.Hash<K, T>) => void): void;
-}
-declare module HG.Utils {
     class Tween {
         public timeArray: any[];
         public valueArray: any[];
@@ -332,47 +385,6 @@ declare module HG.Core {
         public onMouseMove(e: MouseEvent): void;
         public onResize(): void;
         public render(): void;
-    }
-}
-declare module HG.Core {
-    class Collection<T extends { name?: string; }> {
-        public named: Core.Hash<string, T>;
-        public unNamed: T[];
-        public push(item: T, name?: string): void;
-        public concat(otherCollection: Collection<T>): Collection<T>;
-        public has(name: string): boolean;
-        public getAllNamed(): T[];
-        public getAllUnnamed(): T[];
-        public getAll(): T[];
-        public forNamed(callback: (v: T, k?: any, i?: any) => any): void;
-        public forUnamed(callback: (v: T, k?: any, i?: any) => any): void;
-        public forEach(callback: (v: T, k?: any, i?: any) => any): void;
-        public get(name: string): T;
-        public forAll(callback: (e: any) => any): void;
-    }
-}
-declare module HG.Core {
-    class Hash<K, T> {
-        private keys;
-        private values;
-        constructor();
-        public length : number;
-        public forEach(fn: (value: T, key: K, index: number) => any): Hash<K, T>;
-        public push(key: K, value: T): Hash<K, T>;
-        public toValueArray(): T[];
-        public toKeyArray(): K[];
-        static fromNative<NK, NT>(native: {}): Hash<NK, NT>;
-        public toNativeHash(): {};
-        public set(key: K, value: T): boolean;
-        public indexOf(key: K): number;
-        public has(key: K): boolean;
-        public concat(...args: Hash<K, T>[]): Hash<K, T>;
-        public index(index: number): {
-            key: K;
-            value: T;
-        };
-        public value(v: T): K;
-        public key(k: K): T;
     }
 }
 declare module HG.Core {

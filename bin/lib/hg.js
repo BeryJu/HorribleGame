@@ -119,6 +119,265 @@
     })(HG.Core || (HG.Core = {}));
     var Core = HG.Core;
 })(HG || (HG = {}));
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var HG;
+(function (HG) {
+    (function (Core) {
+        var Queue = (function (_super) {
+            __extends(Queue, _super);
+            function Queue() {
+                _super.call(this, ["done"]);
+                this.index = 0;
+                this.entries = new HG.Core.Hash();
+                this.result = new HG.Core.Hash();
+            }
+            Queue.prototype.call = function (name, fn) {
+                if (fn !== null) {
+                    this.entries.push(name, fn);
+                }
+                return this;
+            };
+
+            Queue.prototype.next = function () {
+                var _this = this;
+                var entry = this.entries.shift();
+                if (entry.value !== null && entry.value !== undefined) {
+                    entry.value(function (data) {
+                        _this.result.push(entry.key, data);
+                        _this.next();
+                    });
+                } else {
+                    this.dispatch("done", this.result);
+                }
+            };
+
+            Queue.prototype.start = function () {
+                this.next();
+                return this;
+            };
+            return Queue;
+        })(HG.Core.EventDispatcher);
+        Core.Queue = Queue;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Core) {
+        var Collection = (function () {
+            function Collection() {
+                this.named = new HG.Core.Hash();
+                this.unNamed = [];
+            }
+            Collection.prototype.push = function (item, name) {
+                if (item.name || name) {
+                    var n = (item.name || name).toLowerCase();
+                    if (this.named[n]) {
+                        HG.locale.errors.duplicateNameTagError.f(item.name).error();
+                    } else {
+                        this.named.push(n, item);
+                    }
+                } else {
+                    this.unNamed.push(item);
+                }
+            };
+
+            Collection.prototype.concat = function (otherCollection) {
+                var newCollection = new HG.Core.Collection();
+                newCollection.unNamed = this.unNamed.concat(otherCollection.unNamed);
+                for (var k in this.named) {
+                    newCollection.named[k] = this.named[k];
+                }
+                for (var k in otherCollection.named) {
+                    newCollection.named[k] = otherCollection.named[k];
+                }
+                return newCollection;
+            };
+
+            Collection.prototype.has = function (name) {
+                if (!name)
+                    return false;
+                return (this.named.has(name.toLowerCase())) ? true : false;
+            };
+
+            Collection.prototype.getAllNamed = function () {
+                return this.named.toValueArray();
+            };
+
+            Collection.prototype.getAllUnnamed = function () {
+                return this.unNamed;
+            };
+
+            Collection.prototype.getAll = function () {
+                return this.getAllUnnamed().concat(this.getAllNamed());
+            };
+
+            Collection.prototype.forNamed = function (callback) {
+                this.named.forEach(callback);
+            };
+
+            Collection.prototype.forUnamed = function (callback) {
+                this.unNamed.forEach(callback);
+            };
+
+            Collection.prototype.forEach = function (callback) {
+                this.unNamed.forEach(callback);
+                this.named.forEach(callback);
+            };
+
+            Collection.prototype.get = function (name) {
+                name = name.toLowerCase();
+                return this.named.key(name) || null;
+            };
+
+            Collection.prototype.forAll = function (callback) {
+                this.forNamed(callback);
+                this.forUnamed(callback);
+            };
+            return Collection;
+        })();
+        Core.Collection = Collection;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
+})(HG || (HG = {}));
+var HG;
+(function (HG) {
+    (function (Core) {
+        var Hash = (function () {
+            function Hash() {
+                this.values = [];
+                this.keys = [];
+            }
+            Object.defineProperty(Hash.prototype, "length", {
+                get: function () {
+                    return this.values.length;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Hash.prototype.forEach = function (fn) {
+                var _this = this;
+                this.keys.forEach(function (key, index) {
+                    fn(_this.values[index], key, index);
+                });
+                return this;
+            };
+
+            Hash.prototype.push = function (key, value) {
+                if (this.indexOf(key) === -1) {
+                    this.values.push(value);
+                    this.keys.push(key);
+                } else {
+                    this.set(key, value);
+                }
+                return this;
+            };
+
+            Hash.prototype.toValueArray = function () {
+                return this.values;
+            };
+
+            Hash.prototype.toKeyArray = function () {
+                return this.keys;
+            };
+
+            Hash.fromNative = function (native) {
+                var hash = new HG.Core.Hash();
+                for (var prop in native) {
+                    hash.push(prop, native[prop]);
+                }
+                return hash;
+            };
+
+            Hash.prototype.shift = function () {
+                var k = this.keys.shift();
+                var v = this.values.shift();
+                return {
+                    key: k,
+                    value: v
+                };
+            };
+
+            Hash.prototype.toNativeHash = function () {
+                var base = {};
+                this.forEach(function (v, k, i) {
+                    base[k.toString()] = v;
+                });
+                return base;
+            };
+
+            Hash.prototype.set = function (key, value) {
+                var index = this.keys.indexOf(key);
+                if (index !== -1) {
+                    this.values[index] = value;
+                    return true;
+                } else {
+                    return false;
+                }
+            };
+
+            Hash.prototype.indexOf = function (key) {
+                return this.keys.indexOf(key);
+            };
+
+            Hash.prototype.has = function (key) {
+                return (this.keys.indexOf(key) === -1) ? false : true;
+            };
+
+            Hash.prototype.concat = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                var _this = this;
+                args.forEach(function (other, index) {
+                    other.forEach(function (value, key, index) {
+                        if (_this.values.indexOf(value) === -1 && _this.keys.indexOf(key) === -1) {
+                            _this.push(key, value);
+                        }
+                    });
+                });
+                return this;
+            };
+
+            Hash.prototype.index = function (index) {
+                return {
+                    key: this.keys[index],
+                    value: this.values[index]
+                };
+            };
+
+            Hash.prototype.value = function (v) {
+                var index = this.values.indexOf(v);
+                if (index !== -1) {
+                    return this.keys[index];
+                } else {
+                    HG.locale.errors.valueNotExistend.f(v).error();
+                    return null;
+                }
+            };
+
+            Hash.prototype.key = function (k) {
+                var index = this.keys.indexOf(k);
+                if (index !== -1) {
+                    return this.values[index];
+                } else {
+                    HG.locale.errors.keyNotExistend.f(k).error();
+                    return null;
+                }
+            };
+            return Hash;
+        })();
+        Core.Hash = Hash;
+    })(HG.Core || (HG.Core = {}));
+    var Core = HG.Core;
+})(HG || (HG = {}));
 var HG;
 (function (HG) {
     (function (Modules) {
@@ -735,32 +994,6 @@ var HG;
 var HG;
 (function (HG) {
     (function (Utils) {
-        function queue(functions, done) {
-            var allData = new HG.Core.Hash();
-            var next = function (index, data, key) {
-                if (index !== 0) {
-                    allData.push(key, data);
-                }
-                var args = functions.index(index);
-                if (index < functions.length) {
-                    index++;
-                    args.value(function (data) {
-                        next(index, data, args.key);
-                    });
-                } else {
-                    done(allData);
-                }
-                return index;
-            };
-            next(0);
-        }
-        Utils.queue = queue;
-    })(HG.Utils || (HG.Utils = {}));
-    var Utils = HG.Utils;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Utils) {
         var Tween = (function () {
             function Tween(timeArray, valueArray) {
                 this.timeArray = [];
@@ -793,12 +1026,6 @@ var HG;
     })(HG.Utils || (HG.Utils = {}));
     var Utils = HG.Utils;
 })(HG || (HG = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var HG;
 (function (HG) {
     (function (Entities) {
@@ -1418,209 +1645,6 @@ var HG;
             return BaseGame;
         })(HG.Core.EventDispatcher);
         Core.BaseGame = BaseGame;
-    })(HG.Core || (HG.Core = {}));
-    var Core = HG.Core;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Core) {
-        var Collection = (function () {
-            function Collection() {
-                this.named = new HG.Core.Hash();
-                this.unNamed = [];
-            }
-            Collection.prototype.push = function (item, name) {
-                if (item.name || name) {
-                    var n = (item.name || name).toLowerCase();
-                    if (this.named[n]) {
-                        HG.locale.errors.duplicateNameTagError.f(item.name).error();
-                    } else {
-                        this.named.push(n, item);
-                    }
-                } else {
-                    this.unNamed.push(item);
-                }
-            };
-
-            Collection.prototype.concat = function (otherCollection) {
-                var newCollection = new HG.Core.Collection();
-                newCollection.unNamed = this.unNamed.concat(otherCollection.unNamed);
-                for (var k in this.named) {
-                    newCollection.named[k] = this.named[k];
-                }
-                for (var k in otherCollection.named) {
-                    newCollection.named[k] = otherCollection.named[k];
-                }
-                return newCollection;
-            };
-
-            Collection.prototype.has = function (name) {
-                if (!name)
-                    return false;
-                return (this.named.has(name.toLowerCase())) ? true : false;
-            };
-
-            Collection.prototype.getAllNamed = function () {
-                return this.named.toValueArray();
-            };
-
-            Collection.prototype.getAllUnnamed = function () {
-                return this.unNamed;
-            };
-
-            Collection.prototype.getAll = function () {
-                return this.getAllUnnamed().concat(this.getAllNamed());
-            };
-
-            Collection.prototype.forNamed = function (callback) {
-                this.named.forEach(callback);
-            };
-
-            Collection.prototype.forUnamed = function (callback) {
-                this.unNamed.forEach(callback);
-            };
-
-            Collection.prototype.forEach = function (callback) {
-                this.unNamed.forEach(callback);
-                this.named.forEach(callback);
-            };
-
-            Collection.prototype.get = function (name) {
-                name = name.toLowerCase();
-                return this.named.key(name) || null;
-            };
-
-            Collection.prototype.forAll = function (callback) {
-                this.forNamed(callback);
-                this.forUnamed(callback);
-            };
-            return Collection;
-        })();
-        Core.Collection = Collection;
-    })(HG.Core || (HG.Core = {}));
-    var Core = HG.Core;
-})(HG || (HG = {}));
-var HG;
-(function (HG) {
-    (function (Core) {
-        var Hash = (function () {
-            function Hash() {
-                this.values = [];
-                this.keys = [];
-            }
-            Object.defineProperty(Hash.prototype, "length", {
-                get: function () {
-                    return this.values.length;
-                },
-                enumerable: true,
-                configurable: true
-            });
-
-            Hash.prototype.forEach = function (fn) {
-                var _this = this;
-                this.keys.forEach(function (key, index) {
-                    fn(_this.values[index], key, index);
-                });
-                return this;
-            };
-
-            Hash.prototype.push = function (key, value) {
-                if (this.indexOf(key) === -1) {
-                    this.values.push(value);
-                    this.keys.push(key);
-                } else {
-                    this.set(key, value);
-                }
-                return this;
-            };
-
-            Hash.prototype.toValueArray = function () {
-                return this.values;
-            };
-
-            Hash.prototype.toKeyArray = function () {
-                return this.keys;
-            };
-
-            Hash.fromNative = function (native) {
-                var hash = new HG.Core.Hash();
-                for (var prop in native) {
-                    hash.push(prop, native[prop]);
-                }
-                return hash;
-            };
-
-            Hash.prototype.toNativeHash = function () {
-                var base = {};
-                this.forEach(function (v, k, i) {
-                    base[k.toString()] = v;
-                });
-                return base;
-            };
-
-            Hash.prototype.set = function (key, value) {
-                var index = this.keys.indexOf(key);
-                if (index !== -1) {
-                    this.values[index] = value;
-                    return true;
-                } else {
-                    return false;
-                }
-            };
-
-            Hash.prototype.indexOf = function (key) {
-                return this.keys.indexOf(key);
-            };
-
-            Hash.prototype.has = function (key) {
-                return (this.keys.indexOf(key) === -1) ? false : true;
-            };
-
-            Hash.prototype.concat = function () {
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                    args[_i] = arguments[_i + 0];
-                }
-                var _this = this;
-                args.forEach(function (other, index) {
-                    other.forEach(function (value, key, index) {
-                        if (_this.values.indexOf(value) === -1 && _this.keys.indexOf(key) === -1) {
-                            _this.push(key, value);
-                        }
-                    });
-                });
-                return this;
-            };
-
-            Hash.prototype.index = function (index) {
-                return {
-                    key: this.keys[index],
-                    value: this.values[index]
-                };
-            };
-
-            Hash.prototype.value = function (v) {
-                var index = this.values.indexOf(v);
-                if (index !== -1) {
-                    return this.keys[index];
-                } else {
-                    HG.locale.errors.valueNotExistend.f(v).error();
-                    return null;
-                }
-            };
-
-            Hash.prototype.key = function (k) {
-                var index = this.keys.indexOf(k);
-                if (index !== -1) {
-                    return this.values[index];
-                } else {
-                    HG.locale.errors.keyNotExistend.f(k).error();
-                    return null;
-                }
-            };
-            return Hash;
-        })();
-        Core.Hash = Hash;
     })(HG.Core || (HG.Core = {}));
     var Core = HG.Core;
 })(HG || (HG = {}));
@@ -2535,26 +2559,28 @@ var HG;
 
             Loader.prototype.queueTexture = function (paths, done) {
                 var _this = this;
-                var queue = new HG.Core.Hash();
+                var queue = new HG.Core.Queue();
                 paths.forEach(function (path) {
-                    queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), function (next) {
+                    queue.call(HG.Modules.path.basename(path, HG.Modules.path.extname(path)), function (next) {
                         _this.texture(path, true).on("loaded", function (texture) {
                             next(texture);
                         });
                     });
                 });
-                HG.Utils.queue(queue, done);
+                queue.on("done", done);
+                queue.start();
             };
 
             Loader.prototype.queueJSON = function (paths, done) {
                 var _this = this;
-                var queue = new HG.Core.Hash();
+                var queue = new HG.Core.Queue();
                 paths.forEach(function (path) {
-                    queue.push(path, function (next) {
+                    queue.call(path, function (next) {
                         next(_this.json(path));
                     });
                 });
-                HG.Utils.queue(queue, done);
+                queue.on("done", done);
+                queue.start();
             };
 
             Loader.prototype.shader = function (path) {
