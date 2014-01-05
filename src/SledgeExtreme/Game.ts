@@ -3,7 +3,7 @@
 * @Date:   2013-12-06 16:43:52
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-01 03:30:54
+* @Last Modified time: 2014-01-04 21:41:53
 */
 
 /// <reference path="GameLocale.ts" />
@@ -13,6 +13,9 @@ var gameCanvas = query("#canvasWrapper");
 var loader = new HG.Resource.Loader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var locale = loader.json<GameLocale>("locale/game.locale.json");
+loader.directory("fonts/", ".typeface.json").forEach((file) => {
+	loader.font(file);
+});
 
 if (HG.settings.debug === true) {
 	HG.Utils.devTools();
@@ -20,7 +23,14 @@ if (HG.settings.debug === true) {
 
 game.on("loaded", () => {
 	game.pluginHost.load(loader.directory("plugins", ".js"));
-	MainScene.create(game, loader, (scene: HG.Core.Scene) => {
+	var mainSceneLoader = MainScene.create(game, loader);
+	mainSceneLoader.on("progress", (queue: HG.Core.Queue<number, HG.Entities.Entity>) => {
+		"${0}% loaded".f(queue.percentage).log();
+	});
+
+	mainSceneLoader.on("done", (scene: HG.Core.Scene, duration: Date) => {
+		"Loading duration: ${0}:${1} mins".
+			f(duration.getMinutes(), duration.getSeconds()).log();
 		game.scene(scene);
 		scene.camera("mainCamera");
 		game.start({
@@ -30,6 +40,7 @@ game.on("loaded", () => {
 			noResize: true
 		});
 	});
+	mainSceneLoader.start();
 });
 
 game.controls.keyboard.bind(HG.settings.keys.refresh, (delta: number) => {

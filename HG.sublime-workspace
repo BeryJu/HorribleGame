@@ -4,6 +4,42 @@
 		"selected_items":
 		[
 			[
+				"Scne",
+				"SceneLoader"
+			],
+			[
+				"En",
+				"Entity"
+			],
+			[
+				"sc",
+				"sceneLoader"
+			],
+			[
+				"sce",
+				"scene"
+			],
+			[
+				"scene",
+				"scene"
+			],
+			[
+				"scne",
+				"scene"
+			],
+			[
+				"Enti",
+				"Entities"
+			],
+			[
+				"call",
+				"callIndex"
+			],
+			[
+				"color",
+				"colorAlpha"
+			],
+			[
 				"Scen",
 				"SceneLoader"
 			],
@@ -416,10 +452,6 @@
 				"lastProfile"
 			],
 			[
-				"call",
-				"callee"
-			],
-			[
 				"o",
 				"oldConsole"
 			],
@@ -482,64 +514,32 @@
 			[
 				"var",
 				"var_dump"
-			],
-			[
-				"ac",
-				"active"
-			],
-			[
-				"st",
-				"storage"
-			],
-			[
-				"bst-cdn",
-				"bst-cdn:js	bst-cdn-js"
-			],
-			[
-				"render",
-				"renderParams"
-			],
-			[
-				"user",
-				"username"
-			],
-			[
-				"bst-input",
-				"bst-input:text	bst-input-text"
-			],
-			[
-				"bst-col",
-				"bst-col:5	bst-col-5"
-			],
-			[
-				"style",
-				"stylesheet"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "src/HG/Resource/SceneLoader.ts",
+			"file": "src/SledgeExtreme/scenes/Main.ts",
 			"settings":
 			{
-				"buffer_size": 435,
+				"buffer_size": 5834,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "src/HG/Core/Queue.ts",
+			"file": "src/SledgeExtreme/Game.ts",
 			"settings":
 			{
-				"buffer_size": 1013,
+				"buffer_size": 1508,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Better TypeScript/TypeScript.tmLanguage",
+			"file": "src/HG/Entities/3DTextEntity.ts",
 			"settings":
 			{
-				"buffer_size": 4165,
+				"buffer_size": 1480,
 				"line_ending": "Windows"
 			}
 		}
@@ -550,6 +550,10 @@
 		"height": 400.0,
 		"selected_items":
 		[
+			[
+				"indn",
+				"Indentation: Convert to Tabs"
+			],
 			[
 				"user",
 				"Preferences: Settings - User"
@@ -569,10 +573,6 @@
 			[
 				"remove",
 				"Package Control: Remove Package"
-			],
-			[
-				"indn",
-				"Indentation: Convert to Tabs"
 			],
 			[
 				"un",
@@ -901,23 +901,33 @@
 	},
 	"file_history":
 	[
+		"/J/projects/HorribleGame/src/HG/Entities/2DTextEntity.ts",
+		"/J/projects/HorribleGame/src/HG/Input/GamepadDevice.ts",
+		"/J/projects/HorribleGame/src/SledgeExtreme/Game.ts",
+		"/J/projects/HorribleGame/Gruntfile.js",
+		"/J/projects/HorribleGame/src/HG/Resource/SceneLoader.ts",
+		"/J/projects/HorribleGame/src/HG/Core/Scene.ts",
+		"/J/projects/HorribleGame/src/HG/Entities/SkyBoxEntity.ts",
+		"/J/projects/HorribleGame/src/HG/Core/Queue.ts",
+		"/J/projects/HorribleGame/src/HG/LINQ/StringProvider.ts",
+		"/J/projects/HorribleGame/src/HG/Resource/Model/STL.ts",
+		"/J/projects/HorribleGame/src/HG/Core/Hash.ts",
+		"/J/projects/HorribleGame/tests/hashTest.js",
+		"/J/projects/HorribleGame/tests/QueueTest.js",
+		"/J/projects/HorribleGame/src/HG/Core/BaseGame.ts",
+		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Better TypeScript/TypeScript.tmLanguage",
+		"/J/projects/HorribleGame/src/HG/Entities/Entity.ts",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Better TypeScript/README.md",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Better TypeScript/TypeScript.sublime-commands",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Better TypeScript/TypeScript.sublime-settings",
-		"/J/projects/HorribleGame/tests/QueueTest.js",
-		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
 		"/J/JavaScript.tmLanguage",
 		"/J/projects/HorribleGame/tests/LogTest.js",
 		"/J/projects/HorribleGame/src/HG/HG.ref.ts",
 		"/J/projects/HorribleGame/src/HG/HG.ts",
-		"/J/projects/HorribleGame/src/HG/Core/Hash.ts",
 		"/J/projects/HorribleGame/src/tslint.json",
 		"/J/projects/HorribleGame/bin/lib/hg.js",
-		"/J/projects/HorribleGame/src/HG/LINQ/StringProvider.ts",
-		"/J/projects/HorribleGame/src/HG/Resource/Model/STL.ts",
-		"/J/projects/HorribleGame/src/HG/Entities/SkyBoxEntity.ts",
 		"/J/projects/HorribleGame/src/HG/Abilities/Ability.ts",
 		"/J/projects/HorribleGame/src/HG/Abilities/AnimationAbility.ts",
 		"/J/projects/HorribleGame/src/HG/Abilities/MovingAbility.ts",
@@ -925,16 +935,12 @@
 		"/J/projects/HorribleGame/src/HG/Resource/Loader.ts",
 		"/J/projects/HorribleGame/tests/JSONQueueTest.js",
 		"/J/projects/HorribleGame/tests/TestHelper.js",
-		"/J/projects/HorribleGame/Gruntfile.js",
 		"/J/projects/HorribleGame/tests/NoiseTest.js",
-		"/J/projects/HorribleGame/tests/hashTest.js",
 		"/J/projects/HorribleGame/bin/assets/plugins/test.derp",
 		"/J/projects/HorribleGame/tests/LINQArrayTest.js",
 		"/J/projects/HorribleGame/tests/testFiles/exampleJsonB.json",
 		"/J/projects/HorribleGame/tests/testFiles/exampleJsonA.json",
 		"/J/projects/HorribleGame/launch_linux.sh",
-		"/J/projects/HorribleGame/src/SledgeExtreme/Game.ts",
-		"/J/projects/HorribleGame/src/HG/Core/Queue.ts",
 		"/J/projects/HorribleGame/src/tests/QueueTest.js",
 		"/J/projects/HorribleGame/src/SledgeExtreme/scenes/Main.ts",
 		"/J/projects/HorribleGame/src/HG/Utils/Queue.ts",
@@ -942,7 +948,6 @@
 		"/J/projects/HorribleGame/src/HG/Resource/Shaders/Shader.ts",
 		"/J/projects/HorribleGame/src/HG/Resource/Texture/PNG.ts",
 		"/J/reconnect.sh",
-		"/J/projects/HorribleGame/src/HG/Input/GamepadDevice.ts",
 		"/J/documentRoot/index.php",
 		"/D/Downloads/wunderlist-2014012-24-13-28.json",
 		"/J/projects/HorribleGame/package.json",
@@ -959,7 +964,6 @@
 		"/J/projects/HorribleGame/bin/assets/models/android.js",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/TypeScript/TypeScript.tmLanguage",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Default (Windows).sublime-keymap",
-		"/J/projects/HorribleGame/src/HG/Core/BaseGame.ts",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Package Control/Package Control.sublime-settings",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/Package Control.sublime-settings",
 		"/J/projects/HorribleGame/src/HG/Input/MouseDeivce.ts",
@@ -973,7 +977,6 @@
 		"/J/projects/HorribleGame/src/grunt/convertModel.js",
 		"/J/projects/HorribleGame/src/HG/Core/Collection.ts",
 		"/J/projects/HorribleGame/src/HG/Entities/ChasingCameraEntity.ts",
-		"/J/projects/HorribleGame/src/HG/Entities/Entity.ts",
 		"/J/projects/HorribleGame/bin/hg/Core/EventDispatcher.js",
 		"/J/documentRoot/stuff/Folder Open with.reg",
 		"/J/projects/HorribleGame/bin/package.json",
@@ -1003,7 +1006,6 @@
 		"/J/projects/HorribleGame/src/HG/Utils/CanvasUtils.ts",
 		"/J/projects/HorribleGame/src/HG/Abilities/ScriptExecuteAbility.ts",
 		"/J/projects/HorribleGame/src/HG/Resource/IFiletype.ts",
-		"/J/projects/HorribleGame/src/HG/Core/Scene.ts",
 		"/J/projects/HorribleGame/src/HG/Core/PluginHost.ts",
 		"/J/projects/HorribleGame/src/HG/Core/Shader.ts",
 		"/J/projects/HorribleGame/src/HG/Platform/IPlatform.ts",
@@ -1026,9 +1028,7 @@
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/FileHeader/FileHeader.sublime-settings",
 		"/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/User/FileHeader.sublime-settings",
 		"/J/projects/HorribleGame/src/SledgeExtreme/GameLocale.ts",
-		"/J/projects/HorribleGame/src/HG/Input/Gamepad.ts",
-		"/J/projects/HorribleGame/bin/assets/locale/game.locale.json",
-		"/J/projects/HorribleGame/src/lib/lib.d.ts"
+		"/J/projects/HorribleGame/src/HG/Input/Gamepad.ts"
 	],
 	"find":
 	{
@@ -1064,6 +1064,19 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"sceneLoader",
+			"queue",
+			"progress",
+			"							",
+			"						",
+			"					",
+			"loaded",
+			"scene",
+			"Function",
+			"string",
+			"progress",
+			"scene",
+			"index",
 			"&lt;",
 			"storage.modifier",
 			"const",
@@ -1178,20 +1191,7 @@
 			"box",
 			"png",
 			"skyboxrender",
-			"skybox",
-			"xpos",
-			"WebGLRenderer",
-			"warn",
-			"silent",
-			"args",
-			"worldSize",
-			"size",
-			"1000",
-			"{}",
-			";",
-			"IPlatformGLShaderPrecisionFormat",
-			"IPlatformGLContextAttributes",
-			"NodeWebkitGLContextAttributes"
+			"skybox"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1230,32 +1230,33 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 2,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "src/HG/Resource/SceneLoader.ts",
+					"file": "src/SledgeExtreme/scenes/Main.ts",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 435,
+						"buffer_size": 5834,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								164,
-								164
+								2407,
+								2407
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Better TypeScript/TypeScript.tmLanguage"
+							"syntax": "Packages/Better TypeScript/TypeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.x": -0.0,
+						"translation.y": 1200.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
@@ -1263,19 +1264,48 @@
 				},
 				{
 					"buffer": 1,
-					"file": "src/HG/Core/Queue.ts",
+					"file": "src/SledgeExtreme/Game.ts",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1013,
+						"buffer_size": 1508,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								404,
-								404
+								493,
+								493
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Better TypeScript/TypeScript.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 300.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "src/HG/Entities/3DTextEntity.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1480,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								410,
+								410
 							]
 						],
 						"settings":
@@ -1288,35 +1318,6 @@
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/C/Users/BeryJu/AppData/Roaming/Sublime Text 3/Packages/Better TypeScript/TypeScript.tmLanguage",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4165,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2338,
-								2338
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/XML/XML.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1460.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -1377,6 +1378,46 @@
 		"selected_items":
 		[
 			[
+				"game.ts",
+				"src\\SledgeExtreme\\Game.ts"
+			],
+			[
+				"scene",
+				"src\\HG\\Resource\\SceneLoader.ts"
+			],
+			[
+				"scnee",
+				"src\\HG\\Resource\\SceneLoader.ts"
+			],
+			[
+				"queue",
+				"src\\HG\\Core\\Queue.ts"
+			],
+			[
+				"string",
+				"src\\HG\\LINQ\\StringProvider.ts"
+			],
+			[
+				"hahs",
+				"src\\HG\\Core\\Hash.ts"
+			],
+			[
+				"base",
+				"src\\HG\\Core\\BaseGame.ts"
+			],
+			[
+				"quue",
+				"src\\HG\\Core\\Queue.ts"
+			],
+			[
+				"main",
+				"src\\SledgeExtreme\\scenes\\Main.ts"
+			],
+			[
+				"hash",
+				"src\\HG\\Core\\Hash.ts"
+			],
+			[
 				"queu",
 				"src\\HG\\Core\\Queue.ts"
 			],
@@ -1387,10 +1428,6 @@
 			[
 				"tsl",
 				"src\\tslint.json"
-			],
-			[
-				"string",
-				"src\\HG\\LINQ\\StringProvider.ts"
 			],
 			[
 				"abil",
@@ -1413,10 +1450,6 @@
 				"src\\HG\\HG.ref.ts"
 			],
 			[
-				"queue",
-				"src\\HG\\Core\\Queue.ts"
-			],
-			[
 				"hg.js",
 				"bin\\lib\\hg.js"
 			],
@@ -1425,16 +1458,8 @@
 				"src\\HG\\Resource\\Loader.ts"
 			],
 			[
-				"hash",
-				"src\\HG\\Core\\Hash.ts"
-			],
-			[
 				"mai",
 				"src\\SledgeExtreme\\scenes\\Main.ts"
-			],
-			[
-				"game.ts",
-				"src\\SledgeExtreme\\Game.ts"
 			],
 			[
 				"basega",
@@ -1501,10 +1526,6 @@
 				"launch_linux.sh"
 			],
 			[
-				"scene",
-				"src\\HG\\Core\\Scene.ts"
-			],
-			[
 				"plig",
 				"src\\HG\\Core\\PluginHost.ts"
 			],
@@ -1543,10 +1564,6 @@
 			[
 				"idev",
 				"src\\HG\\Input\\IDevice.ts"
-			],
-			[
-				"base",
-				"src\\HG\\Core\\BaseGame.ts"
 			],
 			[
 				"three",
@@ -1717,10 +1734,6 @@
 				"src\\SledgeExtreme\\shaders\\heightmap\\heightmap.frag"
 			],
 			[
-				"main",
-				"src\\SledgeExtreme\\scenes\\Main.ts"
-			],
-			[
 				"ami",
 				"src\\HG\\Abilities\\MovingAbility.ts"
 			],
@@ -1787,10 +1800,6 @@
 			[
 				"fire",
 				"src\\SledgeExtreme\\shaders\\fireball\\fireball.frag"
-			],
-			[
-				"scnee",
-				"src\\HG\\Core\\Scene.ts"
 			],
 			[
 				"en",
@@ -1879,14 +1888,6 @@
 			[
 				"array",
 				"src\\HG\\Core\\ArrayKey.ts"
-			],
-			[
-				"que",
-				"tests\\QueueTest.js"
-			],
-			[
-				"heightmap",
-				"src\\SledgeExtreme\\shaders\\heightmap\\heightmap.frag"
 			]
 		],
 		"width": 0.0

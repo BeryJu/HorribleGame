@@ -3,7 +3,7 @@
 * @Date:   2013-11-30 21:47:15
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 20:23:39
+* @Last Modified time: 2014-01-04 21:50:53
 */
 interface Number {
 	toRadian(): number;
@@ -19,6 +19,7 @@ interface String {
 	lengthen(length: number, filler?: string): string;
 	replaceAll(find: string, replace: string): string;
 	contains(contains: string): boolean;
+	endsWith(context: string): boolean;
 }
 
 interface Array<T> {

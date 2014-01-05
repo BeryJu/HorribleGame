@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-04 17:23:16
+* @Last Modified time: 2014-01-04 21:43:05
 */
 
 module HG.LINQ {
@@ -38,6 +38,10 @@ module HG.LINQ {
 
 		error(context: string): void {
 			throw new Error(context);
+		}
+
+		endsWith(suffix): boolean {
+			return this.indexOf(suffix, this.length - suffix.length) !== -1;
 		}
 
 		contains(context: string, contains: string): boolean {

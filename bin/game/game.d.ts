@@ -1,6 +1,6 @@
 declare module MainScene {
     var WORLD_SIZE: number;
-    function create(game: HG.Core.BaseGame, loader: HG.Resource.Loader, done: (scene: HG.Core.Scene) => any): void;
+    function create(game: HG.Core.BaseGame, loader: HG.Resource.Loader): HG.Resource.SceneLoader;
     function createSkyBox(loader: HG.Resource.Loader, done: (e: HG.Entities.SkyBoxEntity) => any): void;
     function createHeightMap(loader: HG.Resource.Loader, done: (e: HG.Entities.MeshEntity) => any): void;
     function createMap(loader: HG.Resource.Loader, done: (e: HG.Entities.MeshEntity) => any): void;

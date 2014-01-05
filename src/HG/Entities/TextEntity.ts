@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-26 14:31:45
+* @Last Modified time: 2014-01-04 20:21:24
 */
 
 module HG.Entities {
@@ -11,11 +11,12 @@ module HG.Entities {
 	export class TextEntity extends HG.Entities.Entity {
 
 		object: THREE.Mesh;
-		texture: THREE.Texture;
 		_text: string;
 		_font: string;
-		_fillStyle: string;
-		context: CanvasRenderingContext2D;
+		_size: number;
+		_color: number;
+
+		_textSize: THREE.Vector2;
 
 		set text (v: string) {
 			this._text = v;
@@ -27,36 +28,46 @@ module HG.Entities {
 			this.reDraw();
 		}
 
-		set fillStyle (v: string) {
-			this._fillStyle = v;
+		set fontSize (v: number) {
+			this._size = v;
 			this.reDraw();
+		}
+
+		set color (v: number) {
+			this._color = v;
+			this.reDraw();
+		}
+
+		get size (): THREE.Vector2 {
+			return this._textSize;
 		}
 
 		constructor(text?: string) {
 			super();
-			var canvas = document.createElement("canvas");
-			this.texture = new THREE.Texture(canvas);
-			this.texture.needsUpdate = true;
-			this.context = canvas.getContext("2d");
 			this._text = text;
-			this._fillStyle = "rgba(255,0,0,1)";
-			this._font = "14px Arial";
+			this._color = 0x000000;
+			this._font = "droid sans";
 			this.reDraw();
-			var material = new THREE.MeshBasicMaterial({
-				map: this.texture,
-				side:THREE.DoubleSide
-			});
-			material.transparent = true;
-			var geometry = new THREE.PlaneGeometry(canvas.width, canvas.height);
-			this.object = new THREE.Mesh(geometry, material);
 		}
 
 		reDraw(): void {
-			var size = new THREE.Vector2(this.context.canvas.width, this.context.canvas.height);
-			this.context.clearRect(0, 0, size.x, size.y);
-			this.context.font = this._font;
-			this.context.fillStyle = this._fillStyle;
-			this.context.fillText(this._text, 0, 0);
+			var material = new THREE.MeshFaceMaterial([
+				new THREE.MeshBasicMaterial({
+					color: this._color
+				})
+			]);
+			var geometry = new THREE.TextGeometry(this._text, {
+				size: this._size,
+				height: 4,
+				material: 0,
+				font: this._font
+			});
+			this.object = new THREE.Mesh(geometry, material);
+			geometry.computeBoundingBox();
+			this._textSize = new THREE.Vector2(
+				geometry.boundingBox.max.x - geometry.boundingBox.min.x,
+				geometry.boundingBox.max.y - geometry.boundingBox.min.y
+			);
 		}
 
 	}

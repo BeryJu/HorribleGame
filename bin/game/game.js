@@ -2,7 +2,7 @@
 (function (MainScene) {
     MainScene.WORLD_SIZE = 5000;
 
-    function create(game, loader, done) {
+    function create(game, loader) {
         var sceneLoader = new HG.Resource.SceneLoader();
         sceneLoader.color = new THREE.Color(12307677);
         sceneLoader.colorAlpha = .5;
@@ -51,15 +51,7 @@
             });
         });
 
-        sceneLoader.on("progress", function (queue) {
-            "${0}% loaded".f(queue.percentage).log();
-        });
-
-        sceneLoader.on("done", function (scene, duration) {
-            "Loading duration: ${0}:${1} mins".f(duration.getMinutes(), duration.getSeconds()).log();
-            done(scene);
-        });
-        sceneLoader.start();
+        return sceneLoader;
     }
     MainScene.create = create;
 
@@ -165,13 +157,21 @@ var loader = new HG.Resource.Loader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var locale = loader.json("locale/game.locale.json");
 
+loader.font("fonts/droidSans.typeface.json");
+
 if (HG.settings.debug === true) {
     HG.Utils.devTools();
 }
 
 game.on("loaded", function () {
     game.pluginHost.load(loader.directory("plugins", ".js"));
-    MainScene.create(game, loader, function (scene) {
+    var mainSceneLoader = MainScene.create(game, loader);
+    mainSceneLoader.on("progress", function (queue) {
+        "${0}% loaded".f(queue.percentage).log();
+    });
+
+    mainSceneLoader.on("done", function (scene, duration) {
+        "Loading duration: ${0}:${1} mins".f(duration.getMinutes(), duration.getSeconds()).log();
         game.scene(scene);
         scene.camera("mainCamera");
         game.start({
@@ -181,6 +181,7 @@ game.on("loaded", function () {
             noResize: true
         });
     });
+    mainSceneLoader.start();
 });
 
 game.controls.keyboard.bind(HG.settings.keys.refresh, function (delta) {

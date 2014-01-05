@@ -487,14 +487,16 @@ declare module HG.Entities {
 declare module HG.Entities {
     class TextEntity extends Entities.Entity {
         public object: THREE.Mesh;
-        public texture: THREE.Texture;
         public _text: string;
         public _font: string;
-        public _fillStyle: string;
-        public context: CanvasRenderingContext2D;
+        public _size: number;
+        public _color: number;
+        public _textSize: THREE.Vector2;
         public text : string;
         public font : string;
-        public fillStyle : string;
+        public fontSize : number;
+        public color : number;
+        public size : THREE.Vector2;
         constructor(text?: string);
         public reDraw(): void;
     }
@@ -1193,6 +1195,7 @@ declare module HG.Resource {
         public queueTexture(paths: string[], done: (textures: HG.Core.Hash<string, THREE.Texture>) => void): void;
         public queueJSON<T>(paths: string[], done: (jsons: HG.Core.Hash<string, T>) => void): void;
         public shader(path: string): HG.Core.Shader;
+        public font(path: string): void;
         public json<T>(path: string, data?: T): T;
         public directory(directory: string, extension?: string): string[];
     }

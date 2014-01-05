@@ -2000,21 +2000,10 @@ var HG;
             __extends(TextEntity, _super);
             function TextEntity(text) {
                 _super.call(this);
-                var canvas = document.createElement("canvas");
-                this.texture = new THREE.Texture(canvas);
-                this.texture.needsUpdate = true;
-                this.context = canvas.getContext("2d");
                 this._text = text;
-                this._fillStyle = "rgba(255,0,0,1)";
-                this._font = "14px Arial";
+                this._color = 0x000000;
+                this._font = "droid sans";
                 this.reDraw();
-                var material = new THREE.MeshBasicMaterial({
-                    map: this.texture,
-                    side: THREE.DoubleSide
-                });
-                material.transparent = true;
-                var geometry = new THREE.PlaneGeometry(canvas.width, canvas.height);
-                this.object = new THREE.Mesh(geometry, material);
             }
             Object.defineProperty(TextEntity.prototype, "text", {
                 set: function (v) {
@@ -2034,21 +2023,47 @@ var HG;
                 configurable: true
             });
 
-            Object.defineProperty(TextEntity.prototype, "fillStyle", {
+            Object.defineProperty(TextEntity.prototype, "fontSize", {
                 set: function (v) {
-                    this._fillStyle = v;
+                    this._size = v;
                     this.reDraw();
                 },
                 enumerable: true,
                 configurable: true
             });
 
+            Object.defineProperty(TextEntity.prototype, "color", {
+                set: function (v) {
+                    this._color = v;
+                    this.reDraw();
+                },
+                enumerable: true,
+                configurable: true
+            });
+
+            Object.defineProperty(TextEntity.prototype, "size", {
+                get: function () {
+                    return this._textSize;
+                },
+                enumerable: true,
+                configurable: true
+            });
+
             TextEntity.prototype.reDraw = function () {
-                var size = new THREE.Vector2(this.context.canvas.width, this.context.canvas.height);
-                this.context.clearRect(0, 0, size.x, size.y);
-                this.context.font = this._font;
-                this.context.fillStyle = this._fillStyle;
-                this.context.fillText(this._text, 0, 0);
+                var material = new THREE.MeshFaceMaterial([
+                    new THREE.MeshBasicMaterial({
+                        color: this._color
+                    })
+                ]);
+                var geometry = new THREE.TextGeometry(this._text, {
+                    size: this._size,
+                    height: 4,
+                    material: 0,
+                    font: this._font
+                });
+                this.object = new THREE.Mesh(geometry, material);
+                geometry.computeBoundingBox();
+                this._textSize = new THREE.Vector2(geometry.boundingBox.max.x - geometry.boundingBox.min.x, geometry.boundingBox.max.y - geometry.boundingBox.min.y);
             };
             return TextEntity;
         })(HG.Entities.Entity);
@@ -2575,6 +2590,11 @@ var HG;
             Loader.prototype.shader = function (path) {
                 var raw = this.json(path);
                 return new HG.Core.Shader(raw.vertex, raw.fragment);
+            };
+
+            Loader.prototype.font = function (path) {
+                var fontData = this.json(path);
+                THREE["typeface_js"]["loadFace"](fontData);
             };
 
             Loader.prototype.json = function (path, data) {

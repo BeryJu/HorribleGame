@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-04 02:05:43
+* @Last Modified time: 2014-01-04 21:41:45
 */
 
 module HG.Resource {
@@ -80,16 +80,6 @@ module HG.Resource {
 
 		queueTexture(paths: string[],
 			done: (textures: HG.Core.Hash<string, THREE.Texture>) => void): void {
-			// var queue = new HG.Core.Hash<string, Function>();
-			// paths.forEach((path) => {
-			// 	queue.push(HG.Modules.path.basename(path, HG.Modules.path.extname(path)),
-			//		(next: Function) => {
-			// 		this.texture(path, true).on("loaded", (texture: THREE.Texture) => {
-			// 			next(texture);
-			// 		});
-			// 	});
-			// });
-			// HG.Core.Queue<string, THREE.Texture>(queue, done);
 			var queue = new HG.Core.Queue<string, THREE.Texture>();
 			paths.forEach((path) => {
 				queue.call(HG.Modules.path.basename(path, HG.Modules.path.extname(path)),
@@ -104,13 +94,6 @@ module HG.Resource {
 		}
 
 		queueJSON<T>(paths: string[], done: (jsons: HG.Core.Hash<string, T>) => void): void {
-			// var queue = new HG.Core.Hash<string, Function>();
-			// paths.forEach((path) => {
-			// 	queue.push(path, (next: Function) => {
-			// 		next(this.json<T>(path));
-			// 	});
-			// });
-			// HG.Core.Queue<string, T>(queue, done);
 			var queue = new HG.Core.Queue<string, T>();
 			paths.forEach((path) => {
 				queue.call(path, (next: Function) => {
@@ -124,6 +107,11 @@ module HG.Resource {
 		shader(path: string): HG.Core.Shader {
 			var raw = this.json<HG.Core.Shader>(path);
 			return new HG.Core.Shader(raw.vertex, raw.fragment);
+		}
+
+		font(path: string): void {
+			var fontData = this.json<any>(path);
+			THREE["typeface_js"]["loadFace"](fontData);
 		}
 
 		json<T>(path: string, data?: T): T {

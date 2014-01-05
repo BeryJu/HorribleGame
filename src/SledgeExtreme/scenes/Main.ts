@@ -3,7 +3,7 @@
 * @Date:   2013-12-17 10:40:47
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-04 17:40:08
+* @Last Modified time: 2014-01-04 18:53:25
 */
 
 module MainScene {
@@ -11,8 +11,7 @@ module MainScene {
 	export var WORLD_SIZE: number = 5000;
 
 	export function create(game: HG.Core.BaseGame,
-						loader: HG.Resource.Loader,
-						done: (scene: HG.Core.Scene) => any): void {
+						loader: HG.Resource.Loader): HG.Resource.SceneLoader {
 		var sceneLoader = new HG.Resource.SceneLoader();
 		sceneLoader.color = new THREE.Color(12307677);
 		sceneLoader.colorAlpha = .5;
@@ -71,17 +70,6 @@ module MainScene {
 			});
 		});
 
-		sceneLoader.on("progress", (queue: HG.Core.Queue<number, HG.Entities.Entity>) => {
-			"${0}% loaded".f(queue.percentage).log();
-		});
-
-		sceneLoader.on("done", (scene: HG.Core.Scene, duration: Date) => {
-			"Loading duration: ${0}:${1} mins".
-				f(duration.getMinutes(), duration.getSeconds()).log();
-			done(scene);
-		});
-		sceneLoader.start();
-
 		// loader.video("videos/sintel.ogv").on("loaded", (domElement: HTMLVideoElement) => {
 		// 	var entity = new HG.Entities.VideoEntity(domElement);
 		// 	entity.position(500, 0, 0);
@@ -94,6 +82,8 @@ module MainScene {
 		// });
 
 		// var fxChannel = game.soundMixer.channel("effectsEnv");
+
+		return sceneLoader;
 	}
 
 	export function createSkyBox(loader: HG.Resource.Loader,
