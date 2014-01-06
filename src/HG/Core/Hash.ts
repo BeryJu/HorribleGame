@@ -3,7 +3,7 @@
 * @Date:   2013-12-26 13:18:30
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-03 21:36:58
+* @Last Modified time: 2014-01-05 22:27:35
 */
 
 module HG.Core {
@@ -120,7 +120,7 @@ module HG.Core {
 			if (index !== -1) {
 				return this.keys[index];
 			} else {
-				HG.locale.errors.valueNotExistend.f(v).error();
+				HG.locale.errors.valueNotExistend.f(v).throw();
 				return null;
 			}
 		}
@@ -130,7 +130,7 @@ module HG.Core {
 			if (index !== -1) {
 				return this.values[index];
 			} else {
-				HG.locale.errors.keyNotExistend.f(k).error();
+				HG.locale.errors.keyNotExistend.f(k).throw();
 				return null;
 			}
 		}

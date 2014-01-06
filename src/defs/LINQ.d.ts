@@ -15,7 +15,7 @@ interface String {
 	format(arg1: any, ...args: any[]): string;
 	log(): void;
 	warn(): void;
-	error(): void;
+	throw(): void;
 	lengthen(length: number, filler?: string): string;
 	replaceAll(find: string, replace: string): string;
 	contains(contains: string): boolean;

@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:08
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-01 04:10:15
+* @Last Modified time: 2014-01-05 22:26:52
 */
 
 module HG.Core {
@@ -74,7 +74,7 @@ module HG.Core {
 						// use this
 						eventHandler = this[resolved];
 					} else {
-						HG.locale.event.isEmpty.error();
+						HG.locale.event.isEmpty.throw();
 					}
 				}
 				// actually add the eventHandler

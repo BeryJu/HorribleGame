@@ -3,7 +3,7 @@
 * @Date:   2013-11-06 14:36:09
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-27 20:14:34
+* @Last Modified time: 2014-01-05 22:27:42
 */
 
 module HG.Entities {
@@ -22,7 +22,7 @@ module HG.Entities {
 				aspect: number = 1.77, zNear: number = 0.1, zFar: number = 10000) {
 			super();
 			if (target === null) {
-				HG.locale.errors.nullReferenceError.error();
+				HG.locale.errors.nullReferenceError.throw();
 			}
 			this.target = target;
 			this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);

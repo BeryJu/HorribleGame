@@ -156,8 +156,9 @@ var gameCanvas = query("#canvasWrapper");
 var loader = new HG.Resource.Loader("assets/");
 var game = new HG.Core.BaseGame(gameCanvas);
 var locale = loader.json("locale/game.locale.json");
-
-loader.font("fonts/droidSans.typeface.json");
+loader.directory("fonts/", ".typeface.json").forEach(function (file) {
+    loader.font(file);
+});
 
 if (HG.settings.debug === true) {
     HG.Utils.devTools();

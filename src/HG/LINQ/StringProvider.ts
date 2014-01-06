@@ -3,7 +3,7 @@
 * @Date:   2013-11-07 13:03:40
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-05 14:00:36
+* @Last Modified time: 2014-01-05 22:25:35
 */
 
 module HG.LINQ {
@@ -36,7 +36,7 @@ module HG.LINQ {
 			HG.warn(context);
 		}
 
-		error(context: string): void {
+		throw(context: string): void {
 			throw new Error(context);
 		}
 

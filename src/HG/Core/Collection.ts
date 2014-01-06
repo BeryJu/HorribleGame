@@ -3,7 +3,7 @@
 * @Date:   2013-12-22 12:16:02
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2013-12-30 22:26:40
+* @Last Modified time: 2014-01-05 22:27:12
 */
 
 module HG.Core {
@@ -17,7 +17,7 @@ module HG.Core {
 			if (item.name || name) {
 				var n = (item.name || name).toLowerCase();
 				if (this.named[n]) {
-					HG.locale.errors.duplicateNameTagError.f(item.name).error();
+					HG.locale.errors.duplicateNameTagError.f(item.name).throw();
 				} else {
 					this.named.push(n, item);
 				}

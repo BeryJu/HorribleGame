@@ -3,7 +3,7 @@
 * @Date:   2013-11-16 14:03:19
 * @Email:  jenslanghammer@gmail.com
 * @Last Modified by:   BeryJu
-* @Last Modified time: 2014-01-04 21:41:45
+* @Last Modified time: 2014-01-05 23:15:45
 */
 
 module HG.Resource {
@@ -27,7 +27,7 @@ module HG.Resource {
 			if (HG.Modules.fs.existsSync(absPath) === true) {
 				return absPath;
 			} else {
-				HG.locale.errors.fileNotExisting.f(path).error();
+				HG.locale.errors.fileNotExisting.f(path).throw();
 				return null;
 			}
 		}
@@ -55,7 +55,7 @@ module HG.Resource {
 					}
 				}
 				if (foundLoader === false) {
-						HG.locale.resource.noLoader.f(extension).error();
+						HG.locale.resource.noLoader.f(extension).throw();
 				}
 				return dispatcher;
 			};
@@ -129,16 +129,16 @@ module HG.Resource {
 			}
 		}
 
-		directory(directory: string, extension: string = ""): Array<string> {
+		directory(directory: string, extension?: string): Array<string> {
 			var path = HG.Modules.path.join(this.baseDirectory, directory);
 			var files = HG.Modules.fs.readdirSync(path);
-			var realFiles = [];
+			var fullPaths = [];
 			files.forEach((file) => {
-				if (file.indexOf(extension) !== -1) {
-					realFiles.push(HG.Modules.path.join(this.baseDirectory, directory, file));
+				if (extension && file.endsWith(extension) !== -1) {
+					fullPaths.push(HG.Modules.path.join(this.baseDirectory, directory, file));
 				}
 			});
-			return realFiles;
+			return fullPaths;
 		}
 
 	}

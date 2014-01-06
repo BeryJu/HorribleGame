@@ -34,7 +34,6 @@ declare module HG.Core {
         public percentage: number;
         constructor();
         public call(name: K, fn: Function): Queue<K, T>;
-        private next();
         public start(): Queue<K, T>;
     }
 }
@@ -609,7 +608,8 @@ declare module HG.LINQ {
         public f: (context: string, arg1: any, ...args: any[]) => string;
         public log(context: string): void;
         public warn(context: string): void;
-        public error(context: string): void;
+        public throw(context: string): void;
+        public endsWith(context: string, suffix: string): boolean;
         public contains(context: string, contains: string): boolean;
         public lengthen(context: string, length: number, character?: string): string;
         public replaceAll(context: string, find: RegExp, replace: string): string;

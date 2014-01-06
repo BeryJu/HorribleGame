@@ -64,7 +64,7 @@
                         if (this[resolved] && HG.Utils.isFunction(this[resolved])) {
                             eventHandler = this[resolved];
                         } else {
-                            HG.locale.event.isEmpty.error();
+                            HG.locale.event.isEmpty.throw();
                         }
                     }
 
@@ -145,27 +145,26 @@ var HG;
                 return this;
             };
 
-            Queue.prototype.next = function () {
-                var _this = this;
-                var entry = this.entries.shift();
-
-                if (entry.value !== null && entry.value !== undefined) {
-                    entry.value(function (data) {
-                        _this.result.push(entry.key, data);
-                        _this.progress++;
-                        _this.percentage = Math.round((100 / _this.total) * _this.progress);
-                        _this.dispatch("progress", _this);
-                        _this.next();
-                    });
-                } else {
-                    this.dispatch("done", this.result);
-                }
-            };
-
             Queue.prototype.start = function () {
+                var _this = this;
                 this.total = this.entries.length + 1;
+                var next = function () {
+                    var entry = _this.entries.shift();
+
+                    if (entry.value !== null && entry.value !== undefined) {
+                        entry.value(function (data) {
+                            _this.result.push(entry.key, data);
+                            _this.progress++;
+                            _this.percentage = Math.round((100 / _this.total) * _this.progress);
+                            _this.dispatch("progress", _this);
+                            next();
+                        });
+                    } else {
+                        _this.dispatch("done", _this.result);
+                    }
+                };
                 this.dispatch("progress", this);
-                this.next();
+                next();
                 return this;
             };
             return Queue;
@@ -186,7 +185,7 @@ var HG;
                 if (item.name || name) {
                     var n = (item.name || name).toLowerCase();
                     if (this.named[n]) {
-                        HG.locale.errors.duplicateNameTagError.f(item.name).error();
+                        HG.locale.errors.duplicateNameTagError.f(item.name).throw();
                     } else {
                         this.named.push(n, item);
                     }
@@ -366,7 +365,7 @@ var HG;
                 if (index !== -1) {
                     return this.keys[index];
                 } else {
-                    HG.locale.errors.valueNotExistend.f(v).error();
+                    HG.locale.errors.valueNotExistend.f(v).throw();
                     return null;
                 }
             };
@@ -376,7 +375,7 @@ var HG;
                 if (index !== -1) {
                     return this.values[index];
                 } else {
-                    HG.locale.errors.keyNotExistend.f(k).error();
+                    HG.locale.errors.keyNotExistend.f(k).throw();
                     return null;
                 }
             };
@@ -1792,7 +1791,7 @@ var HG;
                 if (typeof zFar === "undefined") { zFar = 10000; }
                 _super.call(this);
                 if (target === null) {
-                    HG.locale.errors.nullReferenceError.error();
+                    HG.locale.errors.nullReferenceError.throw();
                 }
                 this.target = target;
                 this.object = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
@@ -2400,8 +2399,12 @@ var HG;
                 HG.warn(context);
             };
 
-            StringProvider.prototype.error = function (context) {
+            StringProvider.prototype.throw = function (context) {
                 throw new Error(context);
+            };
+
+            StringProvider.prototype.endsWith = function (context, suffix) {
+                return context.indexOf(suffix, context.length - suffix.length) !== -1;
             };
 
             StringProvider.prototype.contains = function (context, contains) {
@@ -2487,7 +2490,7 @@ var HG;
                 if (HG.Modules.fs.existsSync(absPath) === true) {
                     return absPath;
                 } else {
-                    HG.locale.errors.fileNotExisting.f(path).error();
+                    HG.locale.errors.fileNotExisting.f(path).throw();
                     return null;
                 }
             };
@@ -2518,7 +2521,7 @@ var HG;
                         }
                     }
                     if (foundLoader === false) {
-                        HG.locale.resource.noLoader.f(extension).error();
+                        HG.locale.resource.noLoader.f(extension).throw();
                     }
                     return dispatcher;
                 };
@@ -2614,17 +2617,16 @@ var HG;
             };
 
             Loader.prototype.directory = function (directory, extension) {
-                if (typeof extension === "undefined") { extension = ""; }
                 var _this = this;
                 var path = HG.Modules.path.join(this.baseDirectory, directory);
                 var files = HG.Modules.fs.readdirSync(path);
-                var realFiles = [];
+                var fullPaths = [];
                 files.forEach(function (file) {
-                    if (file.indexOf(extension) !== -1) {
-                        realFiles.push(HG.Modules.path.join(_this.baseDirectory, directory, file));
+                    if (extension && file.endsWith(extension) !== -1) {
+                        fullPaths.push(HG.Modules.path.join(_this.baseDirectory, directory, file));
                     }
                 });
-                return realFiles;
+                return fullPaths;
             };
             return Loader;
         })(HG.Core.EventDispatcher);
